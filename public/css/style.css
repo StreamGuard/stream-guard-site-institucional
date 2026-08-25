@@ -1,0 +1,328 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #0a0e17;
+  color: #ffffff;
+}
+
+.poppins-medium {
+  font-family: "Poppins", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.menu-toggler {
+  border: none;
+  box-shadow: none;
+  padding: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.menu-icon {
+  display: block;
+  width: 24px;
+  height: 2px;
+  background-color: white;
+  border-radius: 10px;
+  transition: 0.2s ease;
+}
+
+.custom-offcanvas {
+  background-color: #102031;
+}
+
+.custom-offcanvas-header {
+  padding: 20px;
+  border-bottom: 1px solid #e9ecef;
+}
+
+.custom-offcanvas .offcanvas-body {
+  padding: 20px;
+}
+
+.custom-nav {
+  gap: 4px;
+}
+
+.custom-nav .nav-link {
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.95rem;
+  font-weight: 500;
+
+  color: #cbd5e1;
+
+  transition:
+    color 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.auth-buttons .btn {
+  min-width: 105px;
+
+  padding: 9px 18px;
+  border-radius: 8px;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* mobile */
+.custom-nav .nav-link {
+  position: relative;
+
+  padding: 10px 14px;
+  border-radius: 8px;
+}
+
+.custom-nav .nav-link:hover {
+  color: #ffffff;
+  background-color: rgba(255, 255, 255, 0.08);
+}
+
+.custom-nav .nav-link.active {
+  color: #ffffff;
+  background-color: rgba(13, 110, 253, 0.18);
+}
+
+.custom-nav .nav-link.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 100%;
+  border-radius: 10px;
+  background-color: #3b82f6;
+}
+
+.auth-buttons {
+  margin-top: 24px;
+}
+
+.auth-buttons .btn {
+  width: 100%;
+}
+
+/* Botões de autenticação */
+
+.auth-buttons .btn {
+  min-width: 110px;
+  padding: 10px 22px;
+
+  border-radius: 50px;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+
+/* Login */
+
+.login-button {
+  color: #ffffff;
+  background-color: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.login-button:hover {
+  color: #ffffff;
+
+  background-color: rgba(255, 255, 255, 0.08);
+  border-color: #ffffff;
+
+  transform: translateY(-2px);
+}
+
+
+/* Cadastro */
+
+.register-button {
+  color: #102031;
+
+  background-color: #0fc4a6;
+  border: 1px solid #0fc4a6;
+
+  box-shadow: 0 4px 14px rgba(15, 196, 166, 0.2);
+}
+
+.register-button:hover {
+  color: #102031;
+
+  background-color: #40d1c5;
+  border-color: #40d1c5;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 6px 18px rgba(15, 196, 166, 0.3);
+}
+
+.login-button:active,
+.register-button:active {
+  transform: translateY(0);
+}
+
+/*Desktop (telas maiores)*/
+@media (min-width: 992px) {
+  .custom-nav {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .custom-nav .nav-link {
+    padding: 8px 10px;
+    border-radius: 0;
+    color: #cbd5e1;
+    background-color: transparent;
+  }
+
+  .custom-nav .nav-link:hover {
+    color: #ffffff;
+    background-color: transparent;
+  }
+
+  .custom-nav .nav-link.active {
+    color: #ffffff;
+    background-color: transparent;
+  }
+
+  .custom-nav .nav-link.active::before {
+    content: none;
+  }
+
+  .auth-buttons {
+    margin-top: 0;
+    align-items: center;
+  }
+}
+
+.hero-section {
+  min-height: 100vh;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  padding-top: 76px;
+
+  background-color: #102031;
+
+  position: relative;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-title {
+  font-family: "Poppins", sans-serif;
+  max-width: 1200px;
+  margin-inline: auto;
+  line-height: 1.05;
+}
+
+.hero-button {
+  padding: 14px 90px;
+
+  background-color: #0fc4a6;
+  color: #ffffff;
+
+  border-radius: 50px;
+
+  font-family: "DM Sans", sans-serif;
+  font-size: 1rem;
+  font-weight: 600;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.hero-button:hover {
+  background-color: rgb(64, 209, 197);
+  color: #ffffff;
+
+  transform: translateY(-2px);
+
+  box-shadow: 0 8px 20px rgba(41, 234, 248, 0.3);
+}
+
+.hero-button:active {
+  transform: translateY(0);
+}
+
+.hero-description {
+  font-family: "DM Sans", sans-serif;
+  max-width: 800px;
+  margin-inline: auto;
+}
+
+.hero-bg-text {
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+
+  width: 100%;
+
+  font-family: "Poppins", sans-serif;
+  font-size: clamp(6rem, 22vw, 22rem);
+  font-weight: 800;
+
+  text-align: center;
+  line-height: 0.9;
+
+  color: #0b1825;
+  opacity: 0.7;
+
+  pointer-events: none;
+  user-select: none;
+
+  z-index: 1;
+}
+.team-card {
+  background-color: #131824;
+  border: 10px solid #1f2937;
+  color: #ffffff;
+}
+
+.team-card .card-title {
+  color: #ffffff;
+}
+
+.team-card .card-text {
+  color: #9ca3af;
+}
+
+.team-card .card-img-top {
+  height: 200px;
+  object-fit: cover;
+}
+
+h2.text-center {
+  color: #ffffff;
+}
