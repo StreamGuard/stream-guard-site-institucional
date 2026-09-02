@@ -1,0 +1,29 @@
+.conteudo-cadastro{
+    display: flex;
+    justify-content:space-around;
+}
+
+.crie-conta{
+    width: 450px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items:flex-start;
+}
+
+.container-cadastro{
+    width: 550px;
+    margin-left: 150px;
+    background-color: #122336;
+    border-radius: 20px;
+    border: 1px #4a5a6c solid;
+    box-shadow:
+    0 20px 40px rgba(0, 0, 0, 0.45),   
+    0 1px 0 rgba(255, 255, 255, 0.04) inset, 
+    0 0 0 1px rgba(15, 196, 166, 0.06);
+}
+
+h6{
+   color: aqua;
+}
+
