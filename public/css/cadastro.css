@@ -24,6 +24,24 @@
 }
 
 h6{
-   color: aqua;
+   color: #00f2af;
 }
 
+.topico{
+    display: flex;
+    justify-content:space-around;
+    margin: 20px;
+    font-size: 15px;
+}
+
+.topico p{
+    display: flex;
+    flex-direction: row;
+    margin-left: 30px;
+    margin: 0%;
+}
+
+.texto{
+    color: #a8afb5;
+    margin: 0%;
+}
