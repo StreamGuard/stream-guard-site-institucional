@@ -4,10 +4,12 @@ function autenticar(req, res) {
     var email = req.body.emailServer;
     var senha = req.body.senhaServer;
 
-    if (email == undefined) {
-        res.status(400).send("Seu email está undefined!");
-    } else if (senha == undefined) {
-        res.status(400).send("Sua senha está indefinida!");
+    if (!email || email.trim() === "") {
+        res.status(400).send("Email é obrigatório!");
+    } else if (!senha || senha.trim() === "") {
+        res.status(400).send("Senha é obrigatória!");
+    } else if (!email.includes("@") || !email.includes(".")) {
+        res.status(400).send("Email inválido!");
     } else {
         usuarioModel
             .autenticar(email, senha)
@@ -27,7 +29,7 @@ function autenticar(req, res) {
                         email: resultadoAutenticar[0].email,
                         nome: resultadoAutenticar[0].nome,
                         cargo: resultadoAutenticar[0].cargo,
-                        empresa_id: resultadoAutenticar[0].empresa_id
+                        empresa_id: resultadoAutenticar[0].empresa_id,
                     });
                 } else if (resultadoAutenticar.length == 0) {
                     res.status(403).send("Email e/ou senha inválido(s)");
