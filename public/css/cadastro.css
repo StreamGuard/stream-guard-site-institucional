@@ -58,6 +58,12 @@ h6{
     text-align: left;
 }
 
+.cadastro-empresa input {
+    border: none;
+    border-radius: 15px;
+    padding: 3px;
+}
+
 .botao-cadastro{
     border-radius: 20px;
 }
