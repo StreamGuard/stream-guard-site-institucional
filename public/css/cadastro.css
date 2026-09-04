@@ -45,3 +45,19 @@ h6{
     color: #a8afb5;
     margin: 0%;
 }
+
+.container-cadastro{
+    padding: 20px;
+}
+
+.cadastro-empresa{
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content:left;
+    text-align: left;
+}
+
+.botao-cadastro{
+    border-radius: 20px;
+}
