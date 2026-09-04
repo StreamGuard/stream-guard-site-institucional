@@ -1,24 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- bootstrap css link -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Guard | Cadastro Usuário</title>
+    <link rel="icon" type="image/png" href="assets/streamGuard_logo.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
     integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-
-  <link rel="stylesheet" href="./css/style.css">
-
-  <title>Stream Guard | Página Inicial</title>
-  <link rel="icon" type="image/png" href="assets/streamGuard_logo.png">
-
+    <link rel="stylesheet" href="/stream-guard-site-institucional/public/css/style.css">
+    <link rel="stylesheet" href="/stream-guard-site-institucional/public/css/cadastro.css">
 </head>
-
 <body>
-  <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
+<nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
     <div class="container-fluid">
       <!-- logo -->
       <a class="navbar-brand text-white poppins-medium" href="#">
@@ -56,7 +49,7 @@
           <!-- links da navbar -->
           <ul class="navbar-nav custom-nav">
             <li class="nav-item">
-              <a class="nav-link active" aria-current="page" href="#">Página principal</a>
+              <a class="nav-link active" aria-current="page" href="index.html">Página principal</a>
             </li>
 
             <li class="nav-item">
@@ -74,7 +67,7 @@
               Login
             </a>
 
-            <a href="cadastroEmpresa.html" class="btn register-button">
+            <a href="#" class="btn register-button">
               Cadastro
             </a>
           </div>
@@ -92,20 +85,45 @@
     <div class="container-fluid hero-content px-4">
       <div class="row justify-content-center">
         <div class="col-12 col-xl-10 text-center">
-          <h1 class="display-2 fw-bold text-white hero-title">
-            Monitore sua infraestrutura de streaming em tempo real
-          </h1>
+          <div class="conteudo-cadastro">
+            <div class="crie-conta">
+              <h6>Crie sua conta</h6>
+              <h3><b>Comece a proteger sua infraestrutura de streaming</b></h3>
+              <p class="texto">Monitore servidores, receba alertas em tempo real</p>
+              <p class="texto">e mantenha sua transmissão sempre estável</p>
+              <div class="topico">
+                <img src="assets/grafico-icone.png" width="80px"">
+                <div class="topico-texto">
+                  <p><b>Monitoramento em tempo real</b></p>
+                <p class="texto">Acompanhe o desempenho dos seus</p>
+                <p class="texto">servidores 24/7.</p>
+                </div>
+              </div>
+              <div class="topico">
+                <img src="assets/grafico-sininho.png" width="80px"">
+                <div class="topico-texto">
+                  <p><b>Alertas inteligentes</b></p>
+                <p class="texto">Receba notificações antes que os</p>
+                <p class="texto">  problemas afetem sua transmissão</p>
+                </div>
+              </div>
+            </div>
+            <div class="container-cadastro">
+              <h4>Cadastre - se</h4>
+              <div class="cadastro-empresa">
+                <p>ID da empresa  <input type="text" id="id_empresa" placeholder="ID fornecido pela empresa"></p>
+                <p>Nome: <input type="text" id="nome" placeholder="Seu nome"></p>
+                <p>Cargo: <input type="text" id="cargo" placeholder="Cargo ocupado na empresa"></p>
+                <p>Email: <input type="text" id="email_usuario" placeholder="email@email.com"></p>
+                <p>Senha: <input type="text" id="senha_usuario" placeholder="Crie uma senha segura"></p>
+                <p>Confirme sua senha: <input type="text" id="confirmacao_senha_usuario" placeholder="Confirme sua senha"></p>
+              </div>
+              <a href="#" class="btn register-button botao-cadastro">
+                Cadastro
+              </a>
+            </div>
 
-          <p class="lead text-white-50 mt-3 hero-description">
-            Detecte problemas nos servidores antes que os espectadores percebam.
-          </p>
-
-          <div class="mt-4">
-            <a href="#" class="btn hero-button">
-              Começar agora
-            </a>
           </div>
-
         </div>
 
       </div>
@@ -113,10 +131,9 @@
 
   </header>
 
-  <!-- bootstrap js link -->
+<!-- bootstrap js link -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
 </body>
-
 </html>

@@ -1,8 +1,13 @@
+
+
 .conteudo-cadastro {
     display: flex;
     flex-wrap: wrap;
-    justify-content: space-around;
-    gap: 40px;
+    justify-content: center; 
+    align-items: flex-start;
+    gap: 60px;
+    padding: 40px; 
+    box-sizing: border-box;
 }
 
 .crie-conta {
@@ -92,6 +97,22 @@ h6 {
     text-align: center;
     border-radius: 20px;
 }
+
+/* ===== Notebook (nova faixa intermediária) ===== */
+@media (max-width: 1440px) {
+    .conteudo-cadastro {
+        gap: 40px; /* reduz o espaço entre as colunas */
+    }
+
+    .crie-conta {
+        max-width: 400px;
+    }
+
+    .container-cadastro {
+        max-width: 480px;
+    }
+}
+
 
 /* ===== Tablet ===== */
 @media (max-width: 1200px) {
