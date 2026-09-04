@@ -1,69 +1,131 @@
-.conteudo-cadastro{
+.conteudo-cadastro {
     display: flex;
-    justify-content:space-around;
+    flex-wrap: wrap;
+    justify-content: space-around;
+    gap: 40px;
 }
 
-.crie-conta{
-    width: 450px;
+.crie-conta {
+    width: 100%;
+    max-width: 450px;
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items:flex-start;
-}
-
-.container-cadastro{
-    width: 550px;
-    margin-left: 150px;
-    background-color: #122336;
-    border-radius: 20px;
-    border: 1px #4a5a6c solid;
-    box-shadow:
-    0 20px 40px rgba(0, 0, 0, 0.45),   
-    0 1px 0 rgba(255, 255, 255, 0.04) inset, 
-    0 0 0 1px rgba(15, 196, 166, 0.06);
-}
-
-h6{
-   color: #00f2af;
-}
-
-.topico{
-    display: flex;
-    justify-content:space-around;
-    margin: 20px;
-    font-size: 15px;
-}
-
-.topico p{
-    display: flex;
-    flex-direction: row;
-    margin-left: 30px;
-    margin: 0%;
-}
-
-.texto{
-    color: #a8afb5;
-    margin: 0%;
-}
-
-.container-cadastro{
-    padding: 20px;
-}
-
-.cadastro-empresa{
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    justify-content:left;
+    align-items: flex-start;
     text-align: left;
 }
 
-.cadastro-empresa input {
-    border: none;
-    border-radius: 15px;
-    padding: 3px;
+.container-cadastro {
+    width: 100%;
+    max-width: 550px;
+    margin-left: 0; /* removido o margin-left fixo de 150px */
+    background-color: #122336;
+    border-radius: 20px;
+    border: 1px #4a5a6c solid;
+    padding: 20px;
+    box-shadow:
+        0 20px 40px rgba(0, 0, 0, 0.45),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset,
+        0 0 0 1px rgba(15, 196, 166, 0.06);
 }
 
-.botao-cadastro{
+h6 {
+    color: #00f2af;
+}
+
+.topico {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    margin: 20px 0;
+    font-size: 15px;
+}
+
+.topico img {
+    flex-shrink: 0;
+}
+
+.topico p {
+    margin: 0;
+}
+
+.texto {
+    color: #a8afb5;
+    margin: 0;
+}
+
+.cadastro-empresa {
+    display: flex;
+    flex-direction: column;
+    justify-content: left;
+    text-align: left;
+    gap: 12px;
+}
+
+.cadastro-empresa p {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin: 0;
+}
+
+.cadastro-empresa input {
+    width: 100%;
+    box-sizing: border-box;
+    border: 1px solid #4a5a6c;
+    background-color: #0d1b29;
+    color: #ffffff;
+    border-radius: 10px;
+    padding: 10px 14px;
+    font-family: "DM Sans", sans-serif;
+}
+
+.cadastro-empresa input::placeholder {
+    color: #6b7c8c;
+}
+
+.botao-cadastro {
+    display: block;
+    width: fit-content;
+    padding: 10px 40px; /* ajusta o tamanho do botão */
+    margin: 10px auto 0;
+    text-align: center;
     border-radius: 20px;
+}
+
+/* ===== Tablet ===== */
+@media (max-width: 1200px) {
+    .conteudo-cadastro {
+        justify-content: center;
+    }
+
+    .crie-conta,
+    .container-cadastro {
+        max-width: 600px;
+    }
+}
+
+/* ===== Mobile ===== */
+@media (max-width: 768px) {
+    .conteudo-cadastro {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+
+    .crie-conta,
+    .container-cadastro {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .crie-conta {
+        text-align: left;
+    }
+
+    .container-cadastro {
+        padding: 16px;
+    }
+
+    
 }
