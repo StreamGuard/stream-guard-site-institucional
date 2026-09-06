@@ -136,11 +136,19 @@
                   </p>
                   <p>
                     Senha:
-                    <input
-                      type="text"
-                      id="senha_usuario"
-                      placeholder="Insira sua senha"
-                    />
+                    <span class="senha-wrapper">
+                      <input
+                        type="password"
+                        id="senha_usuario"
+                        placeholder="Insira sua senha"
+                      />
+                      <img
+                        src="./assets/eyeClose.png"
+                        alt="Mostrar senha"
+                        class="toggle-senha"
+                        id="toggleSenha"
+                      />
+                    </span>
                   </p>
                 </div>
                 <a href="#" class="btn register-button botao-cadastro">
@@ -159,5 +167,17 @@
       integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
       crossorigin="anonymous"
     ></script>
+    <script>
+      const toggleSenha = document.getElementById("toggleSenha");
+      const senhaInput = document.getElementById("senha_usuario");
+
+      toggleSenha.addEventListener("click", () => {
+        const isPassword = senhaInput.type === "password";
+        senhaInput.type = isPassword ? "text" : "password";
+        toggleSenha.src = isPassword
+          ? "./assets/eyeOpen.png"
+          : "./assets/eyeClose.png";
+      });
+    </script>
   </body>
 </html>
