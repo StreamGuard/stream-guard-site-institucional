@@ -18,11 +18,13 @@ var app = express();
 var indexRouter = require("./src/routes/index");
 var usuariosRouter = require("./src/routes/usuarios");
 var servidoresRouter = require("./src/routes/servidores")
+var empresasRouter = require("./src/routes/empresas");
 
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/empresas", empresasRouter);
 
 app.use(cors());
 
