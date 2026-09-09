@@ -30,7 +30,6 @@ app.use("/", indexRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/servidores", servidoresRouter)
 
-
 app.listen(PORTA_APP, function () {
     console.log(`
         ███████╗████████╗██████╗ ███████╗ █████╗ ███╗   ███╗
