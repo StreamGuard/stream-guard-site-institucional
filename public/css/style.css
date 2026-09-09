@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000;1,9..40,100..1000&family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap');
 
 body {
   font-family: 'Poppins', sans-serif;
@@ -11,6 +11,8 @@ body {
   font-weight: 500;
   font-style: normal;
 }
+
+/* ===== Navbar ===== */
 
 .menu-toggler {
   border: none;
@@ -49,6 +51,11 @@ body {
 }
 
 .custom-nav .nav-link {
+  position: relative;
+
+  padding: 10px 14px;
+  border-radius: 8px;
+
   font-family: "DM Sans", sans-serif;
   font-size: 0.95rem;
   font-weight: 500;
@@ -58,33 +65,6 @@ body {
   transition:
     color 0.2s ease,
     background-color 0.2s ease;
-}
-
-.auth-buttons .btn {
-  min-width: 105px;
-
-  padding: 9px 18px;
-  border-radius: 8px;
-
-  font-family: "DM Sans", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 600;
-
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-
-/* mobile */
-.custom-nav .nav-link {
-  position: relative;
-
-  padding: 10px 14px;
-  border-radius: 8px;
 }
 
 .custom-nav .nav-link:hover {
@@ -102,11 +82,15 @@ body {
   position: absolute;
   left: 0;
   top: 0;
+
   width: 3px;
   height: 100%;
+
   border-radius: 10px;
   background-color: #3b82f6;
 }
+
+/* ===== Botões de autenticação ===== */
 
 .auth-buttons {
   margin-top: 24px;
@@ -114,14 +98,9 @@ body {
 
 .auth-buttons .btn {
   width: 100%;
-}
-
-/* Botões de autenticação */
-
-.auth-buttons .btn {
   min-width: 110px;
-  padding: 10px 22px;
 
+  padding: 10px 22px;
   border-radius: 50px;
 
   font-family: "DM Sans", sans-serif;
@@ -135,9 +114,6 @@ body {
     transform 0.2s ease,
     box-shadow 0.2s ease;
 }
-
-
-/* Login */
 
 .login-button {
   color: #ffffff;
@@ -153,9 +129,6 @@ body {
 
   transform: translateY(-2px);
 }
-
-
-/* Cadastro */
 
 .register-button {
   color: #102031;
@@ -182,39 +155,7 @@ body {
   transform: translateY(0);
 }
 
-/*Desktop (telas maiores)*/
-@media (min-width: 992px) {
-  .custom-nav {
-    align-items: center;
-    gap: 8px;
-  }
-
-  .custom-nav .nav-link {
-    padding: 8px 10px;
-    border-radius: 0;
-    color: #cbd5e1;
-    background-color: transparent;
-  }
-
-  .custom-nav .nav-link:hover {
-    color: #ffffff;
-    background-color: transparent;
-  }
-
-  .custom-nav .nav-link.active {
-    color: #ffffff;
-    background-color: transparent;
-  }
-
-  .custom-nav .nav-link.active::before {
-    content: none;
-  }
-
-  .auth-buttons {
-    margin-top: 0;
-    align-items: center;
-  }
-}
+/* ===== Hero ===== */
 
 .hero-section {
   min-height: 100vh;
@@ -240,6 +181,12 @@ body {
   max-width: 1200px;
   margin-inline: auto;
   line-height: 1.05;
+}
+
+.hero-description {
+  font-family: "DM Sans", sans-serif;
+  max-width: 800px;
+  margin-inline: auto;
 }
 
 .hero-button {
@@ -274,12 +221,6 @@ body {
   transform: translateY(0);
 }
 
-.hero-description {
-  font-family: "DM Sans", sans-serif;
-  max-width: 800px;
-  margin-inline: auto;
-}
-
 .hero-bg-text {
   position: absolute;
 
@@ -304,6 +245,9 @@ body {
 
   z-index: 1;
 }
+
+/* ===== Equipe ===== */
+
 .team-card {
   background-color: #131824;
   border: 10px solid #1f2937;
@@ -328,10 +272,11 @@ h2.text-center {
 }
 
 /* ===== Missão, Visão e Valores ===== */
+
 .mvv-section {
   background-color: #0c1a29;
-  padding-left: 2rem;
-  padding-right: 2rem;
+  padding-left: 5vw;
+  padding-right: 5vw;
 }
 
 .mvv-heading {
@@ -351,11 +296,15 @@ h2.text-center {
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 16px;
   padding: 3rem 2.5rem;
-  min-height: 500px;         
-  display: flex;              
-  flex-direction: column;     
-  justify-content: flex-start;    
-  transition: transform 0.25s ease, border-color 0.25s ease;
+  min-height: 500px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+
+  transition:
+    transform 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .mvv-card:hover {
@@ -364,20 +313,32 @@ h2.text-center {
 }
 
 .mvv-icon {
- width: 64px;       
-  height: 64px;       
-  border-radius: 14px; 
+  width: 64px;
+  height: 64px;
+
+  border-radius: 14px;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.75rem; 
+
+  font-size: 1.75rem;
   color: #fff;
+
   margin-bottom: 1.25rem;
 }
 
-.mvv-icon-teal   { background-color: #14b8a6; }
-.mvv-icon-purple { background-color: #8b5cf6; }
-.mvv-icon-orange { background-color: #f97316; }
+.mvv-icon-teal {
+  background-color: #14b8a6;
+}
+
+.mvv-icon-purple {
+  background-color: #8b5cf6;
+}
+
+.mvv-icon-orange {
+  background-color: #f97316;
+}
 
 .mvv-title {
   color: #fff;
@@ -393,7 +354,70 @@ h2.text-center {
   margin-bottom: 0;
 }
 
+/* ===== Monitoramento ===== */
+
+.stats-section {
+  background-color: #0a1622;
+
+  padding-left: 5vw;
+  padding-right: 5vw;
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+}
+
+.stats-heading {
+  color: #fff;
+  font-weight: 700;
+  font-size: 2.6rem;
+  margin-bottom: 1.25rem;
+}
+
+.stats-text {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.1rem;
+  line-height: 1.7;
+  margin-bottom: 1rem;
+}
+
+.stat-card {
+  background-color: #16283b;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 14px;
+  padding: 2.25rem 2rem;
+
+  min-height: 350px;
+  height: 100%;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-number {
+  color: #14b8a6;
+  font-size: 3rem;
+  font-weight: 700;
+  line-height: 1.1;
+}
+
+.stat-unit {
+  color: #fff;
+  font-size: 2rem;
+  font-weight: 600;
+
+  margin-top: 0.25rem;
+  margin-bottom: 0.6rem;
+}
+
+.stat-desc {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 1.5rem;
+  line-height: 1.5;
+  margin-bottom: 0;
+}
+
 /* ===== Footer ===== */
+
 .footer-section {
   background-color: #0a1420;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
@@ -432,12 +456,16 @@ h2.text-center {
 .footer-socials a {
   width: 38px;
   height: 38px;
+
   border-radius: 50%;
   background-color: rgba(255, 255, 255, 0.06);
+
   display: flex;
   align-items: center;
   justify-content: center;
+
   color: #fff;
+
   transition: background-color 0.2s ease;
 }
 
@@ -455,6 +483,8 @@ h2.text-center {
   font-size: 0.85rem;
 }
 
+/* ===== Responsividade ===== */
+
 @media (max-width: 767.98px) {
   .mvv-card {
     padding: 2rem 1.5rem;
@@ -465,71 +495,46 @@ h2.text-center {
   }
 }
 
-.mvv-section {
-  background-color: #0c1a29;
-  padding-left: 5vw;
-  padding-right: 5vw;
-}
-
-/* ===== Por que o monitoramento importa ===== */
-.stats-section {
-  background-color: #0a1622;
-  padding-left: 5vw;
-  padding-right: 5vw;
-  padding-top: 5rem;      
-  padding-bottom: 5rem;
-}
-
-.stats-heading {
-  color: #fff;
-  font-weight: 700;
-  font-size: 2.6rem;
-  margin-bottom: 1.25rem;
-}
-
-.stats-text {
-  color: rgba(255, 255, 255, 0.6);
-  font-size: 1.1rem;
-  line-height: 1.7;
-  margin-bottom: 1rem;
-}
-
-.stat-card {
-  background-color: #16283b;
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  border-radius: 14px;
-  padding: 2.25rem 2rem;
-  min-height: 350px;         
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;  
-}
-
-.stat-number {
-  color: #14b8a6;
-  font-size: 3rem;
-  font-weight: 700;
-  line-height: 1.1;
-}
-
-.stat-unit {
-  color: #fff;
-  font-size: 2rem;
-  font-weight: 600;
-  margin-top: 0.25rem;
-  margin-bottom: 0.6rem;
-}
-
-.stat-desc {
-  color: rgba(255, 255, 255, 0.5);
-  font-size: 1.5rem;
-  line-height: 1.5;
-  margin-bottom: 0;
-}
-
 @media (max-width: 991.98px) {
   .stats-heading {
     font-size: 2rem;
   }
 }
+
+@media (min-width: 992px) {
+  .custom-nav {
+    align-items: center;
+    gap: 8px;
+  }
+
+  .custom-nav .nav-link {
+    padding: 8px 10px;
+    border-radius: 0;
+    color: #cbd5e1;
+    background-color: transparent;
+  }
+
+  .custom-nav .nav-link:hover {
+    color: #ffffff;
+    background-color: transparent;
+  }
+
+  .custom-nav .nav-link.active {
+    color: #ffffff;
+    background-color: transparent;
+  }
+
+  .custom-nav .nav-link.active::before {
+    content: none;
+  }
+
+  .auth-buttons {
+    margin-top: 0;
+    align-items: center;
+  }
+
+  .auth-buttons .btn {
+    width: auto;
+  }
+}
+```
