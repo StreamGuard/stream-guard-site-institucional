@@ -36,7 +36,6 @@ app.use("/servidores", servidoresRouter)
 app.use("/componentes", componentesRouter);
 app.use("/metricas", metricasRouter);
 
-
 app.listen(PORTA_APP, function () {
     console.log(`
         ███████╗████████╗██████╗ ███████╗ █████╗ ███╗   ███╗

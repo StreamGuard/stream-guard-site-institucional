@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- Bootstrap CSS link -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="./css/style.css">
+
+  <title>Stream Guard | 404 - Página Não Encontrada</title>
+
+  <style>
+    body {
+      background-color: #0b1522;
+      color: #ffffff;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Animação de Flutuação do Robô */
+    @keyframes float {
+      0% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-15px) rotate(2deg); }
+      100% { transform: translateY(0px) rotate(0deg); }
+    }
+
+    /* Animação de Pulso na Luz Vermelha */
+    @keyframes pulse-glow {
+      0% { box-shadow: 0 0 15px rgba(255, 71, 87, 0.4); }
+      50% { box-shadow: 0 0 35px rgba(255, 71, 87, 0.8); }
+      100% { box-shadow: 0 0 15px rgba(255, 71, 87, 0.4); }
+    }
+
+    .error-container {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .error-card {
+      background: rgba(16, 32, 49, 0.75);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 3rem 2rem;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      max-width: 650px;
+      width: 100%;
+    }
+
+    .robot-icon-wrapper {
+      display: inline-block;
+      position: relative;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    .robot-icon {
+      font-size: 6rem;
+      background: linear-gradient(135deg, #20c997, #0d6efd);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .error-code {
+      font-size: 5.5rem;
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      background: linear-gradient(135deg, #ffffff 30%, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .funny-quote-box {
+      background: rgba(255, 255, 255, 0.05);
+      border-left: 4px solid #00f2fe;
+      border-radius: 8px;
+      padding: 1rem 1.25rem;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+
+    .robot-badge {
+      font-size: 0.75rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      color: #00f2fe;
+      font-weight: 600;
+    }
+
+    .btn-home {
+      background: linear-gradient(135deg, #0d6efd, #0dcaf0);
+      color: #fff;
+      font-weight: 600;
+      border: none;
+      padding: 0.8rem 2rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+
+    }
+
+    .btn-home:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(13, 110, 253, 0.4);
+      color: #fff;
+    }
+
+    .btn-quote {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #b0bec5;
+      padding: 0.8rem 1.5rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+    }
+
+    .btn-quote:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: #fff;
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Navbar Simples -->
+  <nav class="navbar navbar-expand-lg px-3" style="background-color: #102031;">
+    <div class="container-fluid">
+      <a class="navbar-brand text-white poppins-medium d-flex align-items-center gap-2" href="index.html">
+        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="40" height="34">
+        <span>Stream Guard</span>
+      </a>
+    </div>
+  </nav>
+
+  <main class="error-container">
+    <div class="error-card text-center">
+
+      <!-- Robô Animado -->
+      <div class="robot-icon-wrapper mb-2">
+        <i class="bi bi-robot robot-icon"></i>
+      </div>
+
+      <h1 class="error-code mb-1">404</h1>
+      <h2 class="h4 text-white-50 mb-3">Sinal perdido no meio do caminho...</h2>
+
+      <div class="funny-quote-box">
+        <div class="robot-badge mb-1">
+          <i class="bi bi-cpu me-1"></i> LOG DO ROBÔ STREAM GUARD:
+        </div>
+        <p class="mb-0 italic text-white" id="robot-quote">
+          "Bip Bop! Eu procurei essa página em 1024 servidores e a única coisa que achei foi poeira estelar."
+        </p>
+      </div>
+
+      <p class="text-white-50 small mb-4">
+        Parece que este link foi corrompido, sofreu um tempo de downtime não planejado ou foi abduzido por um script maluco.
+      </p>
+
+      <div class="d-flex flex-column flex-sm-row gap-3 justify-content-center align-items-center">
+        <a href="index.html" class="btn btn-home d-inline-flex align-items-center gap-2">
+          <i class="bi bi-house-door-fill"></i> Voltar ao Início
+        </a>
+        <button onclick="changeQuote()" class="btn btn-quote d-inline-flex align-items-center gap-2">
+          <i class="bi bi-shuffle"></i> Outra desculpa do robô
+        </button>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="text-center py-3 text-white-50 border-top border-dark" style="background-color: #0d1724;">
+    <small>&copy; 2026 Stream Guard. Todos os direitos reservados.</small>
+  </footer>
+
+  <!-- Script para alternar frases dinamicamente -->
+  <script>
+    const quotes = [
+      '"Bip Bop! Eu procurei essa página em 1024 servidores e a única coisa que achei foi poeira estelar."',
+      '"Erro 404: Tropecei no cabo de rede enquanto buscava seu link. Pedimos desculpas pelo transtorno!"',
+      '"404! Meus circuitos me dizem que essa página foi deletada ou está tirando férias em outra dimensão."',
+      '"Humano, eu analisei 100% da memória RAM e não encontrei nada aqui. Certeza que digitou certo?"',
+      '"Instabilidade detectada! Um café caiu nos servidores e essa rota sumiu do mapa."',
+      '"01000100 01100101 01101100 (Isso significa: Nem no meu código binário essa página existe mais!)"'
+    ];
+
+    function changeQuote() {
+      const quoteElement = document.getElementById('robot-quote');
+      const currentIndex = quotes.indexOf(quoteElement.innerText);
+      let nextIndex = Math.floor(Math.random() * quotes.length);
+
+      while (nextIndex === currentIndex) {
+        nextIndex = Math.floor(Math.random() * quotes.length);
+      }
+
+      quoteElement.style.opacity = 0;
+      setTimeout(() => {
+        quoteElement.innerText = quotes[nextIndex];
+        quoteElement.style.opacity = 1;
+      }, 200);
+    }
+  </script>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+    crossorigin="anonymous"></script>
+</body>
+
+</html>
