@@ -98,6 +98,31 @@ h6 {
     border-radius: 20px;
 }
 
+.senha-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.senha-wrapper input {
+    width: 100%;
+    padding-right: 40px;
+}
+
+.toggle-senha {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    opacity: 0.8;
+}
+
+.toggle-senha:hover {
+    opacity: 1;
+}
+
 /* ===== Notebook (nova faixa intermediária) ===== */
 @media (max-width: 1440px) {
     .conteudo-cadastro {
