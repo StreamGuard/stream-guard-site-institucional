@@ -65,7 +65,7 @@
               Login
             </a>
 
-            <a href="cadastroEmpresa.html" class="btn register-button">
+            <a href="cadastroUsuario.html" class="btn register-button">
               Cadastro
             </a>
           </div>
@@ -99,9 +99,12 @@
                   </span>
                 </p>
               </div>
-              <a href="#" class="btn register-button botao-cadastro">
+
+              <button type="button" class="btn register-button botao-cadastro" id="btnLogin">
                 Entrar
-              </a>
+              </button>
+              <p id="mensagemErro" class="mensagem-erro"></p>
+
             </div>
           </div>
         </div>
@@ -119,10 +122,66 @@
 
     toggleSenha.addEventListener("click", () => {
       const isPassword = senhaInput.type === "password";
+
       senhaInput.type = isPassword ? "text" : "password";
+
       toggleSenha.src = isPassword
         ? "./assets/eyeOpen.png"
         : "./assets/eyeClose.png";
+    });
+
+
+    const btnLogin = document.getElementById("btnLogin");
+    const mensagemErro = document.getElementById("mensagemErro");
+
+    btnLogin.addEventListener("click", async () => {
+
+      mensagemErro.innerText = "";
+
+      const emailServer = document.getElementById("email_usuario").value;
+      const senhaServer = document.getElementById("senha_usuario").value;
+
+      if (!emailServer || !senhaServer) {
+        mensagemErro.innerText = "Preencha o email e a senha.";
+        return;
+      }
+
+      try {
+
+        const resposta = await fetch("http://localhost:3000/usuarios/autenticar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            emailServer: emailServer,
+            senhaServer: senhaServer
+          })
+        });
+
+        if (!resposta.ok) {
+
+          const mensagem = await resposta.text();
+
+          mensagemErro.innerText = mensagem;
+
+          return;
+        }
+
+        const dados = await resposta.json();
+
+        console.log("Login realizado:", dados);
+
+        window.location.href = "dashboard.html";
+
+      } catch (erro) {
+
+        console.error("Erro ao realizar login:", erro);
+
+        mensagemErro.innerText =
+          "Não foi possível conectar ao servidor.";
+
+      }
     });
   </script>
 </body>
