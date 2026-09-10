@@ -1,71 +1,79 @@
-<!DOCTYPE html> 
-<html lang="pt-br"> 
+<!DOCTYPE html>
+<html lang="pt-br">
 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Stream Guard | Sobre a Empresa</title> 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" 
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous"> 
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Guard | Sobre a Empresa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="./css/style.css"> 
-</head> 
+    <link rel="stylesheet" href="./css/style.css">
+</head>
 
-<body class="corporate-bg"> 
-    
-    <!-- ==========================================
-         CABEÇALHO
-         ========================================== -->
-    <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;"> 
-        <div class="container-fluid"> 
-            <a class="navbar-brand text-white poppins-medium" href="index.html"> 
-                <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50" 
-                    class="d-inline-block align-text-top"> 
-            </a> 
+<body class="corporate-bg">
 
-            <button class="navbar-toggler menu-toggler" type="button" data-bs-toggle="offcanvas" 
-                data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Abrir menu"> 
-                <span class="menu-icon"></span> 
-                <span class="menu-icon"></span> 
-                <span class="menu-icon"></span> 
-            </button> 
+  <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
+    <div class="container-fluid">
+      <!-- logo -->
+      <a class="navbar-brand text-white poppins-medium" href="index.html">
+        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50"
+          class="d-inline-block align-text-top">
+      </a>
 
-            <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar" 
-                aria-labelledby="offcanvasNavbarLabel"> 
+      <!-- botao só aparece em telas pequenas (celulares) / bootstrap -->
+      <button class="navbar-toggler menu-toggler" type="button" data-bs-toggle="offcanvas"
+        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Abrir menu">
+        <span class="menu-icon"></span>
+        <span class="menu-icon"></span>
+        <span class="menu-icon"></span>
+      </button>
 
-                <div class="offcanvas-header custom-offcanvas-header"> 
-                    <div class="d-flex align-items-center gap-2"> 
-                        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32"> 
-                        <h5 class="offcanvas-title mb-0 text-white poppins-medium" id="offcanvasNavbarLabel"> 
-                            Stream Guard 
-                        </h5> 
-                    </div> 
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" 
-                        aria-label="Fechar"></button> 
-                </div> 
+      <!-- menu nav -->
+      <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar"
+        aria-labelledby="offcanvasNavbarLabel">
 
-                <div class="offcanvas-body d-lg-flex align-items-lg-center w-100"> 
-                    <ul class="navbar-nav custom-nav"> 
-                        <li class="nav-item"> 
-                            <a class="nav-link" href="index.html">Página principal</a> 
-                        </li> 
-                        <li class="nav-item"> 
-                            <a class="nav-link active" href="about.html">Sobre nós!</a> 
-                        </li> 
-                    </ul> 
+        <!-- cabeçalho aparece somente no celular -->
+        <div class="offcanvas-header custom-offcanvas-header">
+          <div class="d-flex align-items-center gap-2">
+            <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32">
 
-                    <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-auto auth-buttons"> 
-                        <a href="login.html" class="btn login-button">Login</a> 
-                        <a href="cadastroEmpresa.html" class="btn register-button">Cadastro</a> 
-                    </div> 
-                </div> 
-            </div> 
-        </div> 
-    </nav> 
+            <h5 class="offcanvas-title mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
+              Stream Guard
+            </h5>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+            aria-label="Fechar"></button>
+        </div>
 
-    <!-- ==========================================
-         HERO: SOBRE A EMPRESA
-         ========================================== -->
+        <!-- corpo aparece sempre -->
+        <div class="offcanvas-body d-lg-flex align-items-lg-center w-100">
+          <!-- links da navbar -->
+          <ul class="navbar-nav custom-nav">
+            <li class="nav-item">
+              <a class="nav-link" href="index.html">Página principal</a>
+            </li>
+
+            <li class="nav-item">
+              <a class="nav-link" href="about.html">Sobre nós!</a>
+            </li>
+          </ul>
+
+          <!-- botoes -->
+          <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-auto auth-buttons">
+            <a href="login.html" class="btn login-button">
+              Login
+            </a>
+
+            <a href="cadastroUsuario.html" class="btn register-button">
+              Cadastro
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </nav>
+
     <section class="corporate-hero">
         <div class="container px-4 px-lg-5">
             <div class="row align-items-center">
@@ -164,7 +172,7 @@
                     <h2 class="text-white poppins-medium">Corpo Técnico</h2>
                 </div>
             </div>
-            
+
             <div class="row g-4">
                 <!-- Membro 1 -->
                 <div class="col-lg-4 col-md-6">
@@ -172,7 +180,7 @@
                         <img src="assets/eduardo.png" alt="Membro" class="img-fluid">
                         <div class="corp-team-body">
                             <h5 class="text-white mb-1">Membro 1</h5>
-                            <p class="text-muted small mb-3">Arquiteto de Soluções Sênior</p>
+                            <p class="small mb-3 text-white">Desenvolvedor Backend</p>
                             <div class="d-flex gap-2">
                                 <a href="https://www.linkedin.com/in/eduardo-guaglioni-lupianez-b21250320/" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
                                 <a href="https://github.com/EduardoGuaglioniLupianez" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
@@ -188,7 +196,7 @@
                         <div class="corp-team-body">
                             <h5 class="text-white mb-1">Ana Clara
                             </h5>
-                            <p class="text-muted small mb-3">Engenheiro de Confiabilidade (SRE)</p>
+                            <p class="small mb-3 text-white">Desenvolvedor Backend</p>
                             <div class="d-flex gap-2">
                                 <a href="" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
                                 <a href="" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
@@ -203,7 +211,7 @@
                         <img src="assets/bruno.png" alt="Membro" class="img-fluid">
                         <div class="corp-team-body">
                             <h5 class="text-white mb-1">Bruno</h5>
-                            <p class="text-muted small mb-3">Especialista em Banco de Dados</p>
+                            <p class="small mb-3 text-white">Desenvolvedor Backend</p>
                             <div class="d-flex gap-2">
                                 <a href="https://github.com/brxnogoncalves" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
                                 <a href="https://www.linkedin.com/in/brxnorafa/" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
@@ -218,7 +226,7 @@
                         <img src="assets/jonatas.png" alt="Membro" class="img-fluid">
                         <div class="corp-team-body">
                             <h5 class="text-white mb-1">Jonatas</h5>
-                            <p class="text-muted small mb-3">Desenvolvedor Backend Lead</p>
+                            <p class="small mb-3 text-white">Desenvolvedor Backend</p>
                             <div class="d-flex gap-2">
                                 <a href="#" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
                                 <a href="#" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
@@ -233,7 +241,7 @@
                         <img src="https://dummyimage.com/400x300/15263d/ffffff.jpg&text=Membro+5" alt="Membro" class="img-fluid">
                         <div class="corp-team-body">
                             <h5 class="text-white mb-1">Membro 5</h5>
-                            <p class="text-muted small mb-3">Arquiteto Cloud & DevOps</p>
+                            <p class="small mb-3 text-white">Desenvolvedor Backend</p>
                             <div class="d-flex gap-2">
                                 <a href="#" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
                                 <a href="#" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
@@ -248,7 +256,7 @@
                         <img src="https://dummyimage.com/400x300/15263d/ffffff.jpg&text=Membro+6" alt="Membro" class="img-fluid">
                         <div class="corp-team-body">
                             <h5 class="text-white mb-1">Membro 6</h5>
-                            <p class="text-muted small mb-3">UX/UI & Front-end Engineer</p>
+                            <p class="small mb-3 text-white">Desenvolvedor Backend</p>
                             <div class="d-flex gap-2">
                                 <a href="#" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
                                 <a href="#" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
@@ -273,9 +281,9 @@
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" 
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" 
-        crossorigin="anonymous"></script> 
-</body> 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
+        crossorigin="anonymous"></script>
+</body>
 
 </html>

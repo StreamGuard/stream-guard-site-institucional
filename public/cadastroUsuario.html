@@ -65,7 +65,7 @@
               Login
             </a>
 
-            <a href="cadastroEmpresa.html" class="btn register-button">
+            <a href="cadastroUsuario.html" class="btn register-button">
               Cadastro
             </a>
           </div>
@@ -126,9 +126,9 @@
               </span>
             </p>
           </div>
-          <a href="#" class="btn register-button botao-cadastro">
+          <button type="button" class="btn register-button botao-cadastro" id="btnCadastro">
             Cadastro
-          </a>
+          </button>
         </div>
 
       </div>
@@ -143,7 +143,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
-    <script>
+  <script>
     const toggleSenha = document.getElementById("toggleSenha");
     const toggleConfirmaSenha = document.getElementById("toggleConfirmaSenha");
     const senhaInput = document.getElementById("senha_usuario");
@@ -162,6 +162,55 @@
       toggleConfirmaSenha.src = isPassword
         ? "./assets/eyeOpen.png"
         : "./assets/eyeClose.png";
+    });
+
+    const btnCadastro = document.getElementById("btnCadastro"); btnCadastro.addEventListener("click", async () => {
+
+      const empresa_id = document.getElementById("id_empresa").value;
+      const nome = document.getElementById("nome").value;
+      const cargo = document.getElementById("cargo").value;
+      const email = document.getElementById("email_usuario").value;
+      const senha = document.getElementById("senha_usuario").value;
+      const confirmacao_senha = document.getElementById("confirmacao_senha_usuario").value;
+
+      if (!empresa_id || !nome || !cargo || !email || !senha || !confirmacao_senha) {
+        alert("Preencha todos os campos.");
+        return;
+      }
+
+      if (senha !== confirmacao_senha) {
+        alert("As senhas não coincidem.");
+        return;
+      }
+
+      try {
+        const response = await fetch("http://localhost:3000/usuarios/cadastrar", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            idEmpresaServer: empresa_id,
+            nomeServer: nome,
+            cargoServer: cargo,
+            emailServer: email,
+            senhaServer: senha
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          alert(data.mensagem || "Erro ao realizar cadastro.");
+          return;
+        }
+        alert("Usuário cadastrado com sucesso!");
+        window.location.href = "login.html";
+      } catch (erro) {
+
+        console.error("Erro:", erro);
+        alert("Não foi possível conectar ao servidor.");
+
+      }
     });
   </script>
 </body>

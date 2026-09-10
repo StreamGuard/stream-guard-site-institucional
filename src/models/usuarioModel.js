@@ -14,17 +14,31 @@ function autenticar(email, senha) {
 }
 
 
-function cadastrar(id_empresa, nome, cargo, email, senha){
-    var instrucaoSql = `INSERT INTO usuario(empresa_id, nome, cargo, email, senha_hash) VALUES(
-        '${id_empresa}',
-        '${nome}', 
-        '${cargo}', 
-        '${email}', 
-        '${senha}'
-    )`;
+function cadastrar(codigo_empresa, nome, cargo, email, senha) {
+
+    var instrucaoSql = `
+        INSERT INTO usuario (
+            empresa_id,
+            nome,
+            cargo,
+            email,
+            senha_hash
+        )
+        SELECT
+            id,
+            '${nome}',
+            '${cargo}',
+            '${email}',
+            SHA2('${senha}', 256)
+        FROM empresa
+        WHERE codigo_empresa = '${codigo_empresa}';
+    `;
+
     console.log("Executando a instrução SQL: \n" + instrucaoSql);
+
     return database.executar(instrucaoSql);
 }
+
 module.exports = {
     autenticar,
     cadastrar
