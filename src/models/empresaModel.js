@@ -16,6 +16,7 @@ function buscarPorCnpj(cnpj) {
 }
 
 function buscarPorCodigoEmpresa(codigoEmpresa) {
+    console.log("Cheguei aqui pelo cadastro de usuário");
     var instrucaoSql = `SELECT id FROM empresa WHERE codigo_empresa = '${codigoEmpresa}'`;
     return database.executar(instrucaoSql);
 }
