@@ -27,6 +27,28 @@ async function obterCodigoUnico() {
     return codigoEmpresa;
 }
 
+function verificarCodigoEmpresa(req, res) {
+    var idEmpresa = req.params.idEmpresa;
+    if (!idEmpresa) {
+        return res.status(400).json(false);
+    }
+
+    empresaModel.buscarPorCodigoEmpresa(idEmpresa)
+        .then(function (resultado) {
+            // Se o banco retornar registros, a empresa existe
+            if (resultado && resultado.length > 0) {
+                res.status(200).json(true);
+            } else {
+                res.status(200).json(false);
+            }
+        })
+        .catch(function (erro) {
+            console.error("Erro SQL ao verificar código da empresa:", erro);
+            res.status(500).json({ mensagem: erro.sqlMessage || "Erro no servidor" });
+        });
+}
+
+
 async function cadastrar(req, res) {
     var razaoSocial = req.body.razaoSocial;
     var cnpj = req.body.cnpj;
@@ -71,4 +93,5 @@ async function cadastrar(req, res) {
 
 module.exports = {
     cadastrar,
+    verificarCodigoEmpresa
 };
