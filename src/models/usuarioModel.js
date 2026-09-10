@@ -13,6 +13,19 @@ function autenticar(email, senha) {
     return database.executar(instrucaoSql);
 }
 
+
+function cadastrar(id_empresa, nome, cargo, email, senha){
+    var instrucaoSql = `INSERT INTO usuario(empresa_id, nome, cargo, email, senha_hash) VALUES(
+        '${id_empresa}',
+        '${nome}', 
+        '${cargo}', 
+        '${email}', 
+        '${senha}'
+    )`;
+    console.log("Executando a instrução SQL: \n" + instrucaoSql);
+    return database.executar(instrucaoSql);
+}
 module.exports = {
     autenticar,
+    cadastrar
 };

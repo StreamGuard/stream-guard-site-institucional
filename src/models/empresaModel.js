@@ -1,14 +1,9 @@
 var database = require("../database/config");
 
-function gerarCodigoEmpresa() {
-    return Math.random().toString(36).substring(2, 10).toUpperCase();
-}
-
-function cadastrar(razaoSocial, cnpj) {
-    var codigoEmpresa = gerarCodigoEmpresa();
+function cadastrar(razaoSocial, cnpj, codigoEmpresa) {
     var instrucaoSql = `
-        INSERT INTO empresa (razao_social, cnpj, codigo_empresa, criado_em, atualizado_em)
-        VALUES ('${razaoSocial}', '${cnpj}', '${codigoEmpresa}', NOW(), NOW());
+        INSERT INTO empresa (razao_social, cnpj, codigo_empresa)
+        VALUES ('${razaoSocial}', '${cnpj}', '${codigoEmpresa}');
     `;
     return database.executar(instrucaoSql);
 }
@@ -20,7 +15,14 @@ function buscarPorCnpj(cnpj) {
     return database.executar(instrucaoSql);
 }
 
+function buscarPorCodigoEmpresa(codigoEmpresa) {
+    console.log("Cheguei aqui pelo cadastro de usuário");
+    var instrucaoSql = `SELECT id FROM empresa WHERE codigo_empresa = '${codigoEmpresa}'`;
+    return database.executar(instrucaoSql);
+}
+
 module.exports = {
     cadastrar,
     buscarPorCnpj,
+    buscarPorCodigoEmpresa
 };

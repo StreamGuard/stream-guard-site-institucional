@@ -1,105 +1,78 @@
-<img src="https://user-images.githubusercontent.com/46379117/192358781-9ca879e4-e55e-4d0d-b876-f9a4a2ed9ae8.png" width="600px">
+# StreamGuard 🛡️
 
-_Web Data Visualization = Visualização de Dados na Web_
+![STATUS EM DESENVOLVIMENTO](https://img.shields.io/badge/Status-Em%20Desenvolvimento-orange?style=for-the-badge)
+![INSTITUIÇÃO SPTECH SCHOOL](https://img.shields.io/badge/Institui%C3%A7%C3%A3o-SPTech%20School-blue?style=for-the-badge)
 
-_Implementação de Referência para o seu Projeto de Primeiro Semestre_
+**Monitoramento de Componentes de Hardware para Sites de Streaming**
 
-<hr>
+## 📖 Sobre o Projeto
 
-# Como usar
+Durante grandes eventos transmitidos ao vivo (como a Copa do Mundo e as Olimpíadas), a infraestrutura de servidores pode ficar sobrecarregada pelo acesso simultâneo de milhões de usuários. Isso frequentemente resulta em travamentos, congelamento de imagem e interrupções nas transmissões, gerando insatisfação no público e prejuízos milionários em publicidade.
 
-1. Clone este repositório em sua máquina.
+Atualmente, sinais de sobrecarga costumam ser identificados apenas **depois** que já afetam o público. O **StreamGuard** nasce para mudar esse cenário de reativo para preventivo.
 
+### 🎯 Objetivo
 
-1. Crie, no Banco de Dados, as tabelas necessárias para o funcionamento deste projeto.
-- Siga as instruções no arquivo **/src/database/script-tabelas.sql**
+Desenvolver um painel dinâmico e automatizado capaz de coletar e exibir, em tempo real, dados de uso de servidores durante transmissões ao vivo. O sistema emite alertas e abre chamados automaticamente quando os recursos da máquina (CPU, RAM, Disco e Rede) se aproximam de seus limites críticos.
 
+---
 
-3. Acesse o arquivo **app.js** e parametrize o ambiente.
-- Se você estiver utilizando o Ambiente de Produção (remoto), comente a linha 2 e deixe habilitada a linha 1 onde está o valor **var ambiente_processo = 'producao';**
-- Se você estiver utilizando o Ambiente de Desenvolvimento (local), comente a linha 1 e deixe habilitada a linha 2 onde está o valor **var ambiente_processo = 'desenvolvimento';**
+## ✨ Funcionalidades Principais
 
-4. Adicione as credenciais de Banco de Dados no arquivo **.env** ou em **.env.dev**, seguindo as instruções neste.
+- **Monitoramento em Tempo Real:** Captura contínua de dados de uso de CPU, memória RAM, disco e rede através de scripts em Python.
+- **Dashboard Centralizado:** Painel web intuitivo com gráficos e indicadores de desempenho da infraestrutura.
+- **Gestão de Componentes (CRUD):** Telas web para o cadastro e gerenciamento dos componentes de infraestrutura que serão monitorados.
+- **Alertas Automatizados via Slack:** Notificações disparadas diretamente para a equipe técnica assim que os recursos atingem limites pré-definidos.
+- **Abertura de Chamados no Jira:** Integração para criação automática de tickets de incidentes, anexando logs gerados pela aplicação Java (.jar).
 
-5. Acesse este repositório no seu terminal (GitBash ou VSCode) e execute os comandos abaixo:
+---
 
-```
-npm i
-``` 
-_O comando acima irá instalar as bibliotecas necessárias para o funcionamento do projeto. As bibliotecas a serem instaladas estão listadas no arquivo **package.json** então é muito importante que este não seja alterado. Será criada uma nova pasta/diretório chamado **node_modules** quando o comando for finalizado, que é onde as bibliotecas estão localizadas. Não altere a pasta/diretório._
+## 🛠️ Tecnologias e Ferramentas
 
-```
-npm start
-``` 
+Embora a stack completa possa evoluir, a arquitetura do StreamGuard é baseada em:
 
-_O comando acima irá iniciar seu projeto e efetuar os comandos de acordo com a sua parametrização feita nos passos anteriores._
+### Front-end
 
-6. Para "ver" seu projeto funcionando, acesse em seu navegador o caminho **informado no terminal**.
+![HTML5](https://img.shields.io/badge/html5-%23E34F26.svg?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/css3-%231572B6.svg?style=for-the-badge&logo=css3&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
 
-7. Caso queira parar a execução, tecle **CTRL+C** no terminal em que o projeto está rodando.
+### Back-end & Banco de Dados
 
-## Adicionar novo recurso ao projeto
+![NodeJS](https://img.shields.io/badge/node.js-6DA55F?style=for-the-badge&logo=node.js&logoColor=white)
+![JavaScript](https://img.shields.io/badge/javascript-%23323330.svg?style=for-the-badge&logo=javascript&logoColor=%23F7DF1E)
+![MySQL](https://img.shields.io/badge/MySQL-005C84?style=for-the-badge&logo=mysql&logoColor=white)
 
-**"Recurso? O que é?"** Enquanto no Banco de Dados chamamos as tabelas de "entidades", quando tratamos de desenvolvimento WEB usamos a palavra "recurso" para se referir a algo que podemos criar, ler, atualizar ou deletar [1]. Estas ações são conhecidas como CRUD: Create, Read, Update e Delete. Para acessar cada ação, usamos os métodos HTTP: POST, GET, PUT e DELETE [2]. (Há outros verbos, porém com estes já conseguimos efetuar CRUDs). 
+### Captura e Logs
 
-**Tabela para ajudar a fazer a associação**
+![Python](https://img.shields.io/badge/python-3670A0?style=for-the-badge&logo=python&logoColor=ffdd54)
+![Java](https://img.shields.io/badge/java-%23ED8B00.svg?style=for-the-badge&logo=openjdk&logoColor=white)
 
-<table>
-  <tr>
-    <th>C.R.U.D</th>
-    <th>Ação</th>
-    <th>Tradução</th>
-    <th>Verbo HTTP *</th>
-    <th>Comando BD</th>
-  </tr>
-  <tr>
-    <td>C</td>
-    <td>Create</td>
-    <td>Criar</td>
-    <td>POST</td>
-    <td>INSERT</td>
-  </tr>
-  <tr>
-    <td>R</td>
-    <td>Read</td>
-    <td>Ler</td>
-    <td>GET</td>
-    <td>SELECT</td>
-  </tr>
-  <tr>
-    <td>U</td>
-    <td>Update</td>
-    <td>Atualizar</td>
-    <td>PUT</td>
-    <td>UPDATE</td>
-  </tr>
-  <tr>
-    <td>D</td>
-    <td>Delete</td>
-    <td>Deletar</td>
-    <td>DELETE</td>
-    <td>DELETE</td>
-  </tr>
-</table>
+### Outras Ferramentas
 
-_* Você verá o verbo HTTP sendo apontado nos arquivos em /routes_
+![Slack](https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white)
+![Jira](https://img.shields.io/badge/jira-%230052CC.svg?style=for-the-badge&logo=jira&logoColor=white)
+![AWS](https://img.shields.io/badge/AWS-%23232F3E.svg?style=for-the-badge&logo=amazonaws&logoColor=white)
 
-**"E no meu projeto, o que seria um recurso?"** Em web-data-viz manipulamos os recursos **usuário**, **aviso** e **medida**. Podemos conferir isso vendo para quais entidades foram criados os caminhos de inserção e captura de dados, que envolve os diretórios **routes**, **controllers** e **models**.
+---
 
-Abaixo, uma figura que ajuda a compreender o caminho percorrido para, por exemplo, efetuar o cadastro de um usuário:
+## ⚙️ Metodologia
 
+O projeto é conduzido utilizando **Metodologia Ágil**, estruturada em Sprints. O processo é apoiado por três pilares fundamentais:
 
-![image](https://github.com/user-attachments/assets/d576f178-0da6-437e-b5c9-658e3ebaf6ca)
+1. **Comunicação:** Reuniões _Daily_ para acompanhamento e remoção de impedimentos.
+2. **Transparência:** Gestão visual do backlog via Planner, com tarefas estimadas usando a sequência de Fibonacci.
+3. **Melhoria Contínua:** Retrospectivas ao final de cada Sprint para aprimorar processos e qualidade das entregas.
 
+---
 
+## 👥 Equipe Desenvolvedora
 
-**Entendi o que é um recurso e gostaria de adicionar um novo ao meu projeto! Como faz?**  
-- Primeiro, crie a tabela no Banco de Dados referente a este recurso. Exemplos de recursos comuns de serem adicionados ao projeto no primeiro semestre: Silo, Aquário, Sala, Andar, Endereço, Mercado, Prateleira, Unidade, Carro, Caminhão...  
-- Assim que criada a tabela, faça todo o caminho de **front-end → routes → controllers → models** replicando o que já existe!  
-- Exemplo, se você quiser a funcionalidade de adicionar um novo Aquário, deve criar arquivos referentes ao aquario nos diretórios e replicar também as funções.  
-- Dica: A implementação de AVISO já contém o CRUD completo! :wink:
- 
-### Fontes bibliográficas
+Este projeto está sendo construído pelos seguintes alunos de Ciência da Computação:
 
-[1] https://datatracker.ietf.org/doc/html/rfc2396  
-[2] https://datatracker.ietf.org/doc/html/rfc7231
+- Ana Clara Ferreira Clarete
+- Bruno Rafael Silva Gonçalves
+- Eduardo Guaglioni Lupianez
+- Jonatas Pereira Teles
+- Miguel Pereira Soares
+- Pedro Ludovic Nascimento Lima
