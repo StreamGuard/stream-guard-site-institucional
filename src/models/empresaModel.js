@@ -15,7 +15,13 @@ function buscarPorCnpj(cnpj) {
     return database.executar(instrucaoSql);
 }
 
+function buscarPorCodigoEmpresa(codigoEmpresa) {
+    var instrucaoSql = `SELECT id FROM empresa WHERE codigo_empresa = '${codigoEmpresa}'`;
+    return database.executar(instrucaoSql);
+}
+
 module.exports = {
     cadastrar,
     buscarPorCnpj,
+    buscarPorCodigoEmpresa
 };
