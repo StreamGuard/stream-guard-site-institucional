@@ -46,7 +46,7 @@ function entrar() {
             sessionStorage.NOME_EMPRESA = json.nome_empresa;
 
             setTimeout(function () {
-              window.location = "./404.html";
+              window.location = "nada.html";
             }, 1000);
           }
         });

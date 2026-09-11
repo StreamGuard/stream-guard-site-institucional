@@ -87,7 +87,7 @@
                             </button>
                         </form>
 
-        
+
                         <div class="admin-code-box mt-4" id="codigoBox">
                             <div class="admin-code-label">
                                 <i class="bi bi-key-fill"></i> Código gerado pelo servidor
@@ -152,7 +152,7 @@
             e.preventDefault();
 
             const nome = document.getElementById("nomeEmpresa").value.trim();
-            const cnpj = cnpjInput.value.trim();
+            const cnpj = cnpjInput.value.replace(/\D/g, ""); 
 
             btnCadastrar.disabled = true;
             btnCadastrar.innerHTML = '<span class="spinner-border spinner-border-sm me-1"></span> Cadastrando...';
