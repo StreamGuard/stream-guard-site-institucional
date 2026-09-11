@@ -28,23 +28,33 @@ function entrar() {
         resposta.json().then((json) => {
           console.log(json);
           console.log(JSON.stringify(json));
-          sessionStorage.EMAIL_USUARIO = json.email;
-          sessionStorage.NOME_USUARIO = json.nome;
-          sessionStorage.ID_USUARIO = json.id;
-          sessionStorage.CARGO = json.cargo;
-          sessionStorage.EMPRESA_ID = json.empresa_id;
-          sessionStorage.NOME_EMPRESA = json.nome_empresa;
+          if (json.email.includes("@streamguard.com")) {
+            sessionStorage.EMAIL_USUARIO = json.email;
+            sessionStorage.NOME_USUARIO = json.nome;
+            sessionStorage.ID_USUARIO = json.id;
+            sessionStorage.CARGO = json.cargo;
 
-          setTimeout(function () {
-            window.location = "#";
-          }, 1000);
+            setTimeout(function () {
+              window.location = "./painel_admin/index.html";
+            }, 1000);
+          } else {
+            sessionStorage.EMAIL_USUARIO = json.email;
+            sessionStorage.NOME_USUARIO = json.nome;
+            sessionStorage.ID_USUARIO = json.id;
+            sessionStorage.CARGO = json.cargo;
+            sessionStorage.EMPRESA_ID = json.empresa_id;
+            sessionStorage.NOME_EMPRESA = json.nome_empresa;
+
+            setTimeout(function () {
+              window.location = "nada.html";
+            }, 1000);
+          }
         });
       } else {
         console.log("Houve um erro ao tentar realizar o login!");
 
         resposta.text().then((texto) => {
           console.error(texto);
-          finalizarAguardar(texto);
         });
       }
     })
