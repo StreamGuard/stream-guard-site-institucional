@@ -1,6 +1,6 @@
 var URL_API = "http://localhost:3000";
 
-document.querySelector(".botao-cadastro").addEventListener("click", async function (evento) {
+document.querySelector("#btnCadastro").addEventListener("click", async function (evento) {
     evento.preventDefault();
 
     // 1. Captura dos valores do formulário
