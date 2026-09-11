@@ -100,7 +100,7 @@
                 </p>
               </div>
 
-              <button type="button" class="btn register-button botao-cadastro" id="btnLogin">
+              <button type="button" class="btn register-button botao-cadastro" onclick="entrar()">
                 Entrar
               </button>
               <p id="mensagemErro" class="mensagem-erro"></p>
@@ -116,6 +116,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
     integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
     crossorigin="anonymous"></script>
+    <script src="scripts/loginUsuario.js"></script>
   <script>
     const toggleSenha = document.getElementById("toggleSenha");
     const senhaInput = document.getElementById("senha_usuario");
@@ -128,60 +129,6 @@
       toggleSenha.src = isPassword
         ? "./assets/eyeOpen.png"
         : "./assets/eyeClose.png";
-    });
-
-
-    const btnLogin = document.getElementById("btnLogin");
-    const mensagemErro = document.getElementById("mensagemErro");
-
-    btnLogin.addEventListener("click", async () => {
-
-      mensagemErro.innerText = "";
-
-      const emailServer = document.getElementById("email_usuario").value;
-      const senhaServer = document.getElementById("senha_usuario").value;
-
-      if (!emailServer || !senhaServer) {
-        mensagemErro.innerText = "Preencha o email e a senha.";
-        return;
-      }
-
-      try {
-
-        const resposta = await fetch("http://localhost:3000/usuarios/autenticar", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            emailServer: emailServer,
-            senhaServer: senhaServer
-          })
-        });
-
-        if (!resposta.ok) {
-
-          const mensagem = await resposta.text();
-
-          mensagemErro.innerText = mensagem;
-
-          return;
-        }
-
-        const dados = await resposta.json();
-
-        console.log("Login realizado:", dados);
-
-        window.location.href = "dashboard.html";
-
-      } catch (erro) {
-
-        console.error("Erro ao realizar login:", erro);
-
-        mensagemErro.innerText =
-          "Não foi possível conectar ao servidor.";
-
-      }
     });
   </script>
 </body>
