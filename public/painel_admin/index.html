@@ -89,11 +89,14 @@
             sidebar.classList.toggle("show");
         });
 
-        const adminName = localStorage.getItem("adminName");
-        const adminRole = localStorage.getItem("adminRole");
-        
-        if (adminName.trim() != "") admin_name.innerHTML = adminName;
-        if (adminRole.trim() != "") admin_role.innerHTML = adminRole;
+        const adminName = sessionStorage.NOME_USUARIO;
+      const adminRole = sessionStorage.CARGO;
+      console.log("Nome do adm: ", adminName);
+
+      if (adminName != "" && adminName.trim() != "")
+        admin_name.innerHTML = adminName;
+      if (adminRole != "" && adminRole.trim() != "")
+        admin_role.innerHTML = adminRole;
     </script>
 </body>
 </html>
