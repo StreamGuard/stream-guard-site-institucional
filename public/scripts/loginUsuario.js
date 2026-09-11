@@ -35,7 +35,7 @@ function entrar() {
             sessionStorage.CARGO = json.cargo;
 
             setTimeout(function () {
-              window.location = "../painel_admin/index.html";
+              window.location = "./painel_admin/index.html";
             }, 1000);
           } else {
             sessionStorage.EMAIL_USUARIO = json.email;
