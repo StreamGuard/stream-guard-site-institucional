@@ -35,7 +35,7 @@ function entrar() {
             sessionStorage.CARGO = json.cargo;
 
             setTimeout(function () {
-              window.location = "#";
+              window.location = "./painel_admin/index.html";
             }, 1000);
           } else {
             sessionStorage.EMAIL_USUARIO = json.email;
@@ -46,7 +46,7 @@ function entrar() {
             sessionStorage.NOME_EMPRESA = json.nome_empresa;
 
             setTimeout(function () {
-              window.location = "#";
+              window.location = "./404.html";
             }, 1000);
           }
         });
