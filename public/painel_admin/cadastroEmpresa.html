@@ -117,11 +117,14 @@
             sidebar.classList.toggle("show");
         });
 
-        const adminName = localStorage.getItem("adminName");
-        const adminRole = localStorage.getItem("adminRole");
+        const adminName = sessionStorage.NOME_USUARIO;
+      const adminRole = sessionStorage.CARGO;
+      console.log("Nome do adm: ", adminName);
 
-        if (adminName && adminName.trim() != "") admin_name.innerHTML = adminName;
-        if (adminRole && adminRole.trim() != "") admin_role.innerHTML = adminRole;
+      if (adminName != "" && adminName.trim() != "")
+        admin_name.innerHTML = adminName;
+      if (adminRole != "" && adminRole.trim() != "")
+        admin_role.innerHTML = adminRole;
 
         // mask cnpj
         const cnpjInput = document.getElementById("cnpjEmpresa");
