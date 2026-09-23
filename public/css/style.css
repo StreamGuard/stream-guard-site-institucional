@@ -885,6 +885,165 @@ body {
   line-height: 1.8;
 }
 
+.form-card {
+        width: 90%;
+        max-width: 800px;
+    }
+
+
+.form-card {
+    background-color: rgba(255, 255, 255, .015);
+
+    border: 1px solid #1f2937;
+    border-radius: 12px;
+
+    padding: 2.5rem;
+
+    max-width: 80%;
+
+    margin: 0 auto;
+
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+
+    width: 60vw;
+}
+
+.form-card h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+
+    color: #ffffff;
+
+    margin-bottom: 4rem;
+
+    border-bottom: 2px solid #1f2937;
+
+    padding-bottom: 0.75rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+
+    padding: 2%;
+    margin-bottom: 20px;
+
+    height: 80px;
+
+    border-radius: 40px;
+}
+
+.form-group label {
+    font-size: 2.3vh;
+
+    color: #ffffff;
+
+    margin-right: 100%;
+
+    font-weight: 600;
+}
+
+.form-group input {
+    background-color: #0f172a;
+
+    border: 1px solid #334155;
+
+    color: #f8fafc;
+
+    padding: 12px 16px;
+
+    border-radius: 8px;
+
+    font-size: 1rem;
+
+    outline: none;
+
+    transition: border-color 0.3s;
+
+    margin-top: 1%;
+}
+
+.form-group input:focus {
+    border-color: var(--sg-accent);
+}
+
+.form-row {
+    gap: 1.5rem;
+}
+
+
+/*BOTÃO*/
+
+.btn-container {
+    grid-column: span 2;
+
+    display: flex;
+    justify-content: center;
+
+    margin-top: 6rem;
+}
+
+.btn-submit {
+    background-color: var(--sg-accent);
+
+    color: #ffffff;
+
+    font-size: 1rem;
+    font-weight: 600;
+
+    border: none;
+    border-radius: 6px;
+
+    padding: 1rem 6rem;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        transform 0.1s ease;
+}
+
+.btn-submit:hover {
+    background-color: var(--sg-accent-hover);
+
+    transform: translateY(-1px);
+
+    box-shadow: 0 9px 15px var(--sg-navy);
+}
+
+.section {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 100%;
+
+    font-family: var(--font-padrao);
+    color: #f8f9fa;
+}
+
+.section h1 {
+    font-size: 2.8rem;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.subtitle {
+    letter-spacing: -1px;
+
+    padding: 2%;
+
+    font-size: 1.2rem;
+    color: #5b6b9e;
+
+    max-width: 35%;
+}
+
+
+
 @media (max-width: 991.98px) {
   .corporate-hero {
     min-height: auto;
