@@ -5,15 +5,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream Guard | Sobre a Empresa</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/about.css">
 </head>
 
 <body class="corporate-bg">
 
-  <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
+  <nav class="navbar fixed-top">
     <div class="container-fluid">
       <!-- logo -->
       <a class="navbar-brand text-white poppins-medium" href="index.html">
@@ -21,41 +18,39 @@
           class="d-inline-block align-text-top">
       </a>
 
-      <!-- botao só aparece em telas pequenas (celulares) / bootstrap -->
-      <button class="navbar-toggler menu-toggler" type="button" data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Abrir menu">
+      <!-- botao só aparece em telas pequenas (celulares) -->
+      <button class="menu-toggler" type="button" id="navToggle" aria-controls="offcanvasNavbar"
+        aria-expanded="false" aria-label="Abrir menu">
         <span class="menu-icon"></span>
         <span class="menu-icon"></span>
         <span class="menu-icon"></span>
       </button>
 
       <!-- menu nav -->
-      <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar"
-        aria-labelledby="offcanvasNavbarLabel">
+      <div class="offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
 
         <!-- cabeçalho aparece somente no celular -->
-        <div class="offcanvas-header custom-offcanvas-header">
+        <div class="custom-offcanvas-header">
           <div class="d-flex align-items-center gap-2">
             <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32">
 
-            <h5 class="offcanvas-title mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
+            <h5 class="mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
               Stream Guard
             </h5>
           </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
-            aria-label="Fechar"></button>
+          <button type="button" class="btn-close" id="navClose" aria-label="Fechar"></button>
         </div>
 
         <!-- corpo aparece sempre -->
         <div class="offcanvas-body d-lg-flex align-items-lg-center w-100">
           <!-- links da navbar -->
-          <ul class="navbar-nav custom-nav">
-            <li class="nav-item">
+          <ul class="custom-nav">
+            <li>
               <a class="nav-link" href="index.html">Página principal</a>
             </li>
 
-            <li class="nav-item">
-              <a class="nav-link" href="about.html">Sobre nós!</a>
+            <li>
+              <a class="nav-link active" href="about.html">Sobre nós!</a>
             </li>
           </ul>
 
@@ -71,14 +66,17 @@
           </div>
         </div>
       </div>
+
+      <div class="nav-backdrop" id="navBackdrop"></div>
     </div>
   </nav>
 
     <section class="corporate-hero">
+        <div class="monitor-grid"></div>
         <div class="container px-4 px-lg-5">
             <div class="row align-items-center">
                 <div class="col-lg-7 mb-4 mb-lg-0">
-                    <span class="corp-tag mb-3">INSTITUCIONAL</span>
+                    <span class="corp-tag mb-3">MONITORAMENTO EM TEMPO REAL</span>
                     <h1 class="corp-title text-white mb-4">Governança, Performance e Monitoramento Crítico</h1>
 
                     <p class="corp-text mb-4">
@@ -88,13 +86,18 @@
                         A plataforma centraliza informações como uso de CPU, memória, armazenamento, rede e status dos servidores, facilitando a identificação de problemas e garantindo maior estabilidade e disponibilidade da infraestrutura.
                     </p>
 
+                    <div class="corp-status-line">
+                        <span class="signal-bars"><span></span><span></span><span></span><span></span></span>
+                        Sinal estável &middot; todos os servidores monitorados
+                    </div>
+
                     <div class="d-flex gap-3">
                         <a href="cadastroEmpresa.html" class="btn corp-btn-primary">Acessar Solução</a>
                     </div>
                 </div>
                 <div class="col-lg-5">
                     <div class="corp-image-container">
-                        <img src="assets/graficos.png" alt="Corporate" class="img-fluid w-100">
+                        <img src="assets/graficos.png" alt="Painel de monitoramento Stream Guard" class="img-fluid w-100">
                     </div>
                 </div>
             </div>
@@ -109,24 +112,27 @@
         <div class="container px-4 px-lg-5 py-4">
             <div class="row mb-5">
                 <div class="col-lg-6">
-                    <h2 class="text-white poppins-medium h3 border-start border-4 border-info ps-3">Nossos Pilares Operacionais</h2>
+                    <h2 class="section-heading text-white poppins-medium h3">Nossos Pilares Operacionais</h2>
                 </div>
             </div>
             <div class="row g-4">
                 <div class="col-md-4">
                     <div class="corp-value-box">
+                        <span class="value-index">01</span>
                         <h5>Confiabilidade</h5>
                         <p>Acompanhamos em tempo real o desempenho e a disponibilidade dos servidores, eliminando pontos cegos na operação de streaming.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="corp-value-box">
+                        <span class="value-index">02</span>
                         <h5>Escalabilidade</h5>
                         <p>Projetado para acompanhar o crescimento da infraestrutura de transmissão, sem perder desempenho conforme o volume de dados aumenta.</p>
                     </div>
                 </div>
                 <div class="col-md-4">
                     <div class="corp-value-box">
+                        <span class="value-index">03</span>
                         <h5>Segurança</h5>
                         <p>Rigidez absoluta no tratamento de credenciais, logs e métricas confidenciais monitoradas pela plataforma.</p>
                     </div>
@@ -161,7 +167,10 @@
         </div>
     </section>
 
-    <!-- <!-- <section class="corporate-team py-5 mb-5">
+    <!-- ==========================================
+         CORPO TÉCNICO
+         ========================================== -->
+    <section class="corporate-team py-5 mb-5">
         <div class="container px-4 px-lg-5">
             <div class="row mb-5 text-center">
                 <div class="col-12">
@@ -174,13 +183,22 @@
                 <!-- Membro 1 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="corp-team-card">
-                        <img src="assets/eduardo.png" alt="Membro" class="img-fluid">
+                        <div class="corp-team-avatar">
+                            <img src="assets/eduardo.png" alt="Eduardo Lupianez" class="img-fluid">
+                            <span class="corp-team-status" aria-hidden="true"></span>
+                        </div>
                         <div class="corp-team-body">
-                            <h5 class="text-white mb-1">Eduardo Lupianez</h5>
-                            <p class="small mb-3 text-white">Desenvolvedor FullStack e Analista de Infraestrutura</p>
+                            <h5>Eduardo Lupianez</h5>
+                            <p>Desenvolvedor FullStack e Analista de Infraestrutura</p>
                             <div class="d-flex gap-2">
-                                <a href="https://www.linkedin.com/in/eduardo-guaglioni-lupianez-b21250320/" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
-                                <a href="https://github.com/EduardoGuaglioniLupianez" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                <a href="https://github.com/EduardoGuaglioniLupianez" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
+                                    GitHub
+                                </a>
+                                <a href="https://www.linkedin.com/in/eduardo-guaglioni-lupianez-b21250320/" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
+                                    LinkedIn
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -189,13 +207,22 @@
                 <!-- Membro 2 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="corp-team-card">
-                        <img src="assets/Ana.png" alt="Membro" class="img-fluid">
+                        <div class="corp-team-avatar">
+                            <img src="assets/Ana.png" alt="Ana Clara" class="img-fluid">
+                            <span class="corp-team-status" aria-hidden="true"></span>
+                        </div>
                         <div class="corp-team-body">
-                            <h5 class="text-white mb-1">Ana Clara</h5>
-                            <p class="small mb-3 text-white">Desenvolvedor Fullstack</p>
+                            <h5>Ana Clara</h5>
+                            <p>Desenvolvedor Fullstack</p>
                             <div class="d-flex gap-2">
-                                <a href="https://github.com/anaClarete" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
-                                <a href="https://www.linkedin.com/in/ana-clara-ferreira-clarete-a4384a231/" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                <a href="https://github.com/anaClarete" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
+                                    GitHub
+                                </a>
+                                <a href="https://www.linkedin.com/in/ana-clara-ferreira-clarete-a4384a231/" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
+                                    LinkedIn
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -204,13 +231,22 @@
                 <!-- Membro 3 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="corp-team-card">
-                        <img src="assets/bruno.png" alt="Membro" class="img-fluid">
+                        <div class="corp-team-avatar">
+                            <img src="assets/bruno.png" alt="Bruno Rafael" class="img-fluid">
+                            <span class="corp-team-status" aria-hidden="true"></span>
+                        </div>
                         <div class="corp-team-body">
-                            <h5 class="text-white mb-1">Bruno Rafael</h5>
-                            <p class="small mb-3 text-white">Desenvolvedor FullStack e Analista de Infraestrutura</p>
+                            <h5>Bruno Rafael</h5>
+                            <p>Desenvolvedor FullStack e Analista de Infraestrutura</p>
                             <div class="d-flex gap-2">
-                                <a href="https://github.com/brxnogoncalves" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
-                                <a href="https://www.linkedin.com/in/brxnorafa/" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                <a href="https://github.com/brxnogoncalves" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
+                                    GitHub
+                                </a>
+                                <a href="https://www.linkedin.com/in/brxnorafa/" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
+                                    LinkedIn
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -219,13 +255,22 @@
                 <!-- Membro 4 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="corp-team-card">
-                        <img src="assets/jonatas.png" alt="Membro" class="img-fluid">
+                        <div class="corp-team-avatar">
+                            <img src="assets/jonatas.png" alt="Jonatas Teles" class="img-fluid">
+                            <span class="corp-team-status" aria-hidden="true"></span>
+                        </div>
                         <div class="corp-team-body">
-                            <h5 class="text-white mb-1">Jonatas Teles</h5>
-                            <p class="small mb-3 text-white">Desenvolvedor FullStack</p>
+                            <h5>Jonatas Teles</h5>
+                            <p>Desenvolvedor FullStack</p>
                             <div class="d-flex gap-2">
-                                <a href="https://github.com/JonatasTeles" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
-                                <a href="https://www.linkedin.com/in/jonatas-teles-1b6b95379" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                <a href="https://github.com/JonatasTeles" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
+                                    GitHub
+                                </a>
+                                <a href="https://www.linkedin.com/in/jonatas-teles-1b6b95379" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
+                                    LinkedIn
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -234,12 +279,18 @@
                 <!-- Membro 5 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="corp-team-card">
-                        <img src="assets/miguel_soares.jpeg" alt="Membro" class="img-fluid">
+                        <div class="corp-team-avatar">
+                            <img src="assets/miguel_soares.jpeg" alt="Miguel Soares" class="img-fluid">
+                            <span class="corp-team-status" aria-hidden="true"></span>
+                        </div>
                         <div class="corp-team-body">
-                            <h5 class="text-white mb-1">Miguel Soares</h5>
-                            <p class="small mb-3 text-white">Desenvolvedor FullStack</p>
+                            <h5>Miguel Soares</h5>
+                            <p>Desenvolvedor FullStack</p>
                             <div class="d-flex gap-2">
-                                <a href="https://github.com/Miguel-Soares1313" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
+                                <a href="https://github.com/Miguel-Soares1313" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
+                                    GitHub
+                                </a>
                             </div>
                         </div>
                     </div>
@@ -248,24 +299,32 @@
                 <!-- Membro 6 -->
                 <div class="col-lg-4 col-md-6">
                     <div class="corp-team-card">
-                        <img src="assets/pedro_ludovic.jpeg" alt="Membro" class="img-fluid">
+                        <div class="corp-team-avatar">
+                            <img src="assets/pedro_ludovic.jpeg" alt="Pedro Ludovic" class="img-fluid">
+                            <span class="corp-team-status" aria-hidden="true"></span>
+                        </div>
                         <div class="corp-team-body">
-                            <h5 class="text-white mb-1">Pedro Ludovic</h5>
-                            <p class="small mb-3 text-white">Desenvolvedor FullStack</p>
+                            <h5>Pedro Ludovic</h5>
+                            <p>Desenvolvedor FullStack</p>
                             <div class="d-flex gap-2">
-                                <a href="https://github.com/PedroSptech" class="corp-social-link"><i class="bi bi-github"></i> GitHub</a>
-                                <a href="https://www.linkedin.com/in/pedro-ludovic-nascimento-lima-4b8078212/" class="corp-social-link"><i class="bi bi-linkedin"></i> LinkedIn</a>
+                                <a href="https://github.com/PedroSptech" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
+                                    GitHub
+                                </a>
+                                <a href="https://www.linkedin.com/in/pedro-ludovic-nascimento-lima-4b8078212/" class="corp-social-link">
+                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
+                                    LinkedIn
+                                </a>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section> 
-    
+    </section>
+
     <section class="section text-center" id="contato">
             <h1>Vamos conversar sobre a<br> sua <span class="highlight-blue">infraestrutura?</span></h1>
-            <br><br>
             <div class="form-card text-left">
                 <h3>Envie uma mensagem</h3>
                 <div class="form-row">
@@ -280,7 +339,7 @@
                         <input type="text" id="sobrenome" placeholder="Seu Sobrenome">
                     </div>
                     <div class="form-group">
-                        <label for="">Empresa</label>
+                        <label for="empresa">Empresa</label>
                         <input type="text" id="empresa" placeholder="Nome da empresa">
                     </div>
                     <div class="form-group">
@@ -302,7 +361,7 @@
                 </div>
             </div>
         </section>
- 
+
     <section class="corporate-cta py-5">
         <div class="container px-4 px-lg-5 text-center">
             <h2 class="text-white poppins-medium mb-3" style="font-size: 1.8rem;">Pronto para monitorar sua infraestrutura?</h2>
@@ -313,9 +372,45 @@
         </div>
     </section>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-        crossorigin="anonymous"></script>
+    <script>
+      (function () {
+        var toggler = document.getElementById('navToggle');
+        var drawer = document.getElementById('offcanvasNavbar');
+        var closeBtn = document.getElementById('navClose');
+        var backdrop = document.getElementById('navBackdrop');
+
+        function openDrawer() {
+          drawer.classList.add('show');
+          toggler.classList.add('active');
+          backdrop.classList.add('show');
+          toggler.setAttribute('aria-expanded', 'true');
+          document.body.style.overflow = 'hidden';
+        }
+
+        function closeDrawer() {
+          drawer.classList.remove('show');
+          toggler.classList.remove('active');
+          backdrop.classList.remove('show');
+          toggler.setAttribute('aria-expanded', 'false');
+          document.body.style.overflow = '';
+        }
+
+        toggler.addEventListener('click', function () {
+          drawer.classList.contains('show') ? closeDrawer() : openDrawer();
+        });
+
+        closeBtn.addEventListener('click', closeDrawer);
+        backdrop.addEventListener('click', closeDrawer);
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape') closeDrawer();
+        });
+
+        drawer.querySelectorAll('.nav-link').forEach(function (link) {
+          link.addEventListener('click', closeDrawer);
+        });
+      })();
+    </script>
 </body>
 
 </html>
