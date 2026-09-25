@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
         integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
         crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="./scripts/redirecionamentos.js" defer></script>
 
     <link rel="stylesheet" href="./css/style.css">
 </head>
@@ -112,11 +113,13 @@
                             que seus usuários percebam. Mais estabilidade, mais qualidade, mais audiência.
                         </h6>
                         <span class="hero-left-btns">
-                            <button class="btn-comecar-agora">
+                            <button class="btn-comecar-agora" onclick="redirect_login()">
                                 Começar agora <i class="fa-solid fa-arrow-right"></i>
                             </button>
                             <button class="btn-plataforma">
-                                Conheça a plataforma
+                                <a href="#home_intro" style="text-decoration: none; color: inherit;">
+                                    Conheça a plataforma
+                                </a>
                             </button>
                         </span>
                     </div>
@@ -132,14 +135,14 @@
        INTRODUÇÃO
        ========================================== -->
 
-    <section class="home-intro py-5">
+    <section class="home-intro py-5" id="home_intro">
 
 
         <div class="container px-4 px-lg-5 py-5">
 
             <div class="row align-items-center g-5">
 
-                <div class="col-lg-5">
+                <div class="col-lg-7">
 
                     <span class="corp-tag mb-3">
                         VISIBILIDADE OPERACIONAL
@@ -152,7 +155,7 @@
                 </div>
 
 
-                <div class="col-lg-7">
+                <div class="col-lg-5">
 
                     <p class="corp-text mb-3">
                         Uma infraestrutura pode apresentar sinais de degradação
@@ -301,36 +304,48 @@
     <section class="home-product py-5">
         <div class="container px-4 px-lg-5 py-5">
             <div class="row align-items-center g-5">
-                <div class="col-lg-5">
-                    <span class="corp-tag mb-3">
-                        CENTRALIZAÇÃO
-                    </span>
-
-                    <h2 class="home-section-title text-white mb-4">
-                        Uma visão clara da sua operação.
-                    </h2>
-
-                    <p class="corp-text mb-3">
-                        O Stream Guard reúne os dados coletados dos servidores
-                        em uma plataforma centralizada, facilitando o acompanhamento
-                        da infraestrutura.
-                    </p>
-
-                    <p class="corp-text mb-4">
-                        Configure quais métricas devem ser acompanhadas e mantenha
-                        sua equipe focada no que realmente importa.
-                    </p>
-
-                    <a href="cadastroEmpresa.html" class="btn corp-btn-primary">
-                        Começar agora
-                    </a>
-
+                <div class="col-lg-7">
+                    <div class="info-content-left">
+                        <span class="corp-tag mb-3">
+                            PORQUE É IMPORTANTE?
+                        </span>
+                        <h2>
+                            Streaming é ao vivo. <br>
+                            <span>E problemas acontecem.</span>
+                        </h2>
+                        <h6>
+                            Uma queda na qualidade, aumento da latência ou perda de conexão pode afetar milhares de
+                            espectadores, gerar prejuízos e manchar a reputação da sua marca. O StreamGuard existe para
+                            evitar isso.
+                        </h6>
+                        <div class="info-icons">
+                            <div class="info-icons-item">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>
+                                    <h4>Protege sua reputação</h4>
+                                    <h5>
+                                        Mantém a qualidade da sua transmissão e a confiança do seu público.
+                                    </h5>
+                                </span>
+                            </div>
+                            <div class="info-icons-item">
+                                <i class="fa-solid fa-chart-simple"></i>
+                                <span>
+                                    <h4>Dá controle total</h4>
+                                    <h5>
+                                        Tenha todas as métricas em tempo real, em um só lugar, com alertas inteligentes.
+                                    </h5>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="col-lg-7">
-                    <div class="home-product-image">
-                        <img src="./assets/graficos.png" alt="Painel de monitoramento do Stream Guard"
-                            class="img-fluid">
+                <div class="col-lg-5">
+                    <div class="info-content-right">
+                        <div class="info-images">
+                            <img src="./assets/info-image.png" alt="">
+                        </div>
                     </div>
                 </div>
             </div>
@@ -435,7 +450,7 @@
 
     <footer class="footer-section">
         <div class="container-fluid px-4 py-5">
-            <div class="row gy-4">
+            <div class="row gy-4" style="padding: 0rem 4rem;">
                 <div class="col-12 col-lg-5">
                     <a class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2"
                         href="index.html">
@@ -447,7 +462,7 @@
 
                     </a>
 
-                    <p class="footer-text">
+                    <p class="footer-text" style="max-width: 70%;">
                         Monitoramento de infraestrutura em tempo real,
                         desenvolvido para proporcionar maior visibilidade
                         e controle sobre seus servidores.
