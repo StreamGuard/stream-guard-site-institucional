@@ -372,7 +372,8 @@
         </div>
     </section>
 
-    <script>
+   <script>
+      // === Controle do menu lateral ===
       (function () {
         var toggler = document.getElementById('navToggle');
         var drawer = document.getElementById('offcanvasNavbar');
@@ -410,6 +411,80 @@
           link.addEventListener('click', closeDrawer);
         });
       })();
+
+      // ===  Integração com o back end e jira===
+      document.querySelector('.btn-submit').addEventListener('click', async function (e) {
+        e.preventDefault(); // Impede que a página recarregue ao clicar no botão
+
+        // Capturo os valores digitados em cada campo do HTML
+        const nome = document.getElementById('nome').value;
+        const sobrenome = document.getElementById('sobrenome').value;
+        const empresa = document.getElementById('empresa').value;
+        const email = document.getElementById('email').value;
+        const telefone = document.getElementById('telefone').value;
+        const mensagemTexto = document.getElementById('mensagem').value;
+
+        // Validação básica: Nome, Email e Mensagem não podem estar vazios
+        if (!nome || !email || !mensagemTexto) {
+            alert('Por favor, preencha pelo menos os campos Nome, Email e Mensagem!');
+            return;
+        }
+
+        //  Formato os dados para o padrão que o seu Back-end espera
+        const nomeCompleto = `${nome} ${sobrenome}`.trim();
+        
+        // Junto os campos extras (Empresa, Telefone) no campo de texto para o Jira registrar tudo
+        const pedidoFormatado = `Empresa: ${empresa}\nTelefone: ${telefone}\n\nMensagem:\n${mensagemTexto}`;
+
+        const dadosFormulario = {
+            nome: nomeCompleto,
+            email: email,
+            pedido: pedidoFormatado
+        };
+
+        try {
+            // Desabilita o botão provisoriamente para evitar cliques repetidos
+            const botao = document.querySelector('.btn-submit');
+            botao.disabled = true;
+            botao.innerText = 'Enviando...';
+
+            //  Faz o envio via POST para o seu servidor Node local 
+            const response = await fetch('http://localhost:3000/api/contato', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dadosFormulario)
+            });
+
+            const resultado = await response.json();
+
+            if (response.ok) {
+                // Se o Jira criar com sucesso, aviso o usuário e mostra o código do chamado 
+                alert(`Mensagem enviada com sucesso! Código do chamado: ${resultado.key}`);
+                
+                // Limpa todos os campos da tela
+                document.getElementById('nome').value = '';
+                document.getElementById('sobrenome').value = '';
+                document.getElementById('empresa').value = '';
+                document.getElementById('email').value = '';
+                document.getElementById('telefone').value = '';
+                document.getElementById('mensagem').value = '';
+            } else {
+                console.error('Erro retornado pelo servidor do Back-end:', resultado);
+                alert('Erro ao processar sua mensagem no servidor. Tente novamente.');
+            }
+
+        } catch (error) {
+            console.error('Erro de conexão (Fetch Error):', error);
+            alert('Não foi possível conectar ao servidor back-end. Certifique-se de que ele está rodando!');
+        } finally {
+            // Devolve o estado original do botão
+            const botao = document.querySelector('.btn-submit');
+            botao.disabled = false;
+            botao.innerText = 'Enviar Mensagem';
+        }
+      });
     </script>
 </body>
 
