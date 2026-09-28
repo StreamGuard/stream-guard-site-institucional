@@ -69,10 +69,8 @@ O projeto é conduzido utilizando **Metodologia Ágil**, estruturada em Sprints.
 ## 👥 Equipe Desenvolvedora
 
 Este projeto está sendo construído pelos seguintes alunos de Ciência da Computação:
-
-- Ana Clara Ferreira Clarete
-- Bruno Rafael Silva Gonçalves
-- Eduardo Guaglioni Lupianez
-- Jonatas Pereira Teles
-- Miguel Pereira Soares
-- Pedro Ludovic Nascimento Lima
+- Leonard Werner
+- Caio
+- Kauê Tamura 
+- Marina
+- Anderson Oliveira
