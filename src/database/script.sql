@@ -1,3 +1,6 @@
+CREATE DATABASE streamGuard;
+USE streamGuard;
+
 CREATE TABLE empresa (
     id INT AUTO_INCREMENT PRIMARY KEY,
     razao_social VARCHAR(255) NOT NULL,
