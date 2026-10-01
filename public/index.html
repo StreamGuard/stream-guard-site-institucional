@@ -3,536 +3,559 @@
 <html lang="pt-br">
 
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Stream Guard | Monitoramento de Infraestrutura</title>
+    <link rel="icon" type="image/png" href="assets/streamGuard_logo.png">
+    <title>Stream Guard | Monitoramento de Infraestrutura</title>
 
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
 
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+        integrity="sha512-QeR2VH+lsBE5LSAe1Q5EnTBbe7XTBubt8dG93Y7gidSgdMCr8nVqKcfKAMyN96SV8KDbZVTDXChatu5G2KQGzg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <script src="./scripts/redirecionamentos.js" defer></script>
 
-  <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body class="corporate-bg">
-  <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
-    <div class="container-fluid">
+    <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
+        <div class="container-fluid">
 
-      <a class="navbar-brand text-white poppins-medium" href="index.html">
-        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50"
-          class="d-inline-block align-text-top">
-      </a>
-
-      <!-- Menu mobile -->
-      <button class="navbar-toggler menu-toggler" type="button" data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Abrir menu">
-
-        <span class="menu-icon"></span>
-        <span class="menu-icon"></span>
-        <span class="menu-icon"></span>
-
-      </button>
-
-      <!-- Menu -->
-      <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar"
-        aria-labelledby="offcanvasNavbarLabel">
-
-        <div class="offcanvas-header custom-offcanvas-header">
-
-          <div class="d-flex align-items-center gap-2">
-
-            <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32">
-
-            <h5 class="offcanvas-title mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
-              Stream Guard
-            </h5>
-
-          </div>
-
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Fechar">
-          </button>
-
-        </div>
-
-        <div class="offcanvas-body d-lg-flex align-items-lg-center w-100">
-
-          <ul class="navbar-nav custom-nav">
-
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">
-                Página principal
-              </a>
-            </li>
-
-            <li class="nav-item">
-              <a class="nav-link" href="about.html">
-                Sobre nós
-              </a>
-            </li>
-
-          </ul>
-
-          <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-auto auth-buttons">
-            <a href="login.html" class="btn login-button">
-              Login
+            <a class="navbar-brand text-white poppins-medium" href="index.html">
+                <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50"
+                    class="d-inline-block align-text-top">
             </a>
 
-            <a href="cadastroUsuario.html" class="btn register-button">
-              Cadastro
-            </a>
-          </div>
+            <!-- Menu mobile -->
+            <button class="navbar-toggler menu-toggler" type="button" data-bs-toggle="offcanvas"
+                data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Abrir menu">
+
+                <span class="menu-icon"></span>
+                <span class="menu-icon"></span>
+                <span class="menu-icon"></span>
+
+            </button>
+
+            <!-- Menu -->
+            <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar"
+                aria-labelledby="offcanvasNavbarLabel">
+
+                <div class="offcanvas-header custom-offcanvas-header">
+
+                    <div class="d-flex align-items-center gap-2">
+
+                        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32">
+
+                        <h5 class="offcanvas-title mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
+                            Stream Guard
+                        </h5>
+
+                    </div>
+
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
+                        aria-label="Fechar">
+                    </button>
+
+                </div>
+
+                <div class="offcanvas-body d-lg-flex align-items-lg-center w-100">
+
+                    <ul class="navbar-nav custom-nav">
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="index.html">
+                                Página principal
+                            </a>
+                        </li>
+
+                        <li class="nav-item">
+                            <a class="nav-link" href="about.html">
+                                Sobre nós
+                            </a>
+                        </li>
+
+                    </ul>
+
+                    <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-auto auth-buttons">
+                        <a href="login.html" class="btn login-button">
+                            Login
+                        </a>
+
+                        <a href="cadastroUsuario.html" class="btn register-button">
+                            Cadastro
+                        </a>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-  </nav>
+    </nav>
 
-<header class="corporate-home-hero">
-  <div class="container px-4 px-lg-5">
-    <div class="row justify-content-center text-center">
-      <div class="col-lg-9 col-xl-8">
-
-        <span class="corp-tag mb-3">
-          MONITORAMENTO DE INFRAESTRUTURA
-        </span>
-
-        <h1 class="home-hero-title text-white mb-4">
-          Visibilidade sobre sua infraestrutura em tempo real
-        </h1>
-
-        <p class="corp-text home-hero-description mb-4 mx-auto">
-          O Stream Guard centraliza o monitoramento dos seus servidores,
-          permitindo acompanhar recursos críticos e identificar problemas
-          antes que eles impactem sua operação.
-        </p>
-
-        <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
-          <a href="cadastroEmpresa.html" class="btn corp-btn-primary">
-            Conheça a solução
-          </a>
-
-          <a href="login.html" class="btn corp-btn-secondary">
-            Acessar plataforma
-          </a>
+    <header class="corporate-home-hero">
+        <div class="container px-4 px-lg-5" style="min-width: 80vw;">
+            <div class="row justify-content-center text-center">
+                <div class="col-lg-9 col-xl-8 hero-content">
+                    <div class="hero-left">
+                        <span class="hero-left-topic">
+                            <i class="fa-solid fa-circle"></i>
+                            MONITORAMENTO DE STREAMINGS EM TEMPO REAL
+                        </span>
+                        <h2>
+                            Sua transmissão
+                            <span>sempre no ar.</span>
+                            Sem surpresas.
+                        </h2>
+                        <h6>
+                            O StreamGuard monitora seus streams 24/7, identificando problemas antes
+                            que seus usuários percebam. Mais estabilidade, mais qualidade, mais audiência.
+                        </h6>
+                        <span class="hero-left-btns">
+                            <button class="btn-comecar-agora" onclick="redirect_login()">
+                                Começar agora <i class="fa-solid fa-arrow-right"></i>
+                            </button>
+                            <button class="btn-plataforma">
+                                <a href="#home_intro" style="text-decoration: none; color: inherit;">
+                                    Conheça a plataforma
+                                </a>
+                            </button>
+                        </span>
+                    </div>
+                    <div class="hero-right">
+                        <img src="./assets/hero_main_image.png" alt="">
+                    </div>
+                </div>
+            </div>
         </div>
+    </header>
 
-      </div>
-    </div>
-  </div>
-</header>
-
-  <!-- ==========================================
+    <!-- ==========================================
        INTRODUÇÃO
        ========================================== -->
 
-  <section class="home-intro py-5">
+    <section class="home-intro py-5" id="home_intro">
 
 
-    <div class="container px-4 px-lg-5 py-5">
+        <div class="container px-4 px-lg-5 py-5">
 
-      <div class="row align-items-center g-5">
+            <div class="row align-items-center g-5">
 
-        <div class="col-lg-5">
+                <div class="col-lg-7">
 
-          <span class="corp-tag mb-3">
-            VISIBILIDADE OPERACIONAL
-          </span>
+                    <span class="corp-tag mb-3">
+                        VISIBILIDADE OPERACIONAL
+                    </span>
 
-          <h2 class="home-section-title text-white">
-            Entenda o que está acontecendo na sua infraestrutura.
-          </h2>
+                    <h2 class="home-section-title text-white">
+                        Entenda o que está acontecendo na sua infraestrutura.
+                    </h2>
+
+                </div>
+
+
+                <div class="col-lg-5">
+
+                    <p class="corp-text mb-3">
+                        Uma infraestrutura pode apresentar sinais de degradação
+                        muito antes de uma indisponibilidade ser percebida pelos
+                        usuários.
+                    </p>
+
+                    <p class="corp-text mb-0">
+                        O Stream Guard acompanha continuamente os recursos dos
+                        servidores e organiza essas informações em um único ambiente,
+                        oferecendo uma visão clara para sua equipe técnica.
+                    </p>
+
+                </div>
+
+            </div>
 
         </div>
 
 
-        <div class="col-lg-7">
+    </section>
 
-          <p class="corp-text mb-3">
-            Uma infraestrutura pode apresentar sinais de degradação
-            muito antes de uma indisponibilidade ser percebida pelos
-            usuários.
-          </p>
-
-          <p class="corp-text mb-0">
-            O Stream Guard acompanha continuamente os recursos dos
-            servidores e organiza essas informações em um único ambiente,
-            oferecendo uma visão clara para sua equipe técnica.
-          </p>
-
-        </div>
-
-      </div>
-
-    </div>
-
-
-  </section>
-
-  <!-- ==========================================
+    <!-- ==========================================
        O QUE MONITORAMOS
        ========================================== -->
 
-  <section class="home-monitoring py-5">
+    <section class="home-monitoring py-5">
 
 
-    <div class="container px-4 px-lg-5 py-5">
+        <div class="container px-4 px-lg-5 py-5">
 
-      <div class="row mb-5">
+            <div class="row mb-5">
 
-        <div class="col-lg-7">
+                <div class="col-lg-7">
 
-          <span class="corp-tag mb-3">
-            MONITORAMENTO
-          </span>
+                    <span class="corp-tag mb-3">
+                        MONITORAMENTO
+                    </span>
 
-          <h2 class="home-section-title text-white mb-3">
-            Recursos importantes em um único lugar
-          </h2>
+                    <h2 class="home-section-title text-white mb-3">
+                        Recursos importantes em um único lugar
+                    </h2>
 
-          <p class="corp-text">
-            Acompanhe os principais recursos da infraestrutura
-            e tenha informações para tomar decisões com mais segurança.
-          </p>
+                    <p class="corp-text">
+                        Acompanhe os principais recursos da infraestrutura
+                        e tenha informações para tomar decisões com mais segurança.
+                    </p>
 
-        </div>
+                </div>
 
-      </div>
-
-
-      <div class="row g-4">
-
-
-        <!-- CPU -->
-        <div class="col-md-6 col-lg-3">
-
-          <div class="home-feature-card h-100">
-
-            <div class="home-feature-icon">
-              <i class="bi bi-cpu"></i>
             </div>
 
-            <h5>
-              Processador
-            </h5>
 
-            <p>
-              Acompanhe a utilização da CPU e o comportamento dos
-              núcleos do servidor.
-            </p>
+            <div class="row g-4">
 
-          </div>
 
+                <!-- CPU -->
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="home-feature-card h-100">
+
+                        <div class="home-feature-icon">
+                            <i class="bi bi-cpu"></i>
+                        </div>
+
+                        <h5>
+                            Processador
+                        </h5>
+
+                        <p>
+                            Acompanhe a utilização da CPU e o comportamento dos
+                            núcleos do servidor.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- RAM -->
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="home-feature-card h-100">
+
+                        <div class="home-feature-icon">
+                            <i class="bi bi-memory"></i>
+                        </div>
+
+                        <h5>
+                            Memória
+                        </h5>
+
+                        <p>
+                            Visualize o consumo de memória e identifique situações
+                            de utilização elevada.
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <!-- DISCO -->
+                <div class="col-md-6 col-lg-3">
+
+                    <div class="home-feature-card h-100">
+
+                        <div class="home-feature-icon">
+                            <i class="bi bi-device-hdd"></i>
+                        </div>
+
+                        <h5>
+                            Armazenamento
+                        </h5>
+
+                        <p>
+                            Acompanhe a utilização dos dispositivos de armazenamento
+                            da infraestrutura.
+                        </p>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="home-feature-card h-100">
+                        <div class="home-feature-icon">
+                            <i class="bi bi-hdd-rack"></i>
+                        </div>
+
+                        <h5>
+                            Servidores
+                        </h5>
+
+                        <p>
+                            Tenha uma visão centralizada dos servidores cadastrados
+                            e seu estado de monitoramento.
+                        </p>
+
+                    </div>
+                </div>
+            </div>
         </div>
+    </section>
 
+    <section class="home-product py-5">
+        <div class="container px-4 px-lg-5 py-5">
+            <div class="row align-items-center g-5">
+                <div class="col-lg-7">
+                    <div class="info-content-left">
+                        <span class="corp-tag mb-3">
+                            PORQUE É IMPORTANTE?
+                        </span>
+                        <h2>
+                            Streaming é ao vivo. <br>
+                            <span>E problemas acontecem.</span>
+                        </h2>
+                        <h6>
+                            Uma queda na qualidade, aumento da latência ou perda de conexão pode afetar milhares de
+                            espectadores, gerar prejuízos e manchar a reputação da sua marca. O StreamGuard existe para
+                            evitar isso.
+                        </h6>
+                        <div class="info-icons">
+                            <div class="info-icons-item">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span>
+                                    <h4>Protege sua reputação</h4>
+                                    <h5>
+                                        Mantém a qualidade da sua transmissão e a confiança do seu público.
+                                    </h5>
+                                </span>
+                            </div>
+                            <div class="info-icons-item">
+                                <i class="fa-solid fa-chart-simple"></i>
+                                <span>
+                                    <h4>Dá controle total</h4>
+                                    <h5>
+                                        Tenha todas as métricas em tempo real, em um só lugar, com alertas inteligentes.
+                                    </h5>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- RAM -->
-        <div class="col-md-6 col-lg-3">
+                <div class="col-lg-5">
+                    <div class="info-content-right">
+                        <div class="info-images">
+                            <img src="./assets/info-image.png" alt="">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 
-          <div class="home-feature-card h-100">
+    <section class="home-process py-5">
+        <div class="container px-4 px-lg-5 py-5">
+            <div class="row mb-5">
+                <div class="col-lg-6">
+                    <span class="corp-tag mb-3">
+                        COMO FUNCIONA
+                    </span>
 
-            <div class="home-feature-icon">
-              <i class="bi bi-memory"></i>
+                    <h2 class="home-section-title text-white">
+                        Do servidor ao painel.
+                    </h2>
+                </div>
             </div>
 
-            <h5>
-              Memória
-            </h5>
 
-            <p>
-              Visualize o consumo de memória e identifique situações
-              de utilização elevada.
-            </p>
+            <div class="row g-4">
+                <div class="col-md-4">
+                    <div class="process-item">
+                        <span class="process-number">
+                            01
+                        </span>
+                        <div>
+                            <h5>
+                                Agente
+                            </h5>
 
-          </div>
+                            <p>
+                                O agente é instalado no servidor e realiza a coleta
+                                das informações de infraestrutura.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-        </div>
+                <div class="col-md-4">
+                    <div class="process-item">
+                        <span class="process-number">
+                            02
+                        </span>
+                        <div>
+                            <h5>
+                                Monitoramento
+                            </h5>
 
+                            <p>
+                                As métricas configuradas são acompanhadas continuamente
+                                durante a operação.
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
-        <!-- DISCO -->
-        <div class="col-md-6 col-lg-3">
+                <div class="col-md-4">
+                    <div class="process-item">
+                        <span class="process-number">
+                            03
+                        </span>
+                        <div>
+                            <h5>
+                                Visibilidade
+                            </h5>
 
-          <div class="home-feature-card h-100">
-
-            <div class="home-feature-icon">
-              <i class="bi bi-device-hdd"></i>
+                            <p>
+                                Os dados ficam disponíveis em um ambiente centralizado
+                                para acompanhamento da infraestrutura.
+                            </p>
+                        </div>
+                    </div>
+                </div>
             </div>
-
-            <h5>
-              Armazenamento
-            </h5>
-
-            <p>
-              Acompanhe a utilização dos dispositivos de armazenamento
-              da infraestrutura.
-            </p>
-
-          </div>
-
         </div>
-
-        <div class="col-md-6 col-lg-3">
-          <div class="home-feature-card h-100">
-            <div class="home-feature-icon">
-              <i class="bi bi-hdd-rack"></i>
-            </div>
-
-            <h5>
-              Servidores
-            </h5>
-
-            <p>
-              Tenha uma visão centralizada dos servidores cadastrados
-              e seu estado de monitoramento.
-            </p>
-
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-product py-5">
-    <div class="container px-4 px-lg-5 py-5">
-      <div class="row align-items-center g-5">
-        <div class="col-lg-5">
-          <span class="corp-tag mb-3">
-            CENTRALIZAÇÃO
-          </span>
-
-          <h2 class="home-section-title text-white mb-4">
-            Uma visão clara da sua operação.
-          </h2>
-
-          <p class="corp-text mb-3">
-            O Stream Guard reúne os dados coletados dos servidores
-            em uma plataforma centralizada, facilitando o acompanhamento
-            da infraestrutura.
-          </p>
-
-          <p class="corp-text mb-4">
-            Configure quais métricas devem ser acompanhadas e mantenha
-            sua equipe focada no que realmente importa.
-          </p>
-
-          <a href="cadastroEmpresa.html" class="btn corp-btn-primary">
-            Começar agora
-          </a>
-
-        </div>
-
-        <div class="col-lg-7">
-          <div class="home-product-image">
-            <img src="./assets/graficos.png" alt="Painel de monitoramento do Stream Guard" class="img-fluid">
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="home-process py-5">
-    <div class="container px-4 px-lg-5 py-5">
-      <div class="row mb-5">
-        <div class="col-lg-6">
-          <span class="corp-tag mb-3">
-            COMO FUNCIONA
-          </span>
-
-          <h2 class="home-section-title text-white">
-            Do servidor ao painel.
-          </h2>
-        </div>
-      </div>
+    </section>
 
 
-      <div class="row g-4">
-        <div class="col-md-4">
-          <div class="process-item">
-            <span class="process-number">
-              01
-            </span>
-            <div>
-              <h5>
-                Agente
-              </h5>
-
-              <p>
-                O agente é instalado no servidor e realiza a coleta
-                das informações de infraestrutura.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="process-item">
-            <span class="process-number">
-              02
-            </span>
-            <div>
-              <h5>
-                Monitoramento
-              </h5>
-
-              <p>
-                As métricas configuradas são acompanhadas continuamente
-                durante a operação.
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-md-4">
-          <div class="process-item">
-            <span class="process-number">
-              03
-            </span>
-            <div>
-              <h5>
-                Visibilidade
-              </h5>
-
-              <p>
-                Os dados ficam disponíveis em um ambiente centralizado
-                para acompanhamento da infraestrutura.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-
-  <section class="home-cta py-5">
-    <div class="container px-4 px-lg-5 py-5 text-center">
-      <span class="corp-tag mb-3">
-        STREAM GUARD
-      </span>
-
-      <h2 class="text-white poppins-medium mb-3">
-        Tenha visibilidade sobre sua infraestrutura.
-      </h2>
-
-      <p class="corp-text mb-4 mx-auto" style="max-width: 650px;">
-        Monitore seus servidores, acompanhe recursos críticos
-        e tenha as informações necessárias para agir antes que
-        problemas afetem sua operação.
-      </p>
-
-      <a href="cadastroEmpresa.html" class="btn corp-btn-primary">
-        Criar conta
-      </a>
-    </div>
-  </section>
-
-  <footer class="footer-section">
-    <div class="container-fluid px-4 py-5">
-      <div class="row gy-4">
-        <div class="col-12 col-lg-5">
-          <a class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2" href="index.html">
-            <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="40" height="34">
-
-            <span class="poppins-medium fs-5">
-              Stream Guard
+    <section class="home-cta py-5">
+        <div class="container px-4 px-lg-5 py-5 text-center">
+            <span class="corp-tag mb-3">
+                STREAM GUARD
             </span>
 
-          </a>
+            <h2 class="text-white poppins-medium mb-3">
+                Tenha visibilidade sobre sua infraestrutura.
+            </h2>
 
-          <p class="footer-text">
-            Monitoramento de infraestrutura em tempo real,
-            desenvolvido para proporcionar maior visibilidade
-            e controle sobre seus servidores.
-          </p>
-        </div>
+            <p class="corp-text mb-4 mx-auto" style="max-width: 650px;">
+                Monitore seus servidores, acompanhe recursos críticos
+                e tenha as informações necessárias para agir antes que
+                problemas afetem sua operação.
+            </p>
 
-
-        <div class="col-6 col-lg-2">
-          <h6 class="footer-heading">
-            Navegação
-          </h6>
-
-          <ul class="footer-links list-unstyled">
-            <li>
-              <a href="index.html">
-                Página principal
-              </a>
-            </li>
-
-            <li>
-              <a href="about.html">
-                Sobre
-              </a>
-            </li>
-          </ul>
-        </div>
-
-
-        <div class="col-6 col-lg-2">
-          <h6 class="footer-heading">
-            Conta
-          </h6>
-
-          <ul class="footer-links list-unstyled">
-            <li>
-              <a href="login.html">
-                Login
-              </a>
-            </li>
-
-            <li>
-              <a href="cadastroEmpresa.html">
-                Cadastro
-              </a>
-            </li>
-          </ul>
-        </div>
-
-
-        <div class="col-12 col-lg-3">
-          <h6 class="footer-heading">
-            Contato
-          </h6>
-
-          <ul class="footer-links list-unstyled">
-            <li>
-              <i class="bi bi-envelope me-2"></i>
-              contato@streamguard.com
-            </li>
-
-            <li>
-              <i class="bi bi-geo-alt me-2"></i>
-              São Paulo, Brasil
-            </li>
-          </ul>
-
-          <div class="d-flex gap-3 mt-3 footer-socials">
-            <a href="#" aria-label="Instagram">
-              <i class="bi bi-instagram"></i>
+            <a href="cadastroEmpresa.html" class="btn corp-btn-primary">
+                Criar conta
             </a>
-
-            <a href="#" aria-label="LinkedIn">
-              <i class="bi bi-linkedin"></i>
-            </a>
-
-            <a href="https://github.com/StreamGuard" aria-label="GitHub">
-              <i class="bi bi-github"></i>
-            </a>
-
-          </div>
         </div>
-      </div>
+    </section>
 
-      <hr class="footer-divider">
-      <div class="text-center footer-bottom">
-        &copy; 2026 Stream Guard. Todos os direitos reservados.
-      </div>
-    </div>
-  </footer>
+    <footer class="footer-section">
+        <div class="container-fluid px-4 py-5">
+            <div class="row gy-4" style="padding: 0rem 4rem;">
+                <div class="col-12 col-lg-5">
+                    <a class="d-inline-flex align-items-center gap-2 text-white text-decoration-none mb-2"
+                        href="index.html">
+                        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="40" height="34">
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
-    </script>
+                        <span class="poppins-medium fs-5">
+                            Stream Guard
+                        </span>
+
+                    </a>
+
+                    <p class="footer-text" style="max-width: 70%;">
+                        Monitoramento de infraestrutura em tempo real,
+                        desenvolvido para proporcionar maior visibilidade
+                        e controle sobre seus servidores.
+                    </p>
+                </div>
+
+
+                <div class="col-6 col-lg-2">
+                    <h6 class="footer-heading">
+                        Navegação
+                    </h6>
+
+                    <ul class="footer-links list-unstyled">
+                        <li>
+                            <a href="index.html">
+                                Página principal
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="about.html">
+                                Sobre
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="col-6 col-lg-2">
+                    <h6 class="footer-heading">
+                        Conta
+                    </h6>
+
+                    <ul class="footer-links list-unstyled">
+                        <li>
+                            <a href="login.html">
+                                Login
+                            </a>
+                        </li>
+
+                        <li>
+                            <a href="cadastroEmpresa.html">
+                                Cadastro
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+
+                <div class="col-12 col-lg-3">
+                    <h6 class="footer-heading">
+                        Contato
+                    </h6>
+
+                    <ul class="footer-links list-unstyled">
+                        <li>
+                            <i class="bi bi-envelope me-2"></i>
+                            contato@streamguard.com
+                        </li>
+
+                        <li>
+                            <i class="bi bi-geo-alt me-2"></i>
+                            São Paulo, Brasil
+                        </li>
+                    </ul>
+
+                    <div class="d-flex gap-3 mt-3 footer-socials">
+                        <a href="#" aria-label="Instagram">
+                            <i class="bi bi-instagram"></i>
+                        </a>
+
+                        <a href="#" aria-label="LinkedIn">
+                            <i class="bi bi-linkedin"></i>
+                        </a>
+
+                        <a href="https://github.com/StreamGuard" aria-label="GitHub">
+                            <i class="bi bi-github"></i>
+                        </a>
+
+                    </div>
+                </div>
+            </div>
+
+            <hr class="footer-divider">
+            <div class="text-center footer-bottom">
+                &copy; 2026 Stream Guard. Todos os direitos reservados.
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous">
+        </script>
 
 </body>
 
