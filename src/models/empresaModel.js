@@ -10,14 +10,14 @@ function cadastrar(razaoSocial, cnpj, codigoEmpresa) {
 
 function buscarPorCnpj(cnpj) {
     var instrucaoSql = `
-        SELECT id FROM empresa WHERE cnpj = '${cnpj}';
+        SELECT id_empresa FROM empresa WHERE cnpj = '${cnpj}';
     `;
     return database.executar(instrucaoSql);
 }
 
 function buscarPorCodigoEmpresa(codigoEmpresa) {
     console.log("Cheguei aqui pelo cadastro de usuário");
-    var instrucaoSql = `SELECT id FROM empresa WHERE codigo_empresa = '${codigoEmpresa}'`;
+    var instrucaoSql = `SELECT id_empresa FROM empresa WHERE codigo_empresa = '${codigoEmpresa}'`;
     return database.executar(instrucaoSql);
 }
 

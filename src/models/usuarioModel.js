@@ -7,15 +7,10 @@ function autenticar(email, senha) {
     senha,
   );
 
-  if (email.includes("@streamguard.com")) {
-    var instrucaoSql = `
-        SELECT id, nome, email, cargo FROM usuario_stream_guard WHERE email = '${email}' AND senha_hash = SHA2('${senha}',256);
+  var instrucaoSql = `
+        SELECT u.id_usuario, u.nome, u.email, u.cargo, u.fk_empresa, e.razao_social as nome_empresa FROM usuario u JOIN empresa e ON e.id_empresa = u.fk_empresa WHERE u.email = '${email}' AND senha_hash = SHA2('${senha}',256);
     `;
-  } else {
-    var instrucaoSql = `
-        SELECT u.id, u.nome, u.email, u.cargo, u.empresa_id, e.razao_social as nome_empresa FROM usuario u JOIN empresa e ON e.id = u.empresa_id WHERE email = '${email}' AND senha_hash = SHA2('${senha}',256);
-    `;
-  }
+
   console.log("Executando a instrução SQL: \n" + instrucaoSql);
   return database.executar(instrucaoSql);
 }
@@ -23,18 +18,20 @@ function autenticar(email, senha) {
 function cadastrar(codigo_empresa, nome, cargo, email, senha) {
   var instrucaoSql = `
         INSERT INTO usuario (
-            empresa_id,
+            fk_empresa,
             nome,
             cargo,
             email,
-            senha_hash
+            senha_hash,
+            fk_permissao
         )
         SELECT
-            id,
+            id_empresa,
             '${nome}',
             '${cargo}',
             '${email}',
-            SHA2('${senha}', 256)
+            SHA2('${senha}', 256),
+            1
         FROM empresa
         WHERE codigo_empresa = '${codigo_empresa}';
     `;
