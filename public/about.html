@@ -2,491 +2,420 @@
 <html lang="pt-br">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="assets/streamGuard_logo.png">
-    <title>Stream Guard | Sobre a Empresa</title>
-    <link rel="stylesheet" href="./css/about.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/png" href="assets/streamGuard_logo.png">
+  <title>Stream Guard | Sobre a Empresa</title>
+  <link rel="stylesheet" href="../public/css/about.css">
 </head>
 
-<body class="corporate-bg">
+<body>
 
-  <nav class="navbar fixed-top">
-    <div class="container-fluid">
-      <!-- logo -->
-      <a class="navbar-brand text-white poppins-medium" href="index.html">
-        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50"
-          class="d-inline-block align-text-top">
-      </a>
+  <svg class="sprite-icones" aria-hidden="true">
+    <symbol id="icone-github" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z" />
+    </symbol>
+    <symbol id="icone-linkedin" viewBox="0 0 24 24">
+      <path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z" />
+    </symbol>
+  </svg>
 
-      <!-- botao só aparece em telas pequenas (celulares) -->
-      <button class="menu-toggler" type="button" id="navToggle" aria-controls="offcanvasNavbar"
-        aria-expanded="false" aria-label="Abrir menu">
-        <span class="menu-icon"></span>
-        <span class="menu-icon"></span>
-        <span class="menu-icon"></span>
-      </button>
+  <header class="cabecalho">
+    <a class="logo" href="index.html">
+      <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50">
+    </a>
 
-      <!-- menu nav -->
-      <div class="offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+    <button class="botao-menu" type="button" id="botao-menu" aria-controls="menu" aria-expanded="false"
+      aria-label="Abrir menu">
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+    </button>
 
-        <!-- cabeçalho aparece somente no celular -->
-        <div class="custom-offcanvas-header">
-          <div class="d-flex align-items-center gap-2">
-            <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32">
-
-            <h5 class="mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
-              Stream Guard
-            </h5>
-          </div>
-          <button type="button" class="btn-close" id="navClose" aria-label="Fechar"></button>
+    <nav class="menu" id="menu" aria-label="Menu principal">
+      <div class="menu-topo">
+        <div class="menu-marca">
+          <img src="./assets/streamGuard_logo.png" alt="" width="32" height="32">
+          <span class="menu-titulo">Stream Guard</span>
         </div>
+        <button class="botao-fechar" type="button" id="botao-fechar" aria-label="Fechar menu"></button>
+      </div>
 
-        <!-- corpo aparece sempre -->
-        <div class="offcanvas-body d-lg-flex align-items-lg-center w-100">
-          <!-- links da navbar -->
-          <ul class="custom-nav">
-            <li>
-              <a class="nav-link" href="index.html">Página principal</a>
-            </li>
+      <div class="menu-corpo">
+        <ul class="menu-links">
+          <li><a class="menu-link" href="index.html">Página principal</a></li>
+          <li><a class="menu-link ativo" href="about.html" aria-current="page">Sobre nós!</a></li>
+        </ul>
 
-            <li>
-              <a class="nav-link active" href="about.html">Sobre nós!</a>
-            </li>
-          </ul>
+        <div class="botoes-acesso">
+          <a class="botao-login" href="login.html">Login</a>
+          <a class="botao-cadastro" href="cadastroUsuario.html">Cadastro</a>
+        </div>
+      </div>
+    </nav>
 
-          <!-- botoes -->
-          <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-auto auth-buttons">
-            <a href="login.html" class="btn login-button">
-              Login
-            </a>
+    <div class="fundo-menu" id="fundo-menu"></div>
+  </header>
 
-            <a href="cadastroUsuario.html" class="btn register-button">
-              Cadastro
-            </a>
+
+  <main>
+
+    <section class="secao apresentacao">
+      <div class="grade-painel"></div>
+
+      <div class="conteudo">
+        <div class="apresentacao-grade">
+          <div>
+            <span class="etiqueta">MONITORAMENTO EM TEMPO REAL</span>
+            <h1 class="titulo-principal">Governança, Performance e Monitoramento Crítico</h1>
+
+            <p class="texto">
+              O <strong>Stream Guard</strong> é uma solução para monitoramento da infraestrutura de streaming, permitindo acompanhar em tempo real o desempenho e a disponibilidade dos servidores e serviços responsáveis pelas transmissões.
+            </p>
+            <p class="texto">
+              A plataforma centraliza informações como uso de CPU, memória, armazenamento, rede e status dos servidores, facilitando a identificação de problemas e garantindo maior estabilidade e disponibilidade da infraestrutura.
+            </p>
+
+            <div class="status-sinal">
+              <span class="barras-sinal"><span></span><span></span><span></span><span></span></span>
+              Sinal estável &middot; todos os servidores monitorados
+            </div>
+
+            <a class="botao-principal" href="cadastroEmpresa.html">Acessar Solução</a>
+          </div>
+
+          <div class="moldura-imagem">
+            <img src="assets/graficos.png" alt="Painel de monitoramento Stream Guard">
           </div>
         </div>
       </div>
-
-      <div class="nav-backdrop" id="navBackdrop"></div>
-    </div>
-  </nav>
-
-    <section class="corporate-hero">
-        <div class="monitor-grid"></div>
-        <div class="container px-4 px-lg-5">
-            <div class="row align-items-center">
-                <div class="col-lg-7 mb-4 mb-lg-0">
-                    <span class="corp-tag mb-3">MONITORAMENTO EM TEMPO REAL</span>
-                    <h1 class="corp-title text-white mb-4">Governança, Performance e Monitoramento Crítico</h1>
-
-                    <p class="corp-text mb-4">
-                        O <strong>Stream Guard</strong> é uma solução para monitoramento da infraestrutura de streaming, permitindo acompanhar em tempo real o desempenho e a disponibilidade dos servidores e serviços responsáveis pelas transmissões.
-                    </p>
-                    <p class="corp-text mb-4">
-                        A plataforma centraliza informações como uso de CPU, memória, armazenamento, rede e status dos servidores, facilitando a identificação de problemas e garantindo maior estabilidade e disponibilidade da infraestrutura.
-                    </p>
-
-                    <div class="corp-status-line">
-                        <span class="signal-bars"><span></span><span></span><span></span><span></span></span>
-                        Sinal estável &middot; todos os servidores monitorados
-                    </div>
-
-                    <div class="d-flex gap-3">
-                        <a href="cadastroEmpresa.html" class="btn corp-btn-primary">Acessar Solução</a>
-                    </div>
-                </div>
-                <div class="col-lg-5">
-                    <div class="corp-image-container">
-                        <img src="assets/graficos.png" alt="Painel de monitoramento Stream Guard" class="img-fluid w-100">
-                    </div>
-                </div>
-            </div>
-        </div>
     </section>
 
-
-    <!-- ==========================================
-         DIRETRIZES DA EMPRESA (MISSÃO / VISÃO / VALORES)
-         ========================================== -->
-    <section class="corporate-values py-5">
-        <div class="container px-4 px-lg-5 py-4">
-            <div class="row mb-5">
-                <div class="col-lg-6">
-                    <h2 class="section-heading text-white poppins-medium h3">Nossos Pilares Operacionais</h2>
-                </div>
-            </div>
-            <div class="row g-4">
-                <div class="col-md-4">
-                    <div class="corp-value-box">
-                        <span class="value-index">01</span>
-                        <h5>Confiabilidade</h5>
-                        <p>Acompanhamos em tempo real o desempenho e a disponibilidade dos servidores, eliminando pontos cegos na operação de streaming.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="corp-value-box">
-                        <span class="value-index">02</span>
-                        <h5>Escalabilidade</h5>
-                        <p>Projetado para acompanhar o crescimento da infraestrutura de transmissão, sem perder desempenho conforme o volume de dados aumenta.</p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="corp-value-box">
-                        <span class="value-index">03</span>
-                        <h5>Segurança</h5>
-                        <p>Rigidez absoluta no tratamento de credenciais, logs e métricas confidenciais monitoradas pela plataforma.</p>
-                    </div>
-                </div>
-            </div>
+    <section class="secao pilares">
+      <div class="conteudo">
+        <div class="topo-secao">
+          <h2 class="titulo-secao com-barra">Nossos Pilares Operacionais</h2>
         </div>
+
+        <div class="pilares-grade">
+          <article class="pilar">
+            <span class="pilar-numero">01</span>
+            <h3 class="pilar-titulo">Confiabilidade</h3>
+            <p class="pilar-texto">Acompanhamos em tempo real o desempenho e a disponibilidade dos servidores, eliminando pontos cegos na operação de streaming.</p>
+          </article>
+
+          <article class="pilar">
+            <span class="pilar-numero">02</span>
+            <h3 class="pilar-titulo">Escalabilidade</h3>
+            <p class="pilar-texto">Projetado para acompanhar o crescimento da infraestrutura de transmissão, sem perder desempenho conforme o volume de dados aumenta.</p>
+          </article>
+
+          <article class="pilar">
+            <span class="pilar-numero">03</span>
+            <h3 class="pilar-titulo">Segurança</h3>
+            <p class="pilar-texto">Rigidez absoluta no tratamento de credenciais, logs e métricas confidenciais monitoradas pela plataforma.</p>
+          </article>
+        </div>
+      </div>
     </section>
 
-    <!-- ==========================================
-         NOSSA HISTÓRIA
-         ========================================== -->
-    <section class="corporate-story py-5">
-        <div class="container px-4 px-lg-5 py-4">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-6">
-                    <span class="corp-tag mb-3">NOSSA HISTÓRIA</span>
-                    <h2 class="corp-title text-white mb-4" style="font-size: 2rem;">De onde viemos</h2>
+    <section class="secao historia">
+      <div class="conteudo">
+        <div class="historia-grade">
+          <div>
+            <span class="etiqueta">NOSSA HISTÓRIA</span>
+            <h2 class="titulo-medio">De onde viemos</h2>
 
-                    <p class="corp-text mb-3">
-                        O Stream Guard nasceu da necessidade de dar visibilidade real à infraestrutura por trás das transmissões, um ambiente onde falhas de CPU, memória, armazenamento ou rede costumam ser percebidas tarde demais.
-                    </p>
-                    <p class="corp-text mb-0">
-                        A partir dessa dificuldade, desenvolvemos uma plataforma capaz de centralizar esses dados em um único painel, permitindo que equipes de TI identifiquem problemas antes que eles afetem a disponibilidade do serviço.
-                    </p>
-                </div>
-                <div class="col-lg-6">
-                    <div class="corp-image-container">
-                        <img src="assets/StreamGuardFaixada.png" alt="Nossa história" class="img-fluid w-100">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ==========================================
-         CORPO TÉCNICO
-         ========================================== -->
-    <section class="corporate-team py-5 mb-5">
-        <div class="container px-4 px-lg-5">
-            <div class="row mb-5 text-center">
-                <div class="col-12">
-                    <span class="corp-tag mb-2">LIDERANÇA E DESENVOLVIMENTO</span>
-                    <h2 class="text-white poppins-medium">Corpo Técnico</h2>
-                </div>
-            </div>
-
-            <div class="row g-4">
-                <!-- Membro 1 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="corp-team-card">
-                        <div class="corp-team-avatar">
-                            <img src="assets/eduardo.png" alt="Eduardo Lupianez" class="img-fluid">
-                            <span class="corp-team-status" aria-hidden="true"></span>
-                        </div>
-                        <div class="corp-team-body">
-                            <h5>Eduardo Lupianez</h5>
-                            <p>Desenvolvedor FullStack e Analista de Infraestrutura</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://github.com/EduardoGuaglioniLupianez" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
-                                    GitHub
-                                </a>
-                                <a href="https://www.linkedin.com/in/eduardo-guaglioni-lupianez-b21250320/" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
-                                    LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Membro 2 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="corp-team-card">
-                        <div class="corp-team-avatar">
-                            <img src="assets/Ana.png" alt="Ana Clara" class="img-fluid">
-                            <span class="corp-team-status" aria-hidden="true"></span>
-                        </div>
-                        <div class="corp-team-body">
-                            <h5>Ana Clara</h5>
-                            <p>Desenvolvedor Fullstack</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://github.com/anaClarete" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
-                                    GitHub
-                                </a>
-                                <a href="https://www.linkedin.com/in/ana-clara-ferreira-clarete-a4384a231/" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
-                                    LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Membro 3 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="corp-team-card">
-                        <div class="corp-team-avatar">
-                            <img src="assets/bruno.png" alt="Bruno Rafael" class="img-fluid">
-                            <span class="corp-team-status" aria-hidden="true"></span>
-                        </div>
-                        <div class="corp-team-body">
-                            <h5>Bruno Rafael</h5>
-                            <p>Desenvolvedor FullStack e Analista de Infraestrutura</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://github.com/brxnogoncalves" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
-                                    GitHub
-                                </a>
-                                <a href="https://www.linkedin.com/in/brxnorafa/" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
-                                    LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Membro 4 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="corp-team-card">
-                        <div class="corp-team-avatar">
-                            <img src="assets/jonatas.png" alt="Jonatas Teles" class="img-fluid">
-                            <span class="corp-team-status" aria-hidden="true"></span>
-                        </div>
-                        <div class="corp-team-body">
-                            <h5>Jonatas Teles</h5>
-                            <p>Desenvolvedor FullStack</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://github.com/JonatasTeles" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
-                                    GitHub
-                                </a>
-                                <a href="https://www.linkedin.com/in/jonatas-teles-1b6b95379" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
-                                    LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Membro 5 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="corp-team-card">
-                        <div class="corp-team-avatar">
-                            <img src="assets/miguel_soares.jpeg" alt="Miguel Soares" class="img-fluid">
-                            <span class="corp-team-status" aria-hidden="true"></span>
-                        </div>
-                        <div class="corp-team-body">
-                            <h5>Miguel Soares</h5>
-                            <p>Desenvolvedor FullStack</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://github.com/Miguel-Soares1313" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
-                                    GitHub
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Membro 6 -->
-                <div class="col-lg-4 col-md-6">
-                    <div class="corp-team-card">
-                        <div class="corp-team-avatar">
-                            <img src="assets/pedro_ludovic.jpeg" alt="Pedro Ludovic" class="img-fluid">
-                            <span class="corp-team-status" aria-hidden="true"></span>
-                        </div>
-                        <div class="corp-team-body">
-                            <h5>Pedro Ludovic</h5>
-                            <p>Desenvolvedor FullStack</p>
-                            <div class="d-flex gap-2">
-                                <a href="https://github.com/PedroSptech" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.58 2 12.19c0 4.49 2.87 8.3 6.84 9.65.5.1.68-.22.68-.49 0-.24-.01-1.04-.01-1.89-2.78.61-3.37-1.21-3.37-1.21-.46-1.19-1.11-1.51-1.11-1.51-.91-.63.07-.62.07-.62 1 .07 1.53 1.05 1.53 1.05.89 1.56 2.34 1.11 2.91.85.09-.66.35-1.11.63-1.37-2.22-.26-4.56-1.14-4.56-5.06 0-1.12.39-2.03 1.03-2.75-.1-.26-.45-1.31.1-2.72 0 0 .84-.27 2.75 1.05a9.36 9.36 0 0 1 5 0c1.91-1.32 2.75-1.05 2.75-1.05.55 1.41.2 2.46.1 2.72.64.72 1.03 1.63 1.03 2.75 0 3.93-2.34 4.79-4.57 5.05.36.32.68.94.68 1.9 0 1.37-.01 2.48-.01 2.82 0 .27.18.6.69.49A10.02 10.02 0 0 0 22 12.19C22 6.58 17.52 2 12 2Z"/></svg>
-                                    GitHub
-                                </a>
-                                <a href="https://www.linkedin.com/in/pedro-ludovic-nascimento-lima-4b8078212/" class="corp-social-link">
-                                    <svg viewBox="0 0 24 24"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5.001 2.5 2.5 0 0 1 0-5.001ZM3 9h4v12H3V9Zm7 0h3.8v1.64h.05c.53-.95 1.83-1.95 3.77-1.95 4.03 0 4.78 2.55 4.78 5.87V21h-4v-5.7c0-1.36-.03-3.1-1.9-3.1-1.9 0-2.2 1.47-2.2 3v5.8h-4V9Z"/></svg>
-                                    LinkedIn
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <section class="section text-center" id="contato">
-            <h1>Vamos conversar sobre a<br> sua <span class="highlight-blue">infraestrutura?</span></h1>
-            <div class="form-card text-left">
-                <h3>Envie uma mensagem</h3>
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="nome">Nome</label>
-                        <input type="text" id="nome" placeholder="Seu Nome">
-                    </div>
-
-                    <div class="form-group">
-                        <label for="sobrenome">Sobrenome</label>
-
-                        <input type="text" id="sobrenome" placeholder="Seu Sobrenome">
-                    </div>
-                    <div class="form-group">
-                        <label for="empresa">Empresa</label>
-                        <input type="text" id="empresa" placeholder="Nome da empresa">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email </label>
-                        <input type="text" id="email" placeholder="voce@empresa.com">
-                    </div>
-                    <div class="form-group">
-                        <label for="telefone">Telefone</label>
-                        <input type="tel" id="telefone" placeholder="(11) 90000-0000">
-                    </div>
-                    <div class="form-group">
-                        <label for="mensagem">Mensagem</label>
-                        <input type="text" id="mensagem"
-                            placeholder="Conte um pouco sobre o que você precisa monitorar ...">
-                    </div>
-                    <div class="btn-container">
-                        <button type="submit" class="btn-submit">Enviar Mensagem</button>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    <section class="corporate-cta py-5">
-        <div class="container px-4 px-lg-5 text-center">
-            <h2 class="text-white poppins-medium mb-3" style="font-size: 1.8rem;">Pronto para monitorar sua infraestrutura?</h2>
-            <p class="corp-text mb-4 mx-auto" style="max-width: 600px;">
-                Acompanhe CPU, memória, armazenamento, rede e status dos servidores em um único painel, com dados em tempo real.
+            <p class="texto">
+              O Stream Guard nasceu da necessidade de dar visibilidade real à infraestrutura por trás das transmissões, um ambiente onde falhas de CPU, memória, armazenamento ou rede costumam ser percebidas tarde demais.
             </p>
-            <a href="cadastroEmpresa.html" class="btn corp-btn-primary">Criar conta</a>
+            <p class="texto">
+              A partir dessa dificuldade, desenvolvemos uma plataforma capaz de centralizar esses dados em um único painel, permitindo que equipes de TI identifiquem problemas antes que eles afetem a disponibilidade do serviço.
+            </p>
+          </div>
+
+          <div class="moldura-imagem">
+            <img src="assets/StreamGuardFaixada.png" alt="Nossa história">
+          </div>
         </div>
+      </div>
     </section>
 
-   <script>
-      // === Controle do menu lateral ===
-      (function () {
-        var toggler = document.getElementById('navToggle');
-        var drawer = document.getElementById('offcanvasNavbar');
-        var closeBtn = document.getElementById('navClose');
-        var backdrop = document.getElementById('navBackdrop');
+    <section class="secao equipe">
+      <div class="conteudo">
+        <div class="topo-secao centralizado">
+          <span class="etiqueta">LIDERANÇA E DESENVOLVIMENTO</span>
+          <h2 class="titulo-secao">Corpo Técnico</h2>
+        </div>
 
-        function openDrawer() {
-          drawer.classList.add('show');
-          toggler.classList.add('active');
-          backdrop.classList.add('show');
-          toggler.setAttribute('aria-expanded', 'true');
-          document.body.style.overflow = 'hidden';
-        }
+        <div class="equipe-grade">
 
-        function closeDrawer() {
-          drawer.classList.remove('show');
-          toggler.classList.remove('active');
-          backdrop.classList.remove('show');
-          toggler.setAttribute('aria-expanded', 'false');
-          document.body.style.overflow = '';
-        }
+          <!-- Membro 1 -->
+          <article class="cartao-membro">
+            <div class="foto-membro">
+              <img src="assets/eduardo.png" alt="Eduardo Lupianez">
+              <span class="indicador-online" aria-hidden="true"></span>
+            </div>
+            <div class="info-membro">
+              <h3 class="nome-membro">Eduardo Lupianez</h3>
+              <p class="cargo-membro">Desenvolvedor FullStack e Analista de Infraestrutura</p>
+              <div class="redes-sociais">
+                <a class="link-rede" href="https://github.com/EduardoGuaglioniLupianez">
+                  <svg><use href="#icone-github" /></svg>
+                  GitHub
+                </a>
+                <a class="link-rede" href="https://www.linkedin.com/in/eduardo-guaglioni-lupianez-b21250320/">
+                  <svg><use href="#icone-linkedin" /></svg>
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </article>
 
-        toggler.addEventListener('click', function () {
-          drawer.classList.contains('show') ? closeDrawer() : openDrawer();
-        });
+          <!-- Membro 2 -->
+          <article class="cartao-membro">
+            <div class="foto-membro">
+              <img src="assets/Ana.png" alt="Ana Clara">
+              <span class="indicador-online" aria-hidden="true"></span>
+            </div>
+            <div class="info-membro">
+              <h3 class="nome-membro">Ana Clara</h3>
+              <p class="cargo-membro">Desenvolvedor Fullstack</p>
+              <div class="redes-sociais">
+                <a class="link-rede" href="https://github.com/anaClarete">
+                  <svg><use href="#icone-github" /></svg>
+                  GitHub
+                </a>
+                <a class="link-rede" href="https://www.linkedin.com/in/ana-clara-ferreira-clarete-a4384a231/">
+                  <svg><use href="#icone-linkedin" /></svg>
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </article>
 
-        closeBtn.addEventListener('click', closeDrawer);
-        backdrop.addEventListener('click', closeDrawer);
+          <!-- Membro 3 -->
+          <article class="cartao-membro">
+            <div class="foto-membro">
+              <img src="assets/bruno.png" alt="Bruno Rafael">
+              <span class="indicador-online" aria-hidden="true"></span>
+            </div>
+            <div class="info-membro">
+              <h3 class="nome-membro">Bruno Rafael</h3>
+              <p class="cargo-membro">Desenvolvedor FullStack e Analista de Infraestrutura</p>
+              <div class="redes-sociais">
+                <a class="link-rede" href="https://github.com/brxnogoncalves">
+                  <svg><use href="#icone-github" /></svg>
+                  GitHub
+                </a>
+                <a class="link-rede" href="https://www.linkedin.com/in/brxnorafa/">
+                  <svg><use href="#icone-linkedin" /></svg>
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </article>
 
-        document.addEventListener('keydown', function (e) {
-          if (e.key === 'Escape') closeDrawer();
-        });
+          <!-- Membro 4 -->
+          <article class="cartao-membro">
+            <div class="foto-membro">
+              <img src="assets/jonatas.png" alt="Jonatas Teles">
+              <span class="indicador-online" aria-hidden="true"></span>
+            </div>
+            <div class="info-membro">
+              <h3 class="nome-membro">Jonatas Teles</h3>
+              <p class="cargo-membro">Desenvolvedor FullStack</p>
+              <div class="redes-sociais">
+                <a class="link-rede" href="https://github.com/JonatasTeles">
+                  <svg><use href="#icone-github" /></svg>
+                  GitHub
+                </a>
+                <a class="link-rede" href="https://www.linkedin.com/in/jonatas-teles-1b6b95379">
+                  <svg><use href="#icone-linkedin" /></svg>
+                  LinkedIn
+                </a>
+              </div>
+            </div>
+          </article>
 
-        drawer.querySelectorAll('.nav-link').forEach(function (link) {
-          link.addEventListener('click', closeDrawer);
-        });
-      })();
+          <!-- Membro 5 -->
+          <article class="cartao-membro">
+            <div class="foto-membro">
+              <img src="assets/miguel_soares.jpeg" alt="Miguel Soares">
+              <span class="indicador-online" aria-hidden="true"></span>
+            </div>
+            <div class="info-membro">
+              <h3 class="nome-membro">Miguel Soares</h3>
+              <p class="cargo-membro">Desenvolvedor FullStack</p>
+              <div class="redes-sociais">
+                <a class="link-rede" href="https://github.com/Miguel-Soares1313">
+                  <svg><use href="#icone-github" /></svg>
+                  GitHub
+                </a>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
 
-      // ===  Integração com o back end e jira===
-      document.querySelector('.btn-submit').addEventListener('click', async function (e) {
-        e.preventDefault(); // Impede que a página recarregue ao clicar no botão
+    <section class="secao contato" id="contato">
+      <h2 class="titulo-contato">Vamos conversar sobre a<br> sua <span class="destaque-azul">infraestrutura?</span></h2>
 
-        // Capturo os valores digitados em cada campo do HTML
-        const nome = document.getElementById('nome').value;
-        const sobrenome = document.getElementById('sobrenome').value;
-        const empresa = document.getElementById('empresa').value;
-        const email = document.getElementById('email').value;
-        const telefone = document.getElementById('telefone').value;
-        const mensagemTexto = document.getElementById('mensagem').value;
+      <form class="formulario" id="formulario-contato">
+        <h3 class="formulario-titulo">Envie uma mensagem</h3>
 
-        // Validação básica: Nome, Email e Mensagem não podem estar vazios
-        if (!nome || !email || !mensagemTexto) {
-            alert('Por favor, preencha pelo menos os campos Nome, Email e Mensagem!');
-            return;
-        }
+        <div class="campos">
+          <div class="campo">
+            <label for="nome">Nome</label>
+            <input type="text" id="nome" placeholder="Seu Nome">
+          </div>
 
-        //  Formato os dados para o padrão que o seu Back-end espera
-        const nomeCompleto = `${nome} ${sobrenome}`.trim();
-        
-        // Junto os campos extras (Empresa, Telefone) no campo de texto para o Jira registrar tudo
-        const pedidoFormatado = `Empresa: ${empresa}\nTelefone: ${telefone}\n\nMensagem:\n${mensagemTexto}`;
+          <div class="campo">
+            <label for="sobrenome">Sobrenome</label>
+            <input type="text" id="sobrenome" placeholder="Seu Sobrenome">
+          </div>
 
-        const dadosFormulario = {
-            nome: nomeCompleto,
-            email: email,
-            pedido: pedidoFormatado
-        };
+          <div class="campo">
+            <label for="empresa">Empresa</label>
+            <input type="text" id="empresa" placeholder="Nome da empresa">
+          </div>
 
-        try {
-            // Desabilita o botão provisoriamente para evitar cliques repetidos
-            const botao = document.querySelector('.btn-submit');
-            botao.disabled = true;
-            botao.innerText = 'Enviando...';
+          <div class="campo">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="voce@empresa.com">
+          </div>
 
-            //  Faz o envio via POST para o seu servidor Node local 
-            const response = await fetch('http://localhost:3000/api/contato', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(dadosFormulario)
-            });
+          <div class="campo">
+            <label for="telefone">Telefone</label>
+            <input type="tel" id="telefone" placeholder="(11) 90000-0000">
+          </div>
 
-            const resultado = await response.json();
+          <div class="campo">
+            <label for="mensagem">Mensagem</label>
+            <input type="text" id="mensagem" placeholder="Conte um pouco sobre o que você precisa monitorar ...">
+          </div>
+        </div>
 
-            if (response.ok) {
-                // Se o Jira criar com sucesso, aviso o usuário e mostra o código do chamado 
-                alert(`Mensagem enviada com sucesso! Código do chamado: ${resultado.key}`);
-                
-                // Limpa todos os campos da tela
-                document.getElementById('nome').value = '';
-                document.getElementById('sobrenome').value = '';
-                document.getElementById('empresa').value = '';
-                document.getElementById('email').value = '';
-                document.getElementById('telefone').value = '';
-                document.getElementById('mensagem').value = '';
-            } else {
-                console.error('Erro retornado pelo servidor do Back-end:', resultado);
-                alert('Erro ao processar sua mensagem no servidor. Tente novamente.');
-            }
+        <div class="area-botao">
+          <button class="botao-enviar" type="submit">Enviar Mensagem</button>
+        </div>
+      </form>
+    </section>
 
-        } catch (error) {
-            console.error('Erro de conexão (Fetch Error):', error);
-            alert('Não foi possível conectar ao servidor back-end. Certifique-se de que ele está rodando!');
-        } finally {
-            // Devolve o estado original do botão
-            const botao = document.querySelector('.btn-submit');
-            botao.disabled = false;
-            botao.innerText = 'Enviar Mensagem';
-        }
+    <section class="secao chamada-final">
+      <div class="conteudo">
+        <h2 class="titulo-secao">Pronto para monitorar sua infraestrutura?</h2>
+        <p class="texto">
+          Acompanhe CPU, memória, armazenamento, rede e status dos servidores em um único painel, com dados em tempo real.
+        </p>
+        <a class="botao-principal" href="cadastroEmpresa.html">Criar conta</a>
+      </div>
+    </section>
+
+  </main>
+
+
+  <script>
+    // === Menu lateral (celular) ===
+    (function () {
+      const botaoMenu = document.getElementById('botao-menu');
+      const menu = document.getElementById('menu');
+      const botaoFechar = document.getElementById('botao-fechar');
+      const fundoMenu = document.getElementById('fundo-menu');
+
+      function abrirMenu() {
+        menu.classList.add('aberto');
+        botaoMenu.classList.add('aberto');
+        fundoMenu.classList.add('aberto');
+        botaoMenu.setAttribute('aria-expanded', 'true');
+        document.body.classList.add('menu-aberto');
+      }
+
+      function fecharMenu() {
+        menu.classList.remove('aberto');
+        botaoMenu.classList.remove('aberto');
+        fundoMenu.classList.remove('aberto');
+        botaoMenu.setAttribute('aria-expanded', 'false');
+        document.body.classList.remove('menu-aberto');
+      }
+
+      botaoMenu.addEventListener('click', function () {
+        menu.classList.contains('aberto') ? fecharMenu() : abrirMenu();
       });
-    </script>
+
+      botaoFechar.addEventListener('click', fecharMenu);
+      fundoMenu.addEventListener('click', fecharMenu);
+
+      document.addEventListener('keydown', function (evento) {
+        if (evento.key === 'Escape') fecharMenu();
+      });
+
+      menu.querySelectorAll('.menu-link').forEach(function (link) {
+        link.addEventListener('click', fecharMenu);
+      });
+    })();
+
+
+    // === Formulário de contato (envia para o back-end, que cria o chamado no Jira) ===
+    const formulario = document.getElementById('formulario-contato');
+    const botaoEnviar = formulario.querySelector('.botao-enviar');
+
+    formulario.addEventListener('submit', async function (evento) {
+      evento.preventDefault(); // impede a página de recarregar
+
+      // Valores digitados em cada campo
+      const nome = document.getElementById('nome').value;
+      const sobrenome = document.getElementById('sobrenome').value;
+      const empresa = document.getElementById('empresa').value;
+      const email = document.getElementById('email').value;
+      const telefone = document.getElementById('telefone').value;
+      const mensagem = document.getElementById('mensagem').value;
+
+      // Nome, Email e Mensagem são obrigatórios
+      if (!nome || !email || !mensagem) {
+        alert('Por favor, preencha pelo menos os campos Nome, Email e Mensagem!');
+        return;
+      }
+
+      // Monta os dados no formato que o back-end espera.
+      // Empresa e Telefone vão dentro do "pedido" para o Jira registrar tudo.
+      const dados = {
+        nome: `${nome} ${sobrenome}`.trim(),
+        email: email,
+        pedido: `Empresa: ${empresa}\nTelefone: ${telefone}\n\nMensagem:\n${mensagem}`
+      };
+
+      try {
+        // Desabilita o botão para evitar cliques repetidos
+        botaoEnviar.disabled = true;
+        botaoEnviar.innerText = 'Enviando...';
+
+        const resposta = await fetch('http://localhost:3000/api/contato', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(dados)
+        });
+
+        const resultado = await resposta.json();
+
+        if (resposta.ok) {
+          alert(`Mensagem enviada com sucesso! Código do chamado: ${resultado.key}`);
+          formulario.reset(); // limpa todos os campos
+        } else {
+          console.error('Erro retornado pelo servidor:', resultado);
+          alert('Erro ao processar sua mensagem no servidor. Tente novamente.');
+        }
+
+      } catch (erro) {
+        console.error('Erro de conexão:', erro);
+        alert('Não foi possível conectar ao servidor back-end. Certifique-se de que ele está rodando!');
+      } finally {
+        botaoEnviar.disabled = false;
+        botaoEnviar.innerText = 'Enviar Mensagem';
+      }
+    });
+  </script>
 </body>
 
 </html>
