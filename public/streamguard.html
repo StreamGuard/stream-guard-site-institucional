@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minha Conta | Stream Guard</title>
+  <link rel="stylesheet" href="streamguard.css">
+</head>
+<body>
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icone"></div>
+        <div class="logo-texto">STREAM<span>GUARD</span></div>
+      </div>
+
+      <p class="menu-titulo">Monitoramento</p>
+      <nav class="menu">
+        <a href="#" class="menu-item"> Dashboard</a>
+        <a href="#" class="menu-item"> Componentes</a>
+        <a href="#" class="menu-item">🔔 Alertas</a>
+      </nav>
+
+      <p class="menu-titulo">Administração</p>
+      <nav class="menu">
+        <a href="#" class="menu-item">⚙ Configurações</a>
+        <a href="#" class="menu-item">👤 Perfil</a>
+        <a href="#" class="menu-item ativo"> Conta</a>
+      </nav>
+
+      <div class="ambiente">
+        <span class="ambiente-status"><i class="bolinha verde"></i> Ambiente online</span>
+        <strong id="totalVinculadas"></strong>
+        <small>Plano Enterprise • 32 ativos</small>
+      </div>
+    </aside>
+
+    <div class="conteudo">
+
+      <header class="topo">
+        <div>
+          <h1>Minha Conta</h1>
+          <p>Selecione a empresa que deseja monitorar</p>
+        </div>
+        <div class="topo-direita">
+          <span class="selo-online"><i class="bolinha verde"></i> Sistemas online</span>
+          <button class="btn-sino" aria-label="Notificações">🔔</button>
+          <div class="usuario">
+            <div class="avatar">NU</div>
+            <div>
+              <strong>Nome do Usuário</strong>
+              <small>Gerente</small>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="principal">
+
+        <section class="boas-vindas">
+          <div>
+            <h2 id="saudacao"></h2>
+            <p id="textoResumo"></p>
+          </div>
+          <div class="mini-cards" id="miniCards"></div>
+        </section>
+
+        <h3 class="titulo-secao">Suas empresas</h3>
+        <p class="sub">Acompanhe a saúde geral de cada operação</p>
+        <section class="empresas" id="empresas"></section>
+
+        <section class="adicionar">
+          <div class="adicionar-icone">🏢</div>
+          <div>
+            <strong>Adicionar empresa</strong>
+            <small>Conecte uma nova operação ao StreamGuard.</small>
+          </div>
+          <button class="btn-adicionar" id="btnAdicionar">+ Adicionar empresa</button>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <script src="streamguard.js"></script>
+</body>
+</html>
