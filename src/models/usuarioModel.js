@@ -31,7 +31,7 @@ function cadastrar(codigo_empresa, nome, cargo, email, senha) {
             '${cargo}',
             '${email}',
             SHA2('${senha}', 256),
-            1
+            4
         FROM empresa
         WHERE codigo_empresa = '${codigo_empresa}';
     `;
