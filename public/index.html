@@ -22,77 +22,43 @@
 </head>
 
 <body class="corporate-bg">
-    <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
-        <div class="container-fluid">
+    <header class="cabecalho">
+    <a class="logo" href="index.html">
+      <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50">
+    </a>
 
-            <a class="navbar-brand text-white poppins-medium" href="index.html">
-                <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50"
-                    class="d-inline-block align-text-top">
-            </a>
+    <button class="botao-menu" type="button" id="botao-menu" aria-controls="menu" aria-expanded="false"
+      aria-label="Abrir menu">
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+    </button>
 
-            <!-- Menu mobile -->
-            <button class="navbar-toggler menu-toggler" type="button" data-bs-toggle="offcanvas"
-                data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Abrir menu">
-
-                <span class="menu-icon"></span>
-                <span class="menu-icon"></span>
-                <span class="menu-icon"></span>
-
-            </button>
-
-            <!-- Menu -->
-            <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar"
-                aria-labelledby="offcanvasNavbarLabel">
-
-                <div class="offcanvas-header custom-offcanvas-header">
-
-                    <div class="d-flex align-items-center gap-2">
-
-                        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32">
-
-                        <h5 class="offcanvas-title mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
-                            Stream Guard
-                        </h5>
-
-                    </div>
-
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
-                        aria-label="Fechar">
-                    </button>
-
-                </div>
-
-                <div class="offcanvas-body d-lg-flex align-items-lg-center w-100">
-
-                    <ul class="navbar-nav custom-nav">
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="index.html">
-                                Página principal
-                            </a>
-                        </li>
-
-                        <li class="nav-item">
-                            <a class="nav-link" href="about.html">
-                                Sobre nós
-                            </a>
-                        </li>
-
-                    </ul>
-
-                    <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-auto auth-buttons">
-                        <a href="login.html" class="btn login-button">
-                            Login
-                        </a>
-
-                        <a href="cadastroUsuario.html" class="btn register-button">
-                            Cadastro
-                        </a>
-                    </div>
-                </div>
-            </div>
+    <nav class="menu" id="menu" aria-label="Menu principal">
+      <div class="menu-topo">
+        <div class="menu-marca">
+          <img src="./assets/streamGuard_logo.png" alt="" width="32" height="32">
+          <span class="menu-titulo">Stream Guard</span>
         </div>
+        <button class="botao-fechar" type="button" id="botao-fechar" aria-label="Fechar menu"></button>
+      </div>
+
+      <div class="menu-corpo">
+        <ul class="menu-links">
+          <li><a class="menu-link ativo" href="index.html" aria-current="page">Página principal</a></li>
+          <li><a class="menu-link" href="about.html">Sobre nós!</a></li>
+        </ul>
+
+        <div class="botoes-acesso">
+          <a class="botao-login" href="login.html">Login</a>
+          <a class="botao-cadastro" href="cadastroUsuario.html">Cadastro</a>
+        </div>
+      </div>
     </nav>
+
+    <div class="fundo-menu" id="fundo-menu"></div>
+  </header>
+
 
     <header class="corporate-home-hero">
         <div class="container px-4 px-lg-5" style="min-width: 80vw;">

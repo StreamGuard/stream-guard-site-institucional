@@ -11,31 +11,43 @@
 </head>
 
 <body>
-  <nav class="navbar">
-    <div class="nav-container">
-      <a class="nav-logo" href="index.html">
-        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" class="nav-logo-img">
-      </a>
+ <header class="cabecalho">
+    <a class="logo" href="index.html">
+      <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50">
+    </a>
 
-      <button class="nav-toggle" type="button" id="navToggle" aria-label="Abrir menu" aria-expanded="false">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+    <button class="botao-menu" type="button" id="botao-menu" aria-controls="menu" aria-expanded="false"
+      aria-label="Abrir menu">
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+    </button>
 
-      <div class="nav-menu" id="navMenu">
-        <ul class="nav-links">
-          <li><a class="nav-link" href="index.html">Página principal</a></li>
-          <li><a class="nav-link" href="about.html">Sobre nós!</a></li>
+    <nav class="menu" id="menu" aria-label="Menu principal">
+      <div class="menu-topo">
+        <div class="menu-marca">
+          <img src="./assets/streamGuard_logo.png" alt="" width="32" height="32">
+          <span class="menu-titulo">Stream Guard</span>
+        </div>
+        <button class="botao-fechar" type="button" id="botao-fechar" aria-label="Fechar menu"></button>
+      </div>
+
+      <div class="menu-corpo">
+        <ul class="menu-links">
+          <li><a class="menu-link" href="index.html">Página principal</a></li>
+          <li><a class="menu-link" href="about.html">Sobre nós!</a></li>
         </ul>
 
-        <div class="nav-auth">
-          <a href="login.html" class="btn btn-ghost">Login</a>
-          <a href="cadastroUsuario.html" class="btn btn-primary">Cadastro</a>
+        <div class="botoes-acesso">
+          <a class="botao-login" href="login.html">Login</a>
+          <a class="botao-cadastro" href="cadastroUsuario.html">Cadastro</a>
         </div>
       </div>
-    </div>
-  </nav>
+    </nav>
+
+    <div class="fundo-menu" id="fundo-menu"></div>
+  </header>
+
 
   <main class="auth-page">
     <div class="auth-shell">
