@@ -74,12 +74,21 @@ CREATE TABLE config_metrica (
 -- Sample data to test (optional) --------------------------
 
 INSERT INTO empresa (razao_social, cnpj, nome_resp, email, telefone, codigo_empresa)
-VALUES ('Tech Stream Ltda', '12345678000199', 'Maria Silva', 'contato@techstream.com', '5511999999999', 'ABC12345');
+VALUES 
+('Tech Stream Ltda', '12345678000199', 'Maria Silva', 'contato@techstream.com', '5511999999999', 'ABC12345'),
+('StreamGuard', '12345678000198', 'Mariana', 'contato@streamguard.com', '5511999999998', 'ABC12344');
 
-INSERT INTO permissao (nome) VALUES ('Administrador'), ('Analista');
+INSERT INTO permissao (nome) 
+VALUES 
+('Root'),
+('Admin'),
+('Gerente'),
+('User');
 
 INSERT INTO usuario (nome, cargo, email, senha_hash, fk_empresa, fk_permissao)
-VALUES ('Joao Souza', 'Analista de TI', 'joao@techstream.com', 'hash_exemplo', 1, 1);
+VALUES 
+('Joao Souza', 'Analista de TI', 'joao@techstream.com', 'hash_exemplo', 1, 4),
+('Caio', 'Analista de TI', 'joao@streamguard.com', 'hash_exemplo', 2, 4);
 
 INSERT INTO equipamentos (hostname, codigo_agente, sistema_operacional, versao_so, arquitetura, tipo, ip, status, dt_atualizacao, fk_equipamento)
 VALUES ('srv-stream-01', 'AGENTE-0001', 'Ubuntu', '22.04', 'x86_64', 'Servidor', '192.168.0.10', 'Ativo', NOW(), 1);
