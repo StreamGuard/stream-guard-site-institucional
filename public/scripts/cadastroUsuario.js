@@ -28,7 +28,7 @@ document.querySelector("#btnCadastro").addEventListener("click", async function 
     }
 
     try {
-        var respostaEmpresa = await fetch(`${URL_API}/empresas/obterCodigo/${id_empresa}`, {
+        var respostaEmpresa = await fetch(`/empresas/obterCodigo/${id_empresa}`, {
             method: "GET"
         });
 
@@ -47,7 +47,7 @@ document.querySelector("#btnCadastro").addEventListener("click", async function 
     }
 
     try {
-        var respostaCadastro = await fetch(`${URL_API}/usuarios/cadastrar`, {
+        var respostaCadastro = await fetch(`/usuarios/cadastrar`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
