@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minha Conta | Stream Guard</title>
+  <link rel="stylesheet" href="../public/css/streamguard.css">
+</head>
+<body>
+  <div class="layout">
+
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icone"></div>
+        <div class="logo-texto">STREAM<span>GUARD</span></div>
+      </div>
+
+      <p class="menu-titulo">Monitoramento</p>
+      <nav class="menu">
+        <a href="#" data-rota="dashboard" class="menu-item"> Dashboard</a>
+        <a href="#" data-rota="componentes" class="menu-item"> Componentes</a>
+        <a href="#" data-rota="alertas" class="menu-item">🔔 Alertas</a>
+      </nav>
+
+      <p class="menu-titulo">Administração</p>
+      <nav class="menu">
+        <a href="#" data-rota="configuracoes" class="menu-item">⚙ Configurações</a>
+        <a href="#" data-rota="perfil" class="menu-item">👤 Perfil</a>
+        <a href="#" data-rota="conta" class="menu-item ativo"> Conta</a>
+      </nav>
+
+      <div class="ambiente">
+        <span class="ambiente-status"><i class="bolinha verde"></i> Ambiente online</span>
+        <strong id="totalVinculadas"></strong>
+        <small>Plano Enterprise • 32 ativos</small>
+      </div>
+    </aside>
+
+    <div class="conteudo">
+
+      <header class="topo">
+        <div>
+          <h1>Minha Conta</h1>
+          <p>Selecione a empresa que deseja monitorar</p>
+        </div>
+        <div class="topo-direita">
+          <span class="selo-online"><i class="bolinha verde"></i> Sistemas online</span>
+          <div class="sino-wrap">
+            <button class="btn-sino" id="btnSino" aria-label="Notificações" aria-expanded="false">🔔<span class="sino-badge" id="sinoBadge" hidden></span></button>
+            <div class="painel-notif" id="painelNotif" hidden></div>
+          </div>
+          <div class="usuario">
+            <div>
+              <strong>Nome do Usuário</strong>
+              <small>Gerente</small>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="principal">
+
+        <section class="boas-vindas">
+          <div>
+            <h2 id="saudacao"></h2>
+            <p id="textoResumo"></p>
+          </div>
+          <div class="mini-cards" id="miniCards"></div>
+        </section>
+
+        <h3 class="titulo-secao">Suas empresas</h3>
+        <p class="sub">Acompanhe a saúde geral de cada operação</p>
+        <section class="empresas" id="empresas"></section>
+
+        <section class="adicionar">
+          <div class="adicionar-icone">🏢</div>
+          <div>
+            <strong>Adicionar empresa</strong>
+            <small>Conecte uma nova operação ao StreamGuard.</small>
+          </div>
+          <button class="btn-adicionar" id="btnAdicionar">+ Adicionar empresa</button>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="modal-fundo" id="modal" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modalTitulo">
+      <h3 id="modalTitulo">Adicionar empresa</h3>
+      <p class="sub">Conecte uma nova operação ao StreamGuard.</p>
+      <form id="formEmpresa" novalidate>
+        <label>Nome da empresa
+          <input type="text" id="campoNome" maxlength="40" autocomplete="off">
+        </label>
+        <div class="linha-form">
+          <label>Sigla
+            <input type="text" id="campoSigla" maxlength="3" autocomplete="off">
+          </label>
+          <label>Equipamentos
+            <input type="number" id="campoEquip" min="1" value="1">
+          </label>
+        </div>
+        <p class="erro-form" id="erroForm" hidden></p>
+        <div class="acoes-form">
+          <button type="button" class="btn-cancelar" id="btnCancelar">Cancelar</button>
+          <button type="submit" class="btn-adicionar">Adicionar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="../public/scripts/streamguard.js"></script>
+</body>
+</html>
