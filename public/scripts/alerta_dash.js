@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ds.push({
                 label: `Incidente ${n}`, type: "line", showLine: false,
                 data: serie[n].map((v) => (v >= METRICAS[n].limite - 5 ? v : null)),
-                pointStyle: "triangle", pointRadius: 6, pointBackgroundColor: "#ff3b5c", pointBorderColor: "#ff3b5c"
+                pointStyle: "triangle", pointRadius: 6, pointBackgroundColor: "#ff002b", pointBorderColor: "#ff002b"
             });
         });
         return ds;
