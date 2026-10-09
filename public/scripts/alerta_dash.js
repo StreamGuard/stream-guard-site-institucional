@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         Object.entries(METRICAS).forEach(([nome, m]) => {
             let ini = null, pico = 0;
             const fecha = (fim) => {
-                // aqui fecho o trecho e adicion à lista um objeto com data, equipamento, componente, severidade
+                // aqui fecho o trecho e adiciono à lista um objeto com data, equipamento, componente, severidade
                 const n = fim - ini;
                 lista.push({
                     data: labels[ini], equip: equip === "todos" ? "srv-stream-01" : equip, comp: nome,
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", () => {
         <div class="card-valor">${ult}<span>%</span></div>
         <div class="card-progresso"><div class="barra" style="width:${ult}%"></div></div>
         <div class="card-detalhe"><span>Média ${media}% • Pico ${pico}%</span>
-          <span class="card-variacao ${delta > 0 && st !== "ok" ? "perigo" : "positiva"}">${delta >= 0 ? "+" : ""}${delta} p.p. vs. leitura anterior</span></div>
+          <span class="card-variacao ${delta > 0 && st !== "ok" ? "perigo" : "positiva"}">${delta >= 0 ? "" : ""}</div>
       </div>`;
         }).join("");
     }

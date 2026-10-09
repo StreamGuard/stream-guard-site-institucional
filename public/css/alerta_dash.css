@@ -376,20 +376,7 @@ body {
     background-color: var(--color-alerta);
 }
 
-.card-variacao {
-    font-size: 0.8rem;
-    font-weight: 700;
-    align-self: flex-end;
-}
 
-.card-variacao.positiva {
-    color: var(--color-ok);
-    padding: 20px;
-}
-
-.card-variacao.perigo {
-    color: var(--color-critico);
-}
 
 /* --- Banner de Alerta --- */
 .banner-alerta {
