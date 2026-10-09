@@ -1,135 +1,153 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stream Guard | Cadastro</title>
-    <link rel="icon" type="image/png" href="assets/streamGuard_logo.png">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="icon" type="image/png" href="../public/assets/streamGuard_logo.png">
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/cadastro.css">
 </head>
 <body>
-  <nav class="navbar navbar-expand-lg fixed-top px-3" style="background-color: #102031;">
-    <div class="container-fluid">
-      <!-- logo -->
-      <a class="navbar-brand text-white poppins-medium" href="index.html">
-        <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50"
-          class="d-inline-block align-text-top">
-      </a>
+  <header class="cabecalho">
+    <a class="logo" href="index.html">
+      <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50">
+    </a>
 
-      <!-- botao só aparece em telas pequenas (celulares) / bootstrap -->
-      <button class="navbar-toggler menu-toggler" type="button" data-bs-toggle="offcanvas"
-        data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Abrir menu">
-        <span class="menu-icon"></span>
-        <span class="menu-icon"></span>
-        <span class="menu-icon"></span>
-      </button>
+    <button class="botao-menu" type="button" id="botao-menu" aria-controls="menu" aria-expanded="false"
+      aria-label="Abrir menu">
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+    </button>
 
-      <!-- menu nav -->
-      <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar"
-        aria-labelledby="offcanvasNavbarLabel">
-
-        <!-- cabeçalho aparece somente no celular -->
-        <div class="offcanvas-header custom-offcanvas-header">
-          <div class="d-flex align-items-center gap-2">
-            <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="32" height="32">
-
-            <h5 class="offcanvas-title mb-0 text-white poppins-medium" id="offcanvasNavbarLabel">
-              Stream Guard
-            </h5>
-          </div>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"
-            aria-label="Fechar"></button>
+    <nav class="menu" id="menu" aria-label="Menu principal">
+      <div class="menu-topo">
+        <div class="menu-marca">
+          <img src="./assets/streamGuard_logo.png" alt="" width="32" height="32">
+          <span class="menu-titulo">Stream Guard</span>
         </div>
+        <button class="botao-fechar" type="button" id="botao-fechar" aria-label="Fechar menu"></button>
+      </div>
 
-        <!-- corpo aparece sempre -->
-        <div class="offcanvas-body d-lg-flex align-items-lg-center w-100">
-          <!-- links da navbar -->
-          <ul class="navbar-nav custom-nav">
-            <li class="nav-item">
-              <a class="nav-link" href="index.html">Página principal</a>
-            </li>
+      <div class="menu-corpo">
+        <ul class="menu-links">
+          <li><a class="menu-link" href="index.html">Página principal</a></li>
+          <li><a class="menu-link" href="about.html">Sobre nós!</a></li>
+        </ul>
 
-            <li class="nav-item">
-              <a class="nav-link" href="about.html">Sobre nós!</a>
-            </li>
-          </ul>
-
-          <!-- botoes -->
-          <div class="d-flex flex-column flex-lg-row gap-2 ms-lg-auto auth-buttons">
-            <a href="login.html" class="btn login-button">
-              Login
-            </a>
-
-            <a href="cadastroUsuario.html" class="btn register-button">
-              Cadastro
-            </a>
-          </div>
+        <div class="botoes-acesso">
+          <a class="botao-login" href="login.html">Login</a>
+          <a class="botao-cadastro" href="cadastroUsuario.html">Cadastro</a>
         </div>
       </div>
-    </div>
-  </nav>
+    </nav>
 
-  <header class="container-fluid hero-section position-relative overflow-hidden">
-    <div class="hero-bg-text">
-      <span>STREAM</span>
-      <span>GUARD</span>
-    </div>
-
-    <div class="container-fluid hero-content px-4">
-      <div class="row justify-content-center">
-        <div class="col-12 col-xl-10 text-center">
-          <div class="conteudo-cadastro">
-            <div class="crie-conta">
-              <h6>Crie sua conta</h6>
-              <h3><b>Comece a proteger sua infraestrutura de streaming</b></h3>
-              <p class="texto">Monitore servidores, receba alertas em tempo real</p>
-              <p class="texto">e mantenha sua transmissão sempre estável</p>
-              <div class="topico">
-                <img src="assets/grafico-icone.png" width="80px"">
-                <div class="topico-texto">
-                  <p><b>Monitoramento em tempo real</b></p>
-                <p class="texto">Acompanhe o desempenho dos seus</p>
-                <p class="texto">servidores 24/7.</p>
-                </div>
-              </div>
-              <div class="topico">
-                <img src="assets/grafico-sininho.png" width="80px"">
-                <div class="topico-texto">
-                  <p><b>Alertas inteligentes</b></p>
-                <p class="texto">Receba notificações antes que os</p>
-                <p class="texto">  problemas afetem sua transmissão</p>
-                </div>
-              </div>
-            </div>
-            <div class="container-cadastro">
-              <h4>Cadastre sua empresa</h4>
-              <div class="cadastro-empresa">
-                <p>Razão social:  <input type="text" id="razao_social" placeholder="Nome da empresa"></p>
-                <p>CNPJ: <input type="text" id="cnpj" placeholder="00.000.000/0000-00"></p>
-                <!-- <p>Email: <input type="text" id="email_empresa" placeholder="email@email.com"></p>
-                <p>Senha: <input type="text" id="senha_empresa" placeholder="Crie uma senha segura"></p>
-                <p>Confirme sua senha: <input type="text" id="confirmacao_senha_empresa" placeholder="Confirme sua senha"></p> -->
-              </div>
-              <a href="#" class="btn register-button botao-cadastro">
-                Cadastro
-              </a>
-            </div>
-
-          </div>
-        </div>
-
-      </div>
-    </div>
-
+    <div class="fundo-menu" id="fundo-menu"></div>
   </header>
 
-<!-- bootstrap js link -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"
-    integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI"
-    crossorigin="anonymous"></script>
-    <script src="./scripts/cadastroEmpresa.js"></script>
+  <main class="auth-page">
+    <div class="auth-shell">
+      <div class="auth-brand">
+        <span class="status-live">
+          <span class="status-live__dot"></span>
+          MONITORAMENTO EM TEMPO REAL
+        </span>
+
+        <h6>Crie sua conta</h6>
+        <h3>Comece a proteger sua infraestrutura de streaming</h3>
+        <p class="texto">Monitore servidores, receba alertas em tempo real e mantenha sua transmissão sempre
+          estável.</p>
+
+        <div class="waveform" aria-hidden="true">
+          <span style="--i:0"></span>
+          <span style="--i:1"></span>
+          <span style="--i:2"></span>
+          <span style="--i:3"></span>
+          <span style="--i:4"></span>
+          <span style="--i:5"></span>
+          <span style="--i:6"></span>
+          <span style="--i:7"></span>
+          <span style="--i:8"></span>
+          <span style="--i:9"></span>
+          <span style="--i:10"></span>
+          <span style="--i:11"></span>
+          <span style="--i:12"></span>
+          <span style="--i:13"></span>
+          <span style="--i:14"></span>
+          <span style="--i:15"></span>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-chip">
+            <span class="stat-chip__value">99.98%</span>
+            <span class="stat-chip__label">Uptime médio</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip__value">12ms</span>
+            <span class="stat-chip__label">Latência</span>
+          </div>
+          <div class="stat-chip">
+            <span class="stat-chip__value">128</span>
+            <span class="stat-chip__label">Streams ativos</span>
+          </div>
+        </div>
+
+        <div class="topico">
+          <span class="topico-icon"><img src="assets/grafico-icone.png" alt="" width="20"></span>
+          <div class="topico-texto">
+            <p><b>Monitoramento em tempo real</b></p>
+            <p class="texto">Acompanhe o desempenho dos seus servidores 24/7.</p>
+          </div>
+        </div>
+        <div class="topico">
+          <span class="topico-icon"><img src="assets/grafico-sininho.png" alt="" width="20"></span>
+          <div class="topico-texto">
+            <p><b>Alertas inteligentes</b></p>
+            <p class="texto">Receba notificações antes que os problemas afetem sua transmissão.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="auth-card">
+        <h4>Cadastre sua empresa</h4>
+        <p class="auth-card__sub">Cadastre a empresa para gerar o ID de acesso da sua equipe.</p>
+
+        <div class="auth-fields">
+          <label class="field">
+            <span class="field-label">Razão social</span>
+            <input type="text" id="razao_social" placeholder="Nome da empresa">
+          </label>
+
+          <label class="field">
+            <span class="field-label">CNPJ</span>
+            <input type="text" id="cnpj" placeholder="00.000.000/0000-00">
+          </label>
+
+          <!--
+          <label class="field">
+            <span class="field-label">Email</span>
+            <input type="text" id="email_empresa" placeholder="email@email.com">
+          </label>
+          <label class="field">
+            <span class="field-label">Senha</span>
+            <input type="text" id="senha_empresa" placeholder="Crie uma senha segura">
+          </label>
+          <label class="field">
+            <span class="field-label">Confirme sua senha</span>
+            <input type="text" id="confirmacao_senha_empresa" placeholder="Confirme sua senha">
+          </label>
+          -->
+        </div>
+
+        <button type="button" class="btn btn-primary btn-block botao-cadastro">
+          Cadastro
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <script src="assets/nav.js"></script>
+  <script src="./scripts/cadastroEmpresa.js"></script>
 </body>
 </html>
