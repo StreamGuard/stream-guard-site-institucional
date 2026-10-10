@@ -6,14 +6,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Stream Guard | Login</title>
   <link rel="icon" type="image/png" href="../public/assets/streamGuard_logo.png">
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="../main/css/style.css" />
   <link rel="stylesheet" href="./css/cadastro.css" />
 </head>
 
 <body>
   <header class="cabecalho">
-    <a class="logo" href="index.html">
-      <img src="./assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50">
+    <a class="logo" href="../main/index.html">
+      <img src="../assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50">
     </a>
 
     <button class="botao-menu" type="button" id="botao-menu" aria-controls="menu" aria-expanded="false"
@@ -26,7 +26,7 @@
     <nav class="menu" id="menu" aria-label="Menu principal">
       <div class="menu-topo">
         <div class="menu-marca">
-          <img src="./assets/streamGuard_logo.png" alt="" width="32" height="32">
+          <img src="../assets/streamGuard_logo.png" alt="" width="32" height="32">
           <span class="menu-titulo">Stream Guard</span>
         </div>
         <button class="botao-fechar" type="button" id="botao-fechar" aria-label="Fechar menu"></button>
@@ -34,13 +34,13 @@
 
       <div class="menu-corpo">
         <ul class="menu-links">
-          <li><a class="menu-link" href="index.html">Página principal</a></li>
-          <li><a class="menu-link" href="about.html">Sobre nós!</a></li>
+          <li><a class="menu-link" href="../main/index.html">Página principal</a></li>
+          <li><a class="menu-link" href="../main/about.html">Sobre nós!</a></li>
         </ul>
 
         <div class="botoes-acesso">
-          <a class="botao-login" href="login.html">Login</a>
-          <a class="botao-cadastro" href="cadastroUsuario.html">Cadastro</a>
+          <a class="botao-login" href="./login.html">Login</a>
+          <a class="botao-cadastro" href="./cadastroUsuario.html">Cadastro</a>
         </div>
       </div>
     </nav>
@@ -69,7 +69,7 @@
             <span class="field-label">Senha</span>
             <span class="senha-wrapper">
               <input type="password" id="senha_usuario" placeholder="Insira sua senha" />
-              <img src="./assets/eyeClose.png" alt="Mostrar senha" class="toggle-senha" id="toggleSenha" />
+              <img src="../assets/eyeClose.png" alt="Mostrar senha" class="toggle-senha" id="toggleSenha" />
             </span>
           </label>
         </div>
@@ -79,13 +79,13 @@
         </button>
         <p id="mensagemErro" class="mensagem-erro"></p>
 
-        <p class="auth-card__foot">Ainda não tem conta? <a href="cadastroUsuario.html">Cadastre-se</a></p>
+        <p class="auth-card__foot">Ainda não tem conta? <a href="./cadastroUsuario.html">Cadastre-se</a></p>
       </div>
     </div>
   </main>
 
-  <script src="assets/nav.js"></script>
-  <script src="scripts/loginUsuario.js"></script>
+  <script src="../main/js/nav.js"></script>
+  <script src="./js/loginUsuario.js"></script>
   <script>
     const toggleSenha = document.getElementById("toggleSenha");
     const senhaInput = document.getElementById("senha_usuario");
@@ -96,8 +96,8 @@
       senhaInput.type = isPassword ? "text" : "password";
 
       toggleSenha.src = isPassword
-        ? "./assets/eyeOpen.png"
-        : "./assets/eyeClose.png";
+        ? "../assets/eyeOpen.png"
+        : "../assets/eyeClose.png";
     });
   </script>
 </body>
