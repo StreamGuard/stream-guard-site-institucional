@@ -7,98 +7,29 @@
     <title>Painel de Gerenciamento | Stream Guard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
         integrity="..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_modais.css">
     <link rel="stylesheet" href="./css/painel_config.css">
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
 
 </head>
 
-<body>
-    <header>
-        <aside>
-            <div class="content-aside">
-                <div class="content-aside-top">
-                    <div class="aside-top-logo">
-                        <img src="../assets/streamGuard_logo.png" alt="">
-                        <h6>
-                            Stream Guard
-                        </h6>
-                    </div>
-                    <div class="aside-top-links">
-                        <div class="top-links-box">
-                            <h2>
-                                MONITORAMENTO
-                            </h2>
-                            <ul>
-                                <li>
-                                    <i class="fa-regular fa-house"></i>
-                                    Dashboard
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-server"></i>
-                                    Componentes
-                                </li>
-                                <li>
-                                    <i class="fa-regular fa-bell"></i>
-                                    Alertas
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="top-links-box">
-                            <h2>
-                                ADMINISTRAÇÃO
-                            </h2>
-                            <ul>
-                                <li class="link-selected">
-                                    <i class="fa-solid fa-gear"></i>
-                                    Configurações
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-user"></i>
-                                    Perfil
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-lock"></i>
-                                    Conta
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-aside-bottom">
-                    <div class="aside-bottom-perfil">
-                        <div class="bottom-perfil-box">
-                            <div class="perfil-box-title">
-                                <span>
-                                    <i class="fa-regular fa-circle-dot"></i>
-                                    <h6>SISTEMA ONLINE</h6>
-                                </span>
-                                <i class="fa-regular fa-bell"></i>
-                            </div>
-                            <div class="perfil-box-info">
-                                <img src="../assets/eduardo.png" alt="">
-                                <span>
-                                    <h5>Nome User</h5>
-                                    <h6>Cargo User</h6>
-                                </span>
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+<body data-pagina="config" data-acesso="configurar">
+    <div class="layout">
 
-        <div class="container-page">
-            <div class="container-title">
-                <div class="container-title-text">
-                    <h1>
-                        Configurações
-                    </h1>
-                    <h2>
-                        Gerencie métricas, funcionários e permissões.
-                    </h2>
+        <aside class="sidebar" data-shell="sidebar"></aside>
+
+        <div class="conteudo">
+            <header class="topo">
+                <div>
+                    <h1>Configurações</h1>
+                    <p>Gerencie métricas, funcionários e permissões.</p>
                 </div>
-                <div class="container-title-buttons" role="tablist" aria-label="Seções de configuração">
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+
+            <main class="principal">
+                <div class="abas" role="tablist" aria-label="Seções de configuração">
                     <button type="button" class="active" role="tab" id="aba-metricas" data-tab="metricas"
                         aria-controls="painel-metricas" aria-selected="true">
                         <i class="fa-solid fa-arrow-trend-up"></i>
@@ -110,7 +41,8 @@
                         Funcionários
                     </button>
                 </div>
-            </div>
+
+
 
             <div class="content-metricas is-visible" id="painel-metricas" data-panel="metricas" role="tabpanel"
                 aria-labelledby="aba-metricas">
@@ -174,189 +106,7 @@
                             <span>AÇÃO</span>
                         </div>
 
-                        <div class="linha linha-metrica">
-                            <div class="col-metrica">
-                                <span class="icone-metrica cor-ciano"><i class="fa-solid fa-microchip"></i></span>
-                                <p class="item-nome">Uso de CPU</p>
-                            </div>
-                            <div class="col-unidade"><span class="chip-unidade">%</span></div>
-                            <div class="col-intervalo">
-                                <select class="select-sg" aria-label="Intervalo de coleta de Uso de CPU">
-                                    <option value="5">5s</option>
-                                    <option value="15" selected>15s</option>
-                                    <option value="30">30s</option>
-                                    <option value="60">60s</option>
-                                    <option value="300">5min</option>
-                                </select>
-                            </div>
-                            <div class="col-estado">
-                                <label class="switch">
-                                    <input type="checkbox" checked aria-label="Ativar Uso de CPU">
-                                    <span class="switch-track"></span>
-                                </label>
-                                <span class="estado-texto">Ativa</span>
-                            </div>
-                            <div class="col-acao">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-metrica">
-                            <div class="col-metrica">
-                                <span class="icone-metrica cor-roxo"><i class="fa-solid fa-memory"></i></span>
-                                <p class="item-nome">Uso de RAM</p>
-                            </div>
-                            <div class="col-unidade"><span class="chip-unidade">%</span></div>
-                            <div class="col-intervalo">
-                                <select class="select-sg" aria-label="Intervalo de coleta de Uso de RAM">
-                                    <option value="5">5s</option>
-                                    <option value="15">15s</option>
-                                    <option value="30" selected>30s</option>
-                                    <option value="60">60s</option>
-                                    <option value="300">5min</option>
-                                </select>
-                            </div>
-                            <div class="col-estado">
-                                <label class="switch">
-                                    <input type="checkbox" checked aria-label="Ativar Uso de RAM">
-                                    <span class="switch-track"></span>
-                                </label>
-                                <span class="estado-texto">Ativa</span>
-                            </div>
-                            <div class="col-acao">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-metrica">
-                            <div class="col-metrica">
-                                <span class="icone-metrica cor-laranja"><i class="fa-solid fa-hard-drive"></i></span>
-                                <p class="item-nome">Uso de Disco</p>
-                            </div>
-                            <div class="col-unidade"><span class="chip-unidade">%</span></div>
-                            <div class="col-intervalo">
-                                <select class="select-sg" aria-label="Intervalo de coleta de Uso de Disco">
-                                    <option value="5">5s</option>
-                                    <option value="15">15s</option>
-                                    <option value="30">30s</option>
-                                    <option value="60" selected>60s</option>
-                                    <option value="300">5min</option>
-                                </select>
-                            </div>
-                            <div class="col-estado">
-                                <label class="switch">
-                                    <input type="checkbox" checked aria-label="Ativar Uso de Disco">
-                                    <span class="switch-track"></span>
-                                </label>
-                                <span class="estado-texto">Ativa</span>
-                            </div>
-                            <div class="col-acao">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-metrica">
-                            <div class="col-metrica">
-                                <span class="icone-metrica cor-azul"><i class="fa-solid fa-network-wired"></i></span>
-                                <p class="item-nome">Tráfego de Rede</p>
-                            </div>
-                            <div class="col-unidade"><span class="chip-unidade"><i
-                                        class="fa-solid fa-circle"></i>Mbps</span></div>
-                            <div class="col-intervalo">
-                                <select class="select-sg" aria-label="Intervalo de coleta de Tráfego de Rede">
-                                    <option value="5">5s</option>
-                                    <option value="15" selected>15s</option>
-                                    <option value="30">30s</option>
-                                    <option value="60">60s</option>
-                                    <option value="300">5min</option>
-                                </select>
-                            </div>
-                            <div class="col-estado">
-                                <label class="switch">
-                                    <input type="checkbox" checked aria-label="Ativar Tráfego de Rede">
-                                    <span class="switch-track"></span>
-                                </label>
-                                <span class="estado-texto">Ativa</span>
-                            </div>
-                            <div class="col-acao">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-metrica">
-                            <div class="col-metrica">
-                                <span class="icone-metrica cor-magenta"><i class="fa-solid fa-stopwatch"></i></span>
-                                <p class="item-nome">Latência</p>
-                            </div>
-                            <div class="col-unidade"><span class="chip-unidade"><i
-                                        class="fa-solid fa-circle"></i>ms</span></div>
-                            <div class="col-intervalo">
-                                <select class="select-sg" aria-label="Intervalo de coleta de Latência">
-                                    <option value="5">5s</option>
-                                    <option value="15" selected>15s</option>
-                                    <option value="30">30s</option>
-                                    <option value="60">60s</option>
-                                    <option value="300">5min</option>
-                                </select>
-                            </div>
-                            <div class="col-estado">
-                                <label class="switch">
-                                    <input type="checkbox" aria-label="Ativar Latência">
-                                    <span class="switch-track"></span>
-                                </label>
-                                <span class="estado-texto">Inativa</span>
-                            </div>
-                            <div class="col-acao">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-metrica">
-                            <div class="col-metrica">
-                                <span class="icone-metrica cor-vermelho"><i
-                                        class="fa-solid fa-temperature-half"></i></span>
-                                <p class="item-nome">Temperatura</p>
-                            </div>
-                            <div class="col-unidade"><span class="chip-unidade"><i
-                                        class="fa-solid fa-circle"></i>°C</span></div>
-                            <div class="col-intervalo">
-                                <select class="select-sg" aria-label="Intervalo de coleta de Temperatura">
-                                    <option value="5">5s</option>
-                                    <option value="15">15s</option>
-                                    <option value="30">30s</option>
-                                    <option value="60" selected>60s</option>
-                                    <option value="300">5min</option>
-                                </select>
-                            </div>
-                            <div class="col-estado">
-                                <label class="switch">
-                                    <input type="checkbox" aria-label="Ativar Temperatura">
-                                    <span class="switch-track"></span>
-                                </label>
-                                <span class="estado-texto">Inativa</span>
-                            </div>
-                            <div class="col-acao">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                            </div>
-                        </div>
+                        <div id="lista-metricas" class="linhas"></div>
 
                         <p class="sem-resultados" hidden>Nenhuma métrica encontrada.</p>
                     </div>
@@ -435,85 +185,7 @@
                             <span>AÇÕES</span>
                         </div>
 
-                        <div class="linha linha-funcionario" data-perfil="administrador" data-status="ativo">
-                            <div class="col-func">
-                                <span class="avatar-sg">CS</span>
-                                <p class="item-nome">Carlos Souza</p>
-                            </div>
-                            <div class="col-email">carlos@streamco.com.br</div>
-                            <div class="col-perfil"><span class="badge-perfil badge-admin">Administrador</span></div>
-                            <div class="col-status"><span class="badge-status badge-ativo">Ativo</span></div>
-                            <div class="col-acoes">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Remover
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-funcionario" data-perfil="gerente" data-status="ativo">
-                            <div class="col-func">
-                                <span class="avatar-sg">FL</span>
-                                <p class="item-nome">Fernanda Lima</p>
-                            </div>
-                            <div class="col-email">fernanda@streamco.com.br</div>
-                            <div class="col-perfil"><span class="badge-perfil badge-gerente">Gerente</span></div>
-                            <div class="col-status"><span class="badge-status badge-ativo">Ativo</span></div>
-                            <div class="col-acoes">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Remover
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-funcionario" data-perfil="comum" data-status="ativo">
-                            <div class="col-func">
-                                <span class="avatar-sg">JP</span>
-                                <p class="item-nome">João Pedro</p>
-                            </div>
-                            <div class="col-email">joao@streamco.com.br</div>
-                            <div class="col-perfil"><span class="badge-perfil badge-comum">Usuário comum</span></div>
-                            <div class="col-status"><span class="badge-status badge-ativo">Ativo</span></div>
-                            <div class="col-acoes">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Remover
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="linha linha-funcionario" data-perfil="comum" data-status="inativo">
-                            <div class="col-func">
-                                <span class="avatar-sg">AT</span>
-                                <p class="item-nome">Ana Torres</p>
-                            </div>
-                            <div class="col-email">ana@streamco.com.br</div>
-                            <div class="col-perfil"><span class="badge-perfil badge-comum">Usuário comum</span></div>
-                            <div class="col-status"><span class="badge-status badge-inativo">Inativo</span></div>
-                            <div class="col-acoes">
-                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
-                                    <i class="fa-solid fa-pen"></i>
-                                    Editar
-                                </button>
-                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
-                                    <i class="fa-regular fa-trash-can"></i>
-                                    Remover
-                                </button>
-                            </div>
-                        </div>
+                        <div id="lista-funcionarios" class="linhas"></div>
 
                         <p class="sem-resultados" hidden>Nenhum funcionário encontrado.</p>
                     </div>
@@ -527,9 +199,13 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </header>
 
+            </main>
+        </div>
+    </div>
+
+    <script src="./js/painel_shell.js"></script>
+    <script src="./js/painel_modais.js"></script>
     <script src="./js/painel_config.js" defer></script>
 </body>
 

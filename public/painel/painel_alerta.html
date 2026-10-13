@@ -1,42 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Alertas | Stream Guard</title>
+  <link rel="stylesheet" href="./css/painel_base.css">
+  <link rel="stylesheet" href="./css/painel_modais.css">
   <link rel="stylesheet" href="./css/painel_alerta.css">
   <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
 </head>
-<body>
+
+<body data-pagina="alerta" data-edicao>
   <div class="layout">
 
-    <aside class="sidebar">
-      <div class="logo">
-        <div class="logo-icone"></div>
-        <div class="logo-texto">STREAM<span>GUARD</span></div>
-      </div>
-
-      <p class="menu-titulo">Monitoramento</p>
-      <nav class="menu">
-        <a href="./painel_main.html" class="menu-item"> Dashboard</a>
-        <a href="./painel_detalhes.html" class="menu-item"> Componentes</a>
-        <a href="./painel_alerta.html" class="menu-item ativo">🔔 Alertas</a>
-      </nav>
-
-      <p class="menu-titulo">Administração</p>
-      <nav class="menu">
-        <a href="./painel_config.html" class="menu-item">⚙ Configurações</a>
-        <a href="./painel_perfil.html" class="menu-item">👤 Perfil</a>
-        <!-- So vai aparecer se for conta da streamguard-->
-        <a href="./painel_admin.html" class="menu-item"> Conta</a>
-      </nav>
-
-      <div class="ambiente">
-        <span class="ambiente-status"><i class="bolinha verde"></i> Ambiente online</span>
-        <strong>StreamCo Brasil</strong>
-        <small>Plano Enterprise • 32 ativos</small>
-      </div>
-    </aside>
+    <aside class="sidebar" data-shell="sidebar"></aside>
 
     <div class="conteudo">
 
@@ -45,17 +23,7 @@
           <h1>Alertas</h1>
           <p>Histórico, limites e canais de notificação</p>
         </div>
-        <div class="topo-direita">
-          <span class="selo-online"><i class="bolinha verde"></i> Sistemas online</span>
-          <button class="btn-sino" aria-label="Notificações">🔔</button>
-          <div class="usuario">
-            <div class="avatar">NU</div>
-            <div>
-              <strong>Nome do Usuário</strong>
-              <small>Gerente</small>
-            </div>
-          </div>
-        </div>
+        <div class="topo-direita" data-shell="topo-direita"></div>
       </header>
 
       <main class="principal">
@@ -66,20 +34,20 @@
 
           <div class="coluna">
 
-            <section class="painel">
+            <section class="painel painel-historico">
               <div class="painel-topo">
                 <div>
                   <h2>Histórico de alertas</h2>
                   <p>Ocorrências recentes do ambiente</p>
                 </div>
-                <button class="btn-filtro" id="btnFiltro">☰ Filtrar histórico</button>
+                <button class="btn-filtro" id="btnFiltro">Filtrar histórico</button>
               </div>
 
               <ul class="lista-alertas" id="listaAlertas"></ul>
               <p class="vazio" id="mensagemVazia" hidden>Nenhum alerta com esse filtro.</p>
             </section>
 
-            <section class="painel">
+            <section class="painel painel-log">
               <h2>Log de envio</h2>
               <p class="sub">Últimas notificações processadas</p>
               <ul class="log" id="log"></ul>
@@ -87,16 +55,22 @@
           </div>
 
           <div class="coluna">
-            <section class="painel">
+            <section class="painel painel-limites">
               <h2>Limites de alerta</h2>
               <p class="sub">Dispare alertas ao atingir estes valores</p>
-
               <ul class="limites" id="limites"></ul>
+            </section>
 
-              <h2 class="espaco">Integrações</h2>
-              <p class="sub">Canais conectados ao ambiente</p>
+            <section class="painel painel-integracoes">
+              <div class="painel-topo">
+                <div>
+                  <h2>Integrações</h2>
+                  <p>Canais conectados ao ambiente</p>
+                </div>
+                <button class="btn-filtro" id="btnNovaIntegracao" data-perm="criar">+ Nova integração</button>
+              </div>
 
-              <div id="integracoes"></div>
+              <div class="lista-integracoes" id="integracoes"></div>
 
               <div class="agrupar">
                 <div>
@@ -104,12 +78,12 @@
                   <small>Janela de 5 minutos</small>
                 </div>
                 <label class="switch">
-                  <input type="checkbox" id="agrupar" checked>
+                  <input type="checkbox" id="agrupar" checked data-perm-lock="editar">
                   <span class="slider"></span>
                 </label>
               </div>
 
-              <button class="btn-salvar" id="btnSalvar"> Salvar configurações</button>
+              <button class="btn-salvar" id="btnSalvar" data-perm="editar">Salvar configurações</button>
             </section>
           </div>
 
@@ -118,6 +92,9 @@
     </div>
   </div>
 
+  <script src="./js/painel_shell.js"></script>
+  <script src="./js/painel_modais.js"></script>
   <script src="./js/painel_alerta.js"></script>
 </body>
+
 </html>

@@ -62,6 +62,8 @@
         );
     });
 
+    window.SGDash = { atualizar() { ordenarAtencao(); atualizarResumo(); } };
+
     ordenarAtencao();
     atualizarResumo();
 })();

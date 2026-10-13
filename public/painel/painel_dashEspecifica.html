@@ -7,101 +7,37 @@
     <title>Dashboard Específica | Stream Guard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
         integrity="..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_modais.css">
     <link rel="stylesheet" href="./css/painel_dashEspecifica.css">
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
 
 </head>
 
-<body>
-    <header>
-        <aside>
-            <div class="content-aside">
-                <div class="content-aside-top">
-                    <div class="aside-top-logo">
-                        <img src="../assets/streamGuard_logo.png" alt="">
-                        <h6>
-                            Stream Guard
-                        </h6>
-                    </div>
-                    <div class="aside-top-links">
-                        <div class="top-links-box">
-                            <h2>
-                                MONITORAMENTO
-                            </h2>
-                            <ul>
-                                <li class="link-selected">
-                                    <i class="fa-regular fa-house"></i>
-                                    Dashboard
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-server"></i>
-                                    Componentes
-                                </li>
-                                <li>
-                                    <i class="fa-regular fa-bell"></i>
-                                    Alertas
-                                </li>
-                            </ul>
-                        </div>
-                        <div class="top-links-box">
-                            <h2>
-                                ADMINISTRAÇÃO
-                            </h2>
-                            <ul>
-                                <li>
-                                    <i class="fa-solid fa-gear"></i>
-                                    Configurações
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-user"></i>
-                                    Perfil
-                                </li>
-                                <li>
-                                    <i class="fa-solid fa-lock"></i>
-                                    Conta
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                <div class="content-aside-bottom">
-                    <div class="aside-bottom-perfil">
-                        <div class="bottom-perfil-box">
-                            <div class="perfil-box-title">
-                                <span>
-                                    <i class="fa-regular fa-circle-dot"></i>
-                                    <h6>SISTEMA ONLINE</h6>
-                                </span>
-                                <i class="fa-regular fa-bell"></i>
-                            </div>
-                            <div class="perfil-box-info">
-                                <img src="../assets/eduardo.png" alt="">
-                                <span>
-                                    <h5>Nome User</h5>
-                                    <h6>Cargo User</h6>
-                                </span>
-                                <i class="fa-solid fa-chevron-down"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </aside>
+<body data-pagina="dashEspecifica" data-edicao>
+    <div class="layout">
 
-        <main class="container-page">
-            <div class="dash-topo">
-                <div class="dash-topo-texto">
+        <aside class="sidebar" data-shell="sidebar"></aside>
+
+        <div class="conteudo">
+            <header class="topo">
+                <div>
                     <h1>Dashboard</h1>
-                    <h2 data-resumo="subtitulo">Estado geral da infraestrutura • StreamCo Brasil • 8 servidores
-                        monitorados</h2>
+                    <p data-resumo="subtitulo">Estado geral da infraestrutura • StreamCo Brasil • 8 servidores monitorados</p>
                 </div>
-                <div class="dash-topo-acoes">
-                    <button type="button" class="btn-sg btn-primary" data-acao="cadastrar-servidor">
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+
+            <main class="principal">
+                <div class="dash-acoes">
+                    <a class="btn-sg btn-ghost" href="./painel_dashGeral.html">
+                        <i class="fa-solid fa-chart-line"></i> Ver análise detalhada
+                    </a>
+                    <button type="button" class="btn-sg btn-primary" data-acao="cadastrar-servidor" data-perm="criar">
                         <i class="fa-solid fa-plus"></i>
                         Cadastrar servidor
                     </button>
                 </div>
-            </div>
 
             <div class="dash-conteudo">
                 <section class="cards-status" aria-label="Resumo por status">
@@ -282,10 +218,14 @@
                     </div>
                 </div>
             </div>
-        </main>
-    </header>
+            </main>
+        </div>
+    </div>
 
+    <script src="./js/painel_shell.js"></script>
+    <script src="./js/painel_modais.js"></script>
     <script src="./js/painel_dashEspecifica.js"></script>
+    <script src="./js/painel_dashEspecifica_modais.js"></script>
 </body>
 
 </html>

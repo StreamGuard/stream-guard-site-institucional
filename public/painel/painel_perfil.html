@@ -6,15 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Meu Perfil | Stream Guard</title>
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@600&display=swap"
-        rel="stylesheet">
+    <link rel="stylesheet" href="./css/painel_base.css">
     <link rel="stylesheet" href="./css/painel_perfil.css">
 </head>
 
-<body>
+<body data-pagina="perfil">
 
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <defs>
@@ -91,79 +87,20 @@
         </defs>
     </svg>
 
-    <div class="app">
-        <div class="overlay" id="overlay"></div>
+    <div class="layout">
 
-        <aside class="sidebar" id="sidebar" aria-label="Menu principal">
-            <a class="brand" href="./painel_main.html">
-                <span class="brand-mark"><svg class="ic">
-                        <use href="#i-shield" />
-                    </svg></span>
-                <span class="brand-name">STREAM<b>GUARD</b></span>
-            </a>
+        <aside class="sidebar" data-shell="sidebar"></aside>
 
-            <p class="nav-title">Monitoramento</p>
-            <nav>
-                <a class="nav-item" href="./painel_main.html"><svg class="ic">
-                        <use href="#i-dash" />
-                    </svg>Dashboard</a>
-                <a class="nav-item" href="./painel_detalhes.html"><svg class="ic">
-                        <use href="#i-server" />
-                    </svg>Componentes</a>
-                <a class="nav-item" href="./painel_alerta.html"><svg class="ic">
-                        <use href="#i-alert" />
-                    </svg>Alertas</a>
-            </nav>
-
-            <p class="nav-title">Administração</p>
-            <nav>
-                <a class="nav-item" href="./painel_config.html"><svg class="ic">
-                        <use href="#i-gear" />
-                    </svg>Configurações</a>
-                <a class="nav-item active" href="./painel_perfil.html" aria-current="page"><svg class="ic">
-                        <use href="#i-user" />
-                    </svg>Perfil</a>
-                <a class="nav-item" href="./painel_admin.html"><svg class="ic">
-                        <use href="#i-building" />
-                    </svg>Conta</a>
-            </nav>
-
-            <div class="env">
-                <span class="env-status"><i class="dot"></i>Ambiente online</span>
-                <strong id="envEmpresa">StreamCo Brasil</strong>
-                <small>Plano Enterprise • 32 ativos</small>
-            </div>
-        </aside>
-
-        <div class="main">
-            <header class="topbar">
-                <button class="icon-btn menu-btn" id="menuBtn" aria-label="Abrir menu" aria-controls="sidebar"
-                    aria-expanded="false">
-                    <svg class="ic">
-                        <use href="#i-menu" />
-                    </svg>
-                </button>
-                <div class="page-head">
+        <div class="conteudo">
+            <header class="topo">
+                <div>
                     <h1>Meu Perfil</h1>
                     <p>Dados pessoais, segurança e preferências</p>
                 </div>
-                <div class="top-actions">
-                    <span class="pill pill-online"><i class="dot"></i><span>Sistemas online</span></span>
-                    <button class="icon-btn has-badge" aria-label="Notificações"><svg class="ic">
-                            <use href="#i-bell" />
-                        </svg></button>
-                    <button class="user-chip" aria-label="Menu do usuário">
-                        <span class="avatar sm" data-iniciais>NU</span>
-                        <span class="user-text"><strong data-nome>Nome do Usuário</strong><small
-                                data-cargo>Gerente</small></span>
-                        <svg class="ic chev">
-                            <use href="#i-chev" />
-                        </svg>
-                    </button>
-                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
             </header>
 
-            <main class="content">
+            <main class="principal content">
                 <section class="card profile">
                     <div class="avatar-wrap">
                         <div class="avatar xl" data-iniciais>NU</div>
@@ -176,7 +113,7 @@
                         </svg>Trocar foto</button>
                     <h2 data-nome>Nome do Usuário</h2>
                     <p class="mail" data-email>usuario@streamco.com.br</p>
-                    <span class="pill pill-violet"><i class="dot"></i><span data-cargo-up>GERENTE</span></span>
+                    <span class="pill pill-violet"><i class="dot"></i><span data-nivel-up>GERENTE</span></span>
 
                     <ul class="facts">
                         <li><svg class="ic">
@@ -187,7 +124,7 @@
                         <li><svg class="ic">
                                 <use href="#i-shield" />
                             </svg>
-                            <div><small>Perfil</small><span data-cargo>Gerente</span></div>
+                            <div><small>Nível de acesso</small><span data-nivel>Gerente</span></div>
                         </li>
                         <li><svg class="ic">
                                 <use href="#i-clock" />
@@ -299,6 +236,7 @@
     </div>
 
     <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="./js/painel_shell.js"></script>
     <script src="./js/painel_perfil.js"></script>
 </body>
 

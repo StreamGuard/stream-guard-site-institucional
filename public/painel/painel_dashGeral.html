@@ -6,43 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Dashboard | Stream Guard</title>
 
+    <link rel="stylesheet" href="./css/painel_base.css">
     <link rel="stylesheet" href="./css/painel_dashGeral.css">
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
-<body>
+<body data-pagina="dashGeral">
     <div class="layout">
 
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-icone"></div>
-                <div class="logo-texto">STREAM<span>GUARD</span></div>
-            </div>
-
-            <p class="menu-titulo">MONITORAMENTO</p>
-            <nav class="menu">
-                <a href="#visao-geral" class="menu-item ativo">Dashboard</a>
-                <a href="#painel-grafico" class="menu-item">Histórico</a>
-                <a href="#painel-incidentes" class="menu-item">Incidentes e logs</a>
-                <a href="#" class="menu-item">Componentes</a>
-                <a href="#" class="menu-item">Alertas</a>
-            </nav>
-
-            <p class="menu-titulo">ADMINISTRAÇÃO</p>
-            <nav class="menu">
-                <a href="#" class="menu-item">Configurações</a>
-                <a href="#" class="menu-item">Perfil</a>
-                <a href="#" class="menu-item">Conta</a>
-            </nav>
-
-            <div class="ambiente">
-                <span class="ambiente-status"><i class="bolinha verde"></i> AMBIENTE ONLINE</span>
-                <strong>StreamCo Brasil</strong>
-                <small>Plano Enterprise • 32 ativos</small>
-            </div>
-        </aside>
+        <aside class="sidebar" data-shell="sidebar"></aside>
 
         <div class="conteudo">
             <header class="topo">
@@ -50,16 +24,7 @@
                     <h1>Dashboard Geral</h1>
                     <p>Visão geral, histórico e padrões de utilização da infraestrutura</p>
                 </div>
-                <div class="topo-direita">
-                    <span class="selo-online"><i class="bolinha verde"></i> SISTEMAS ONLINE</span>
-                    <div class="usuario">
-                        <div class="avatar">K</div>
-                        <div>
-                            <strong>Kleber</strong>
-                            <small>Analista de Dados</small>
-                        </div>
-                    </div>
-                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
             </header>
 
             <main class="principal">
@@ -81,6 +46,7 @@
                             <option>srv-stream-04</option>
                         </select>
                     </div>
+                    <a class="link-visao" href="./painel_dashEspecifica.html" data-perfis="gerente admin">Ver visão do gestor →</a>
                     <span class="info-atualizacao">
                         <i class="bolinha verde"></i> <span id="txtAtualizacao">Atualizado agora</span> • coleta a cada
                         30s
@@ -178,6 +144,7 @@
         </div>
     </div>
 
+    <script src="./js/painel_shell.js"></script>
     <script src="./js/painel_dashGeral.js"></script>
 </body>
 

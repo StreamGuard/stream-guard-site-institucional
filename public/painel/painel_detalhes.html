@@ -6,11 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Componentes do equipamento | Stream Guard</title>
 
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_modais.css">
     <link rel="stylesheet" href="./css/painel_detalhes.css">
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
 </head>
 
-<body>
+<body data-pagina="detalhes" data-edicao>
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
         <symbol id="i-shield" viewBox="0 0 24 24">
             <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -62,6 +64,12 @@
         <symbol id="i-edit" viewBox="0 0 24 24">
             <path d="M17 3a2.83 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
         </symbol>
+        <symbol id="i-trash" viewBox="0 0 24 24">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+        </symbol>
         <symbol id="i-plus" viewBox="0 0 24 24">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
@@ -96,47 +104,7 @@
 
     <div class="layout">
 
-        <aside class="sidebar">
-            <div class="logo">
-                <div class="logo-icone"><svg class="ic" aria-hidden="true">
-                        <use href="#i-shield" />
-                    </svg></div>
-                <div class="logo-texto">STREAM<span>GUARD</span></div>
-            </div>
-
-            <p class="menu-titulo">Monitoramento</p>
-            <nav class="menu">
-                <a href="./painel_main.html" class="menu-item" title="Dashboard"><svg class="ic" aria-hidden="true">
-                        <use href="#i-grid" />
-                    </svg> Dashboard</a>
-                <a href="./painel_detalhes.html" class="menu-item ativo" aria-current="page" title="Componentes"><svg
-                        class="ic" aria-hidden="true">
-                        <use href="#i-server" />
-                    </svg> Componentes</a>
-                <a href="./painel_alerta.html" class="menu-item" title="Alertas"><svg class="ic" aria-hidden="true">
-                        <use href="#i-bell" />
-                    </svg> Alertas</a>
-            </nav>
-
-            <p class="menu-titulo">Administração</p>
-            <nav class="menu">
-                <a href="./painel_config.html" class="menu-item" title="Configurações"><svg class="ic" aria-hidden="true">
-                        <use href="#i-settings" />
-                    </svg> Configurações</a>
-                <a href="./painel_perfil.html" class="menu-item" title="Perfil"><svg class="ic" aria-hidden="true">
-                        <use href="#i-user" />
-                    </svg> Perfil</a>
-                <a href="./painel_admin.html" class="menu-item" title="Conta"><svg class="ic" aria-hidden="true">
-                        <use href="#i-building" />
-                    </svg> Conta</a>
-            </nav>
-
-            <div class="ambiente">
-                <span class="ambiente-status"><i class="bolinha verde"></i> AMBIENTE ONLINE</span>
-                <strong>StreamCo Brasil</strong>
-                <small>Plano Enterprise • 32 ativos</small>
-            </div>
-        </aside>
+        <aside class="sidebar" data-shell="sidebar"></aside>
 
         <div class="conteudo">
             <header class="topo">
@@ -144,22 +112,17 @@
                     <h1>Componentes do equipamento</h1>
                     <p>srv-stream-01 • StreamCo Brasil</p>
                 </div>
-                <div class="topo-direita">
-                    <span class="selo-online"><i class="bolinha verde"></i> Sistemas online</span>
-                    <button class="btn-sino" aria-label="Notificações"><svg class="ic" aria-hidden="true">
-                            <use href="#i-bell" />
-                        </svg></button>
-                    <div class="usuario">
-                        <div class="avatar">NU</div>
-                        <div>
-                            <strong>Nome do Usuário</strong>
-                            <small>Gerente</small>
-                        </div>
-                    </div>
-                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
             </header>
 
             <main class="principal">
+
+                <section class="kpis" aria-label="Resumo dos componentes">
+                    <article class="kpi"><span>Componentes</span><strong id="kpiTotal">0</strong><small>cadastrados neste equipamento</small></article>
+                    <article class="kpi kpi-verde"><span>Normais</span><strong id="kpiOk">0</strong><small>dentro dos limites</small></article>
+                    <article class="kpi kpi-laranja"><span>Em alerta</span><strong id="kpiAlerta">0</strong><small>perto do limite</small></article>
+                    <article class="kpi kpi-vermelho"><span>Críticos</span><strong id="kpiCritico">0</strong><small>precisam de ação agora</small></article>
+                </section>
 
                 <div class="seletores">
                     <div class="seletores-grupo">
@@ -174,7 +137,7 @@
                             </select>
                         </label>
                     </div>
-                    <span class="tag verde selo-contagem"><i class="bolinha verde"></i> 5 componentes ativos</span>
+                    <span class="tag verde selo-contagem" id="seloContagem"><i class="bolinha verde"></i> 5 componentes ativos</span>
                 </div>
 
                 <section class="painel tabela-painel">
@@ -202,7 +165,7 @@
                                 </select>
                             </label>
                         </div>
-                        <button class="btn-adicionar"><svg class="ic" aria-hidden="true">
+                        <button class="btn-adicionar" data-perm="criar"><svg class="ic" aria-hidden="true">
                                 <use href="#i-plus" />
                             </svg> Novo componente</button>
                     </div>
@@ -219,135 +182,7 @@
                                     <th>AÇÕES</th>
                                 </tr>
                             </thead>
-                            <tbody id="corpoTabela">
-                                <tr data-tipo="Processador" data-status="OK">
-                                    <td>
-                                        <div class="comp"><span class="sigla verde"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-cpu" />
-                                                </svg></span><strong>CPU</strong></div>
-                                    </td>
-                                    <td class="suave">Processador</td>
-                                    <td>
-                                        <div class="uso verde">
-                                            <div class="barra">
-                                                <div style="width:62%"></div>
-                                            </div><b>62%</b>
-                                        </div>
-                                    </td>
-                                    <td><span class="tag status verde">OK</span></td>
-                                    <td class="suave">há 2 min</td>
-                                    <td>
-                                        <div class="acoes"><button class="btn-ver"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-eye" />
-                                                </svg> Ver</button><button class="btn-editar"><svg class="ic"
-                                                    aria-hidden="true">
-                                                    <use href="#i-edit" />
-                                                </svg> Editar</button></div>
-                                    </td>
-                                </tr>
-                                <tr data-tipo="Memória" data-status="CRÍTICO">
-                                    <td>
-                                        <div class="comp"><span class="sigla vermelho"><svg class="ic"
-                                                    aria-hidden="true">
-                                                    <use href="#i-ram" />
-                                                </svg></span><strong>Memória RAM</strong></div>
-                                    </td>
-                                    <td class="suave">Memória</td>
-                                    <td>
-                                        <div class="uso vermelho">
-                                            <div class="barra">
-                                                <div style="width:92%"></div>
-                                            </div><b>92%</b>
-                                        </div>
-                                    </td>
-                                    <td><span class="tag status vermelho">CRÍTICO</span></td>
-                                    <td class="suave">há 2 min</td>
-                                    <td>
-                                        <div class="acoes"><button class="btn-ver"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-eye" />
-                                                </svg> Ver</button><button class="btn-editar"><svg class="ic"
-                                                    aria-hidden="true">
-                                                    <use href="#i-edit" />
-                                                </svg> Editar</button></div>
-                                    </td>
-                                </tr>
-                                <tr data-tipo="Armazenamento" data-status="OK">
-                                    <td>
-                                        <div class="comp"><span class="sigla roxo"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-disk" />
-                                                </svg></span><strong>Disco</strong></div>
-                                    </td>
-                                    <td class="suave">Armazenamento</td>
-                                    <td>
-                                        <div class="uso roxo">
-                                            <div class="barra">
-                                                <div style="width:34%"></div>
-                                            </div><b>34%</b>
-                                        </div>
-                                    </td>
-                                    <td><span class="tag status verde">OK</span></td>
-                                    <td class="suave">há 5 min</td>
-                                    <td>
-                                        <div class="acoes"><button class="btn-ver"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-eye" />
-                                                </svg> Ver</button><button class="btn-editar"><svg class="ic"
-                                                    aria-hidden="true">
-                                                    <use href="#i-edit" />
-                                                </svg> Editar</button></div>
-                                    </td>
-                                </tr>
-                                <tr data-tipo="Rede" data-status="ALERTA">
-                                    <td>
-                                        <div class="comp"><span class="sigla laranja"><svg class="ic"
-                                                    aria-hidden="true">
-                                                    <use href="#i-network" />
-                                                </svg></span><strong>Placa de rede</strong></div>
-                                    </td>
-                                    <td class="suave">Rede</td>
-                                    <td>
-                                        <div class="uso laranja">
-                                            <div class="barra">
-                                                <div style="width:78%"></div>
-                                            </div><b>78%</b>
-                                        </div>
-                                    </td>
-                                    <td><span class="tag status laranja">ALERTA</span></td>
-                                    <td class="suave">há 5 min</td>
-                                    <td>
-                                        <div class="acoes"><button class="btn-ver"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-eye" />
-                                                </svg> Ver</button><button class="btn-editar"><svg class="ic"
-                                                    aria-hidden="true">
-                                                    <use href="#i-edit" />
-                                                </svg> Editar</button></div>
-                                    </td>
-                                </tr>
-                                <tr data-tipo="Hardware" data-status="OK">
-                                    <td>
-                                        <div class="comp"><span class="sigla azul"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-zap" />
-                                                </svg></span><strong>Fonte de energia</strong></div>
-                                    </td>
-                                    <td class="suave">Hardware</td>
-                                    <td>
-                                        <div class="uso azul">
-                                            <div class="barra">
-                                                <div style="width:0%"></div>
-                                            </div><b class="suave">-</b>
-                                        </div>
-                                    </td>
-                                    <td><span class="tag status verde">OK</span></td>
-                                    <td class="suave">há 8 min</td>
-                                    <td>
-                                        <div class="acoes"><button class="btn-ver"><svg class="ic" aria-hidden="true">
-                                                    <use href="#i-eye" />
-                                                </svg> Ver</button><button class="btn-editar"><svg class="ic"
-                                                    aria-hidden="true">
-                                                    <use href="#i-edit" />
-                                                </svg> Editar</button></div>
-                                    </td>
-                                </tr>
-                            </tbody>
+                            <tbody id="corpoTabela"></tbody>
                         </table>
                     </div>
 
@@ -365,26 +200,9 @@
         </div>
     </div>
 
-    <script>
-        const linhas = [...document.querySelectorAll('#corpoTabela tr')];
-        const busca = document.getElementById('busca');
-        const fTipo = document.getElementById('filtroTipo');
-        const fStatus = document.getElementById('filtroStatus');
-        function filtrar() {
-            const q = busca.value.trim().toLowerCase();
-            let n = 0;
-            linhas.forEach(tr => {
-                const ok = tr.textContent.toLowerCase().includes(q)
-                    && (!fTipo.value || tr.dataset.tipo === fTipo.value)
-                    && (!fStatus.value || tr.dataset.status === fStatus.value);
-                tr.hidden = !ok;
-                if (ok) n++;
-            });
-            document.getElementById('contagem').textContent =
-                n ? `Exibindo 1–${n} de ${n} componentes` : 'Nenhum componente encontrado';
-        }
-        [busca, fTipo, fStatus].forEach(el => el.addEventListener('input', filtrar));
-    </script>
+    <script src="./js/painel_shell.js"></script>
+    <script src="./js/painel_modais.js"></script>
+    <script src="./js/painel_detalhes.js"></script>
 </body>
 
 </html>

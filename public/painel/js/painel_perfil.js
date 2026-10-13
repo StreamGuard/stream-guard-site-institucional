@@ -1,4 +1,3 @@
-// Dados do usuário vêm do sessionStorage (preenchido em loginUsuario.js)
 const dado = (chave, padrao) => sessionStorage.getItem(chave) || padrao;
 
 const nome = dado('NOME_USUARIO', 'Nome do Usuário');
@@ -15,10 +14,10 @@ const preencher = (seletor, texto) =>
 preencher('[data-nome]', nome);
 preencher('[data-email]', email);
 preencher('[data-cargo]', cargo);
-preencher('[data-cargo-up]', cargo.toUpperCase());
+preencher('[data-nivel]', SG.nomePerfil);
+preencher('[data-nivel-up]', SG.nomePerfil.toUpperCase());
 preencher('[data-empresa]', empresa);
 preencher('[data-iniciais]', iniciais);
-document.getElementById('envEmpresa').textContent = empresa;
 document.getElementById('inNome').value = nome;
 document.getElementById('inEmail').value = email;
 document.getElementById('inCargo').value = cargo;
@@ -28,16 +27,6 @@ const agora = new Date();
 document.getElementById('ultimoAcesso').textContent =
   'Hoje, ' + agora.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
 
-// Menu lateral
-const menuBtn = document.getElementById('menuBtn');
-const alternarMenu = (aberto) => {
-  document.body.classList.toggle('nav-open', aberto);
-  menuBtn.setAttribute('aria-expanded', String(aberto));
-};
-menuBtn.addEventListener('click', () => alternarMenu(!document.body.classList.contains('nav-open')));
-document.getElementById('overlay').addEventListener('click', () => alternarMenu(false));
-document.addEventListener('keydown', (e) => { if (e.key === 'Escape') alternarMenu(false); });
-window.matchMedia('(min-width: 1101px)').addEventListener('change', () => alternarMenu(false));
 
 // Mostrar/ocultar senha
 document.querySelectorAll('.eye').forEach(botao => {
@@ -78,7 +67,6 @@ document.getElementById('formPerfil').addEventListener('submit', (e) => {
     if (erro) return avisar(erro, 'err');
   }
 
-  // TODO: enviar ao backend (ainda não existe rota de atualização de perfil/senha)
   pwAtual.value = pwNova.value = pwConf.value = '';
   avisar('Alterações salvas.', 'ok');
 });
@@ -86,5 +74,5 @@ document.getElementById('formPerfil').addEventListener('submit', (e) => {
 // Sair
 document.getElementById('sair').addEventListener('click', () => {
   sessionStorage.clear();
-  window.location.href = 'login.html';
+  window.location.href = '../login/login.html';
 });
