@@ -24,6 +24,31 @@ async function cadastrarMetrica(componente_id, tipo, nome, unidade) {
     return database.executar(cadastroSql);
 }
 
+function buscarConfiguracoes(servidor_id) {
+    var consultaSql = `
+        SELECT
+            m.id_metrica,
+            m.tipo,
+            m.unidade,
+            c.tipo AS componente,
+            cm.id_config_metrica,
+            cm.habilitado,
+            cm.intervalo_coleta,
+            cm.limite_minimo,
+            cm.limite_maximo
+        FROM componente c
+        JOIN metrica m
+            ON m.fk_componente = c.id_componente
+        LEFT JOIN config_metrica cm
+            ON cm.fk_metrica = m.id_metrica
+        WHERE c.fk_servidor = ${servidor_id}
+        ORDER BY m.id_metrica, cm.id_config_metrica;
+    `;
+
+    return database.executar(consultaSql);
+}
+
 module.exports = {
-    cadastrarMetrica
+    cadastrarMetrica,
+    buscarConfiguracoes
 };
