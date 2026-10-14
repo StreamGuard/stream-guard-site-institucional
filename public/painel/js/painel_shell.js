@@ -126,7 +126,7 @@
     alvo.innerHTML = `
       ${ICONES}
       <div class="logo">
-        <div class="logo-icone"><svg class="sg-ic" aria-hidden="true"><use href="#sg-shield"/></svg></div>
+        <div class="logo-icone"><img src="../assets/streamGuard_logo.png"></img></div>
         <div class="logo-texto">STREAM<span>GUARD</span></div>
       </div>
 
@@ -137,6 +137,10 @@
         ${item("./painel_alerta.html", "sg-bell", "Alertas", "alerta")}
       </nav>
 
+      <div class="menu-div">
+        <span></span>
+      </div>
+
       <p class="menu-titulo">Administração</p>
       <nav class="menu">
         ${pode("configurar") ? item("./painel_config.html", "sg-settings", "Configurações", "config") : ""}
@@ -145,10 +149,29 @@
       </nav>
 
       <div class="ambiente">
-        <span class="ambiente-status"><i class="bolinha verde"></i> Ambiente online</span>
-        <strong id="totalVinculadas">${escapar(usuario.empresa)}</strong>
-        <small>Plano Enterprise • 32 ativos</small>
-      </div>`;
+        <div class="usuario">
+          <div class="avatar">${escapar(iniciais(usuario.nome))}</div>
+            <div>
+              <strong>${escapar(usuario.nome)}</strong>
+              <span class="nivel nivel-${perfil}">${NOMES_PERFIL[perfil]}</span>
+            </div>
+          </div>
+          <div class="usuario-div">
+            <span></span>
+          </div>
+          <div class="usuario-logout">
+            <a class="btn-sair" id="btnSairShell" href="../login/login.html" title="Sair" aria-label="Sair">
+              <svg class="sg-ic" aria-hidden="true"><use href="#sg-logout"/></svg>
+            </a>
+            <h6>Sair da conta</h6>
+          </div>
+        </div>
+      </div>
+
+      
+        
+      <strong id="totalVinculadas">${escapar(usuario.empresa)}</strong>
+      `;
 
     // marca a tela atual
     const pagina = document.body.dataset.pagina;
@@ -179,16 +202,7 @@
         </button>
         <div class="painel-notif" id="painelNotif" hidden></div>
       </div>
-      <div class="usuario">
-        <div class="avatar">${escapar(iniciais(usuario.nome))}</div>
-        <div>
-          <strong>${escapar(usuario.nome)}</strong>
-          <span class="nivel nivel-${perfil}">${NOMES_PERFIL[perfil]}</span>
-        </div>
-      </div>
-      <a class="btn-sair" id="btnSairShell" href="../login/login.html" title="Sair" aria-label="Sair">
-        <svg class="sg-ic" aria-hidden="true"><use href="#sg-logout"/></svg>
-      </a>`;
+      `;
 
     const seletor = document.getElementById("demoPerfil");
     if (seletor) {

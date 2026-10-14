@@ -37,12 +37,12 @@ function entrar() {
           sessionStorage.removeItem("PERFIL_DEMO");
 
           setTimeout(function () {
-            // equipe StreamGuard vai pro painel interno; clientes vão pro dashboard do seu perfil
-            const interno = (json.email || "").includes("@streamguard.com");
+            // equipe StreamGuard vai pro painel root; clientes vão pro dashboard do seu perfil
+            const root = (json.email || "").includes("@streamguard.com");
             const gerente = (json.permissao || "").toLowerCase() === "gerente";
 
-            window.location = interno
-              ? "../painel/painel_main.html"
+            window.location = root
+              ? "../painel/painel_admin.html"
               : gerente
                 ? "../painel/painel_dashEspecifica.html"
                 : "../painel/painel_dashGeral.html";
