@@ -66,7 +66,7 @@ a {
 
 .content {
   display: grid;
-  grid-template-columns: 380px minmax(0, 1fr);
+  grid-template-columns: 300px minmax(0, 1fr);
   gap: var(--espaco-entre);
   align-items: stretch;
 }
@@ -124,9 +124,9 @@ a {
 }
 
 .avatar.xl {
-  width: 180px;
-  height: 180px;
-  font-size: 54px;
+  width: 96px;
+  height: 96px;
+  font-size: 30px;
   border-width: 3px;
 }
 .avatar-wrap {
@@ -138,8 +138,8 @@ a {
   position: absolute;
   right: 8px;
   bottom: 8px;
-  width: 42px;
-  height: 42px;
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   display: grid;
   place-items: center;
@@ -150,18 +150,18 @@ a {
 .card {
   background: var(--panel);
   border: 1px solid var(--line);
-  border-radius: 24px;
-  padding: 32px 38px;
+  border-radius: 12px;
+  padding: 18px;
   min-width: 0;
 }
 .card h3 {
-  font-size: 26px;
+  font-size: 14px;
   font-weight: 500;
   line-height: 1.2;
 }
 .sub {
   color: var(--muted);
-  font-size: 17px;
+  font-size: 11px;
   margin-top: 4px;
 }
 .card-head {
@@ -175,50 +175,50 @@ a {
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 38px 32px 32px;
+  padding: 20px 18px;
 }
 .profile h2 {
-  font-size: 30px;
+  font-size: 18px;
   font-weight: 500;
-  margin-top: 24px;
+  margin-top: 12px;
   line-height: 1.15;
 }
 .mail {
   color: var(--muted);
-  font-size: 18px;
+  font-size: 13px;
   margin: 4px 0 10px;
   overflow-wrap: anywhere;
 }
 .facts {
   list-style: none;
   width: 100%;
-  margin: 24px 0 28px;
+  margin: 14px 0 16px;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 8px;
 }
 .facts li {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 10px;
   text-align: left;
-  padding: 14px 20px;
+  padding: 8px 12px;
   background: var(--inset);
   border-radius: 14px;
 }
 .facts .ic {
   color: var(--teal);
-  width: 24px;
-  height: 24px;
+  width: 18px;
+  height: 18px;
 }
 .facts small {
   display: block;
   color: var(--muted);
-  font-size: 14px;
+  font-size: 11px;
 }
 .facts span {
-  font-size: 18px;
+  font-size: 13px;
   font-weight: 500;
 }
 /* ---------- buttons ---------- */
@@ -230,8 +230,8 @@ a {
   gap: 10px;
   border-radius: 12px;
   font-weight: 500;
-  font-size: 18px;
-  padding: 12px 22px;
+  font-size: 13px;
+  padding: 8px 14px;
   transition: filter .15s, background .15s;
 }
 .btn-ghost {
@@ -247,7 +247,7 @@ a {
   color: #04100d;
   border: 0;
   font-weight: 500;
-  padding: 18px 26px;
+  padding: 10px 18px;
 }
 .btn-primary:hover {
   filter: brightness(1.08);
@@ -255,7 +255,7 @@ a {
 .btn-danger {
   margin-top: auto;
   width: 100%;
-  padding: 18px;
+  padding: 10px;
   color: var(--red);
   background: rgba(255, 77, 109, .1);
   border: 1px solid var(--red);
@@ -267,27 +267,27 @@ a {
 .grid-2 {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 22px 28px;
-  margin-top: 26px;
+  gap: 12px 18px;
+  margin-top: 14px;
 }
 .grid-3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 22px 28px;
-  margin-top: 26px;
+  gap: 12px 18px;
+  margin-top: 14px;
 }
 .field {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   color: #c9cce6;
-  font-size: 18px;
+  font-size: 13px;
 }
 .field input {
   width: 100%;
-  height: 66px;
-  padding: 0 22px;
-  font-size: 20px;
+  height: 38px;
+  padding: 0 12px;
+  font-size: 13px;
   background: var(--inset);
   border: 1px solid var(--line);
   border-radius: 12px;
@@ -311,21 +311,21 @@ a {
 .hint {
   font-style: normal;
   color: var(--muted);
-  font-size: 15px;
+  font-size: 11px;
 }
 .pw {
   position: relative;
 }
 .pw input {
-  padding-right: 60px;
+  padding-right: 42px;
 }
 .eye {
   position: absolute;
   right: 8px;
   top: 50%;
   transform: translateY(-50%);
-  width: 44px;
-  height: 44px;
+  width: 30px;
+  height: 30px;
   display: grid;
   place-items: center;
   background: none;
@@ -338,12 +338,12 @@ a {
 }
 /* ---------- notificações ---------- */
 .notif {
-  margin-top: 30px;
+  margin-top: 16px;
   gap: 8px 48px;
   align-items: start;
 }
 .ch {
-  font-size: 17px;
+  font-size: 12px;
   font-weight: 700;
   letter-spacing: .04em;
   text-transform: uppercase;
@@ -365,17 +365,17 @@ a {
 .opt strong {
   display: block;
   font-weight: 500;
-  font-size: 20px;
+  font-size: 13px;
 }
 .opt small {
   color: var(--muted);
-  font-size: 16px;
+  font-size: 11px;
 }
 .switch {
   position: relative;
   flex: none;
-  width: 68px;
-  height: 40px;
+  width: 42px;
+  height: 24px;
   cursor: pointer;
 }
 .switch input {
@@ -398,10 +398,10 @@ a {
 .switch span::after {
   content: "";
   position: absolute;
-  top: 5px;
-  left: 5px;
-  width: 30px;
-  height: 30px;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
   background: #6e73a0;
   transition: transform .2s, background .2s;
@@ -410,7 +410,7 @@ a {
   background: var(--teal);
 }
 .switch input:checked + span::after {
-  transform: translateX(28px);
+  transform: translateX(18px);
   background: #0a0b17;
 }
 .switch input:focus-visible + span {
@@ -427,7 +427,7 @@ a {
 .save-row p {
   flex: 1;
   color: var(--muted);
-  font-size: 16px;
+  font-size: 12px;
 }
 /* ---------- toast ---------- */
 .toast {
@@ -441,7 +441,7 @@ a {
   border-radius: 12px;
   background: #151630;
   border: 1px solid var(--line);
-  font-size: 17px;
+  font-size: 13px;
   transition: opacity .2s, transform .2s;
   z-index: 100;
   max-width: calc(100vw - 32px);
@@ -470,7 +470,7 @@ a {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 .card {
-  padding: 28px;
+  padding: 18px;
 }
 }
 @media (max-width: 1100px) {
@@ -490,9 +490,9 @@ a {
   max-width: 360px;
 }
 .avatar.xl {
-  width: 150px;
-  height: 150px;
-  font-size: 44px;
+  width: 90px;
+  height: 90px;
+  font-size: 28px;
 }
 }
 @media (max-width: 720px) {
@@ -513,13 +513,13 @@ a {
   border-radius: 20px;
 }
 .card h3 {
-  font-size: 22px;
-}
-.sub {
   font-size: 15px;
 }
+.sub {
+  font-size: 12px;
+}
 .profile h2 {
-  font-size: 28px;
+  font-size: 20px;
 }
 .profile .facts {
   grid-template-columns: minmax(0, 1fr);
@@ -533,11 +533,11 @@ a {
   margin-top: 20px;
 }
 .field {
-  font-size: 16px;
+  font-size: 13px;
 }
 .field input {
-  height: 56px;
-  font-size: 17px;
+  height: 40px;
+  font-size: 14px;
 }
 .card-head {
   flex-direction: column;
@@ -546,7 +546,7 @@ a {
   gap: 22px;
 }
 .opt strong {
-  font-size: 18px;
+  font-size: 14px;
 }
 .save-row {
   flex-direction: column-reverse;

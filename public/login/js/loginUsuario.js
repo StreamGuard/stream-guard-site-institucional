@@ -37,16 +37,18 @@ function entrar() {
           sessionStorage.removeItem("PERFIL_DEMO");
 
           setTimeout(function () {
-            // equipe StreamGuard vai pro painel root; clientes vão pro dashboard do seu perfil
-            const root = (json.email || "").includes("@streamguard.com");
-            const gerente = (json.permissao || "").toLowerCase() === "gerente";
+  // cada perfil já cai direto na tela que ele mais usa
+  const permissao = (json.permissao || "").toLowerCase();
+  const root = permissao === "root" || (json.email || "").includes("@streamguard.com");
 
-            window.location = root
-              ? "../painel/painel_admin.html"
-              : gerente
-                ? "../painel/painel_dashEspecifica.html"
-                : "../painel/painel_dashGeral.html";
-          }, 1000);
+  window.location = root
+    ? "../painel/painel_admin.html"
+    : permissao === "admin"
+      ? "../painel/painel_config.html"
+      : permissao === "gerente"
+        ? "../painel/painel_dashEspecifica.html"
+        : "../painel/painel_dashGeral.html";
+}, 1000);
         });
       } else {
         console.log("Houve um erro ao tentar realizar o login!");
