@@ -17,7 +17,12 @@ function criarComponente(req, res) {
             });
         })
         .catch(function (erro) {
-            res.status(500).json({ erro: "Erro ao cadastrar componente", detalhes: erro });
+            console.error("Erro ao cadastrar componente:", erro);
+
+            res.status(500).json({
+                erro: "Erro ao cadastrar componente",
+                detalhes: erro.sqlMessage || erro.message || String(erro)
+            });
         });
 }
 
