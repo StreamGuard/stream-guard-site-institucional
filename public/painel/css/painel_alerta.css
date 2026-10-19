@@ -388,12 +388,31 @@
   flex-direction: column;
 }
 
+.lista-alertas::-webkit-scrollbar {
+  width: 12px;
+  height: 10px;
+}
+
+.lista-alertas::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 6px;
+}
+
+.lista-alertas::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 6px;
+}
+
+.lista-alertas::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 .lista-alertas {
   gap: 10px;
 }
 
 .limites {
-  gap: 8px;
+  gap: 55px;
 }
 
 .lista-integracoes {
