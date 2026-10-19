@@ -4,21 +4,23 @@
   "use strict";
 
 
-  const PERFIS = ["usuario", "gerente", "admin"];
+  const PERFIS = ["usuario", "gerente", "admin", "root"];
 
   const NOMES_PERFIL = {
     usuario: "Usuário",
     gerente: "Gerente",
     admin: "Administrador",
+    root: "StreamGuard"
   };
 
   // o que cada perfil pode fazer (ver = todos)
   const REGRAS = {
-    ver: ["usuario", "gerente", "admin"],
+    ver: ["usuario", "gerente", "admin", "root"],
     criar: ["gerente", "admin"],
     editar: ["gerente", "admin"],
     excluir: ["admin"],
-    configurar: ["admin"],
+    configurar: ["admin", "root"],
+    conta: ["root"]
   };
 
   const DASHBOARD_POR_PERFIL = {
@@ -37,7 +39,8 @@
 
   function perfilDoBanco(texto) {
     const t = (texto || "").toLowerCase();
-    if (t === "root" || t === "admin" || t === "administrador") return "admin";
+    if (t === "root" ) return "root" 
+    if(t === "admin" || t === "administrador") return "admin";
     if (t === "gerente") return "gerente";
     if (t === "user" || t === "usuario" || t === "usuário" || t === "comum") return "usuario";
     return null;
@@ -145,7 +148,7 @@
       <nav class="menu">
         ${pode("configurar") ? item("./painel_config.html", "sg-settings", "Configurações", "config") : ""}
         ${item("./painel_perfil.html", "sg-user", "Perfil", "perfil")}
-        ${item("./painel_admin.html", "sg-building", "Conta", "admin")}
+        ${pode("conta") ? item("./painel_admin.html", "sg-building", "Conta", "admin") : ""}
       </nav>
 
       <div class="ambiente">
