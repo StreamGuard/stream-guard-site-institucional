@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Específica | Stream Guard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+        integrity="..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_modais.css">
+    <link rel="stylesheet" href="./css/painel_dashEspecifica.css">
+    <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+
+</head>
+
+<body data-pagina="dashEspecifica" data-edicao>
+    <div class="layout">
+
+        <aside class="sidebar" data-shell="sidebar"></aside>
+
+        <div class="conteudo">
+            <header class="topo">
+                <div>
+                    <h1>Dashboard</h1>
+                    <p data-resumo="subtitulo">Estado geral da infraestrutura • StreamCo Brasil • 8 servidores monitorados</p>
+                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+
+            <main class="principal">
+                <div class="dash-acoes">
+                    <a class="btn-sg btn-ghost" href="./painel_dashGeral.html">
+                        <i class="fa-solid fa-chart-line"></i> Ver análise detalhada
+                    </a>
+                    <button type="button" class="btn-sg btn-primary" data-acao="cadastrar-servidor" data-perm="criar">
+                        <i class="fa-solid fa-plus"></i>
+                        Cadastrar servidor
+                    </button>
+                </div>
+
+            <div class="dash-conteudo">
+                <section class="cards-status" aria-label="Resumo por status">
+                    <article class="card-status status-critico">
+                        <strong data-contagem="critico">1</strong>
+                        <h3>Crítico</h3>
+                        <p>Precisa de ação agora</p>
+                    </article>
+                    <article class="card-status status-indisponivel">
+                        <strong data-contagem="indisponivel">1</strong>
+                        <h3>Indisponível</h3>
+                        <p>Sem resposta do servidor</p>
+                    </article>
+                    <article class="card-status status-degradado">
+                        <strong data-contagem="degradado">2</strong>
+                        <h3>Degradados</h3>
+                        <p>Perto do limite</p>
+                    </article>
+                    <article class="card-status status-normal">
+                        <strong data-contagem="normal">4</strong>
+                        <h3>Normais</h3>
+                        <p>Tudo funcionando</p>
+                    </article>
+                </section>
+
+                <div class="dash-grade">
+                    <div class="dash-coluna">
+
+                        <section class="painel-box">
+                            <div class="painel-box-titulo">
+                                <h3>Precisam de atenção</h3>
+                                <p data-resumo="atencao">4 servidores com problema, do mais grave para o menos grave</p>
+                            </div>
+
+                            <div class="lista-atencao">
+                                <article class="item-atencao status-critico" data-status="critico">
+                                    <div class="atencao-servidor">
+                                        <h4>srv-stream-01</h4>
+                                        <span>Streaming</span>
+                                    </div>
+                                    <span class="selo-status">Crítico</span>
+                                    <div class="atencao-problema">
+                                        <h5>Memória RAM em 92%</h5>
+                                        <span>Passou do limite máximo de 90%</span>
+                                    </div>
+                                    <div class="atencao-desde">
+                                        <span>desde</span>
+                                        <strong>14:32</strong>
+                                    </div>
+                                    <button type="button" class="btn-sg btn-ghost" data-acao="ver-detalhes"
+                                        data-servidor="srv-stream-01">Ver detalhes</button>
+                                </article>
+
+                                <article class="item-atencao status-indisponivel" data-status="indisponivel">
+                                    <div class="atencao-servidor">
+                                        <h4>srv-edge-01</h4>
+                                        <span>Borda/CDN</span>
+                                    </div>
+                                    <span class="selo-status">Indisponível</span>
+                                    <div class="atencao-problema">
+                                        <h5>Servidor sem resposta</h5>
+                                        <span>O agente de monitoramento parou de enviar dados</span>
+                                    </div>
+                                    <div class="atencao-desde">
+                                        <span>desde</span>
+                                        <strong>14:20</strong>
+                                    </div>
+                                    <button type="button" class="btn-sg btn-ghost" data-acao="ver-detalhes"
+                                        data-servidor="srv-edge-01">Ver detalhes</button>
+                                </article>
+
+                                <article class="item-atencao status-degradado" data-status="degradado">
+                                    <div class="atencao-servidor">
+                                        <h4>srv-stream-03</h4>
+                                        <span>Streaming</span>
+                                    </div>
+                                    <span class="selo-status">Degradado</span>
+                                    <div class="atencao-problema">
+                                        <h5>Rede em 78%</h5>
+                                        <span>Acima do limite de alerta de 70%</span>
+                                    </div>
+                                    <div class="atencao-desde">
+                                        <span>desde</span>
+                                        <strong>14:18</strong>
+                                    </div>
+                                    <button type="button" class="btn-sg btn-ghost" data-acao="ver-detalhes"
+                                        data-servidor="srv-stream-03">Ver detalhes</button>
+                                </article>
+
+                                <article class="item-atencao status-degradado" data-status="degradado">
+                                    <div class="atencao-servidor">
+                                        <h4>srv-encode-01</h4>
+                                        <span>Codificação</span>
+                                    </div>
+                                    <span class="selo-status">Degradado</span>
+                                    <div class="atencao-problema">
+                                        <h5>CPU em 87%</h5>
+                                        <span>Quase no limite máximo de 88%</span>
+                                    </div>
+                                    <div class="atencao-desde">
+                                        <span>desde</span>
+                                        <strong>13:55</strong>
+                                    </div>
+                                    <button type="button" class="btn-sg btn-ghost" data-acao="ver-detalhes"
+                                        data-servidor="srv-encode-01">Ver detalhes</button>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="painel-box">
+                            <div class="painel-box-titulo">
+                                <h3>Funcionando normalmente</h3>
+                                <p data-resumo="normais">4 servidores sem nenhum problema</p>
+                            </div>
+
+                            <div class="grade-normais">
+                                <article class="item-normal" data-status="normal">
+                                    <span class="ponto-status"></span>
+                                    <h4>srv-stream-02</h4>
+                                    <span>Streaming</span>
+                                </article>
+                                <article class="item-normal" data-status="normal">
+                                    <span class="ponto-status"></span>
+                                    <h4>srv-db-01</h4>
+                                    <span>Banco de dados</span>
+                                </article>
+                                <article class="item-normal" data-status="normal">
+                                    <span class="ponto-status"></span>
+                                    <h4>srv-cache-01</h4>
+                                    <span>Cache</span>
+                                </article>
+                                <article class="item-normal" data-status="normal">
+                                    <span class="ponto-status"></span>
+                                    <h4>srv-backup-01</h4>
+                                    <span>Backup</span>
+                                </article>
+                            </div>
+                        </section>
+                    </div>
+
+                    <div class="dash-coluna">
+
+                        <section class="painel-box">
+                            <div class="painel-box-titulo">
+                                <h3>Notificações críticas</h3>
+                                <p>Situações que podem impactar o serviço</p>
+                            </div>
+
+                            <div class="lista-avisos">
+                                <article class="item-aviso status-critico">
+                                    <h4>RAM em 92% no srv-stream-01</h4>
+                                    <span>Acima do limite máximo • Hoje, 14:32</span>
+                                </article>
+                                <article class="item-aviso status-indisponivel">
+                                    <h4>srv-edge-01 sem resposta</h4>
+                                    <span>Indisponível há 14 min • Hoje, 14:20</span>
+                                </article>
+                            </div>
+                        </section>
+
+                        <section class="painel-box">
+                            <div class="painel-box-titulo">
+                                <h3>Alertas recentes</h3>
+                                <p>Métricas que ultrapassaram os limites</p>
+                            </div>
+
+                            <div class="lista-avisos">
+                                <article class="item-aviso status-degradado">
+                                    <h4>Rede em 78% • srv-stream-03</h4>
+                                    <span>Acima do limite de alerta • Hoje, 14:18</span>
+                                </article>
+                                <article class="item-aviso status-degradado">
+                                    <h4>CPU em 87% • srv-encode-01</h4>
+                                    <span>Próximo do máximo • Hoje, 13:55</span>
+                                </article>
+                            </div>
+                        </section>
+                    </div>
+                </div>
+            </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="./js/painel_shell.js"></script>
+    <script src="./js/painel_modais.js"></script>
+    <script src="./js/painel_dashEspecifica.js"></script>
+    <script src="./js/painel_dashEspecifica_modais.js"></script>
+</body>
+
+</html>

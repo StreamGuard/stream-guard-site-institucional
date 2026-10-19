@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Cadastrar Empresa | Stream Guard</title>
+  <link rel="stylesheet" href="./css/painel_base.css">
+  <link rel="stylesheet" href="./css/painel_cadastroEmpresa.css">
+  <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+</head>
+<body data-pagina="cadastroEmpresa">
+  <div class="layout">
+
+    <aside class="sidebar" data-shell="sidebar"></aside>
+
+    <div class="conteudo">
+      <header class="topo">
+        <div>
+          <h1>Cadastrar Empresa</h1>
+          <p>Cadastre a empresa e envie o código gerado para o cliente criar os usuários</p>
+        </div>
+        <div class="topo-direita" data-shell="topo-direita"></div>
+      </header>
+
+      <main class="principal">
+        <div class="cadastro">
+
+          <section class="painel">
+            <h2>Dados da empresa</h2>
+            <p class="sub">Informe a razão social e o CNPJ</p>
+
+            <form id="formCadastroEmpresa">
+              <label for="nomeEmpresa">Nome da empresa</label>
+              <input type="text" id="nomeEmpresa" placeholder="Ex: Media Cast Ltda" required>
+
+              <label for="cnpjEmpresa">CNPJ</label>
+              <input type="text" id="cnpjEmpresa" placeholder="00.000.000/0001-00" inputmode="numeric" maxlength="18" required>
+
+              <button type="submit" class="btn-cadastrar" id="btnCadastrar">Cadastrar empresa</button>
+            </form>
+          </section>
+
+          <section class="painel">
+            <h2>Código da empresa</h2>
+            <p class="sub">Gerado pelo servidor</p>
+
+            <div class="codigo-valor">
+              <span id="codigoValor">—</span>
+              <button type="button" class="btn-copiar" id="btnCopiarCodigo">Copiar</button>
+            </div>
+            <p class="dica" id="codigoHint">O código aparece aqui depois que a empresa é cadastrada com sucesso.</p>
+          </section>
+
+        </div>
+      </main>
+    </div>
+  </div>
+
+  <script src="./js/painel_shell.js"></script>
+  <script src="./js/painel_cadastroEmpresa.js"></script>
+</body>
+</html>

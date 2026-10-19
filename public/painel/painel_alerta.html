@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Alertas | Stream Guard</title>
+  <link rel="stylesheet" href="./css/painel_base.css">
+  <link rel="stylesheet" href="./css/painel_modais.css">
+  <link rel="stylesheet" href="./css/painel_alerta.css">
+  <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+</head>
+
+<body data-pagina="alerta" data-edicao>
+  <div class="layout">
+
+    <aside class="sidebar" data-shell="sidebar"></aside>
+
+    <div class="conteudo">
+
+      <header class="topo">
+        <div>
+          <h1>Alertas</h1>
+          <p>Histórico, limites e canais de notificação</p>
+        </div>
+        <div class="topo-direita" data-shell="topo-direita"></div>
+      </header>
+
+      <main class="principal">
+
+        <section class="resumo" id="resumo"></section>
+
+        <div class="grade">
+
+          <div class="coluna">
+
+            <section class="painel painel-historico">
+              <div class="painel-topo">
+                <div>
+                  <h2>Histórico de alertas</h2>
+                  <p>Ocorrências recentes do ambiente</p>
+                </div>
+                <button class="btn-filtro" id="btnFiltro">Filtrar histórico</button>
+              </div>
+
+              <ul class="lista-alertas" id="listaAlertas"></ul>
+              <p class="vazio" id="mensagemVazia" hidden>Nenhum alerta com esse filtro.</p>
+            </section>
+
+            <section class="painel painel-log">
+              <h2>Log de envio</h2>
+              <p class="sub">Últimas notificações processadas</p>
+              <ul class="log" id="log"></ul>
+            </section>
+          </div>
+
+          <div class="coluna">
+            <section class="painel painel-limites">
+              <h2>Limites de alerta</h2>
+              <p class="sub">Dispare alertas ao atingir estes valores</p>
+              <ul class="limites" id="limites"></ul>
+            </section>
+
+            <!-- Adicionei style="display: none;" na tag principal <section>, os elementos vão continuar existindo de forma oculta no código, ou seja o 
+              java script vai conseguir localiza-los e a tela não vai quebra-->
+
+            <section class="painel painel-integracoes" style="display: none;">
+              <div class="painel-topo">
+                <div>
+                  <h2>Integrações</h2>
+                  <p>Canais conectados ao ambiente</p>
+                </div>
+                <button class="btn-filtro" id="btnNovaIntegracao" data-perm="criar">+ Nova integração</button>
+              </div>
+
+              <div class="lista-integracoes" id="integracoes"></div>
+
+              <div class="agrupar">
+                <div></div>
+                <label class="switch">
+                  <input type="checkbox" id="agrupar" checked data-perm-lock="editar">
+                </label>
+              </div>
+
+              <button class="btn-salvar" id="btnSalvar" data-perm="editar">Salvar configurações</button>
+            </section>
+
+
+          </div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <script src="./js/painel_shell.js"></script>
+  <script src="./js/painel_modais.js"></script>
+  <script src="./js/painel_alerta.js"></script>
+</body>
+
+</html>

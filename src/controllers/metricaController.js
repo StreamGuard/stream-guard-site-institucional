@@ -35,6 +35,28 @@ function cadastrarMetrica(req, res) {
     }
 }
 
+async function buscarConfiguracoes(req, res) {
+    var servidor_id = Number(req.params.servidor_id);
+
+    if (!Number.isSafeInteger(servidor_id) || servidor_id <= 0) {
+        return res.status(400).json({
+            erro: "O ID do servidor deve ser um inteiro positivo."
+        });
+    }
+
+    try {
+        var configuracoes = await metricaModel.buscarConfiguracoes(servidor_id);
+        return res.status(200).json(configuracoes);
+    } catch (erro) {
+        console.error("Erro ao consultar configurações:", erro);
+
+        return res.status(500).json({
+            erro: "Não foi possível consultar as configurações."
+        });
+    }
+}
+
 module.exports = {
     cadastrarMetrica,
+    buscarConfiguracoes
 };

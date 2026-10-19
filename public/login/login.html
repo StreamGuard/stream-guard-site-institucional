@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Stream Guard | Login</title>
+  <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+  <link rel="stylesheet" href="../main/css/style.css" />
+  <link rel="stylesheet" href="./css/cadastro.css" />
+</head>
+
+<body>
+  <header class="cabecalho">
+    <a class="logo" href="../main/index.html">
+      <img src="../assets/streamGuard_logo.png" alt="Stream Guard" width="60" height="50">
+    </a>
+
+    <button class="botao-menu" type="button" id="botao-menu" aria-controls="menu" aria-expanded="false"
+      aria-label="Abrir menu">
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+      <span class="botao-menu-linha"></span>
+    </button>
+
+    <nav class="menu" id="menu" aria-label="Menu principal">
+      <div class="menu-topo">
+        <div class="menu-marca">
+          <img src="../assets/streamGuard_logo.png" alt="" width="32" height="32">
+          <span class="menu-titulo">Stream Guard</span>
+        </div>
+        <button class="botao-fechar" type="button" id="botao-fechar" aria-label="Fechar menu"></button>
+      </div>
+
+      <div class="menu-corpo">
+        <ul class="menu-links">
+          <li><a class="menu-link" href="../main/index.html">Página principal</a></li>
+          <li><a class="menu-link" href="../main/about.html">Sobre nós!</a></li>
+        </ul>
+
+        <div class="botoes-acesso">
+          <a class="botao-login" href="./login.html">Login</a>
+          <a class="botao-cadastro" href="./cadastroUsuario.html">Cadastro</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="fundo-menu" id="fundo-menu"></div>
+  </header>
+
+
+  <main class="auth-page">
+    <div class="auth-shell auth-shell--center">
+      <div class="auth-card">
+        <span class="status-live">
+          <span class="status-live__dot"></span>
+          AO VIVO
+        </span>
+        <h4>Faça seu login</h4>
+        <p class="auth-card__sub">Acesse o painel e acompanhe sua infraestrutura em tempo real.</p>
+
+        <div class="auth-fields">
+          <label class="field">
+            <span class="field-label">Email</span>
+            <input type="text" id="email_usuario" placeholder="email@email.com" />
+          </label>
+
+          <label class="field">
+            <span class="field-label">Senha</span>
+            <span class="senha-wrapper">
+              <input type="password" id="senha_usuario" placeholder="Insira sua senha" />
+              <img src="../assets/eyeClose.png" alt="Mostrar senha" class="toggle-senha" id="toggleSenha" />
+            </span>
+          </label>
+        </div>
+
+        <button type="button" class="btn btn-primary btn-block botao-cadastro" onclick="entrar()">
+          Entrar
+        </button>
+        <p id="mensagemErro" class="mensagem-erro"></p>
+
+        <p class="auth-card__foot">Ainda não tem conta? <a href="./cadastroUsuario.html">Cadastre-se</a></p>
+      </div>
+    </div>
+  </main>
+
+  <script src="../main/js/nav.js"></script>
+  <script src="./js/loginUsuario.js"></script>
+  <script>
+    const toggleSenha = document.getElementById("toggleSenha");
+    const senhaInput = document.getElementById("senha_usuario");
+
+    toggleSenha.addEventListener("click", () => {
+      const isPassword = senhaInput.type === "password";
+
+      senhaInput.type = isPassword ? "text" : "password";
+
+      toggleSenha.src = isPassword
+        ? "../assets/eyeOpen.png"
+        : "../assets/eyeClose.png";
+    });
+  </script>
+</body>
+
+</html>

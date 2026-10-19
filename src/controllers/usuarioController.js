@@ -26,6 +26,7 @@ function autenticar(req, res) {
               email: resultadoAutenticar[0].email,
               nome: resultadoAutenticar[0].nome,
               cargo: resultadoAutenticar[0].cargo,
+              permissao: resultadoAutenticar[0].permissao,
             });
           } else {
             res.json({
@@ -33,6 +34,7 @@ function autenticar(req, res) {
               email: resultadoAutenticar[0].email,
               nome: resultadoAutenticar[0].nome,
               cargo: resultadoAutenticar[0].cargo,
+              permissao: resultadoAutenticar[0].permissao,
               empresa_id: resultadoAutenticar[0].empresa_id,
               nome_empresa: resultadoAutenticar[0].nome_empresa,
             });

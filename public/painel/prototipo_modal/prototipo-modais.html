@@ -1,0 +1,2515 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stream Guard | Protótipo dos modais</title>
+    <link rel="icon" type="image/png" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 4 8 13v17c0 15 10 26 24 30 14-4 24-15 24-30V13z' fill='none' stroke='%232fb5d2' stroke-width='4' stroke-linejoin='round'/><path d='M18 33h8l4-9 6 16 4-7h6' fill='none' stroke='%236fe3ff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/></svg>">
+    <style>
+:root {
+    --sg-navy: #0a1420;
+    --sg-navy-2: #101f30;
+    --sg-navy-3: #16283d;
+    --sg-navy-4: #1c3350;
+    --sg-accent: #2fb5d2;
+    --sg-accent-2: #6fe3ff;
+    --sg-accent-dim: rgba(47, 181, 210, 0.14);
+    --sg-border: rgba(255, 255, 255, 0.08);
+    --sg-text-muted: rgba(255, 255, 255, 0.58);
+
+    --font-logo: "Roboto", sans-serif;
+}
+
+* {
+    font-family: var(--font-logo);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background-color: var(--sg-navy);
+}
+
+header{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    width: 100%;
+    height: 100vh;
+}
+
+aside {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 100%;
+    width: 15%;
+
+    background-color: var(--sg-navy);
+
+    border-right: 2px solid var(--sg-navy-2);
+}
+
+.content-aside{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: column;
+
+    height: 95%;
+    width: 90%;
+}
+
+.content-aside-top{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+
+    width: 100%;
+    height: 70%;
+
+    gap: 6vh;
+}
+
+.aside-top-logo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 15%;
+
+    gap: 0.3vw;
+}
+
+.aside-top-logo img{
+    height: 50px;
+}
+
+.aside-top-logo h6{
+    font-size: 1.2rem;
+    line-height: 1.15;
+
+    font-weight: 500;
+    color: white;
+}
+
+.aside-top-links{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 50%;
+    width: 80%;
+
+    gap: 3vh;
+}
+
+.top-links-box{
+    display: flex;
+    flex-direction: column;
+
+    gap: 1.5vh;
+}
+
+.aside-top-links h2{
+    font-size: 0.8rem;
+    font-weight: 900;
+
+    color: #557193;
+}
+
+.aside-top-links ul{
+    display: flex;
+    flex-direction: column;
+    list-style: none;
+
+    gap: 0.8vh;
+}
+
+.aside-top-links ul li{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    gap: 0.5vw;
+
+    font-size: 0.9rem;
+
+    padding-left: 0.4rem;
+    
+    height: 5vh;
+    width: 10vw;
+
+    font-weight: 400;
+    color: rgba(255, 255, 255, 0.827);
+
+    transition: 0.3s;
+
+    border-left: 3px solid #ffffff01;
+    border-radius: 0.3rem;
+}
+
+.aside-top-links ul li i{
+    font-size: 1.4rem;
+}
+
+.aside-top-links ul li:hover{
+    border-left: 3px solid var(--sg-accent-2);
+
+    background-color: #2fb4d230;
+    border-radius: 0.3rem;
+}
+
+.link-selected{
+    border-left: 3px solid var(--sg-accent-2) !important;
+
+    background-color: #2fb4d230;
+    border-radius: 0.3rem;
+}
+
+.content-aside-bottom{
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    flex-direction: column;
+
+    width: 100%;
+    height: 30%;
+}
+
+.aside-bottom-perfil{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+
+    width: 100%;
+    height: 70%;
+}
+
+.bottom-perfil-box{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 75%;
+    width: 95%;
+
+    border: 2px solid var(--sg-navy-4);
+    border-radius: 0.3rem;
+}
+
+.perfil-box-title{
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: 85%;
+    height: 20%;
+}
+
+.perfil-box-title span{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 0.3vw;
+
+    color: var(--sg-accent);
+}
+
+.perfil-box-title span i{
+    font-size: 1rem;
+}
+
+.perfil-box-title .fa-bell{
+    color: var(--sg-accent);
+
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.perfil-box-title .fa-bell:hover{
+    transform: rotate(10deg);
+}
+
+.perfil-box-info{
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+
+    width: 85%;
+    height: 60%;
+
+    gap: 0.5vw;
+}
+
+.perfil-box-info img{
+    height: 60px;
+    width: 60px;
+    border-radius: 50%;
+
+    border: 2px solid var(--sg-navy-4);
+}
+
+.perfil-box-info span{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+
+    gap: 0.6vh;
+}
+
+.perfil-box-info span h5{
+    color: white;
+}
+
+.perfil-box-info span h6{
+    color: rgba(255, 255, 255, 0.616);
+}
+
+.perfil-box-info i{
+    padding-left: 1rem;
+    color: rgba(255, 255, 255, 0.638);
+
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.perfil-box-info i:hover{
+    color: white;
+}
+
+.container-page{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 85%;
+    height: 100%;
+}
+
+.container-title{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 16%;
+    width: 100%;
+}
+
+.container-title-text{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+
+    width: 100%;
+    height: 45%;
+
+    padding: 2.5% 4%;
+
+    gap: 0.5vh;
+
+    border-bottom: 1px solid var(--sg-navy-4);
+}
+
+.container-title-text h1{
+    font-size: 1.8rem;
+
+    font-weight: 400;
+    color: white;
+}
+
+.container-title-text h2{
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: rgba(255, 255, 255, 0.563);
+}
+
+.container-title-buttons{
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+
+    width: 92%;
+    height: 38%;
+
+    gap: 4vh;
+
+    border-bottom: 2px solid var(--sg-navy-4);
+}
+
+.container-title-buttons button{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    gap: 1vw;
+
+    background-color: transparent;
+
+    color: rgba(255, 255, 255, 0.742);
+
+    height: 80%;
+
+    border: none;
+    border-bottom: 3px solid #ffffff00;
+    border-radius: 0.2rem;
+
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.container-title-buttons button:hover{
+    border-bottom: 3px solid var(--sg-accent) !important;
+    border-radius: 0.2rem;
+}
+
+.container-title-buttons button.active{
+    border-bottom: 3px solid var(--sg-accent) !important;
+    border-radius: 0.2rem;
+}
+
+.content-metricas{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 84%;
+    width: 100%;
+}
+
+.content-configuracoes{
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+
+    height: 80%;
+    width: 100%;
+}
+
+/* ==========================================================================
+   CONTEÚDO DAS ABAS (Métricas / Funcionários)
+   Acrescentado ao final: reaproveita as variáveis e o padrão visual acima.
+   ========================================================================== */
+
+:root {
+    --sg-mint: #12e6cf;
+    --sg-mint-dim: rgba(18, 230, 207, 0.14);
+    --sg-blue: #4d8dff;
+    --sg-purple: #8b7bff;
+    --sg-danger: #ff6b7a;
+}
+
+[hidden] {
+    display: none !important;
+}
+
+.container-title-buttons button {
+    font-size: 0.95rem;
+    padding: 0 1rem;
+}
+
+.container-title-buttons button.active {
+    color: var(--sg-mint);
+}
+
+/* ---------- painéis (substituem as regras antigas de height/display) ---------- */
+
+.content-metricas,
+.content-configuracoes {
+    display: none;
+    align-items: stretch;
+    justify-content: flex-start;
+    flex-direction: column;
+
+    height: 84%;
+    width: 100%;
+
+    padding: 2.5vh 4% 3vh;
+    gap: 2.5vh;
+
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sg-navy-4) transparent;
+}
+
+.content-metricas.is-visible,
+.content-configuracoes.is-visible {
+    display: flex;
+}
+
+/* ---------- cards de resumo ---------- */
+
+.cards-resumo {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1.2vw;
+}
+
+.card-resumo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    flex-direction: column;
+
+    gap: 0.6vh;
+    padding: 2vh 1.4vw;
+
+    background: linear-gradient(160deg, var(--sg-navy-2), var(--sg-navy));
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.5rem;
+}
+
+.card-resumo-top {
+    display: flex;
+    align-items: center;
+    gap: 0.9vw;
+}
+
+.card-resumo-top strong {
+    font-size: 1.5rem;
+    font-weight: 500;
+    color: white;
+}
+
+.card-resumo p {
+    font-size: 0.8rem;
+    color: var(--sg-text-muted);
+}
+
+.card-icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 2.6rem;
+    width: 2.6rem;
+
+    border-radius: 50%;
+    background-color: var(--sg-mint-dim);
+    color: var(--sg-mint);
+    font-size: 1.05rem;
+}
+
+.card-icone-roxo {
+    background-color: rgba(139, 123, 255, 0.18);
+    color: var(--sg-purple);
+}
+
+.card-resumo-top strong.num-azul { color: var(--sg-blue); font-size: 1.9rem; }
+.card-resumo-top strong.num-mint { color: var(--sg-mint); font-size: 1.9rem; }
+.card-resumo-top strong.num-cinza { color: #8793a6; font-size: 1.9rem; }
+.card-resumo-top strong.num-roxo { color: var(--sg-purple); font-size: 1.9rem; }
+
+/* ---------- caixa da tabela ---------- */
+
+.box-tabela {
+    display: flex;
+    flex-direction: column;
+
+    background-color: rgba(16, 31, 48, 0.55);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.5rem;
+
+    overflow: hidden;
+}
+
+.box-tabela-topo {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    gap: 1.5vw;
+    padding: 2vh 1.5vw;
+}
+
+.box-tabela-titulo h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: white;
+}
+
+.box-tabela-titulo p {
+    margin-top: 0.3vh;
+    font-size: 0.75rem;
+    color: var(--sg-text-muted);
+}
+
+.box-tabela-acoes {
+    display: flex;
+    align-items: center;
+    gap: 1vw;
+}
+
+.box-tabela-filtros {
+    align-items: flex-end;
+}
+
+.campo-busca {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    height: 2.6rem;
+    min-width: 16rem;
+    padding: 0 0.9rem;
+
+    background-color: var(--sg-navy);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.4rem;
+
+    color: var(--sg-text-muted);
+    transition: 0.3s;
+}
+
+.campo-busca:focus-within {
+    border-color: var(--sg-accent);
+}
+
+.campo-busca input {
+    flex: 1;
+    min-width: 0;
+
+    background: transparent;
+    border: none;
+    outline: none;
+
+    color: white;
+    font-size: 0.85rem;
+}
+
+.campo-busca input::placeholder {
+    color: var(--sg-text-muted);
+}
+
+.campo-filtro {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+}
+
+.campo-filtro span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--sg-text-muted);
+}
+
+.select-sg {
+    height: 2.6rem;
+    min-width: 9rem;
+    padding: 0 2.2rem 0 0.9rem;
+
+    background-color: var(--sg-navy);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-opacity='.7' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.8rem center;
+
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.4rem;
+
+    color: white;
+    font-size: 0.85rem;
+
+    appearance: none;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.select-sg:hover,
+.select-sg:focus {
+    border-color: var(--sg-accent);
+    outline: none;
+}
+
+.select-sg option {
+    background-color: var(--sg-navy-2);
+}
+
+/* ---------- botões ---------- */
+
+.btn-sg {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    height: 2.6rem;
+    padding: 0 1.1rem;
+
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-primary {
+    background-color: var(--sg-mint);
+    color: #04141b;
+}
+
+.btn-primary:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 14px rgba(18, 230, 207, 0.35);
+}
+
+.btn-ghost {
+    background-color: transparent;
+    border-color: var(--sg-navy-4);
+    color: white;
+}
+
+.btn-ghost:hover {
+    border-color: var(--sg-accent);
+    background-color: var(--sg-accent-dim);
+}
+
+.btn-danger {
+    background-color: rgba(255, 107, 122, 0.08);
+    border-color: rgba(255, 107, 122, 0.55);
+    color: var(--sg-danger);
+}
+
+.btn-danger:hover {
+    background-color: rgba(255, 107, 122, 0.2);
+}
+
+.btn-sg:focus-visible {
+    outline: 2px solid var(--sg-accent-2);
+    outline-offset: 2px;
+}
+
+/* ---------- tabela ---------- */
+
+.tabela {
+    display: flex;
+    flex-direction: column;
+}
+
+.grid-metricas .linha-cabecalho,
+.grid-metricas .linha {
+    display: grid;
+    grid-template-columns: 2.2fr 1fr 1.6fr 1.3fr 1fr;
+    align-items: center;
+}
+
+.grid-funcionarios .linha-cabecalho,
+.grid-funcionarios .linha {
+    display: grid;
+    grid-template-columns: 2fr 2.2fr 1.4fr 1fr 1.8fr;
+    align-items: center;
+}
+
+.linha-cabecalho {
+    padding: 1.4vh 1.5vw;
+
+    background-color: rgba(0, 0, 0, 0.2);
+    border-top: 1px solid var(--sg-navy-4);
+    border-bottom: 1px solid var(--sg-navy-4);
+
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    color: var(--sg-mint);
+}
+
+.linha {
+    padding: 1.3vh 1.5vw;
+
+    border-bottom: 1px solid var(--sg-border);
+    transition: 0.3s;
+}
+
+.linha:hover {
+    background-color: rgba(47, 181, 210, 0.05);
+}
+
+.item-nome {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: white;
+}
+
+.col-metrica,
+.col-func {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.col-estado,
+.col-acoes {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+}
+
+.col-email {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.sem-resultados {
+    padding: 4vh 0;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--sg-text-muted);
+}
+
+.box-tabela-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 1.6vh 1.5vw;
+    border-top: 1px solid var(--sg-navy-4);
+}
+
+.rodape-nota {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    font-size: 0.75rem;
+    color: var(--sg-text-muted);
+}
+
+/* ---------- métricas: ícone, unidade, switch ---------- */
+
+.icone-metrica {
+    --cor: var(--sg-mint);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 2.4rem;
+    width: 2.4rem;
+
+    background-color: color-mix(in srgb, var(--cor) 16%, transparent);
+    border-radius: 0.5rem;
+
+    color: var(--cor);
+    font-size: 1rem;
+}
+
+.cor-ciano { --cor: var(--sg-mint); }
+.cor-roxo { --cor: var(--sg-purple); }
+.cor-laranja { --cor: #ffa94d; }
+.cor-azul { --cor: var(--sg-blue); }
+.cor-magenta { --cor: #e04dd0; }
+.cor-vermelho { --cor: #ff5e7a; }
+
+.chip-unidade {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+
+    padding: 0.25rem 0.6rem;
+
+    background-color: var(--sg-navy-3);
+    border-radius: 0.3rem;
+
+    font-size: 0.72rem;
+    color: rgba(255, 255, 255, 0.82);
+}
+
+.chip-unidade i {
+    font-size: 0.4rem;
+    color: var(--sg-accent);
+}
+
+.col-intervalo .select-sg {
+    width: 9.5rem;
+}
+
+.estado-texto {
+    min-width: 3.5rem;
+    font-size: 0.8rem;
+    color: var(--sg-mint);
+    transition: 0.3s;
+}
+
+.linha.is-inativa .estado-texto {
+    color: var(--sg-text-muted);
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+
+    height: 1.3rem;
+    width: 2.4rem;
+    flex-shrink: 0;
+}
+
+.switch input {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+
+    height: 100%;
+    width: 100%;
+
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.switch-track {
+    position: absolute;
+    inset: 0;
+
+    background-color: var(--sg-navy-4);
+    border-radius: 999px;
+
+    transition: 0.3s;
+}
+
+.switch-track::after {
+    content: "";
+    position: absolute;
+    top: 0.15rem;
+    left: 0.15rem;
+
+    height: 1rem;
+    width: 1rem;
+
+    background-color: white;
+    border-radius: 50%;
+
+    transition: 0.3s;
+}
+
+.switch input:checked + .switch-track {
+    background-color: var(--sg-mint);
+}
+
+.switch input:checked + .switch-track::after {
+    transform: translateX(1.1rem);
+}
+
+.switch input:focus-visible + .switch-track {
+    outline: 2px solid var(--sg-accent-2);
+    outline-offset: 2px;
+}
+
+/* ---------- funcionários: avatar e badges ---------- */
+
+.avatar-sg {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 2.4rem;
+    width: 2.4rem;
+
+    background-color: var(--sg-navy-3);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 50%;
+
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #9db4ff;
+}
+
+.badge-perfil,
+.badge-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+
+    padding: 0.22rem 0.6rem;
+    border-radius: 999px;
+
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.badge-admin { background-color: rgba(77, 141, 255, 0.16); color: #6ea2ff; }
+.badge-gerente { background-color: rgba(139, 123, 255, 0.16); color: #a597ff; }
+.badge-comum { background-color: rgba(135, 147, 166, 0.16); color: #98a4b8; }
+
+.badge-status::before {
+    content: "";
+    height: 0.4rem;
+    width: 0.4rem;
+    border-radius: 50%;
+    background-color: currentColor;
+}
+
+.badge-ativo { background-color: var(--sg-mint-dim); color: var(--sg-mint); }
+.badge-inativo { background-color: rgba(135, 147, 166, 0.16); color: #98a4b8; }
+
+/* ---------- telas menores ---------- */
+
+@media (max-width: 1100px) {
+    .cards-resumo {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .box-tabela-topo {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}
+
+/* Stream Guard | Modais (protótipo)
+   Reaproveita as variáveis e os botões (.btn-sg) do painelGerenciamento.css */
+
+body.modal-aberto {
+    overflow: hidden;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    padding: 2vh 1rem;
+
+    background-color: rgba(4, 10, 18, 0.74);
+    backdrop-filter: blur(3px);
+
+    animation: modal-fade 0.2s ease;
+}
+
+.modal-overlay[hidden] {
+    display: none !important;
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+
+    width: min(34rem, 100%);
+    max-height: 94vh;
+
+    background: linear-gradient(170deg, var(--sg-navy-3), var(--sg-navy-2) 40%);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.6rem;
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55);
+
+    animation: modal-subir 0.25s ease;
+}
+
+.modal-sm {
+    width: min(27rem, 100%);
+}
+
+@keyframes modal-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes modal-subir {
+    from { opacity: 0; transform: translateY(14px) scale(0.98); }
+    to { opacity: 1; transform: none; }
+}
+
+.modal-topo {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+
+    padding: 1.4rem 1.6rem 1.1rem;
+    border-bottom: 1px solid var(--sg-navy-4);
+}
+
+.modal-topo h3 {
+    font-size: 1.15rem;
+    font-weight: 500;
+    color: white;
+}
+
+.modal-topo p {
+    margin-top: 0.3rem;
+    font-size: 0.8rem;
+    color: var(--sg-text-muted);
+}
+
+.modal-fechar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 2rem;
+    width: 2rem;
+    flex-shrink: 0;
+
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 0.4rem;
+
+    color: var(--sg-text-muted);
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.modal-fechar:hover {
+    border-color: var(--sg-navy-4);
+    color: white;
+}
+
+.modal-corpo {
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+
+    padding: 1.3rem 1.6rem;
+    overflow-y: auto;
+
+    scrollbar-width: thin;
+    scrollbar-color: var(--sg-navy-4) transparent;
+}
+
+.modal-rodape {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.7rem;
+
+    padding: 1rem 1.6rem 1.3rem;
+    border-top: 1px solid var(--sg-navy-4);
+}
+
+/* ---------- campos ---------- */
+
+.form-grupo {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+}
+
+.form-linha {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+}
+
+.form-label {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sg-text-muted);
+}
+
+.input-sg {
+    height: 2.6rem;
+    width: 100%;
+    padding: 0 0.9rem;
+
+    background-color: var(--sg-navy);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.4rem;
+
+    color: white;
+    font-size: 0.85rem;
+
+    outline: none;
+    transition: 0.3s;
+}
+
+.input-sg::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.input-sg:focus {
+    border-color: var(--sg-accent);
+    box-shadow: 0 0 0 3px var(--sg-accent-dim);
+}
+
+.modal .select-sg {
+    width: 100%;
+}
+
+.form-grupo.tem-erro .input-sg {
+    border-color: var(--sg-danger);
+}
+
+.form-erro {
+    display: none;
+    font-size: 0.75rem;
+    color: var(--sg-danger);
+}
+
+.form-grupo.tem-erro .form-erro {
+    display: block;
+}
+
+.form-dica {
+    font-size: 0.75rem;
+    color: var(--sg-text-muted);
+}
+
+/* ---------- seletor de ícone (métrica) ---------- */
+
+.opcoes-icone {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+}
+
+.opcao-icone {
+    position: relative;
+}
+
+.opcao-icone input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.opcao-icone span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 2.8rem;
+
+    background-color: var(--sg-navy);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.5rem;
+
+    color: var(--sg-text-muted);
+    transition: 0.3s;
+}
+
+.opcao-icone input:hover + span {
+    border-color: var(--sg-accent);
+}
+
+.opcao-icone input:checked + span {
+    border-color: var(--cor, var(--sg-mint));
+    background-color: color-mix(in srgb, var(--cor, var(--sg-mint)) 16%, transparent);
+    color: var(--cor, var(--sg-mint));
+}
+
+.opcao-icone input:focus-visible + span {
+    outline: 2px solid var(--sg-accent-2);
+    outline-offset: 2px;
+}
+
+/* ---------- seletor de perfil (funcionário) ---------- */
+
+.opcoes-perfil {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.opcao-perfil {
+    position: relative;
+}
+
+.opcao-perfil input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.opcao-perfil > div {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    padding: 0.7rem 0.9rem;
+
+    background-color: var(--sg-navy);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.5rem;
+
+    transition: 0.3s;
+}
+
+.opcao-perfil strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: white;
+}
+
+.opcao-perfil small {
+    font-size: 0.72rem;
+    color: var(--sg-text-muted);
+}
+
+.opcao-perfil i {
+    color: transparent;
+    transition: 0.3s;
+}
+
+.opcao-perfil input:hover + div {
+    border-color: var(--sg-accent);
+}
+
+.opcao-perfil input:checked + div {
+    border-color: var(--sg-mint);
+    background-color: var(--sg-mint-dim);
+}
+
+.opcao-perfil input:checked + div i {
+    color: var(--sg-mint);
+}
+
+.opcao-perfil input:focus-visible + div {
+    outline: 2px solid var(--sg-accent-2);
+    outline-offset: 2px;
+}
+
+/* ---------- linha com switch ---------- */
+
+.form-switch {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    padding: 0.8rem 0.9rem;
+
+    background-color: var(--sg-navy);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.5rem;
+}
+
+.form-switch strong {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: white;
+}
+
+.form-switch small {
+    font-size: 0.72rem;
+    color: var(--sg-text-muted);
+}
+
+/* ---------- confirmação de remoção ---------- */
+
+.confirmar-conteudo {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+
+    padding: 1.6rem 1.6rem 1.2rem;
+}
+
+.confirmar-icone {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    height: 2.8rem;
+    width: 2.8rem;
+    flex-shrink: 0;
+
+    background-color: rgba(255, 107, 122, 0.14);
+    border-radius: 50%;
+
+    color: var(--sg-danger);
+    font-size: 1.1rem;
+}
+
+.confirmar-conteudo h3 {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: white;
+}
+
+.confirmar-conteudo p {
+    margin-top: 0.4rem;
+    font-size: 0.85rem;
+    line-height: 1.45;
+    color: var(--sg-text-muted);
+}
+
+.confirmar-conteudo p strong {
+    color: white;
+    font-weight: 500;
+}
+
+.btn-danger-solid {
+    background-color: var(--sg-danger);
+    color: #1a0509;
+}
+
+.btn-danger-solid:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 0 14px rgba(255, 107, 122, 0.35);
+}
+
+/* ---------- aviso (toast) ---------- */
+
+.toast-sg {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 200;
+
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    max-width: 22rem;
+    padding: 0.8rem 1rem;
+
+    background-color: var(--sg-navy-3);
+    border: 1px solid var(--sg-mint);
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+
+    font-size: 0.82rem;
+    color: white;
+
+    animation: modal-subir 0.25s ease;
+}
+
+.toast-sg i {
+    color: var(--sg-mint);
+}
+
+@media (max-width: 560px) {
+    .form-linha {
+        grid-template-columns: 1fr;
+    }
+
+    .opcoes-icone {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+</style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+
+<body>
+    <header>
+        <aside>
+            <div class="content-aside">
+                <div class="content-aside-top">
+                    <div class="aside-top-logo">
+                        <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><path d='M32 4 8 13v17c0 15 10 26 24 30 14-4 24-15 24-30V13z' fill='none' stroke='%232fb5d2' stroke-width='4' stroke-linejoin='round'/><path d='M18 33h8l4-9 6 16 4-7h6' fill='none' stroke='%236fe3ff' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'/></svg>" alt="">
+                        <h6>
+                            Stream Guard
+                        </h6>
+                    </div>
+                    <div class="aside-top-links">
+                        <div class="top-links-box">
+                            <h2>
+                                MONITORAMENTO
+                            </h2>
+                            <ul>
+                                <li>
+                                    <i class="fa-regular fa-house"></i>
+                                    Dashboard
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-server"></i>
+                                    Componentes
+                                </li>
+                                <li>
+                                    <i class="fa-regular fa-bell"></i>
+                                    Alertas
+                                </li>
+                            </ul>
+                        </div>
+                        <div class="top-links-box">
+                            <h2>
+                                ADMINISTRAÇÃO
+                            </h2>
+                            <ul>
+                                <li class="link-selected">
+                                    <i class="fa-solid fa-gear"></i>
+                                    Configurações
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-user"></i>
+                                    Perfil
+                                </li>
+                                <li>
+                                    <i class="fa-solid fa-lock"></i>
+                                    Conta
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="content-aside-bottom">
+                    <div class="aside-bottom-perfil">
+                        <div class="bottom-perfil-box">
+                            <div class="perfil-box-title">
+                                <span>
+                                    <i class="fa-regular fa-circle-dot"></i>
+                                    <h6>SISTEMA ONLINE</h6>
+                                </span>
+                                <i class="fa-regular fa-bell"></i>
+                            </div>
+                            <div class="perfil-box-info">
+                                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><rect width='64' height='64' fill='%2316283d'/><text x='32' y='40' font-size='24' font-family='sans-serif' font-weight='700' fill='%238b7bff' text-anchor='middle'>NU</text></svg>" alt="">
+                                <span>
+                                    <h5>Nome User</h5>
+                                    <h6>Cargo User</h6>
+                                </span>
+                                <i class="fa-solid fa-chevron-down"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+        <div class="container-page">
+            <div class="container-title">
+                <div class="container-title-text">
+                    <h1>
+                        Configurações
+                    </h1>
+                    <h2>
+                        Gerencie métricas, funcionários e permissões.
+                    </h2>
+                </div>
+                <div class="container-title-buttons" role="tablist" aria-label="Seções de configuração">
+                    <button type="button" class="active" role="tab" id="aba-metricas" data-tab="metricas"
+                        aria-controls="painel-metricas" aria-selected="true">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        Métricas
+                    </button>
+                    <button type="button" role="tab" id="aba-funcionarios" data-tab="funcionarios"
+                        aria-controls="painel-funcionarios" aria-selected="false" tabindex="-1">
+                        <i class="fa-solid fa-user"></i>
+                        Funcionários
+                    </button>
+                </div>
+            </div>
+
+            <!-- ===================== ABA: MÉTRICAS ===================== -->
+            <div class="content-metricas is-visible" id="painel-metricas" data-panel="metricas" role="tabpanel"
+                aria-labelledby="aba-metricas">
+
+                <div class="cards-resumo">
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone"><i class="fa-solid fa-database"></i></span>
+                            <strong data-resumo="total">6</strong>
+                        </div>
+                        <p>Métricas cadastradas</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone"><i class="fa-regular fa-circle-check"></i></span>
+                            <strong data-resumo="ativas">4</strong>
+                        </div>
+                        <p>Métricas ativas</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone card-icone-roxo"><i class="fa-solid fa-circle-pause"></i></span>
+                            <strong data-resumo="inativas">2</strong>
+                        </div>
+                        <p>Métricas inativas</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone"><i class="fa-solid fa-bolt"></i></span>
+                            <strong data-resumo="menor">15s</strong>
+                        </div>
+                        <p>Menor intervalo</p>
+                    </div>
+                </div>
+
+                <div class="box-tabela">
+                    <div class="box-tabela-topo">
+                        <div class="box-tabela-titulo">
+                            <h3>Métricas configuradas</h3>
+                            <p>Defina frequência, unidade de coleta e status das métricas.</p>
+                        </div>
+                        <div class="box-tabela-acoes">
+                            <label class="campo-busca">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="search" id="busca-metrica" placeholder="Buscar métrica..."
+                                    autocomplete="off">
+                            </label>
+                            <button type="button" class="btn-sg btn-primary" data-modal="adicionar-metrica">
+                                <i class="fa-solid fa-plus"></i>
+                                Adicionar métrica
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tabela grid-metricas">
+                        <div class="linha-cabecalho">
+                            <span>MÉTRICA</span>
+                            <span>UNIDADE</span>
+                            <span>INTERVALO DE COLETA</span>
+                            <span>ESTADO</span>
+                            <span>AÇÃO</span>
+                        </div>
+
+                        <div class="linha linha-metrica">
+                            <div class="col-metrica">
+                                <span class="icone-metrica cor-ciano"><i class="fa-solid fa-microchip"></i></span>
+                                <p class="item-nome">Uso de CPU</p>
+                            </div>
+                            <div class="col-unidade"><span class="chip-unidade">%</span></div>
+                            <div class="col-intervalo">
+                                <select class="select-sg" aria-label="Intervalo de coleta de Uso de CPU">
+                                    <option value="5">5s</option>
+                                    <option value="15" selected>15s</option>
+                                    <option value="30">30s</option>
+                                    <option value="60">60s</option>
+                                    <option value="300">5min</option>
+                                </select>
+                            </div>
+                            <div class="col-estado">
+                                <label class="switch">
+                                    <input type="checkbox" checked aria-label="Ativar Uso de CPU">
+                                    <span class="switch-track"></span>
+                                </label>
+                                <span class="estado-texto">Ativa</span>
+                            </div>
+                            <div class="col-acao">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-metrica">
+                            <div class="col-metrica">
+                                <span class="icone-metrica cor-roxo"><i class="fa-solid fa-memory"></i></span>
+                                <p class="item-nome">Uso de RAM</p>
+                            </div>
+                            <div class="col-unidade"><span class="chip-unidade">%</span></div>
+                            <div class="col-intervalo">
+                                <select class="select-sg" aria-label="Intervalo de coleta de Uso de RAM">
+                                    <option value="5">5s</option>
+                                    <option value="15">15s</option>
+                                    <option value="30" selected>30s</option>
+                                    <option value="60">60s</option>
+                                    <option value="300">5min</option>
+                                </select>
+                            </div>
+                            <div class="col-estado">
+                                <label class="switch">
+                                    <input type="checkbox" checked aria-label="Ativar Uso de RAM">
+                                    <span class="switch-track"></span>
+                                </label>
+                                <span class="estado-texto">Ativa</span>
+                            </div>
+                            <div class="col-acao">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-metrica">
+                            <div class="col-metrica">
+                                <span class="icone-metrica cor-laranja"><i class="fa-solid fa-hard-drive"></i></span>
+                                <p class="item-nome">Uso de Disco</p>
+                            </div>
+                            <div class="col-unidade"><span class="chip-unidade">%</span></div>
+                            <div class="col-intervalo">
+                                <select class="select-sg" aria-label="Intervalo de coleta de Uso de Disco">
+                                    <option value="5">5s</option>
+                                    <option value="15">15s</option>
+                                    <option value="30">30s</option>
+                                    <option value="60" selected>60s</option>
+                                    <option value="300">5min</option>
+                                </select>
+                            </div>
+                            <div class="col-estado">
+                                <label class="switch">
+                                    <input type="checkbox" checked aria-label="Ativar Uso de Disco">
+                                    <span class="switch-track"></span>
+                                </label>
+                                <span class="estado-texto">Ativa</span>
+                            </div>
+                            <div class="col-acao">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-metrica">
+                            <div class="col-metrica">
+                                <span class="icone-metrica cor-azul"><i class="fa-solid fa-network-wired"></i></span>
+                                <p class="item-nome">Tráfego de Rede</p>
+                            </div>
+                            <div class="col-unidade"><span class="chip-unidade"><i class="fa-solid fa-circle"></i>Mbps</span></div>
+                            <div class="col-intervalo">
+                                <select class="select-sg" aria-label="Intervalo de coleta de Tráfego de Rede">
+                                    <option value="5">5s</option>
+                                    <option value="15" selected>15s</option>
+                                    <option value="30">30s</option>
+                                    <option value="60">60s</option>
+                                    <option value="300">5min</option>
+                                </select>
+                            </div>
+                            <div class="col-estado">
+                                <label class="switch">
+                                    <input type="checkbox" checked aria-label="Ativar Tráfego de Rede">
+                                    <span class="switch-track"></span>
+                                </label>
+                                <span class="estado-texto">Ativa</span>
+                            </div>
+                            <div class="col-acao">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-metrica">
+                            <div class="col-metrica">
+                                <span class="icone-metrica cor-magenta"><i class="fa-solid fa-stopwatch"></i></span>
+                                <p class="item-nome">Latência</p>
+                            </div>
+                            <div class="col-unidade"><span class="chip-unidade"><i class="fa-solid fa-circle"></i>ms</span></div>
+                            <div class="col-intervalo">
+                                <select class="select-sg" aria-label="Intervalo de coleta de Latência">
+                                    <option value="5">5s</option>
+                                    <option value="15" selected>15s</option>
+                                    <option value="30">30s</option>
+                                    <option value="60">60s</option>
+                                    <option value="300">5min</option>
+                                </select>
+                            </div>
+                            <div class="col-estado">
+                                <label class="switch">
+                                    <input type="checkbox" aria-label="Ativar Latência">
+                                    <span class="switch-track"></span>
+                                </label>
+                                <span class="estado-texto">Inativa</span>
+                            </div>
+                            <div class="col-acao">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-metrica">
+                            <div class="col-metrica">
+                                <span class="icone-metrica cor-vermelho"><i class="fa-solid fa-temperature-half"></i></span>
+                                <p class="item-nome">Temperatura</p>
+                            </div>
+                            <div class="col-unidade"><span class="chip-unidade"><i class="fa-solid fa-circle"></i>°C</span></div>
+                            <div class="col-intervalo">
+                                <select class="select-sg" aria-label="Intervalo de coleta de Temperatura">
+                                    <option value="5">5s</option>
+                                    <option value="15">15s</option>
+                                    <option value="30">30s</option>
+                                    <option value="60" selected>60s</option>
+                                    <option value="300">5min</option>
+                                </select>
+                            </div>
+                            <div class="col-estado">
+                                <label class="switch">
+                                    <input type="checkbox" aria-label="Ativar Temperatura">
+                                    <span class="switch-track"></span>
+                                </label>
+                                <span class="estado-texto">Inativa</span>
+                            </div>
+                            <div class="col-acao">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-metrica">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                            </div>
+                        </div>
+
+                        <p class="sem-resultados" hidden>Nenhuma métrica encontrada.</p>
+                    </div>
+
+                    <div class="box-tabela-rodape">
+                        <span class="rodape-nota" data-resumo="nota">Alterações entram em vigor no próximo ciclo de coleta.</span>
+                        <button type="button" class="btn-sg btn-primary" id="salvar-metricas">
+                            <i class="fa-regular fa-floppy-disk"></i>
+                            Salvar alterações
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===================== ABA: FUNCIONÁRIOS ===================== -->
+            <div class="content-configuracoes" id="painel-funcionarios" data-panel="funcionarios" role="tabpanel"
+                aria-labelledby="aba-funcionarios" hidden>
+
+                <div class="cards-resumo">
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-azul" data-resumo="total">4</strong>
+                        </div>
+                        <p>Total de funcionários</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-mint" data-resumo="ativos">3</strong>
+                        </div>
+                        <p>Acessos ativos</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-cinza" data-resumo="inativos">1</strong>
+                        </div>
+                        <p>Acesso inativo</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-roxo" data-resumo="niveis">3</strong>
+                        </div>
+                        <p>Níveis de perfil</p>
+                    </div>
+                </div>
+
+                <div class="box-tabela">
+                    <div class="box-tabela-topo">
+                        <div class="box-tabela-acoes box-tabela-filtros">
+                            <label class="campo-busca">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="search" id="busca-funcionario" placeholder="Buscar por nome ou e-mail"
+                                    autocomplete="off">
+                            </label>
+                            <div class="campo-filtro">
+                                <span>PERFIL</span>
+                                <select class="select-sg" id="filtro-perfil" aria-label="Filtrar por perfil">
+                                    <option value="todos">Todos os perfis</option>
+                                    <option value="administrador">Administrador</option>
+                                    <option value="gerente">Gerente</option>
+                                    <option value="comum">Usuário comum</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-sg btn-primary" data-modal="adicionar-funcionario">
+                            <i class="fa-solid fa-user-plus"></i>
+                            Adicionar funcionário
+                        </button>
+                    </div>
+
+                    <div class="tabela grid-funcionarios">
+                        <div class="linha-cabecalho">
+                            <span>FUNCIONÁRIO</span>
+                            <span>E-MAIL</span>
+                            <span>PERFIL</span>
+                            <span>STATUS</span>
+                            <span>AÇÕES</span>
+                        </div>
+
+                        <div class="linha linha-funcionario" data-perfil="administrador" data-status="ativo">
+                            <div class="col-func">
+                                <span class="avatar-sg">CS</span>
+                                <p class="item-nome">Carlos Souza</p>
+                            </div>
+                            <div class="col-email">carlos@streamco.com.br</div>
+                            <div class="col-perfil"><span class="badge-perfil badge-admin">Administrador</span></div>
+                            <div class="col-status"><span class="badge-status badge-ativo">Ativo</span></div>
+                            <div class="col-acoes">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Remover
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-funcionario" data-perfil="gerente" data-status="ativo">
+                            <div class="col-func">
+                                <span class="avatar-sg">FL</span>
+                                <p class="item-nome">Fernanda Lima</p>
+                            </div>
+                            <div class="col-email">fernanda@streamco.com.br</div>
+                            <div class="col-perfil"><span class="badge-perfil badge-gerente">Gerente</span></div>
+                            <div class="col-status"><span class="badge-status badge-ativo">Ativo</span></div>
+                            <div class="col-acoes">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Remover
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-funcionario" data-perfil="comum" data-status="ativo">
+                            <div class="col-func">
+                                <span class="avatar-sg">JP</span>
+                                <p class="item-nome">João Pedro</p>
+                            </div>
+                            <div class="col-email">joao@streamco.com.br</div>
+                            <div class="col-perfil"><span class="badge-perfil badge-comum">Usuário comum</span></div>
+                            <div class="col-status"><span class="badge-status badge-ativo">Ativo</span></div>
+                            <div class="col-acoes">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Remover
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="linha linha-funcionario" data-perfil="comum" data-status="inativo">
+                            <div class="col-func">
+                                <span class="avatar-sg">AT</span>
+                                <p class="item-nome">Ana Torres</p>
+                            </div>
+                            <div class="col-email">ana@streamco.com.br</div>
+                            <div class="col-perfil"><span class="badge-perfil badge-comum">Usuário comum</span></div>
+                            <div class="col-status"><span class="badge-status badge-inativo">Inativo</span></div>
+                            <div class="col-acoes">
+                                <button type="button" class="btn-sg btn-ghost" data-modal="editar-funcionario">
+                                    <i class="fa-solid fa-pen"></i>
+                                    Editar
+                                </button>
+                                <button type="button" class="btn-sg btn-danger" data-modal="remover-funcionario">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                    Remover
+                                </button>
+                            </div>
+                        </div>
+
+                        <p class="sem-resultados" hidden>Nenhum funcionário encontrado.</p>
+                    </div>
+
+                    <div class="box-tabela-rodape">
+                        <span class="rodape-nota" data-resumo="rodape">4 funcionários • 3 com acesso ativo</span>
+                        <span class="rodape-nota">
+                            <i class="fa-regular fa-circle-question"></i>
+                            Perfis definem as ações disponíveis no StreamGuard.
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ===================== MODAIS (protótipo) ===================== -->
+
+<!-- Adicionar / Editar métrica -->
+<div class="modal-overlay" id="modal-metrica" hidden>
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="metrica-titulo" novalidate>
+        <div class="modal-topo">
+            <div>
+                <h3 id="metrica-titulo">Adicionar métrica</h3>
+                <p id="metrica-subtitulo">Cadastre uma nova métrica para ser coletada.</p>
+            </div>
+            <button type="button" class="modal-fechar" data-fechar aria-label="Fechar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="modal-corpo">
+            <div class="form-grupo" data-campo="nome">
+                <label class="form-label" for="metrica-nome">Nome da métrica</label>
+                <input class="input-sg" id="metrica-nome" name="nome" type="text" placeholder="Ex.: Uso de CPU"
+                    maxlength="40" autocomplete="off">
+                <span class="form-erro">Informe o nome da métrica.</span>
+            </div>
+
+            <div class="form-linha">
+                <div class="form-grupo">
+                    <label class="form-label" for="metrica-unidade">Unidade</label>
+                    <select class="select-sg" id="metrica-unidade" name="unidade">
+                        <option value="%">% (porcentagem)</option>
+                        <option value="Mbps">Mbps</option>
+                        <option value="ms">ms</option>
+                        <option value="°C">°C</option>
+                        <option value="MB">MB</option>
+                    </select>
+                </div>
+                <div class="form-grupo">
+                    <label class="form-label" for="metrica-intervalo">Intervalo de coleta</label>
+                    <select class="select-sg" id="metrica-intervalo" name="intervalo">
+                        <option value="5">5s</option>
+                        <option value="15" selected>15s</option>
+                        <option value="30">30s</option>
+                        <option value="60">60s</option>
+                        <option value="300">5min</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-grupo">
+                <span class="form-label">Ícone</span>
+                <div class="opcoes-icone" role="radiogroup" aria-label="Ícone da métrica">
+                    <label class="opcao-icone cor-ciano"><input type="radio" name="icone" value="microchip" checked><span><i class="fa-solid fa-microchip"></i></span></label>
+                    <label class="opcao-icone cor-roxo"><input type="radio" name="icone" value="memory"><span><i class="fa-solid fa-memory"></i></span></label>
+                    <label class="opcao-icone cor-laranja"><input type="radio" name="icone" value="hard-drive"><span><i class="fa-solid fa-hard-drive"></i></span></label>
+                    <label class="opcao-icone cor-azul"><input type="radio" name="icone" value="network-wired"><span><i class="fa-solid fa-network-wired"></i></span></label>
+                    <label class="opcao-icone cor-magenta"><input type="radio" name="icone" value="stopwatch"><span><i class="fa-solid fa-stopwatch"></i></span></label>
+                    <label class="opcao-icone cor-vermelho"><input type="radio" name="icone" value="temperature-half"><span><i class="fa-solid fa-temperature-half"></i></span></label>
+                </div>
+            </div>
+
+            <div class="form-switch">
+                <div>
+                    <strong>Coleta ativa</strong>
+                    <small>Quando desligada, a métrica deixa de ser coletada.</small>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" name="ativa" checked aria-label="Coleta ativa">
+                    <span class="switch-track"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="modal-rodape">
+            <button type="button" class="btn-sg btn-ghost" data-fechar>Cancelar</button>
+            <button type="submit" class="btn-sg btn-primary" id="metrica-confirmar">
+                <i class="fa-solid fa-plus"></i>
+                Adicionar métrica
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Adicionar / Editar funcionário -->
+<div class="modal-overlay" id="modal-funcionario" hidden>
+    <form class="modal" role="dialog" aria-modal="true" aria-labelledby="func-titulo" novalidate>
+        <div class="modal-topo">
+            <div>
+                <h3 id="func-titulo">Adicionar funcionário</h3>
+                <p id="func-subtitulo">Defina os dados de acesso e o nível de perfil.</p>
+            </div>
+            <button type="button" class="modal-fechar" data-fechar aria-label="Fechar">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+
+        <div class="modal-corpo">
+            <div class="form-grupo" data-campo="nome">
+                <label class="form-label" for="func-nome">Nome completo</label>
+                <input class="input-sg" id="func-nome" name="nome" type="text" placeholder="Ex.: Maria Oliveira"
+                    maxlength="60" autocomplete="off">
+                <span class="form-erro">Informe o nome do funcionário.</span>
+            </div>
+
+            <div class="form-grupo" data-campo="email">
+                <label class="form-label" for="func-email">E-mail</label>
+                <input class="input-sg" id="func-email" name="email" type="email"
+                    placeholder="nome@streamco.com.br" autocomplete="off">
+                <span class="form-erro">Informe um e-mail válido.</span>
+            </div>
+
+            <div class="form-grupo">
+                <span class="form-label">Perfil</span>
+                <div class="opcoes-perfil" role="radiogroup" aria-label="Perfil de acesso">
+                    <label class="opcao-perfil">
+                        <input type="radio" name="perfil" value="administrador">
+                        <div>
+                            <span><strong>Administrador</strong><small>Acesso total, inclusive a usuários e configurações.</small></span>
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </label>
+                    <label class="opcao-perfil">
+                        <input type="radio" name="perfil" value="gerente">
+                        <div>
+                            <span><strong>Gerente</strong><small>Gerencia métricas e acompanha os alertas.</small></span>
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </label>
+                    <label class="opcao-perfil">
+                        <input type="radio" name="perfil" value="comum" checked>
+                        <div>
+                            <span><strong>Usuário comum</strong><small>Apenas visualiza dashboard e componentes.</small></span>
+                            <i class="fa-solid fa-circle-check"></i>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-switch">
+                <div>
+                    <strong>Acesso ativo</strong>
+                    <small>Permite que o funcionário entre no StreamGuard.</small>
+                </div>
+                <label class="switch">
+                    <input type="checkbox" name="ativo" checked aria-label="Acesso ativo">
+                    <span class="switch-track"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="modal-rodape">
+            <button type="button" class="btn-sg btn-ghost" data-fechar>Cancelar</button>
+            <button type="submit" class="btn-sg btn-primary" id="func-confirmar">
+                <i class="fa-solid fa-user-plus"></i>
+                Adicionar funcionário
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Remover funcionário -->
+<div class="modal-overlay" id="modal-remover" hidden>
+    <div class="modal modal-sm" role="alertdialog" aria-modal="true" aria-labelledby="remover-titulo"
+        aria-describedby="remover-texto">
+        <div class="confirmar-conteudo">
+            <span class="confirmar-icone"><i class="fa-solid fa-triangle-exclamation"></i></span>
+            <div>
+                <h3 id="remover-titulo">Remover funcionário?</h3>
+                <p id="remover-texto">
+                    O acesso de <strong data-remover-nome>Nome</strong> ao StreamGuard será removido.
+                    Essa ação não pode ser desfeita.
+                </p>
+            </div>
+        </div>
+        <div class="modal-rodape">
+            <button type="button" class="btn-sg btn-ghost" data-fechar>Cancelar</button>
+            <button type="button" class="btn-sg btn-danger-solid" id="remover-confirmar">
+                <i class="fa-regular fa-trash-can"></i>
+                Remover
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+/* Stream Guard | Painel de Gerenciamento
+   - Troca de abas (Métricas / Funcionários)
+   - Estado das métricas, contadores e filtros
+*/
+
+(() => {
+    'use strict';
+
+    const ABAS = ['metricas', 'funcionarios'];
+
+    const botoesAba = document.querySelectorAll('[data-tab]');
+    const paineis = document.querySelectorAll('[data-panel]');
+
+    /* ---------- utilidades ---------- */
+
+    const normalizar = (texto) =>
+        texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
+
+    const formatarIntervalo = (segundos) =>
+        segundos >= 60 && segundos % 60 === 0 ? `${segundos / 60}min` : `${segundos}s`;
+
+    const definirResumo = (painel, chave, valor) => {
+        const el = painel.querySelector(`[data-resumo="${chave}"]`);
+        if (el) el.textContent = valor;
+    };
+
+    /* ---------- troca de abas ---------- */
+
+    function abrirAba(nome) {
+        if (!ABAS.includes(nome)) nome = 'metricas';
+
+        botoesAba.forEach((botao) => {
+            const ativo = botao.dataset.tab === nome;
+            botao.classList.toggle('active', ativo);
+            botao.setAttribute('aria-selected', String(ativo));
+            botao.tabIndex = ativo ? 0 : -1;
+        });
+
+        paineis.forEach((painel) => {
+            const ativo = painel.dataset.panel === nome;
+            painel.classList.toggle('is-visible', ativo);
+            painel.hidden = !ativo;
+        });
+
+        history.replaceState(null, '', `#${nome}`);
+    }
+
+    botoesAba.forEach((botao, indice) => {
+        botao.addEventListener('click', () => abrirAba(botao.dataset.tab));
+
+        // Navegação por setas entre as abas (acessibilidade)
+        botao.addEventListener('keydown', (evento) => {
+            if (evento.key !== 'ArrowRight' && evento.key !== 'ArrowLeft') return;
+            const passo = evento.key === 'ArrowRight' ? 1 : -1;
+            const proximo = botoesAba[(indice + passo + botoesAba.length) % botoesAba.length];
+            abrirAba(proximo.dataset.tab);
+            proximo.focus();
+        });
+    });
+
+    /* ---------- aba: métricas ---------- */
+
+    function iniciarMetricas() {
+        const painel = document.getElementById('painel-metricas');
+        const linhas = [...painel.querySelectorAll('.linha-metrica')];
+        const busca = document.getElementById('busca-metrica');
+        const vazio = painel.querySelector('.sem-resultados');
+        const botaoSalvar = document.getElementById('salvar-metricas');
+        const notaPadrao = painel.querySelector('[data-resumo="nota"]').textContent;
+        let timerNota;
+
+        const estaAtiva = (linha) => linha.querySelector('input[type="checkbox"]').checked;
+        const intervalo = (linha) => Number(linha.querySelector('select').value);
+
+        function atualizar() {
+            linhas.forEach((linha) => {
+                const ativa = estaAtiva(linha);
+                linha.querySelector('.estado-texto').textContent = ativa ? 'Ativa' : 'Inativa';
+                linha.classList.toggle('is-inativa', !ativa);
+            });
+
+            const ativas = linhas.filter(estaAtiva);
+            definirResumo(painel, 'total', linhas.length);
+            definirResumo(painel, 'ativas', ativas.length);
+            definirResumo(painel, 'inativas', linhas.length - ativas.length);
+            definirResumo(
+                painel,
+                'menor',
+                ativas.length ? formatarIntervalo(Math.min(...ativas.map(intervalo))) : '—'
+            );
+        }
+
+        function filtrar() {
+            const termo = normalizar(busca.value);
+            let visiveis = 0;
+            linhas.forEach((linha) => {
+                const nome = normalizar(linha.querySelector('.item-nome').textContent);
+                const mostrar = nome.includes(termo);
+                linha.hidden = !mostrar;
+                if (mostrar) visiveis++;
+            });
+            vazio.hidden = visiveis > 0;
+        }
+
+        painel.addEventListener('change', (evento) => {
+            if (evento.target.matches('input[type="checkbox"], select')) atualizar();
+        });
+
+        busca.addEventListener('input', filtrar);
+
+        botaoSalvar.addEventListener('click', () => {
+            const nota = painel.querySelector('[data-resumo="nota"]');
+            nota.textContent = 'Alterações salvas. Entram em vigor no próximo ciclo de coleta.';
+            clearTimeout(timerNota);
+            timerNota = setTimeout(() => (nota.textContent = notaPadrao), 3500);
+        });
+
+        atualizar();
+    }
+
+    /* ---------- aba: funcionários ---------- */
+
+    function iniciarFuncionarios() {
+        const painel = document.getElementById('painel-funcionarios');
+        const linhas = [...painel.querySelectorAll('.linha-funcionario')];
+        const busca = document.getElementById('busca-funcionario');
+        const filtroPerfil = document.getElementById('filtro-perfil');
+        const vazio = painel.querySelector('.sem-resultados');
+
+        function atualizarResumo() {
+            const ativos = linhas.filter((l) => l.dataset.status === 'ativo').length;
+            const niveis = new Set(linhas.map((l) => l.dataset.perfil)).size;
+
+            definirResumo(painel, 'total', linhas.length);
+            definirResumo(painel, 'ativos', ativos);
+            definirResumo(painel, 'inativos', linhas.length - ativos);
+            definirResumo(painel, 'niveis', niveis);
+            definirResumo(
+                painel,
+                'rodape',
+                `${linhas.length} funcionários • ${ativos} com acesso ativo`
+            );
+        }
+
+        function filtrar() {
+            const termo = normalizar(busca.value);
+            const perfil = filtroPerfil.value;
+            let visiveis = 0;
+
+            linhas.forEach((linha) => {
+                const texto = normalizar(
+                    `${linha.querySelector('.item-nome').textContent} ${linha.querySelector('.col-email').textContent}`
+                );
+                const mostrar =
+                    texto.includes(termo) && (perfil === 'todos' || linha.dataset.perfil === perfil);
+                linha.hidden = !mostrar;
+                if (mostrar) visiveis++;
+            });
+            vazio.hidden = visiveis > 0;
+        }
+
+        busca.addEventListener('input', filtrar);
+        filtroPerfil.addEventListener('change', filtrar);
+
+        atualizarResumo();
+    }
+
+    /* ---------- início ---------- */
+
+    iniciarMetricas();
+    iniciarFuncionarios();
+    abrirAba(location.hash.replace('#', '') || 'metricas');
+})();
+
+/* Stream Guard | Lógica dos modais (protótipo)
+   Os botões da tela usam data-modal="..." para abrir cada modal.
+   Nesta versão as ações só mostram um aviso: nada é gravado ainda. */
+
+(() => {
+    'use strict';
+
+    const overlayMetrica = document.getElementById('modal-metrica');
+    const overlayFunc = document.getElementById('modal-funcionario');
+    const overlayRemover = document.getElementById('modal-remover');
+    const overlays = [overlayMetrica, overlayFunc, overlayRemover];
+
+    let gatilho = null; // botão que abriu o modal (para devolver o foco)
+    let timerToast;
+
+    /* ---------- abrir / fechar ---------- */
+
+    function abrir(overlay, origem) {
+        gatilho = origem || null;
+        overlay.hidden = false;
+        document.body.classList.add('modal-aberto');
+
+        const primeiro = overlay.querySelector('input:not([type="radio"]):not([type="checkbox"]), button.btn-ghost');
+        (primeiro || overlay.querySelector('button')).focus();
+    }
+
+    function fechar(overlay) {
+        overlay.hidden = true;
+        document.body.classList.remove('modal-aberto');
+        limparErros(overlay);
+        if (gatilho) gatilho.focus();
+        gatilho = null;
+    }
+
+    const aberto = () => overlays.find((o) => !o.hidden);
+
+    overlays.forEach((overlay) => {
+        // clicar fora da janela ou em "Cancelar"/"X" fecha
+        overlay.addEventListener('mousedown', (e) => {
+            if (e.target === overlay) fechar(overlay);
+        });
+        overlay.querySelectorAll('[data-fechar]').forEach((b) =>
+            b.addEventListener('click', () => fechar(overlay))
+        );
+    });
+
+    document.addEventListener('keydown', (e) => {
+        const overlay = aberto();
+        if (!overlay) return;
+
+        if (e.key === 'Escape') {
+            fechar(overlay);
+            return;
+        }
+
+        // mantém o foco do teclado dentro do modal
+        if (e.key === 'Tab') {
+            const focaveis = [...overlay.querySelectorAll('button, input, select')].filter(
+                (el) => !el.disabled && el.offsetParent !== null
+            );
+            const primeiro = focaveis[0];
+            const ultimo = focaveis[focaveis.length - 1];
+            if (e.shiftKey && document.activeElement === primeiro) {
+                e.preventDefault();
+                ultimo.focus();
+            } else if (!e.shiftKey && document.activeElement === ultimo) {
+                e.preventDefault();
+                primeiro.focus();
+            }
+        }
+    });
+
+    /* ---------- validação ---------- */
+
+    function limparErros(overlay) {
+        overlay.querySelectorAll('.tem-erro').forEach((g) => g.classList.remove('tem-erro'));
+    }
+
+    function validar(form, regras) {
+        let valido = true;
+        Object.entries(regras).forEach(([campo, ok]) => {
+            const grupo = form.querySelector(`[data-campo="${campo}"]`);
+            const passou = ok(form.elements[campo].value.trim());
+            grupo.classList.toggle('tem-erro', !passou);
+            if (!passou) valido = false;
+        });
+        if (!valido) form.querySelector('.tem-erro input').focus();
+        return valido;
+    }
+
+    document.querySelectorAll('.input-sg').forEach((input) =>
+        input.addEventListener('input', () => input.closest('.form-grupo').classList.remove('tem-erro'))
+    );
+
+    /* ---------- aviso ---------- */
+
+    function aviso(texto) {
+        document.querySelector('.toast-sg')?.remove();
+        const el = document.createElement('div');
+        el.className = 'toast-sg';
+        el.setAttribute('role', 'status');
+        el.innerHTML = '<i class="fa-solid fa-circle-check"></i><span></span>';
+        el.querySelector('span').textContent = texto;
+        document.body.appendChild(el);
+        clearTimeout(timerToast);
+        timerToast = setTimeout(() => el.remove(), 3500);
+    }
+
+    /* ---------- métrica (adicionar / editar) ---------- */
+
+    const formMetrica = overlayMetrica.querySelector('form');
+
+    function abrirMetrica(modo, botao) {
+        const editar = modo === 'editar';
+        formMetrica.reset();
+        limparErros(overlayMetrica);
+
+        document.getElementById('metrica-titulo').textContent = editar ? 'Editar métrica' : 'Adicionar métrica';
+        document.getElementById('metrica-subtitulo').textContent = editar
+            ? 'Ajuste a unidade, o intervalo e o estado da coleta.'
+            : 'Cadastre uma nova métrica para ser coletada.';
+        document.getElementById('metrica-confirmar').innerHTML = editar
+            ? '<i class="fa-regular fa-floppy-disk"></i> Salvar alterações'
+            : '<i class="fa-solid fa-plus"></i> Adicionar métrica';
+        formMetrica.dataset.modo = modo;
+
+        if (editar) {
+            const linha = botao.closest('.linha-metrica');
+            formMetrica.elements.nome.value = linha.querySelector('.item-nome').textContent.trim();
+            formMetrica.elements.intervalo.value = linha.querySelector('select').value;
+            formMetrica.elements.ativa.checked = linha.querySelector('input[type="checkbox"]').checked;
+
+            const unidade = linha.querySelector('.chip-unidade').textContent.trim();
+            if ([...formMetrica.elements.unidade.options].some((o) => o.value === unidade)) {
+                formMetrica.elements.unidade.value = unidade;
+            }
+
+            const icone = [...linha.querySelector('.icone-metrica i').classList]
+                .find((c) => c.startsWith('fa-') && !['fa-solid', 'fa-regular'].includes(c));
+            const radio = formMetrica.querySelector(`input[name="icone"][value="${icone?.replace('fa-', '')}"]`);
+            if (radio) radio.checked = true;
+        }
+
+        abrir(overlayMetrica, botao);
+    }
+
+    formMetrica.addEventListener('submit', (e) => {
+        e.preventDefault();
+        if (!validar(formMetrica, { nome: (v) => v.length > 0 })) return;
+        const editar = formMetrica.dataset.modo === 'editar';
+        fechar(overlayMetrica);
+        aviso(editar ? 'Métrica atualizada (simulação do protótipo).' : 'Métrica adicionada (simulação do protótipo).');
+    });
+
+    /* ---------- funcionário (adicionar / editar) ---------- */
+
+    const formFunc = overlayFunc.querySelector('form');
+
+    function abrirFuncionario(modo, botao) {
+        const editar = modo === 'editar';
+        formFunc.reset();
+        limparErros(overlayFunc);
+
+        document.getElementById('func-titulo').textContent = editar ? 'Editar funcionário' : 'Adicionar funcionário';
+        document.getElementById('func-subtitulo').textContent = editar
+            ? 'Atualize os dados, o perfil ou o acesso.'
+            : 'Defina os dados de acesso e o nível de perfil.';
+        document.getElementById('func-confirmar').innerHTML = editar
+            ? '<i class="fa-regular fa-floppy-disk"></i> Salvar alterações'
+            : '<i class="fa-solid fa-user-plus"></i> Adicionar funcionário';
+        formFunc.dataset.modo = modo;
+
+        if (editar) {
+            const linha = botao.closest('.linha-funcionario');
+            formFunc.elements.nome.value = linha.querySelector('.item-nome').textContent.trim();
+            formFunc.elements.email.value = linha.querySelector('.col-email').textContent.trim();
+            formFunc.querySelector(`input[name="perfil"][value="${linha.dataset.perfil}"]`).checked = true;
+            formFunc.elements.ativo.checked = linha.dataset.status === 'ativo';
+        }
+
+        abrir(overlayFunc, botao);
+    }
+
+    formFunc.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const emailValido = (v) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+        if (!validar(formFunc, { nome: (v) => v.length > 0, email: emailValido })) return;
+        const editar = formFunc.dataset.modo === 'editar';
+        fechar(overlayFunc);
+        aviso(editar ? 'Funcionário atualizado (simulação do protótipo).' : 'Funcionário adicionado (simulação do protótipo).');
+    });
+
+    /* ---------- remover funcionário ---------- */
+
+    document.getElementById('remover-confirmar').addEventListener('click', () => {
+        fechar(overlayRemover);
+        aviso('Funcionário removido (simulação do protótipo).');
+    });
+
+    /* ---------- ligação com os botões da tela ---------- */
+
+    document.addEventListener('click', (e) => {
+        const botao = e.target.closest('[data-modal]');
+        if (!botao) return;
+
+        switch (botao.dataset.modal) {
+            case 'adicionar-metrica':
+                abrirMetrica('adicionar', botao);
+                break;
+            case 'editar-metrica':
+                abrirMetrica('editar', botao);
+                break;
+            case 'adicionar-funcionario':
+                abrirFuncionario('adicionar', botao);
+                break;
+            case 'editar-funcionario':
+                abrirFuncionario('editar', botao);
+                break;
+            case 'remover-funcionario':
+                overlayRemover.querySelector('[data-remover-nome]').textContent =
+                    botao.closest('.linha-funcionario').querySelector('.item-nome').textContent.trim();
+                abrir(overlayRemover, botao);
+                break;
+        }
+    });
+})();
+
+</script>
+</body>
+
+</html>

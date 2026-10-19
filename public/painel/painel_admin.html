@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Minha Conta | Stream Guard</title>
+  <link rel="stylesheet" href="./css/painel_base.css">
+  <link rel="stylesheet" href="./css/painel_modais.css">
+  <link rel="stylesheet" href="./css/painel_admin.css">
+  <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+</head>
+<body data-pagina="admin" data-edicao>
+  <div class="layout">
+
+    <aside class="sidebar" data-shell="sidebar"></aside>
+
+    <div class="conteudo">
+
+      <header class="topo">
+        <div>
+          <h1>Minha Conta</h1>
+          <p>Selecione a empresa que deseja monitorar</p>
+        </div>
+        <div class="topo-direita" data-shell="topo-direita"></div>
+      </header>
+
+      <main class="principal">
+
+        <section class="boas-vindas">
+          <div>
+            <h2 id="saudacao"></h2>
+            <p id="textoResumo"></p>
+          </div>
+          <div class="mini-cards" id="miniCards"></div>
+        </section>
+
+        <h3 class="titulo-secao">Suas empresas</h3>
+        <p class="sub">Acompanhe a saúde geral de cada operação</p>
+        <section class="empresas" id="empresas"></section>
+
+        <section class="adicionar" data-perm="criar">
+          <div class="adicionar-icone">🏢</div>
+          <div>
+            <strong>Adicionar empresa</strong>
+            <small>Conecte uma nova operação ao StreamGuard.</small>
+          </div>
+          <button class="btn-adicionar" id="btnAdicionar">+ Adicionar empresa</button>
+        </section>
+
+      </main>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="./js/painel_shell.js"></script>
+  <script src="./js/painel_modais.js"></script>
+  <script src="./js/painel_admin.js"></script>
+</body>
+</html>

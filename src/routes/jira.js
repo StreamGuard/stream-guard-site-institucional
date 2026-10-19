@@ -24,7 +24,7 @@ router.get("/teste-jira", async (req, res) => {
             }
         );
 
-        console.log("STATUS DA AUTENTICAÇÃO:", response.status);
+        console.log("STATUS:", response.status);
         const texto = await response.text();
 
         res.status(response.status).send(texto);
@@ -68,8 +68,8 @@ router.post("/contato", async (req, res) => {
 
         const data = await response.json();
 
-        console.log("Status do Chamado:", response.status);
-        console.log("Resposta da Atlassian:", data);
+        console.log("Status:", response.status);
+        console.log("Resposta do Jira:", data);
 
         if (!response.ok) {
             return res.status(response.status).json({

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Gerenciamento | Stream Guard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.3.1/css/all.min.css"
+        integrity="..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_modais.css">
+    <link rel="stylesheet" href="./css/painel_config.css">
+    <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+
+</head>
+
+<body data-pagina="config" data-acesso="configurar">
+    <div class="layout">
+
+        <aside class="sidebar" data-shell="sidebar">
+            
+        </aside>
+
+        <div class="conteudo">
+            <header class="topo">
+                <div>
+                    <h1>Configurações</h1>
+                    <p>Gerencie métricas, funcionários e permissões.</p>
+                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+
+            <main class="principal">
+                <div class="abas" role="tablist" aria-label="Seções de configuração">
+                    <button type="button" class="active" role="tab" id="aba-metricas" data-tab="metricas"
+                        aria-controls="painel-metricas" aria-selected="true">
+                        <i class="fa-solid fa-arrow-trend-up"></i>
+                        Métricas
+                    </button>
+                    <button type="button" role="tab" id="aba-funcionarios" data-tab="funcionarios"
+                        aria-controls="painel-funcionarios" aria-selected="false" tabindex="-1">
+                        <i class="fa-solid fa-user"></i>
+                        Funcionários
+                    </button>
+                </div>
+
+
+
+            <div class="content-metricas is-visible" id="painel-metricas" data-panel="metricas" role="tabpanel"
+                aria-labelledby="aba-metricas">
+
+                <div class="cards-resumo">
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone"><i class="fa-solid fa-database"></i></span>
+                            <strong data-resumo="total">6</strong>
+                        </div>
+                        <p>Métricas cadastradas</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone"><i class="fa-regular fa-circle-check"></i></span>
+                            <strong data-resumo="ativas">4</strong>
+                        </div>
+                        <p>Métricas ativas</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone card-icone-roxo"><i class="fa-solid fa-circle-pause"></i></span>
+                            <strong data-resumo="inativas">2</strong>
+                        </div>
+                        <p>Métricas inativas</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <span class="card-icone"><i class="fa-solid fa-bolt"></i></span>
+                            <strong data-resumo="menor">15s</strong>
+                        </div>
+                        <p>Menor intervalo</p>
+                    </div>
+                </div>
+
+                <div class="box-tabela">
+                    <div class="box-tabela-topo">
+                        <div class="box-tabela-titulo">
+                            <h3>Métricas configuradas</h3>
+                            <p>Defina frequência, unidade de coleta e status das métricas.</p>
+                        </div>
+                        <div class="box-tabela-acoes">
+                            <label class="campo-busca">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="search" id="busca-metrica" placeholder="Buscar métrica..."
+                                    autocomplete="off">
+                            </label>
+                            <button type="button" class="btn-sg btn-primary" data-modal="adicionar-metrica">
+                                <i class="fa-solid fa-plus"></i>
+                                Adicionar métrica
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="tabela grid-metricas">
+                        <div class="linha-cabecalho">
+                            <span>MÉTRICA</span>
+                            <span>UNIDADE</span>
+                            <span>INTERVALO DE COLETA</span>
+                            <span>ESTADO</span>
+                            <span>AÇÃO</span>
+                        </div>
+
+                        <div id="lista-metricas" class="linhas"></div>
+
+                        <p class="sem-resultados" hidden>Nenhuma métrica encontrada.</p>
+                    </div>
+
+                    <div class="box-tabela-rodape">
+                        <span class="rodape-nota" data-resumo="nota">Alterações entram em vigor no próximo ciclo de
+                            coleta.</span>
+                        <button type="button" class="btn-sg btn-primary" id="salvar-metricas">
+                            <i class="fa-regular fa-floppy-disk"></i>
+                            Salvar alterações
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-configuracoes" id="painel-funcionarios" data-panel="funcionarios" role="tabpanel"
+                aria-labelledby="aba-funcionarios" hidden>
+
+                <div class="cards-resumo">
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-azul" data-resumo="total">4</strong>
+                        </div>
+                        <p>Total de funcionários</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-mint" data-resumo="ativos">3</strong>
+                        </div>
+                        <p>Acessos ativos</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-cinza" data-resumo="inativos">1</strong>
+                        </div>
+                        <p>Acesso inativo</p>
+                    </div>
+                    <div class="card-resumo">
+                        <div class="card-resumo-top">
+                            <strong class="num-roxo" data-resumo="niveis">3</strong>
+                        </div>
+                        <p>Níveis de perfil</p>
+                    </div>
+                </div>
+
+                <div class="box-tabela">
+                    <div class="box-tabela-topo">
+                        <div class="box-tabela-acoes box-tabela-filtros">
+                            <label class="campo-busca">
+                                <i class="fa-solid fa-magnifying-glass"></i>
+                                <input type="search" id="busca-funcionario" placeholder="Buscar por nome ou e-mail"
+                                    autocomplete="off">
+                            </label>
+                            <div class="campo-filtro">
+                                <span>PERFIL</span>
+                                <select class="select-sg" id="filtro-perfil" aria-label="Filtrar por perfil">
+                                    <option value="todos">Todos os perfis</option>
+                                    <option value="administrador">Administrador</option>
+                                    <option value="gerente">Gerente</option>
+                                    <option value="comum">Usuário comum</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-sg btn-primary" data-modal="adicionar-funcionario">
+                            <i class="fa-solid fa-user-plus"></i>
+                            Adicionar funcionário
+                        </button>
+                    </div>
+
+                    <div class="tabela grid-funcionarios">
+                        <div class="linha-cabecalho">
+                            <span>FUNCIONÁRIO</span>
+                            <span>E-MAIL</span>
+                            <span>PERFIL</span>
+                            <span>STATUS</span>
+                            <span>AÇÕES</span>
+                        </div>
+
+                        <div id="lista-funcionarios" class="linhas"></div>
+
+                        <p class="sem-resultados" hidden>Nenhum funcionário encontrado.</p>
+                    </div>
+
+                    <div class="box-tabela-rodape">
+                        <span class="rodape-nota" data-resumo="rodape">4 funcionários • 3 com acesso ativo</span>
+                        <span class="rodape-nota">
+                            <i class="fa-regular fa-circle-question"></i>
+                            Perfis definem as ações disponíveis no StreamGuard.
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="./js/painel_shell.js"></script>
+    <script src="./js/painel_modais.js"></script>
+    <script src="./js/painel_config.js" defer></script>
+</body>
+
+</html>
