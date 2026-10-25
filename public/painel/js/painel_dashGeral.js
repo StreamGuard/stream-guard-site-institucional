@@ -13,14 +13,9 @@ document.addEventListener("DOMContentLoaded", () => {
         "7d": { pontos: 28, passoMin: 360, texto: "Últimos 7 dias" },
         "30d": { pontos: 30, passoMin: 1440, texto: "Últimos 30 dias" }
     };
-    const SERVIDORES = [ // visão geral 
-        { nome: "srv-stream-01", comp: "RAM", valor: 92 },
-        { nome: "srv-stream-07", comp: "CPU", valor: 89 },
-        { nome: "srv-stream-12", comp: "Rede", valor: 81 },
-        { nome: "srv-stream-03", comp: "Rede", valor: 78 },
-        { nome: "srv-stream-19", comp: "RAM", valor: 76 }
-    ];
-    const TOTAL_ATIVOS = 32;
+    const NOMES_SERVIDORES = [
+    "srv-stream-01", "srv-stream-02", "srv-stream-03", "srv-stream-04"
+];
 
     const el = (id) => document.getElementById(id);
     let periodo = "30m";
@@ -51,6 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         return out;
     }
+    // Retorna o ÚLTIMO valor de cada métrica de um servidor
+function ultimosValores(equip) {
+    const s = gerarSerie(equip, periodo);
+    const out = {};
+    Object.keys(METRICAS).forEach((n) => (out[n] = s[n].at(-1)));
+    return out;
+}
     function gerarLabels(per) {
         const { pontos, passoMin } = PERIODOS[per];
         const agora = Date.now();
@@ -99,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const l = METRICAS[nome].limite;
         return v > l ? "critico" : v >= l - 5 ? "alerta" : "ok";
     }
-    const ROTULO = { ok: "● OK", alerta: "● ALERTA", critico: "● CRÍTICO" };
+    const ROTULO = { ok: " OK", alerta: "ALERTA", critico: " CRÍTICO" };
 
     // ---------- Renderizações ----------
     function renderCards() {
@@ -139,17 +141,41 @@ document.addEventListener("DOMContentLoaded", () => {
         el("listaStatus").innerHTML = itens.join("");
     }
 
-    function renderVisaoGeral() {
-        const crit = SERVIDORES.filter((s) => s.valor > METRICAS[s.comp].limite).length;
-        const alt = SERVIDORES.length - crit;
-        el("cntCritico").textContent = crit;
-        el("cntAlerta").textContent = alt;
-        el("cntOk").textContent = TOTAL_ATIVOS - crit - alt;
-        el("listaRanking").innerHTML = [...SERVIDORES].sort((a, b) => b.valor - a.valor).map((s) => {
-            const st = s.valor > METRICAS[s.comp].limite ? "critico" : "alerta";
-            return `<li><span>${s.nome}<small>${s.comp} ${s.valor}%</small></span><span class="tag tag-${st}">${ROTULO[st]}</span></li>`;
-        }).join("");
-    }
+   function renderVisaoGeral() {
+    // Pior componente de cada servidor (maior proximidade do limite)
+    const servidores = NOMES_SERVIDORES.map((nome) => {
+        const vals = ultimosValores(nome);
+        let pior = null;
+        Object.entries(vals).forEach(([comp, valor]) => {
+            const folga = METRICAS[comp].limite - valor; // menor = pior
+            if (!pior || folga < pior.folga) pior = { comp, valor, folga };
+        });
+        return { nome, comp: pior.comp, valor: pior.valor, st: status(pior.comp, pior.valor) };
+    });
+
+    
+
+    const crit = servidores.filter((s) => s.st === "critico").length;
+    const alt = servidores.filter((s) => s.st === "alerta").length;
+    const ok = servidores.length - crit - alt;
+
+    el("cntCritico").textContent = crit;
+    el("cntAlerta").textContent = alt;
+    el("cntOk").textContent = ok;
+
+    // Ranking: só mostra quem não está normal, do pior para o melhor
+    const problemas = servidores
+        .filter((s) => s.st !== "ok")
+        .sort((a, b) => (METRICAS[a.comp].limite - a.valor) - (METRICAS[b.comp].limite - b.valor));
+
+    el("listaRanking").innerHTML = problemas.length
+        ? problemas.map((s) =>
+            `<li><span>${s.nome}<small>${s.comp} ${s.valor}%</small></span>
+             <span class="tag tag-${s.st}">${ROTULO[s.st]}</span></li>`).join("")
+        : `<li><span>Nenhum servidor em alerta ou crítico</span></li>`;
+}
+
+
 
     function renderTabela() {
         const sev = el("filtroSeveridade").value, comp = el("filtroComponente").value;
@@ -235,7 +261,7 @@ document.addEventListener("DOMContentLoaded", () => {
         labels = gerarLabels(periodo);
         incidentes = detectarIncidentes(labels, equip);
         el("subPeriodo").textContent = PERIODOS[periodo].texto;
-        renderCards(); renderBanner(); renderStatus(); renderTabela(); desenharGrafico(labels);
+        renderVisaoGeral(); renderCards(); renderBanner(); renderStatus(); renderTabela(); desenharGrafico(labels);
     }
 
     // ---------- Eventos ----------
