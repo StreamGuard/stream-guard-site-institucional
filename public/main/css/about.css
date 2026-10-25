@@ -943,3 +943,63 @@ a {
     grid-template-columns: repeat(3, 1fr);
   }
 }
+
+.apresentacao-grade > *,
+.historia-grade > *,
+.equipe-grade > * {
+  min-width: 0;
+}
+
+@media (max-width: 991.98px) {
+  .menu {
+    height: 100dvh;
+    visibility: hidden;
+  }
+
+  .menu.aberto {
+    visibility: visible;
+    z-index: 1055;
+  }
+
+  .apresentacao-grade,
+  .historia-grade {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .status-sinal {
+    flex-wrap: wrap;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .titulo-principal {
+    font-size: clamp(1.9rem, 8vw, 2.5rem);
+    overflow-wrap: anywhere;
+  }
+
+  .campos {
+    flex-direction: column;
+  }
+
+  .campo {
+    min-width: 0;
+  }
+
+  .campo input,
+  .campo textarea {
+    min-width: 0;
+    max-width: 100%;
+    font-size: 16px;
+  }
+
+  .botao-enviar,
+  .menu-link,
+  .botao-login,
+  .botao-cadastro {
+    min-height: 44px;
+  }
+
+  .footer-links a {
+    overflow-wrap: anywhere;
+  }
+}

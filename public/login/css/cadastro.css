@@ -667,19 +667,30 @@
 }
 
 .senha-wrapper input {
-  padding-right: 42px;
+  padding-right: 50px;
 }
 
 .toggle-senha {
   position: absolute;
-  right: 14px;
+  right: 2px;
   top: 50%;
   transform: translateY(-50%);
-  width: 20px;
-  height: 20px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 12px;
+  border: 0;
+  background: transparent;
   cursor: pointer;
   opacity: .75;
   transition: opacity .2s ease;
+}
+
+.toggle-senha:focus-visible {
+  outline: 2px solid var(--sg-cyan);
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .toggle-senha:hover {
@@ -747,5 +758,26 @@
 
   .stat-chip {
     flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 560px) {
+  .auth-card__foot a {
+    display: inline-block;
+  }
+
+  .auth-fields input {
+    min-width: 0;
+    font-size: 16px;
+  }
+
+  .auth-fields .field,
+  .senha-wrapper {
+    min-width: 0;
+  }
+
+  .auth-card .btn {
+    min-height: 44px;
+    white-space: normal;
   }
 }

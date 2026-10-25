@@ -337,12 +337,71 @@
   }
 
 
+  function ligarMenuResponsivo(sidebar) {
+    const topo = document.querySelector(".topo");
+    if (!topo) return;
+    sidebar.id = sidebar.id || "menu-painel";
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "btn-menu-painel";
+    botao.setAttribute("aria-label", "Abrir menu");
+    botao.setAttribute("aria-controls", sidebar.id);
+    botao.innerHTML = '<svg class="sg-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+    topo.prepend(botao);
+    const fechar = document.createElement("button");
+    fechar.type = "button";
+    fechar.className = "btn-fechar-sidebar";
+    fechar.setAttribute("aria-label", "Fechar menu");
+    fechar.innerHTML = '<svg class="sg-ic" aria-hidden="true"><use href="#sg-x"/></svg>';
+    sidebar.prepend(fechar);
+    const fundo = document.createElement("button");
+    fundo.type = "button";
+    fundo.className = "fundo-sidebar";
+    fundo.setAttribute("aria-label", "Fechar menu");
+    fundo.tabIndex = -1;
+    document.body.append(fundo);
+
+    function alternar(abrir, devolverFoco = true) {
+      abrir = abrir && mobile.matches;
+      sidebar.classList.toggle("aberta", abrir);
+      sidebar.inert = mobile.matches && !abrir;
+      fundo.hidden = !abrir;
+      botao.setAttribute("aria-expanded", String(abrir));
+      document.body.classList.toggle("menu-painel-aberto", abrir);
+      if (abrir) fechar.focus();
+      else if (devolverFoco && mobile.matches) botao.focus();
+    }
+
+    botao.addEventListener("click", () => alternar(!sidebar.classList.contains("aberta")));
+    fechar.addEventListener("click", () => alternar(false));
+    fundo.addEventListener("click", () => alternar(false));
+    sidebar.querySelectorAll("a").forEach(link => link.addEventListener("click", () => alternar(false, false)));
+    document.addEventListener("keydown", evento => {
+      if (!mobile.matches || !sidebar.classList.contains("aberta")) return;
+      if (evento.key === "Escape") alternar(false);
+      if (evento.key !== "Tab") return;
+      const focaveis = [...sidebar.querySelectorAll("a[href], button:not([disabled])")].filter(el => el.getClientRects().length);
+      const primeiro = focaveis[0], ultimo = focaveis[focaveis.length - 1];
+      if (evento.shiftKey && document.activeElement === primeiro) {
+        evento.preventDefault(); ultimo.focus();
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault(); primeiro.focus();
+      }
+    });
+    mobile.addEventListener("change", () => alternar(false, false));
+    alternar(false, false);
+  }
+
   function iniciar() {
     const sidebar = document.querySelector('[data-shell="sidebar"]');
     const topoDireita = document.querySelector('[data-shell="topo-direita"]');
     const principal = document.querySelector(".principal");
 
-    if (sidebar) desenharSidebar(sidebar);
+    if (sidebar) {
+      desenharSidebar(sidebar);
+      ligarMenuResponsivo(sidebar);
+    }
     if (topoDireita) {
       desenharTopo(topoDireita);
       desenharNotificacoes();
@@ -359,6 +418,11 @@
 
     mostrarAviso(principal);
     aplicarPermissoes(document);
+    principal.querySelectorAll(".tabela-rolagem, .tabela-wrap, .box-tabela > .tabela").forEach(tabela => {
+      tabela.tabIndex = 0;
+      tabela.setAttribute("role", "region");
+      tabela.setAttribute("aria-label", "Tabela com rolagem");
+    });
 
     // as telas desenham listas pelo JS: reaplica sempre que algo novo entra
     let pendente = false;

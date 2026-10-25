@@ -457,47 +457,8 @@
   </main>
 
 
+  <script src="./js/nav.js"></script>
   <script>
-    // === Menu lateral (celular) ===
-    (function () {
-      const botaoMenu = document.getElementById('botao-menu');
-      const menu = document.getElementById('menu');
-      const botaoFechar = document.getElementById('botao-fechar');
-      const fundoMenu = document.getElementById('fundo-menu');
-
-      function abrirMenu() {
-        menu.classList.add('aberto');
-        botaoMenu.classList.add('aberto');
-        fundoMenu.classList.add('aberto');
-        botaoMenu.setAttribute('aria-expanded', 'true');
-        document.body.classList.add('menu-aberto');
-      }
-
-      function fecharMenu() {
-        menu.classList.remove('aberto');
-        botaoMenu.classList.remove('aberto');
-        fundoMenu.classList.remove('aberto');
-        botaoMenu.setAttribute('aria-expanded', 'false');
-        document.body.classList.remove('menu-aberto');
-      }
-
-      botaoMenu.addEventListener('click', function () {
-        menu.classList.contains('aberto') ? fecharMenu() : abrirMenu();
-      });
-
-      botaoFechar.addEventListener('click', fecharMenu);
-      fundoMenu.addEventListener('click', fecharMenu);
-
-      document.addEventListener('keydown', function (evento) {
-        if (evento.key === 'Escape') fecharMenu();
-      });
-
-      menu.querySelectorAll('.menu-link').forEach(function (link) {
-        link.addEventListener('click', fecharMenu);
-      });
-    })();
-
-
     // === Formulário de contato (envia para o back-end, que cria o chamado no Jira) ===
     const formulario = document.getElementById('formulario-contato');
     const botaoEnviar = formulario.querySelector('.botao-enviar');

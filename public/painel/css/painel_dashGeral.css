@@ -283,15 +283,7 @@
     font-size: 0.75rem;
 }
 
-@media (max-width: 1024px) {
-    .cards-metricas {
-        grid-template-columns: repeat(2, 1fr);
-    }
 
-    .grade-dashboard {
-        grid-template-columns: 1fr;
-    }
-}
 
 
 .grafico-topo h2,
@@ -552,11 +544,7 @@ select:focus-visible,
     padding: 24px;
 }
 
-@media (max-width: 1024px) {
-    .visao-geral {
-        grid-template-columns: 1fr;
-    }
-}
+
 
 /* ===== 1920 x 1080 ===== */
 .principal {
@@ -628,4 +616,86 @@ select:focus-visible,
 
 .ranking li {
     margin-bottom: 2px;
+}
+
+.grade-dashboard > *,
+.visao-geral > *,
+.cards-metricas > * {
+    min-width: 0;
+}
+
+@media (max-width: 1024px) {
+    .cards-metricas {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grade-dashboard,
+    .visao-geral {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .filtros-topo,
+    .incidentes-topo,
+    .incidentes-filtros {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .campo-select {
+        min-width: 0;
+        flex: 1 1 160px;
+    }
+
+    .campo-select select {
+        width: 100%;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .incidentes-filtros select {
+        max-width: 100%;
+    }
+
+    .link-visao {
+        margin-left: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    .contadores {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 8px;
+    }
+
+    .contador {
+        padding: 12px 8px;
+    }
+
+    .contador small {
+        overflow-wrap: anywhere;
+    }
+
+    .banner-alerta,
+    .alerta-info,
+    .info-atualizacao,
+    .ranking li {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .tabela-incidentes {
+        min-width: 640px;
+    }
+
+    .link-visao,
+    .btn-periodo,
+    .chip,
+    .btn-exportar {
+        min-height: 44px;
+    }
+
+    .card-cabecalho {
+        flex-wrap: wrap;
+        gap: 6px;
+    }
 }
