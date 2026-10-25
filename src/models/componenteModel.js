@@ -1,21 +1,20 @@
 var database = require("../database/config");
 
 async function criarComponente(servidor_id, tipo, nome) {
-    var consultaSql = `SELECT id_componente FROM componente WHERE fk_servidor = ${servidor_id} AND tipo = '${tipo}' AND nome = '${nome}';
-    `;
-
-    var componentes = await database.executar(consultaSql);
-
-    if (componentes.length > 0) {
-        return {
-            insertId: componentes[0].id_componente
-        };
-    }
-
-    var cadastroSql = `
-        INSERT INTO componente (fk_servidor, tipo, nome) VALUES (${servidor_id}, '${tipo}', '${nome}');
-    `;
-    return database.executar(cadastroSql);
+    return database.transacao(async (consultar) => {
+        const servidores = await consultar(
+            "SELECT id_equipamentos FROM equipamentos WHERE id_equipamentos = ? FOR UPDATE", [servidor_id]);
+        if (!servidores.length) throw new Error("Servidor não encontrado.");
+        const componentes = await consultar(`SELECT id_componente FROM componente
+            WHERE fk_servidor = ? AND tipo = ? AND nome <=> ? FOR UPDATE`, [servidor_id, tipo, nome ?? null]);
+        if (componentes.length) {
+            return {
+                insertId: componentes[0].id_componente
+            };
+        }
+        return consultar("INSERT INTO componente (fk_servidor, tipo, nome) VALUES (?, ?, ?)",
+            [servidor_id, tipo, nome ?? null]);
+    });
 }
 
 function buscarComponentes(){

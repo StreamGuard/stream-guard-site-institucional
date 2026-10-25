@@ -218,8 +218,22 @@
       });
     }
 
-    document.getElementById("btnSairShell").addEventListener("click", () => {
-      try { sessionStorage.clear(); } catch (e) { /* ignora */ }
+    document.getElementById("btnSairShell").addEventListener("click", async (evento) => {
+      evento.preventDefault();
+      const destino = evento.currentTarget.href;
+      try {
+        const resposta = await fetch("/usuarios/sair", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: "{}"
+        });
+        if (!resposta.ok) throw new Error("Não foi possível encerrar a sessão. Tente novamente.");
+        sessionStorage.clear();
+        location.href = destino;
+      } catch (erro) {
+        window.alert(erro.message);
+      }
     });
   }
 
