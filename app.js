@@ -34,7 +34,7 @@ var metricasRouter = require("./src/routes/metricas");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(["/usuarios/autenticar", "/usuarios/sair", "/metricas/configuracoes"], controleSessao.middleware);
+app.use(["/usuarios/autenticar", "/usuarios/sair", "/metricas/configuracoes", "/servidores/cadastrar", "/componentes/cadastrar", "/metricas/cadastrarMetrica"], controleSessao.middleware);
 app.use(cors());
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -49,7 +49,7 @@ app.use("/", indexRouter);
 app.use(function (erro, req, res, next) {
     if (res.headersSent) return next(erro);
     if (!["/usuarios/autenticar", "/usuarios/cadastrar", "/usuarios/sair"].includes(req.path) &&
-        !req.path.startsWith("/metricas/configuracoes/")) return next(erro);
+        !req.path.startsWith("/metricas/configuracoes/") && !["/empresas/cadastrar", "/servidores/cadastrar", "/componentes/cadastrar", "/metricas/cadastrarMetrica"].includes(req.path)) return next(erro);
     console.error("Erro na requisição:", erro.code || "ERRO_INTERNO");
     const status = erro.status >= 400 && erro.status < 500 ? erro.status : 500;
     res.status(status).json({ erro: "Não foi possível concluir a requisição." });

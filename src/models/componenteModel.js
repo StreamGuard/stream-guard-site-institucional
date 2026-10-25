@@ -1,10 +1,12 @@
 var database = require("../database/config");
+var usuarioModel = require("./usuarioModel");
 
-async function criarComponente(servidor_id, tipo, nome) {
+async function criarComponente(servidor_id, tipo, nome, usuario_id) {
     return database.transacao(async (consultar) => {
+        const empresa = await usuarioModel.obterEmpresa(consultar, usuario_id);
         const servidores = await consultar(
-            "SELECT id_equipamentos FROM equipamentos WHERE id_equipamentos = ? FOR UPDATE", [servidor_id]);
-        if (!servidores.length) throw new Error("Servidor não encontrado.");
+            "SELECT id_equipamentos FROM equipamentos WHERE id_equipamentos = ? AND fk_equipamento = ? FOR UPDATE", [servidor_id, empresa]);
+        if (!servidores.length) throw Object.assign(new Error("Servidor não autorizado."), { status: 403 });
         const componentes = await consultar(`SELECT id_componente FROM componente
             WHERE fk_servidor = ? AND tipo = ? AND nome <=> ? FOR UPDATE`, [servidor_id, tipo, nome ?? null]);
         if (componentes.length) {

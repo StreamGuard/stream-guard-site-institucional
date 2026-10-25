@@ -16,9 +16,14 @@ function criarSessao() {
     if (!Number.isInteger(minutos) || minutos < 1 || minutos > 120) {
         throw new Error("SESSION_TTL_MINUTES deve ser um inteiro entre 1 e 120.");
     }
-    if (process.env.AMBIENTE_PROCESSO !== "desenvolvimento" &&
-        (!cookieSeguro() || !process.env.APP_ORIGIN || new URL(process.env.APP_ORIGIN).protocol !== "https:")) {
-        throw new Error("Homologação/produção exige APP_ORIGIN HTTPS e cookie Secure.");
+    if (process.env.AMBIENTE_PROCESSO !== "desenvolvimento" && !process.env.APP_ORIGIN) {
+        throw new Error("Configure APP_ORIGIN com a origem exata do site.");
+    }
+    if (process.env.APP_ORIGIN) {
+        const protocolo = new URL(process.env.APP_ORIGIN).protocol;
+        if (!["http:", "https:"].includes(protocolo) || cookieSeguro() !== (protocolo === "https:")) {
+            throw new Error("APP_ORIGIN e SESSION_COOKIE_SECURE devem corresponder: HTTP usa false; HTTPS usa true.");
+        }
     }
     const pool = mysql.createPool({
         host: process.env.DB_HOST,

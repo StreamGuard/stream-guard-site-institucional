@@ -1,4 +1,5 @@
 var database = require("../database/config");
+var usuarioModel = require("./usuarioModel");
 
 const PADROES = {
     USO_CPU: [5, 90, "%"], USO_RAM: [10, 90, "%"], RAM_DISPONIVEL: [10, null, "bytes"],
@@ -16,15 +17,16 @@ function inteiroPositivo(valor) {
     return Number.isSafeInteger(valor) && valor > 0 && valor <= 2147483647;
 }
 
-async function cadastrarMetrica(componente_id, tipo, nome, unidade) {
+async function cadastrarMetrica(componente_id, tipo, nome, unidade, usuario_id) {
     if (!inteiroPositivo(componente_id) || typeof tipo !== "string" || typeof unidade !== "string" ||
         typeof nome !== "string" || !nome.trim() || nome.length > 255 ||
         !Object.hasOwn(PADROES, tipo) || unidade !== PADROES[tipo][2]) {
         throw erroValidacao("Componente, tipo, nome ou unidade de métrica inválidos.");
     }
     return database.transacao(async (consultar) => {
-        const componentes = await consultar("SELECT id_componente, tipo FROM componente WHERE id_componente = ? FOR UPDATE", [componente_id]);
-        if (!componentes.length) throw erroValidacao("Componente não encontrado.", 404);
+        const empresa = await usuarioModel.obterEmpresa(consultar, usuario_id);
+        const componentes = await consultar("SELECT c.id_componente, c.tipo FROM componente c JOIN equipamentos e ON e.id_equipamentos = c.fk_servidor WHERE c.id_componente = ? AND e.fk_equipamento = ? FOR UPDATE", [componente_id, empresa]);
+        if (!componentes.length) throw erroValidacao("Componente não autorizado.", 403);
         const esperado = tipo.includes("CPU") ? "CPU" : tipo.includes("RAM") ? "RAM" : tipo.includes("DISCO") ? "DISCO" : "REDE";
         if (componentes[0].tipo !== esperado) throw erroValidacao("Métrica incompatível com o componente.");
         const metricas = await consultar(

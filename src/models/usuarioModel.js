@@ -32,7 +32,19 @@ function cadastrar(codigo_empresa, nome, cargo, email, senha) {
   return database.executar(instrucaoSql, [nome, cargo, email, senha, codigo_empresa]);
 }
 
+async function obterEmpresa(consultar, usuario_id) {
+  if (!Number.isSafeInteger(usuario_id) || usuario_id <= 0) {
+    throw Object.assign(new Error("Sessão ausente ou expirada."), { status: 401 });
+  }
+  const usuarios = await consultar("SELECT fk_empresa FROM usuario WHERE id_usuario = ? FOR UPDATE", [usuario_id]);
+  if (usuarios.length !== 1 || !usuarios[0].fk_empresa) {
+    throw Object.assign(new Error("Usuário sem empresa autorizada."), { status: 403 });
+  }
+  return usuarios[0].fk_empresa;
+}
+
 module.exports = {
   autenticar,
+  obterEmpresa,
   cadastrar,
 };

@@ -4,7 +4,7 @@ var router = express.Router();
 var metricaController = require("../controllers/metricaController");
 var sessao = require("../middleware/sessao");
 
-router.post("/cadastrarMetrica", function (req, res) {
+router.post("/cadastrarMetrica", sessao.exigirSessao, function (req, res) {
     metricaController.cadastrarMetrica(req, res);
 });
 

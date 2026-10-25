@@ -105,17 +105,17 @@ O script `StreamGuard-ScripBD.sql` continua destinado à criação inicial e rec
 O PUT exige sessão válida, token CSRF e perfil Admin da empresa proprietária do servidor, conferidos no banco a cada atualização. O GET continua disponível aos agentes sem sessão e mantém seu JSON original. As demais rotas não receberam exigência de autenticação nesta alteração.
 ## Sessão web
 
-O login existente cria uma sessão com `express-session`, persistida no MySQL por `express-mysql-session`. O navegador recebe somente o identificador assinado em cookie `HttpOnly`, `SameSite=Lax` e `Secure` por padrão. A sessão guarda o ID do usuário, expiração e proteção CSRF, sem senha ou token de autenticação no sessionStorage. O ID é regenerado ao entrar, e Sair invalida a sessão no servidor.
+O login existente cria uma sessão com `express-session`, persistida no MySQL por `express-mysql-session`. O navegador recebe somente o identificador assinado em cookie `HttpOnly` e `SameSite=Lax`; `Secure` é configurado conforme o protocolo da API. A sessão guarda o ID do usuário, expiração e proteção CSRF, sem senha ou token de autenticação no sessionStorage. O ID é regenerado ao entrar, e Sair invalida a sessão no servidor.
 
 Antes de iniciar a API:
 
 1. Instale as dependências com `npm install`.
 2. No banco existente, aplique `src/database/migracoes/002-sessoes-web.sql` no schema selecionado. Ela cria somente a tabela técnica `web_sessoes`, sem alterar tabelas de negócio. O script de criação inicial já contém essa tabela.
 3. Configure `SESSION_SECRET` no ambiente privado, com pelo menos 32 bytes aleatórios; mantenha o mesmo segredo nas reinicializações e instâncias. Por exemplo, gere um valor localmente com `node -e "console.log(require('crypto').randomBytes(48).toString('hex'))"`. Não versione nem registre o valor.
-4. Defina `APP_ORIGIN` com a origem HTTPS exata do site e mantenha `SESSION_COOKIE_SECURE=true` na homologação/produção. `SESSION_TTL_MINUTES` define a duração absoluta da sessão, entre 1 e 120 minutos; padrão 30.
+4. Na infraestrutura acadêmica HTTP, defina `APP_ORIGIN` com a origem HTTP exata do site (endereço e porta) e `SESSION_COOKIE_SECURE=false`. Essa combinação também é aceita com `AMBIENTE_PROCESSO=producao`. `SESSION_TTL_MINUTES` define a duração absoluta da sessão, entre 1 e 120 minutos; padrão 30.
 5. Se o HTTPS termina em um proxy, configure `TRUST_PROXY` somente com IPs/redes dos proxies confiáveis. Use `loopback` apenas quando o proxy realmente estiver na mesma máquina. O acesso direto ao Node deve ser restrito para impedir falsificação de cabeçalhos de proxy.
 
-Para desenvolvimento HTTP exclusivamente local, use `AMBIENTE_PROCESSO=desenvolvimento`, `SESSION_COOKIE_SECURE=false` e `APP_ORIGIN=http://localhost:<porta>`. Cookies inseguros são rejeitados pela configuração em outros ambientes. Não publique essa configuração local.
+O `.env.example` utiliza HTTP local como modelo; ajuste somente o endereço e a porta no ambiente privado. `APP_ORIGIN` e `SESSION_COOKIE_SECURE` precisam corresponder: HTTP usa `false`; uma origem HTTPS já existente usa `true`. O segredo, a expiração, `HttpOnly`, `SameSite=Lax`, a sessão no MySQL e o CSRF continuam obrigatórios. HTTP não criptografa senhas nem cookies em trânsito; seu uso nesta sprint fica limitado à rede acadêmica autorizada.
 
 O usuário entra normalmente, sem repetir a senha em cada salvamento. Ao carregar as configurações, o painel recebe `X-CSRF-Token` no cabeçalho do GET autenticado e o mantém apenas em memória para enviar no PUT. O corpo e o status do GET dos agentes permanecem iguais. Uma sessão ausente ou expirada retorna 401 no PUT; CSRF, perfil ou empresa sem autorização retornam 403. Os parâmetros editados permanecem na tela em caso de falha. Após nova sessão, recarregue as configurações antes de editar.
 
@@ -123,4 +123,11 @@ O usuário entra normalmente, sem repetir a senha em cada salvamento. Ao carrega
 
 O usuário MySQL da API precisa ler/gravar/remover registros da tabela técnica de sessões. A aplicação não cria tabelas automaticamente e não utiliza MemoryStore como fallback. Se o store falhar, o login não é confirmado e a edição permanece protegida. A limpeza automática remove apenas sessões expiradas dessa tabela técnica.
 
-Os hashes SHA-256 do cadastro atual foram preservados para compatibilidade. Modernização de hashes, limitação de tentativas e proteção das demais rotas não foram implementadas nesta alteração. A homologação ainda deve validar HTTPS, proxy, segredo privado, permissões do banco e comportamento no navegador real.
+Os hashes SHA-256 do cadastro atual foram preservados para compatibilidade. Modernização de hashes, limitação de tentativas e proteção das demais rotas não foram implementadas nesta alteração. A homologação ainda deve validar a sessão HTTP, a origem configurada, o segredo privado, as permissões do banco e o comportamento no navegador real.
+
+
+### Cadastro automático e comunicação do agente
+
+A captura autentica em POST /usuarios/autenticar e recebe cookie e X-CSRF-Token. Os POSTs /servidores/cadastrar, /componentes/cadastrar e /metricas/cadastrarMetrica exigem a sessão e o CSRF existentes. A empresa é consultada no banco pelo usuário autenticado; IDs enviados pelo cliente não autorizam acesso. Usuários da própria empresa podem cadastrar/reutilizar recursos, preservando a exigência de Admin no PUT de configurações. O GET de configurações mantém seu contrato.
+
+Distribua .env.example e copie para .env privado somente se ele não existir. Não versione o arquivo preenchido: .gitignore não protege um arquivo que já está rastreado. Identidade local do agente não é credencial e não substitui o ID gerado pelo MySQL.

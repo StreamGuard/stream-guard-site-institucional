@@ -8,7 +8,7 @@ function responderErro(res, erro) {
 async function cadastrarMetrica(req, res) {
     const { componente_id, tipo, nome, unidade } = req.body;
     try {
-        await metricaModel.cadastrarMetrica(componente_id, tipo, nome, unidade);
+        await metricaModel.cadastrarMetrica(componente_id, tipo, nome, unidade, req.session.usuario_id);
         return res.status(201).json({
             componente_id,
             tipo,

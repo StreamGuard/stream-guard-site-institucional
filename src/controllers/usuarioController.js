@@ -6,9 +6,9 @@ async function autenticar(req, res) {
   var senha = req.body.senhaServer;
 
   try {
-    if (typeof email !== "string" || email.trim() === "") {
+    if (typeof email !== "string" || email.trim() === "" || email.length > 100) {
       return res.status(400).send("Email é obrigatório!");
-    } else if (typeof senha !== "string" || senha === "") {
+    } else if (typeof senha !== "string" || senha === "" || senha.length > 1024) {
       return res.status(400).send("Senha é obrigatória!");
     } else if (!email.includes("@") || !email.includes(".")) {
       return res.status(400).send("Email inválido!");
@@ -24,6 +24,7 @@ async function autenticar(req, res) {
 
     await sessao.iniciarSessao(req, resultadoAutenticar[0].id);
     res.set("Cache-Control", "no-store");
+    res.set("X-CSRF-Token", req.session.csrf);
     if (resultadoAutenticar[0].email.includes("@streamguard.com")) {
       return res.json({
         id: resultadoAutenticar[0].id,
@@ -64,33 +65,29 @@ function sair(req, res) {
   });
 }
 
-function cadastrar(req, res) {
+async function cadastrar(req, res) {
   var id_empresa = req.body.idEmpresaServer;
   var nome = req.body.nomeServer;
   var cargo = req.body.cargoServer;
   var email = req.body.emailServer;
   var senha = req.body.senhaServer;
 
-  if (id_empresa.trim() === "") {
-    res.status(400).send("Id de empresa é obrigatório!");
-  } else if (nome.trim() === "") {
-    res.status(400).send("Nome é obrigatório!");
-  } else if (cargo.trim() === "") {
-    res.status(400).send("Cargo é obrigatório!");
-  } else if (!email || email.trim() === "") {
-    res.status(400).send("Email é obrigatório!");
-  } else if (!senha || senha.trim() === "") {
-    res.status(400).send("Senha é obrigatória!");
-  } else if (!email.includes("@") || !email.includes(".")) {
-    res.status(400).send("Email inválido!");
-  } else {
-    usuarioModel
-      .cadastrar(id_empresa, nome, cargo, email, senha)
-      .then(function (resultadoCadastrar) {
-        console.log(`\nResultados encontrados: ${resultadoCadastrar.length}`);
-        console.log(`Resultados: ${JSON.stringify(resultadoCadastrar)}`);
-        res.status(201).send(resultadoCadastrar);
-      });
+  if (typeof id_empresa !== "string" || !/^[A-Z0-9]{8}$/.test(id_empresa) ||
+      typeof nome !== "string" || !nome.trim() || nome.length > 100 ||
+      typeof cargo !== "string" || !cargo.trim() || cargo.length > 50 ||
+      typeof email !== "string" || email.length > 100 || !email.includes("@") || !email.includes(".") ||
+      typeof senha !== "string" || !senha || senha.length > 1024) {
+    return res.status(400).json({ erro: "Dados de cadastro inválidos." });
+  }
+  try {
+    const resultado = await usuarioModel.cadastrar(id_empresa, nome.trim(), cargo.trim(), email.trim(), senha);
+    if (!resultado.affectedRows) return res.status(400).json({ erro: "Código de empresa inválido." });
+    return res.status(201).send(resultado);
+  } catch (erro) {
+    console.error("Erro ao cadastrar usuário:", erro.code || "ERRO_INTERNO");
+    return res.status(erro.code === "ER_DUP_ENTRY" ? 409 : 500).json({
+      erro: erro.code === "ER_DUP_ENTRY" ? "Usuário já cadastrado." : "Não foi possível cadastrar o usuário."
+    });
   }
 }
 
