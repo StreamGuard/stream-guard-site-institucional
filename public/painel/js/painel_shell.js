@@ -135,7 +135,7 @@
 
       <p class="menu-titulo">Monitoramento</p>
       <nav class="menu">
-        ${item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard")}
+        ${DASHBOARD_POR_PERFIL[perfil] ? item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard") : ""}
         ${item("./painel_detalhes.html", "sg-server", "Componentes", "detalhes")}
         ${item("./painel_alerta.html", "sg-bell", "Alertas", "alerta")}
       </nav>
@@ -318,6 +318,8 @@
         "<strong>Perfil Gerente.</strong> Você pode visualizar, cadastrar e editar. Excluir e as Configurações são exclusivos do Administrador.",
     };
 
+    if (!textos[perfil]) return;
+
     const faixa = document.createElement("div");
     faixa.className = `aviso-perfil nivel-${perfil}`;
     faixa.innerHTML = `<svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg><span>${textos[perfil]}</span>`;
@@ -331,7 +333,7 @@
           <div class="icone"><svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg></div>
           <h2>Acesso restrito ao Administrador</h2>
           <p>Seu perfil (${NOMES_PERFIL[perfil]}) não tem permissão para abrir esta tela. Se precisar de acesso, fale com o administrador da sua empresa.</p>
-          <a href="${DASHBOARD_POR_PERFIL[perfil]}">Voltar ao dashboard</a>
+          ${DASHBOARD_POR_PERFIL[perfil] ? `<a href="${DASHBOARD_POR_PERFIL[perfil]}">Voltar ao dashboard</a>` : ""}
         </div>
       </section>`;
   }

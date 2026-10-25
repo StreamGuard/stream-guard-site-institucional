@@ -138,8 +138,8 @@
         mobile.addEventListener("change", () => alternarMenu(false, false));
         alternarMenu(false, false);
 
-        const adminName = sessionStorage.NOME_USUARIO;
-        const adminRole = sessionStorage.CARGO;
+        const adminName = sessionStorage.getItem("NOME_USUARIO") || "";
+        const adminRole = sessionStorage.getItem("CARGO") || "";
         console.log("Nome do adm: ", adminName);
 
         if (adminName != "" && adminName.trim() != "")
