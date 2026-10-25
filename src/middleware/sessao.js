@@ -3,12 +3,55 @@ var MySQLStore = require("express-mysql-session")(session);
 var mysql = require("mysql2/promise");
 var crypto = require("crypto");
 
+var fs = require("fs");
+var path = require("path");
+
+function obterSegredo() {
+    if (process.env.SESSION_SECRET) return process.env.SESSION_SECRET;
+    const arquivo = process.env.SESSION_SECRET_FILE || path.resolve(__dirname, "../../.session-secret");
+    try {
+        fs.lstatSync(arquivo);
+    } catch (erro) {
+        if (erro.code !== "ENOENT") throw erro;
+        const temporario = arquivo + "." + process.pid + "." + crypto.randomBytes(8).toString("hex") + ".tmp";
+        let descritor;
+        let criado = false;
+        try {
+            descritor = fs.openSync(temporario, "wx", 0o600);
+            criado = true;
+            if (process.platform === "win32") {
+                const executar = require("child_process").execFileSync;
+                const identidade = executar(path.join(process.env.SystemRoot || "C:/Windows", "System32", "whoami.exe"), ["/user", "/fo", "csv", "/nh"], { encoding: "utf8", windowsHide: true });
+                const sid = identidade.match(/S-1-[\d-]+/);
+                if (!sid) throw new Error("Nao foi possivel proteger o arquivo de sessao.");
+                executar(path.join(process.env.SystemRoot || "C:/Windows", "System32", "icacls.exe"), [temporario, "/inheritance:r", "/grant:r", "*" + sid[0] + ":F"], { stdio: "ignore", windowsHide: true });
+            }
+            fs.writeFileSync(descritor, crypto.randomBytes(32).toString("hex"), "utf8");
+            fs.fsyncSync(descritor);
+            fs.closeSync(descritor);
+            descritor = undefined;
+            try {
+                fs.linkSync(temporario, arquivo);
+            } catch (erro) {
+                if (erro.code !== "EEXIST") throw erro;
+            }
+        } finally {
+            if (descritor !== undefined) fs.closeSync(descritor);
+            if (criado) fs.unlinkSync(temporario);
+        }
+    }
+    if (!fs.lstatSync(arquivo).isFile()) throw new Error("SESSION_SECRET_FILE deve ser um arquivo privado regular.");
+    const segredo = fs.readFileSync(arquivo, "utf8").trim();
+    if (!/^[a-f0-9]{64}$/.test(segredo)) throw new Error("Arquivo SESSION_SECRET_FILE invalido; preserve e revise o arquivo existente.");
+    return segredo;
+}
+
 function cookieSeguro() {
     return process.env.SESSION_COOKIE_SECURE !== "false";
 }
 
 function criarSessao() {
-    const segredo = process.env.SESSION_SECRET;
+    const segredo = obterSegredo();
     const minutos = Number(process.env.SESSION_TTL_MINUTES || 30);
     if (!segredo || Buffer.byteLength(segredo) < 32) {
         throw new Error("Configure SESSION_SECRET com pelo menos 32 bytes aleatórios.");
