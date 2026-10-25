@@ -106,3 +106,7 @@ JOIN equipamentos eq ON eq.fk_equipamento = e.id_empresa
 JOIN componente c ON c.fk_servidor = eq.id_equipamentos
 JOIN metrica m ON m.fk_componente = c.id_componente
 JOIN config_metrica cm ON cm.fk_metrica = m.id_metrica;
+select * from usuario;
+update usuario set fk_permissao = 1 where id_usuario =4;
+update usuario set fk_permissao = 2 where id_usuario =7;
+update usuario set fk_permissao = 3 where id_usuario =3;
