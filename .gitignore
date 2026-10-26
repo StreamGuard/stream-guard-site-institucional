@@ -6,3 +6,6 @@ package-lock.json
 .env.dev
 
 .github
+
+.session-secret
+.session-secret.*.tmp

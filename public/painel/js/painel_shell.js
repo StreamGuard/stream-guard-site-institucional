@@ -4,21 +4,23 @@
   "use strict";
 
 
-  const PERFIS = ["usuario", "gerente", "admin"];
+  const PERFIS = ["usuario", "gerente", "admin", "root"];
 
   const NOMES_PERFIL = {
     usuario: "Usuário",
     gerente: "Gerente",
     admin: "Administrador",
+    root: "StreamGuard"
   };
 
   // o que cada perfil pode fazer (ver = todos)
   const REGRAS = {
-    ver: ["usuario", "gerente", "admin"],
+    ver: ["usuario", "gerente", "admin", "root"],
     criar: ["gerente", "admin"],
     editar: ["gerente", "admin"],
     excluir: ["admin"],
-    configurar: ["admin"],
+    configurar: ["admin", "root"],
+    conta: ["root"]
   };
 
   const DASHBOARD_POR_PERFIL = {
@@ -37,7 +39,8 @@
 
   function perfilDoBanco(texto) {
     const t = (texto || "").toLowerCase();
-    if (t === "root" || t === "admin" || t === "administrador") return "admin";
+    if (t === "root" ) return "root" 
+    if(t === "admin" || t === "administrador") return "admin";
     if (t === "gerente") return "gerente";
     if (t === "user" || t === "usuario" || t === "usuário" || t === "comum") return "usuario";
     return null;
@@ -126,29 +129,52 @@
     alvo.innerHTML = `
       ${ICONES}
       <div class="logo">
-        <div class="logo-icone"><svg class="sg-ic" aria-hidden="true"><use href="#sg-shield"/></svg></div>
+        <div class="logo-icone"><img src="../assets/streamGuard_logo.png"></img></div>
         <div class="logo-texto">STREAM<span>GUARD</span></div>
       </div>
 
       <p class="menu-titulo">Monitoramento</p>
       <nav class="menu">
-        ${item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard")}
+        ${DASHBOARD_POR_PERFIL[perfil] ? item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard") : ""}
         ${item("./painel_detalhes.html", "sg-server", "Componentes", "detalhes")}
         ${item("./painel_alerta.html", "sg-bell", "Alertas", "alerta")}
       </nav>
+
+      <div class="menu-div">
+        <span></span>
+      </div>
 
       <p class="menu-titulo">Administração</p>
       <nav class="menu">
         ${pode("configurar") ? item("./painel_config.html", "sg-settings", "Configurações", "config") : ""}
         ${item("./painel_perfil.html", "sg-user", "Perfil", "perfil")}
-        ${item("./painel_admin.html", "sg-building", "Conta", "admin")}
+        ${pode("conta") ? item("./painel_admin.html", "sg-building", "Conta", "admin") : ""}
       </nav>
 
       <div class="ambiente">
-        <span class="ambiente-status"><i class="bolinha verde"></i> Ambiente online</span>
-        <strong id="totalVinculadas">${escapar(usuario.empresa)}</strong>
-        <small>Plano Enterprise • 32 ativos</small>
-      </div>`;
+        <div class="usuario">
+          <div class="avatar">${escapar(iniciais(usuario.nome))}</div>
+            <div>
+              <strong>${escapar(usuario.nome)}</strong>
+              <span class="nivel nivel-${perfil}">${NOMES_PERFIL[perfil]}</span>
+            </div>
+          </div>
+          <div class="usuario-div">
+            <span></span>
+          </div>
+          <div class="usuario-logout">
+            <a class="btn-sair" id="btnSairShell" href="../login/login.html" title="Sair" aria-label="Sair">
+              <svg class="sg-ic" aria-hidden="true"><use href="#sg-logout"/></svg>
+            </a>
+            <h6>Sair da conta</h6>
+          </div>
+        </div>
+      </div>
+
+      
+        
+      <strong id="totalVinculadas">${escapar(usuario.empresa)}</strong>
+      `;
 
     // marca a tela atual
     const pagina = document.body.dataset.pagina;
@@ -179,16 +205,7 @@
         </button>
         <div class="painel-notif" id="painelNotif" hidden></div>
       </div>
-      <div class="usuario">
-        <div class="avatar">${escapar(iniciais(usuario.nome))}</div>
-        <div>
-          <strong>${escapar(usuario.nome)}</strong>
-          <span class="nivel nivel-${perfil}">${NOMES_PERFIL[perfil]}</span>
-        </div>
-      </div>
-      <a class="btn-sair" id="btnSairShell" href="../login/login.html" title="Sair" aria-label="Sair">
-        <svg class="sg-ic" aria-hidden="true"><use href="#sg-logout"/></svg>
-      </a>`;
+      `;
 
     const seletor = document.getElementById("demoPerfil");
     if (seletor) {
@@ -201,8 +218,22 @@
       });
     }
 
-    document.getElementById("btnSairShell").addEventListener("click", () => {
-      try { sessionStorage.clear(); } catch (e) { /* ignora */ }
+    document.getElementById("btnSairShell").addEventListener("click", async (evento) => {
+      evento.preventDefault();
+      const destino = evento.currentTarget.href;
+      try {
+        const resposta = await fetch("/usuarios/sair", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: "{}"
+        });
+        if (!resposta.ok) throw new Error("Não foi possível encerrar a sessão. Tente novamente.");
+        sessionStorage.clear();
+        location.href = destino;
+      } catch (erro) {
+        window.alert(erro.message);
+      }
     });
   }
 
@@ -287,6 +318,8 @@
         "<strong>Perfil Gerente.</strong> Você pode visualizar, cadastrar e editar. Excluir e as Configurações são exclusivos do Administrador.",
     };
 
+    if (!textos[perfil]) return;
+
     const faixa = document.createElement("div");
     faixa.className = `aviso-perfil nivel-${perfil}`;
     faixa.innerHTML = `<svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg><span>${textos[perfil]}</span>`;
@@ -300,18 +333,77 @@
           <div class="icone"><svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg></div>
           <h2>Acesso restrito ao Administrador</h2>
           <p>Seu perfil (${NOMES_PERFIL[perfil]}) não tem permissão para abrir esta tela. Se precisar de acesso, fale com o administrador da sua empresa.</p>
-          <a href="${DASHBOARD_POR_PERFIL[perfil]}">Voltar ao dashboard</a>
+          ${DASHBOARD_POR_PERFIL[perfil] ? `<a href="${DASHBOARD_POR_PERFIL[perfil]}">Voltar ao dashboard</a>` : ""}
         </div>
       </section>`;
   }
 
+
+  function ligarMenuResponsivo(sidebar) {
+    const topo = document.querySelector(".topo");
+    if (!topo) return;
+    sidebar.id = sidebar.id || "menu-painel";
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "btn-menu-painel";
+    botao.setAttribute("aria-label", "Abrir menu");
+    botao.setAttribute("aria-controls", sidebar.id);
+    botao.innerHTML = '<svg class="sg-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+    topo.prepend(botao);
+    const fechar = document.createElement("button");
+    fechar.type = "button";
+    fechar.className = "btn-fechar-sidebar";
+    fechar.setAttribute("aria-label", "Fechar menu");
+    fechar.innerHTML = '<svg class="sg-ic" aria-hidden="true"><use href="#sg-x"/></svg>';
+    sidebar.prepend(fechar);
+    const fundo = document.createElement("button");
+    fundo.type = "button";
+    fundo.className = "fundo-sidebar";
+    fundo.setAttribute("aria-label", "Fechar menu");
+    fundo.tabIndex = -1;
+    document.body.append(fundo);
+
+    function alternar(abrir, devolverFoco = true) {
+      abrir = abrir && mobile.matches;
+      sidebar.classList.toggle("aberta", abrir);
+      sidebar.inert = mobile.matches && !abrir;
+      fundo.hidden = !abrir;
+      botao.setAttribute("aria-expanded", String(abrir));
+      document.body.classList.toggle("menu-painel-aberto", abrir);
+      if (abrir) fechar.focus();
+      else if (devolverFoco && mobile.matches) botao.focus();
+    }
+
+    botao.addEventListener("click", () => alternar(!sidebar.classList.contains("aberta")));
+    fechar.addEventListener("click", () => alternar(false));
+    fundo.addEventListener("click", () => alternar(false));
+    sidebar.querySelectorAll("a").forEach(link => link.addEventListener("click", () => alternar(false, false)));
+    document.addEventListener("keydown", evento => {
+      if (!mobile.matches || !sidebar.classList.contains("aberta")) return;
+      if (evento.key === "Escape") alternar(false);
+      if (evento.key !== "Tab") return;
+      const focaveis = [...sidebar.querySelectorAll("a[href], button:not([disabled])")].filter(el => el.getClientRects().length);
+      const primeiro = focaveis[0], ultimo = focaveis[focaveis.length - 1];
+      if (evento.shiftKey && document.activeElement === primeiro) {
+        evento.preventDefault(); ultimo.focus();
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault(); primeiro.focus();
+      }
+    });
+    mobile.addEventListener("change", () => alternar(false, false));
+    alternar(false, false);
+  }
 
   function iniciar() {
     const sidebar = document.querySelector('[data-shell="sidebar"]');
     const topoDireita = document.querySelector('[data-shell="topo-direita"]');
     const principal = document.querySelector(".principal");
 
-    if (sidebar) desenharSidebar(sidebar);
+    if (sidebar) {
+      desenharSidebar(sidebar);
+      ligarMenuResponsivo(sidebar);
+    }
     if (topoDireita) {
       desenharTopo(topoDireita);
       desenharNotificacoes();
@@ -328,6 +420,11 @@
 
     mostrarAviso(principal);
     aplicarPermissoes(document);
+    principal.querySelectorAll(".tabela-rolagem, .tabela-wrap, .box-tabela > .tabela").forEach(tabela => {
+      tabela.tabIndex = 0;
+      tabela.setAttribute("role", "region");
+      tabela.setAttribute("aria-label", "Tabela com rolagem");
+    });
 
     // as telas desenham listas pelo JS: reaplica sempre que algo novo entra
     let pendente = false;

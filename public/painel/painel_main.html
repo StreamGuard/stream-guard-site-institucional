@@ -93,12 +93,53 @@
 
     <script>
         const sidebar = document.getElementById("adminSidebar");
-        document.getElementById("sidebarToggle").addEventListener("click", function () {
-            sidebar.classList.toggle("show");
-        });
+        const toggle = document.getElementById("sidebarToggle");
+        const mobile = window.matchMedia("(max-width: 700px)");
+        toggle.setAttribute("aria-controls", sidebar.id);
+        const fechar = document.createElement("button");
+        fechar.type = "button";
+        fechar.className = "admin-sidebar-close";
+        fechar.setAttribute("aria-label", "Fechar menu");
+        fechar.textContent = "×";
+        sidebar.prepend(fechar);
+        const fundo = document.createElement("button");
+        fundo.type = "button";
+        fundo.className = "admin-sidebar-backdrop";
+        fundo.setAttribute("aria-label", "Fechar menu");
+        fundo.tabIndex = -1;
+        document.body.append(fundo);
 
-        const adminName = sessionStorage.NOME_USUARIO;
-        const adminRole = sessionStorage.CARGO;
+        function alternarMenu(abrir, devolverFoco = true) {
+            abrir = abrir && mobile.matches;
+            sidebar.classList.toggle("show", abrir);
+            sidebar.inert = mobile.matches && !abrir;
+            toggle.setAttribute("aria-expanded", String(abrir));
+            fundo.hidden = !abrir;
+            document.body.classList.toggle("admin-menu-aberto", abrir);
+            if (abrir) fechar.focus();
+            else if (devolverFoco && mobile.matches) toggle.focus();
+        }
+
+        toggle.addEventListener("click", () => alternarMenu(!sidebar.classList.contains("show")));
+        fechar.addEventListener("click", () => alternarMenu(false));
+        fundo.addEventListener("click", () => alternarMenu(false));
+        document.addEventListener("keydown", evento => {
+            if (!mobile.matches || !sidebar.classList.contains("show")) return;
+            if (evento.key === "Escape") alternarMenu(false);
+            if (evento.key !== "Tab") return;
+            const focaveis = [...sidebar.querySelectorAll("button, a[href]:not(.disabled)")].filter(el => el.getClientRects().length);
+            const primeiro = focaveis[0], ultimo = focaveis[focaveis.length - 1];
+            if (evento.shiftKey && document.activeElement === primeiro) {
+                evento.preventDefault(); ultimo.focus();
+            } else if (!evento.shiftKey && document.activeElement === ultimo) {
+                evento.preventDefault(); primeiro.focus();
+            }
+        });
+        mobile.addEventListener("change", () => alternarMenu(false, false));
+        alternarMenu(false, false);
+
+        const adminName = sessionStorage.getItem("NOME_USUARIO") || "";
+        const adminRole = sessionStorage.getItem("CARGO") || "";
         console.log("Nome do adm: ", adminName);
 
         if (adminName != "" && adminName.trim() != "")

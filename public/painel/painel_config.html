@@ -17,7 +17,9 @@
 <body data-pagina="config" data-acesso="configurar">
     <div class="layout">
 
-        <aside class="sidebar" data-shell="sidebar"></aside>
+        <aside class="sidebar" data-shell="sidebar">
+            
+        </aside>
 
         <div class="conteudo">
             <header class="topo">
@@ -47,32 +49,37 @@
             <div class="content-metricas is-visible" id="painel-metricas" data-panel="metricas" role="tabpanel"
                 aria-labelledby="aba-metricas">
 
+                <div class="box-tabela-topo">
+                    <label for="servidor-metricas">ID do servidor</label>
+                    <input class="input-sg" id="servidor-metricas" type="number" min="1" max="2147483647" step="1">
+                    <button class="btn-sg btn-primary" type="button" id="carregar-metricas">Carregar métricas</button>
+                </div>
                 <div class="cards-resumo">
                     <div class="card-resumo">
                         <div class="card-resumo-top">
                             <span class="card-icone"><i class="fa-solid fa-database"></i></span>
-                            <strong data-resumo="total">6</strong>
+                            <strong data-resumo="total">0</strong>
                         </div>
                         <p>Métricas cadastradas</p>
                     </div>
                     <div class="card-resumo">
                         <div class="card-resumo-top">
                             <span class="card-icone"><i class="fa-regular fa-circle-check"></i></span>
-                            <strong data-resumo="ativas">4</strong>
+                            <strong data-resumo="ativas">0</strong>
                         </div>
                         <p>Métricas ativas</p>
                     </div>
                     <div class="card-resumo">
                         <div class="card-resumo-top">
                             <span class="card-icone card-icone-roxo"><i class="fa-solid fa-circle-pause"></i></span>
-                            <strong data-resumo="inativas">2</strong>
+                            <strong data-resumo="inativas">0</strong>
                         </div>
                         <p>Métricas inativas</p>
                     </div>
                     <div class="card-resumo">
                         <div class="card-resumo-top">
                             <span class="card-icone"><i class="fa-solid fa-bolt"></i></span>
-                            <strong data-resumo="menor">15s</strong>
+                            <strong data-resumo="menor">—</strong>
                         </div>
                         <p>Menor intervalo</p>
                     </div>
@@ -82,7 +89,7 @@
                     <div class="box-tabela-topo">
                         <div class="box-tabela-titulo">
                             <h3>Métricas configuradas</h3>
-                            <p>Defina frequência, unidade de coleta e status das métricas.</p>
+                            <p>Edite frequência, habilitação e limites das métricas cadastradas pelo agente.</p>
                         </div>
                         <div class="box-tabela-acoes">
                             <label class="campo-busca">
@@ -90,10 +97,6 @@
                                 <input type="search" id="busca-metrica" placeholder="Buscar métrica..."
                                     autocomplete="off">
                             </label>
-                            <button type="button" class="btn-sg btn-primary" data-modal="adicionar-metrica">
-                                <i class="fa-solid fa-plus"></i>
-                                Adicionar métrica
-                            </button>
                         </div>
                     </div>
 
@@ -112,8 +115,7 @@
                     </div>
 
                     <div class="box-tabela-rodape">
-                        <span class="rodape-nota" data-resumo="nota">Alterações entram em vigor no próximo ciclo de
-                            coleta.</span>
+                        <span class="rodape-nota" data-resumo="nota">Informe o servidor e carregue suas configurações.</span>
                         <button type="button" class="btn-sg btn-primary" id="salvar-metricas">
                             <i class="fa-regular fa-floppy-disk"></i>
                             Salvar alterações
@@ -124,6 +126,7 @@
 
             <div class="content-configuracoes" id="painel-funcionarios" data-panel="funcionarios" role="tabpanel"
                 aria-labelledby="aba-funcionarios" hidden>
+                <p role="note" id="aviso-funcionarios-demo">Demonstração: os funcionários abaixo são exemplos. Cadastro, edição e exclusão não estão disponíveis nesta tela.</p>
 
                 <div class="cards-resumo">
                     <div class="card-resumo">
@@ -170,10 +173,6 @@
                                 </select>
                             </div>
                         </div>
-                        <button type="button" class="btn-sg btn-primary" data-modal="adicionar-funcionario">
-                            <i class="fa-solid fa-user-plus"></i>
-                            Adicionar funcionário
-                        </button>
                     </div>
 
                     <div class="tabela grid-funcionarios">

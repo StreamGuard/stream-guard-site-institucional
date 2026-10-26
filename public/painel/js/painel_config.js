@@ -55,63 +55,58 @@
         { valor: 'stopwatch',        cor: 'magenta',  hex: '#e04dd0',      html: '<i class="fa-solid fa-stopwatch"></i>' },
         { valor: 'temperature-half', cor: 'vermelho', hex: '#ff5e7a',      html: '<i class="fa-solid fa-temperature-half"></i>' }
     ];
-    const UNIDADES = ['%', 'Mbps', 'ms', '°C', 'MB'];
-    const INTERVALOS = [5, 15, 30, 60, 300];
-
-    let metricas = [
-        { id: 1, nome: 'Uso de CPU',      unidade: '%',    intervalo: 15, ativa: true,  icone: 'microchip' },
-        { id: 2, nome: 'Uso de RAM',      unidade: '%',    intervalo: 30, ativa: true,  icone: 'memory' },
-        { id: 3, nome: 'Uso de Disco',    unidade: '%',    intervalo: 60, ativa: true,  icone: 'hard-drive' },
-        { id: 4, nome: 'Tráfego de Rede', unidade: 'Mbps', intervalo: 15, ativa: true,  icone: 'network-wired' },
-        { id: 5, nome: 'Latência',        unidade: 'ms',   intervalo: 15, ativa: false, icone: 'stopwatch' },
-        { id: 6, nome: 'Temperatura',     unidade: '°C',   intervalo: 60, ativa: false, icone: 'temperature-half' }
-    ];
-    let proximaMetrica = 7;
+    let metricas = [];
+    let servidorAtual = null;
+    let carregando = false;
+    let salvando = false;
+    let alterado = false;
+    let tokenCsrf = null;
 
     const painelM = document.getElementById('painel-metricas');
     const listaM = document.getElementById('lista-metricas');
     const buscaM = document.getElementById('busca-metrica');
     const vazioM = painelM.querySelector('.sem-resultados');
     const notaM = painelM.querySelector('[data-resumo="nota"]');
-    const notaPadrao = notaM.textContent;
-    let timerNota;
+    const servidorInput = document.getElementById('servidor-metricas');
+    const carregarBotao = document.getElementById('carregar-metricas');
+    const salvarBotao = document.getElementById('salvar-metricas');
 
-    const iconeDe = (valor) => ICONES.find((i) => i.valor === valor) || ICONES[0];
+    const iconeDe = (tipo) => ICONES.find(i => i.valor === (
+        tipo.includes('CPU') ? 'microchip' : tipo.includes('RAM') ? 'memory' :
+        tipo.includes('DISCO') ? 'hard-drive' : 'network-wired')) || ICONES[0];
 
     function desenharMetricas() {
-        listaM.innerHTML = metricas.map((m) => {
-            const icone = iconeDe(m.icone);
-            const opcoes = INTERVALOS.map((s) =>
-                `<option value="${s}" ${s === m.intervalo ? 'selected' : ''}>${formatarIntervalo(s)}</option>`
-            ).join('');
-
-            return `
-            <div class="linha linha-metrica ${m.ativa ? '' : 'is-inativa'}" data-id="${m.id}">
+        listaM.innerHTML = metricas.map(m => {
+            const icone = iconeDe(m.tipo);
+            const limites = `Mín.: ${m.limite_minimo ?? 'não definido'} · Máx.: ${m.limite_maximo ?? 'não definido'}`;
+            return `<div class="linha linha-metrica ${m.ativa ? '' : 'is-inativa'}" data-id="${m.id}">
                 <div class="col-metrica">
-                    <span class="icone-metrica cor-${icone.cor}">${icone.html}</span>
-                    <p class="item-nome">${esc(m.nome)}</p>
+                    <span class="icone-metrica cor-${icone.cor}"><i class="fa-solid fa-${icone.valor}"></i></span>
+                    <div><p class="item-nome">${esc(m.tipo)}</p><small>${esc(limites)}</small></div>
                 </div>
                 <div class="col-unidade"><span class="chip-unidade">${esc(m.unidade)}</span></div>
-                <div class="col-intervalo">
-                    <select class="select-sg" aria-label="Intervalo de coleta de ${esc(m.nome)}">${opcoes}</select>
+                <div class="col-intervalo"><input class="input-sg" type="number" min="1" max="2147483647" step="1"
+                    value="${m.intervalo}" aria-label="Intervalo em segundos de ${esc(m.tipo)}"></div>
+                <div class="col-estado"><label class="switch">
+                    <input type="checkbox" ${m.ativa ? 'checked' : ''} aria-label="Ativar ${esc(m.tipo)}">
+                    <span class="switch-track"></span></label><span class="estado-texto">${m.ativa ? 'Ativa' : 'Inativa'}</span>
                 </div>
-                <div class="col-estado">
-                    <label class="switch">
-                        <input type="checkbox" ${m.ativa ? 'checked' : ''} aria-label="Ativar ${esc(m.nome)}">
-                        <span class="switch-track"></span>
-                    </label>
-                    <span class="estado-texto">${m.ativa ? 'Ativa' : 'Inativa'}</span>
-                </div>
-                <div class="col-acao">
-                    <button type="button" class="btn-sg btn-ghost" data-acao="editar-metrica" data-perm="editar"><i class="fa-solid fa-pen"></i> Editar</button>
-                    <button type="button" class="btn-sg btn-danger" data-acao="remover-metrica" data-perm="excluir"><i class="fa-regular fa-trash-can"></i> Remover</button>
-                </div>
+                <div class="col-acao"><button type="button" class="btn-sg btn-ghost"
+                    data-acao="editar-metrica" data-perm="editar">Editar limites</button></div>
             </div>`;
         }).join('');
-
         filtrarMetricas();
         resumirMetricas();
         SG.reaplicarPermissoes();
+        atualizarControles();
+    }
+
+    function atualizarControles() {
+        const podeEditar = SG.pode('editar') && Boolean(tokenCsrf);
+        salvarBotao.disabled = carregando || salvando || !metricas.length || !podeEditar;
+        carregarBotao.disabled = carregando || salvando;
+        servidorInput.disabled = carregando || salvando;
+        listaM.querySelectorAll('input, button').forEach(el => { el.disabled = salvando || carregando || !podeEditar; });
     }
 
     function resumirMetricas() {
@@ -127,103 +122,157 @@
         let visiveis = 0;
         listaM.querySelectorAll('.linha-metrica').forEach((linha) => {
             const metrica = metricas.find((m) => m.id === Number(linha.dataset.id));
-            const mostrar = normalizar(metrica.nome).includes(termo);
+            const mostrar = normalizar(metrica.tipo).includes(termo);
             linha.hidden = !mostrar;
             if (mostrar) visiveis++;
         });
         vazioM.hidden = visiveis > 0;
     }
 
-    buscaM.addEventListener('input', filtrarMetricas);
+    function validarMetrica(m) {
+        if (!Number.isInteger(m.intervalo) || m.intervalo < 1 || m.intervalo > 2147483647) {
+            return 'O intervalo deve ser um número inteiro positivo de segundos.';
+        }
+        for (const valor of [m.limite_minimo, m.limite_maximo]) {
+            if (valor === null) continue;
+            if (!Number.isFinite(valor) || valor < 0 || valor > Number.MAX_SAFE_INTEGER / 100 ||
+                Number(valor.toFixed(2)) !== valor || (m.unidade === '%' && valor > 100)) {
+                return 'Limites devem ser não negativos, com até duas casas; percentuais vão até 100.';
+            }
+        }
+        if (m.limite_minimo !== null && m.limite_maximo !== null && m.limite_minimo > m.limite_maximo) {
+            return 'O limite mínimo não pode superar o máximo.';
+        }
+        return null;
+    }
 
-    // ajustes feitos direto na linha (intervalo e liga/desliga)
-    listaM.addEventListener('change', (evento) => {
+    async function respostaJson(resposta) {
+        const dados = await resposta.json();
+        if (!resposta.ok) throw Object.assign(new Error(dados.erro || 'Não foi possível processar as configurações.'), { status: resposta.status });
+        return dados;
+    }
+
+    async function carregarMetricas() {
+        if (carregando || salvando) return;
+        const id = Number(servidorInput.value);
+        if (!Number.isInteger(id) || id <= 0 || id > 2147483647) {
+            notaM.textContent = 'Informe um ID de servidor válido.';
+            return;
+        }
+        if (alterado && !window.confirm('Descartar alterações ainda não salvas?')) return;
+        carregando = true;
+        servidorAtual = null;
+        tokenCsrf = null;
+        metricas = [];
+        desenharMetricas();
+        notaM.textContent = 'Carregando configurações…';
+        try {
+            const resposta = await fetch(`/metricas/configuracoes/${id}`, { credentials: 'same-origin' });
+            const dados = await respostaJson(resposta);
+            tokenCsrf = resposta.headers.get('X-CSRF-Token');
+            if (!Array.isArray(dados)) throw new Error('Resposta de configurações inválida.');
+            const ids = new Set();
+            const novas = dados.map(m => {
+                if (ids.has(m.id_metrica) || !m.id_config_metrica) {
+                    throw new Error('Há configurações ausentes ou duplicadas. Regularize o cadastro antes de editar.');
+                }
+                ids.add(m.id_metrica);
+                return { id: m.id_metrica, tipo: m.tipo, unidade: m.unidade,
+                    intervalo: m.intervalo_coleta, ativa: m.habilitado === 1,
+                    limite_minimo: m.limite_minimo === null ? null : Number(m.limite_minimo),
+                    limite_maximo: m.limite_maximo === null ? null : Number(m.limite_maximo) };
+            });
+            metricas = novas;
+            servidorAtual = id;
+            alterado = false;
+            const url = new URL(location.href);
+            url.searchParams.set('servidor_id', id);
+            history.replaceState(null, '', url);
+            notaM.textContent = metricas.length ? `Configurações do servidor ${id} carregadas.` : 'Servidor sem métricas cadastradas.';
+            if (metricas.length && !tokenCsrf) notaM.textContent += ' Entre novamente para editar; a consulta continua disponível.';
+        } catch (erro) {
+            notaM.textContent = `Falha ao carregar: ${erro.message}`;
+        } finally {
+            carregando = false;
+            desenharMetricas();
+        }
+    }
+
+    buscaM.addEventListener('input', filtrarMetricas);
+    carregarBotao.addEventListener('click', carregarMetricas);
+    listaM.addEventListener('change', evento => {
+        if (salvando || !SG.pode('editar') || !tokenCsrf) return;
         const linha = evento.target.closest('.linha-metrica');
         if (!linha) return;
-        const metrica = metricas.find((m) => m.id === Number(linha.dataset.id));
-
-        if (evento.target.matches('select')) metrica.intervalo = Number(evento.target.value);
-        if (evento.target.matches('input[type="checkbox"]')) {
+        const metrica = metricas.find(m => m.id === Number(linha.dataset.id));
+        if (evento.target.type === 'number') metrica.intervalo = evento.target.value === '' ? NaN : Number(evento.target.value);
+        if (evento.target.type === 'checkbox') {
             metrica.ativa = evento.target.checked;
             linha.classList.toggle('is-inativa', !metrica.ativa);
             linha.querySelector('.estado-texto').textContent = metrica.ativa ? 'Ativa' : 'Inativa';
         }
+        alterado = true;
+        notaM.textContent = 'Há alterações não salvas.';
         resumirMetricas();
     });
 
-    document.getElementById('salvar-metricas').addEventListener('click', () => {
-        // aqui você envia `metricas` para o back-end com fetch()
-        notaM.textContent = 'Alterações salvas. Entram em vigor no próximo ciclo de coleta.';
-        clearTimeout(timerNota);
-        timerNota = setTimeout(() => (notaM.textContent = notaPadrao), 3500);
-        SGModal.aviso('Configurações de métricas salvas.');
+    salvarBotao.addEventListener('click', async () => {
+        if (!SG.pode('editar') || !tokenCsrf || !servidorAtual || salvando || !metricas.length) return;
+        const erro = metricas.map(validarMetrica).find(Boolean);
+        if (erro) { notaM.textContent = erro; return; }
+        salvando = true;
+        atualizarControles();
+        notaM.textContent = 'Salvando configurações…';
+        try {
+            await respostaJson(await fetch(`/metricas/configuracoes/${servidorAtual}`, {
+                method: 'PUT', credentials: 'same-origin', headers: { 'Content-Type': 'application/json', 'X-CSRF-Token': tokenCsrf },
+                body: JSON.stringify({ configuracoes: metricas.map(m => ({
+                    id_metrica: m.id, habilitado: m.ativa ? 1 : 0, intervalo_coleta: m.intervalo,
+                    limite_minimo: m.limite_minimo, limite_maximo: m.limite_maximo
+                })) })
+            }));
+            alterado = false;
+            notaM.textContent = 'Configurações salvas no servidor. O agente as consulta no próximo ciclo de atualização.';
+            SGModal.aviso('Configurações salvas.');
+        } catch (erro) {
+            if (erro.status === 401) tokenCsrf = null;
+            notaM.textContent = `Falha ao salvar: ${erro.message}. Suas alterações continuam nesta tela.`;
+        } finally {
+            salvando = false;
+            atualizarControles();
+        }
     });
 
     function abrirMetrica(id, origem) {
-        const editando = id != null;
-        if (editando ? !SG.pode('editar') : !SG.pode('criar')) return; // checagem dupla
-
-        const atual = editando
-            ? metricas.find((m) => m.id === id)
-            : { unidade: '%', intervalo: 15, ativa: true, icone: 'microchip' };
-
+        if (!SG.pode('editar') || !tokenCsrf || salvando) return;
+        const atual = metricas.find(m => m.id === id);
+        if (!atual) return;
+        const maximo = atual.unidade === '%' ? 100 : Number.MAX_SAFE_INTEGER / 100;
         SGModal.formulario({
-            titulo: editando ? 'Editar métrica' : 'Adicionar métrica',
-            subtitulo: editando
-                ? 'Ajuste a unidade, o intervalo e o estado da coleta.'
-                : 'Cadastre uma nova métrica para ser coletada.',
-            confirmar: editando ? 'Salvar alterações' : 'Adicionar métrica',
-            icone: editando ? 'save' : 'plus',
-            aviso: editando ? 'Métrica atualizada.' : 'Métrica adicionada.',
-            gatilho: origem,
-            valores: { ...atual, intervalo: String(atual.intervalo) },
+            titulo: `Configurar ${atual.tipo}`,
+            subtitulo: `Limites em ${atual.unidade}. Deixe vazio para não definir um limite.`,
+            confirmar: 'Aplicar à edição', gatilho: origem,
+            aviso: 'Alterações preparadas. Use Salvar alterações para persistir.',
+            valores: atual,
             campos: [
-                { tipo: 'texto', nome: 'nome', rotulo: 'Nome da métrica', placeholder: 'Ex.: Uso de CPU', max: 40, erro: 'Informe o nome da métrica.' },
-                {
-                    tipo: 'linha',
-                    campos: [
-                        { tipo: 'select', nome: 'unidade', rotulo: 'Unidade', opcoes: UNIDADES.map((u) => ({ valor: u, texto: u === '%' ? '% (porcentagem)' : u })) },
-                        { tipo: 'select', nome: 'intervalo', rotulo: 'Intervalo de coleta', opcoes: INTERVALOS.map((s) => ({ valor: String(s), texto: formatarIntervalo(s) })) }
-                    ]
-                },
-                { tipo: 'icones', nome: 'icone', rotulo: 'Ícone', opcoes: ICONES.map((i) => ({ valor: i.valor, html: i.html, cor: i.hex })) },
-                { tipo: 'switch', nome: 'ativa', rotulo: 'Coleta ativa', descricao: 'Quando desligada, a métrica deixa de ser coletada.' }
+                { tipo: 'numero', nome: 'intervalo', rotulo: 'Intervalo (segundos)', min: 1, max: 2147483647, step: 1 },
+                { tipo: 'numero', nome: 'limite_minimo', rotulo: 'Limite mínimo', min: 0, max: maximo, step: 0.01, obrigatorio: false },
+                { tipo: 'numero', nome: 'limite_maximo', rotulo: 'Limite máximo', min: 0, max: maximo, step: 0.01, obrigatorio: false }
             ],
             onSalvar(v) {
-                const repetida = metricas.some((m) => m.id !== id && normalizar(m.nome) === normalizar(v.nome));
-                if (repetida) return 'Já existe uma métrica com esse nome.';
-
-                const dados = { nome: v.nome, unidade: v.unidade, intervalo: Number(v.intervalo), ativa: v.ativa, icone: v.icone };
-                if (editando) Object.assign(atual, dados);
-                else metricas.push({ id: proximaMetrica++, ...dados });
+                const erro = validarMetrica({ ...atual, ...v });
+                if (erro) return erro;
+                Object.assign(atual, v);
+                alterado = true;
+                notaM.textContent = 'Há alterações não salvas.';
                 desenharMetricas();
             }
         });
     }
 
-    function removerMetrica(id, origem) {
-        const metrica = metricas.find((m) => m.id === id);
-        if (!metrica || !SG.pode('excluir')) return; // checagem dupla
-
-        SGModal.confirmar({
-            titulo: 'Remover métrica?',
-            texto: `A métrica <strong>${esc(metrica.nome)}</strong> deixará de ser coletada. Essa ação não pode ser desfeita.`,
-            botao: 'Remover',
-            aviso: 'Métrica removida.',
-            gatilho: origem,
-            onConfirmar() {
-                metricas = metricas.filter((m) => m.id !== id);
-                desenharMetricas();
-            }
-        });
-    }
-
-    listaM.addEventListener('click', (evento) => {
-        const botao = evento.target.closest('[data-acao]');
-        if (!botao) return;
-        const id = Number(botao.closest('.linha-metrica').dataset.id);
-        if (botao.dataset.acao === 'editar-metrica') abrirMetrica(id, botao);
-        if (botao.dataset.acao === 'remover-metrica') removerMetrica(id, botao);
+    listaM.addEventListener('click', evento => {
+        const botao = evento.target.closest('[data-acao="editar-metrica"]');
+        if (botao) abrirMetrica(Number(botao.closest('.linha-metrica').dataset.id), botao);
     });
 
 
@@ -264,8 +313,6 @@
                 <div class="col-status"><span class="badge-status ${f.ativo ? 'badge-ativo' : 'badge-inativo'}">${f.ativo ? 'Ativo' : 'Inativo'}</span></div>
                 <div class="col-acoes">
                     <button type="button" class="btn-sg btn-ghost" data-acao="ver-funcionario"><i class="fa-regular fa-eye"></i> Ver</button>
-                    <button type="button" class="btn-sg btn-ghost" data-acao="editar-funcionario" data-perm="editar"><i class="fa-solid fa-pen"></i> Editar</button>
-                    <button type="button" class="btn-sg btn-danger" data-acao="remover-funcionario" data-perm="excluir"><i class="fa-regular fa-trash-can"></i> Remover</button>
                 </div>
             </div>`).join('');
 
@@ -312,56 +359,6 @@
                 { rotulo: 'Acesso', tag: f.ativo ? 'Ativo' : 'Inativo', cor: f.ativo ? 'verde' : 'laranja' },
                 { rotulo: 'O que pode fazer', valor: PERFIS[f.perfil].descricao, inteira: true }
             ],
-            onEditar: (gatilho) => abrirFuncionario(id, gatilho),
-            onExcluir: (gatilho) => removerFuncionario(id, gatilho)
-        });
-    }
-
-    function abrirFuncionario(id, origem) {
-        const editando = id != null;
-        if (editando ? !SG.pode('editar') : !SG.pode('criar')) return; // checagem dupla
-
-        const atual = editando ? funcionarios.find((f) => f.id === id) : { perfil: 'comum', ativo: true };
-
-        SGModal.formulario({
-            titulo: editando ? 'Editar funcionário' : 'Adicionar funcionário',
-            subtitulo: editando ? 'Atualize os dados, o perfil ou o acesso.' : 'Defina os dados de acesso e o nível de perfil.',
-            confirmar: editando ? 'Salvar alterações' : 'Adicionar funcionário',
-            icone: editando ? 'save' : 'user-plus',
-            aviso: editando ? 'Funcionário atualizado.' : 'Funcionário adicionado.',
-            gatilho: origem,
-            valores: atual,
-            campos: [
-                { tipo: 'texto', nome: 'nome', rotulo: 'Nome completo', placeholder: 'Ex.: Maria Oliveira', max: 60, erro: 'Informe o nome do funcionário.' },
-                { tipo: 'email', nome: 'email', rotulo: 'E-mail', placeholder: 'nome@streamco.com.br', erro: 'Informe um e-mail válido.' },
-                { tipo: 'perfil', nome: 'perfil', rotulo: 'Perfil', opcoes: Object.entries(PERFIS).map(([valor, p]) => ({ valor, titulo: p.titulo, descricao: p.descricao })) },
-                { tipo: 'switch', nome: 'ativo', rotulo: 'Acesso ativo', descricao: 'Permite que o funcionário entre no StreamGuard.' }
-            ],
-            onSalvar(v) {
-                const repetido = funcionarios.some((f) => f.id !== id && f.email.toLowerCase() === v.email.toLowerCase());
-                if (repetido) return 'Já existe um funcionário com esse e-mail.';
-
-                if (editando) Object.assign(atual, v);
-                else funcionarios.push({ id: proximoFunc++, ...v });
-                desenharFuncionarios();
-            }
-        });
-    }
-
-    function removerFuncionario(id, origem) {
-        const f = funcionarios.find((x) => x.id === id);
-        if (!f || !SG.pode('excluir')) return; // checagem dupla
-
-        SGModal.confirmar({
-            titulo: 'Remover funcionário?',
-            texto: `O acesso de <strong>${esc(f.nome)}</strong> ao StreamGuard será removido. Essa ação não pode ser desfeita.`,
-            botao: 'Remover',
-            aviso: 'Funcionário removido.',
-            gatilho: origem,
-            onConfirmar() {
-                funcionarios = funcionarios.filter((x) => x.id !== id);
-                desenharFuncionarios();
-            }
         });
     }
 
@@ -370,20 +367,14 @@
         if (!botao) return;
         const id = Number(botao.closest('.linha-funcionario').dataset.id);
         if (botao.dataset.acao === 'ver-funcionario') verFuncionario(id, botao);
-        if (botao.dataset.acao === 'editar-funcionario') abrirFuncionario(id, botao);
-        if (botao.dataset.acao === 'remover-funcionario') removerFuncionario(id, botao);
-    });
 
 
-    document.addEventListener('click', (evento) => {
-        const botao = evento.target.closest('[data-modal]');
-        if (!botao) return;
-        if (botao.dataset.modal === 'adicionar-metrica') abrirMetrica(null, botao);
-        if (botao.dataset.modal === 'adicionar-funcionario') abrirFuncionario(null, botao);
     });
 
 
     desenharMetricas();
+    servidorInput.value = new URLSearchParams(location.search).get('servidor_id') || '';
+    if (servidorInput.value) carregarMetricas();
     desenharFuncionarios();
     abrirAba(location.hash.replace('#', '') || 'metricas');
 })();

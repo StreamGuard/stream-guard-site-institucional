@@ -1507,3 +1507,157 @@ body {
         padding: 22px;
     }
 }
+
+.cabecalho,
+.cabecalho * {
+    box-sizing: border-box;
+}
+
+.custom-offcanvas {
+    background: var(--sg-navy);
+    color: var(--sg-text);
+}
+
+.custom-offcanvas .nav-link,
+.navbar .login-button,
+.navbar .register-button {
+    color: var(--sg-text);
+}
+
+@media (max-width: 991.98px) {
+    .navbar .menu-toggler {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 5px;
+        width: 44px;
+        height: 44px;
+        color: #fff;
+    }
+
+    .menu-toggler .menu-icon {
+        display: block;
+        width: 24px;
+        height: 2px;
+        background: currentColor;
+    }
+
+    body.menu-aberto {
+        overflow: hidden;
+    }
+
+    .cabecalho .menu {
+        height: 100dvh;
+        visibility: hidden;
+    }
+
+    .cabecalho .menu.aberto {
+        visibility: visible;
+        z-index: 1055;
+    }
+
+    .hero-content {
+        flex-direction: column;
+        gap: 32px;
+    }
+
+    .hero-left,
+    .hero-right {
+        min-width: 0;
+        width: 100%;
+        height: auto;
+    }
+
+    .hero-left h2,
+    .hero-left h6 {
+        max-width: 100%;
+    }
+
+    .hero-right img {
+        max-width: 100%;
+        height: auto;
+    }
+
+    .hero-left-topic,
+    .hero-left-btns {
+        flex-wrap: wrap;
+        max-width: 100%;
+        gap: 10px;
+    }
+
+    .footer-links a,
+    .corporate-footer p {
+        overflow-wrap: anywhere;
+    }
+}
+
+@media (max-width: 575.98px) {
+    .hero-left h2,
+    .info-content-left h2 {
+        font-size: clamp(2rem, 9vw, 3.3rem);
+        overflow-wrap: anywhere;
+    }
+
+    .info-content-left h6 {
+        max-width: 100%;
+    }
+
+    .info-icons {
+        width: 100%;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .info-icons-item {
+        min-width: 0;
+        gap: 12px;
+    }
+
+    .info-icons-item i {
+        width: 44px;
+        flex-shrink: 0;
+    }
+
+    .info-icons-item span {
+        min-width: 0;
+    }
+
+    .info-icons-item span h4 {
+        white-space: normal;
+    }
+
+    .hero-left-btns {
+        align-items: stretch;
+        width: 100%;
+    }
+
+    .hero-left-btns button {
+        min-height: 44px;
+        flex: 1 1 180px;
+    }
+
+    .hero-left-topic {
+        font-size: 0.75rem;
+        text-align: left;
+    }
+
+    .subtitle,
+    .form-card {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .form-card {
+        padding: 24px;
+    }
+
+    .error-card {
+        padding: 24px 16px;
+    }
+
+    .error-card .btn {
+        white-space: normal;
+        max-width: 100%;
+        min-height: 44px;
+    }
+}

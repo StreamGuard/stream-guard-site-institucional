@@ -132,43 +132,9 @@ function gerarSigla(nome) {
 }
 
 // Adicionar empresa (modal padrão do painel_modais.js). Só gerente e admin chegam aqui.
-function abrirModal() {
-  if (!SG.pode("criar")) return; // checagem dupla
-
-  SGModal.formulario({
-    titulo: "Adicionar empresa",
-    subtitulo: "Conecte uma nova operação ao StreamGuard.",
-    confirmar: "Adicionar empresa",
-    icone: "plus",
-    gatilho: document.getElementById("btnAdicionar"),
-    valores: { equipamentos: 1 },
-    campos: [
-      { tipo: "texto", nome: "nome", rotulo: "Nome da empresa", placeholder: "Ex.: StreamCo Brasil", max: 40, erro: "Informe o nome da empresa." },
-      {
-        tipo: "linha",
-        campos: [
-          { tipo: "texto", nome: "sigla", rotulo: "Sigla", placeholder: "Automática", max: 3, obrigatorio: false, dica: "Deixe em branco para gerar pelo nome." },
-          { tipo: "numero", nome: "equipamentos", rotulo: "Equipamentos", min: 1, max: 999, erro: "Informe pelo menos 1 equipamento." }
-        ]
-      }
-    ],
-    onSalvar(v) {
-      if (empresas.some((e) => e.nome.toLowerCase() === v.nome.toLowerCase())) {
-        return "Já existe uma empresa com esse nome.";
-      }
-
-      const sigla = (v.sigla || gerarSigla(v.nome)).toUpperCase();
-      const nova = { sigla, nome: v.nome, equipamentos: v.equipamentos, status: "ok", ocorrencias: 0, saude: 100 };
-      empresas.push(nova);
-      salvarStorage(CHAVE_EXTRAS, [...lerStorage(CHAVE_EXTRAS, []), nova]);
-
-      atualizarTela();
-      SGModal.aviso(`${v.nome} adicionada`);
-    }
-  });
-}
-
-document.getElementById("btnAdicionar").addEventListener("click", abrirModal);
+document.getElementById("btnAdicionar").addEventListener("click", () => {
+  window.location.href = "./painel_cadastroEmpresa.html";
+});
 
 function atualizarTela() {
   desenharResumo();

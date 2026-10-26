@@ -628,3 +628,55 @@
 .saude-linha b {
   font-size: 13px;
 }
+
+.card-empresa,
+.empresa-topo > div,
+.adicionar > div {
+  min-width: 0;
+}
+
+.modal-fundo .modal {
+  max-height: calc(100dvh - 32px);
+  overflow-y: auto;
+}
+
+.toast {
+  max-width: calc(100vw - 32px);
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 767px) {
+  .boas-vindas,
+  .mini-cards,
+  .empresa-topo,
+  .saude-linha,
+  .adicionar {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .mini-card {
+    flex: 1 1 90px;
+    min-width: 0;
+    padding: 12px;
+  }
+
+  .empresa-topo > div {
+    flex-basis: 120px;
+    overflow-wrap: anywhere;
+  }
+
+  .empresa-topo .tag {
+    white-space: normal;
+  }
+
+  .adicionar .btn-adicionar,
+  .btn-monitorar {
+    width: 100%;
+    min-height: 44px;
+  }
+
+  .linha-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
