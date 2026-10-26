@@ -47,7 +47,8 @@ function obterSegredo() {
 }
 
 function cookieSeguro() {
-    return process.env.SESSION_COOKIE_SECURE !== "false";
+    if (process.env.SESSION_COOKIE_SECURE) return process.env.SESSION_COOKIE_SECURE !== "false";
+    return new URL(process.env.APP_ORIGIN || "http://localhost:3333").protocol === "https:";
 }
 
 function criarSessao() {
@@ -59,9 +60,7 @@ function criarSessao() {
     if (!Number.isInteger(minutos) || minutos < 1 || minutos > 120) {
         throw new Error("SESSION_TTL_MINUTES deve ser um inteiro entre 1 e 120.");
     }
-    if (process.env.AMBIENTE_PROCESSO !== "desenvolvimento" && !process.env.APP_ORIGIN) {
-        throw new Error("Configure APP_ORIGIN com a origem exata do site.");
-    }
+    if (!process.env.APP_ORIGIN) process.env.APP_ORIGIN = "http://localhost:3333";
     if (process.env.APP_ORIGIN) {
         const protocolo = new URL(process.env.APP_ORIGIN).protocol;
         if (!["http:", "https:"].includes(protocolo) || cookieSeguro() !== (protocolo === "https:")) {
