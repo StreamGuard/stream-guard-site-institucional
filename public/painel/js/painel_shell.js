@@ -27,6 +27,7 @@
     usuario: "./painel_dashGeral.html",
     gerente: "./painel_dashEspecifica.html",
     admin: "./painel_dashGeral.html",
+    root: "./painel_dashGeral.html"
   };
 
   function guardar(chave, padrao) {
