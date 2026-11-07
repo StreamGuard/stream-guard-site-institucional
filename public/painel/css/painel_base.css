@@ -584,7 +584,6 @@ small {
 
     .logo-texto,
     .menu-titulo,
-    .ambiente,
     .menu-item span {
         display: none;
     }
@@ -607,6 +606,45 @@ small {
     }
 }
 
+@media (min-width: 768px) and (max-width: 1280px) {
+    .sidebar {
+        padding-inline: 5px;
+    }
+
+    .sidebar .logo {
+        margin-left: 0;
+    }
+
+    .sidebar .logo-icone img {
+        width: 44px;
+        height: 44px;
+    }
+
+    .sidebar .ambiente {
+        width: 100%;
+        padding: 0;
+        margin-bottom: 16px;
+        border: 0;
+        background: transparent;
+    }
+
+    .sidebar .usuario,
+    .sidebar .usuario-div,
+    .sidebar .usuario-logout h6 {
+        display: none;
+    }
+
+    .sidebar .usuario-logout {
+        justify-content: center;
+    }
+
+    .sidebar .btn-sair {
+        width: 44px;
+        height: 44px;
+        margin-top: 0;
+    }
+}
+
 .btn-menu-painel,
 .btn-fechar-sidebar,
 .fundo-sidebar {
@@ -616,6 +654,15 @@ small {
 .principal > *,
 .topo > * {
     min-width: 0;
+}
+
+.aviso-demonstracao {
+    padding: 12px 16px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    color: var(--texto-suave);
+    font-size: 13px;
+    overflow-wrap: anywhere;
 }
 
 .painel-notif {

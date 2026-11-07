@@ -114,7 +114,7 @@ function ultimosValores(equip) {
         <div class="card-valor">${ult}<span>%</span></div>
         <div class="card-progresso"><div class="barra" style="width:${ult}%"></div></div>
         <div class="card-detalhe"><span>Média ${media}% • Pico ${pico}%</span>
-          <span class="card-variacao ${delta > 0 && st !== "ok" ? "perigo" : "positiva"}">${delta >= 0 ? "" : ""}</div>
+          <span class="card-variacao ${delta > 0 && st !== "ok" ? "perigo" : "positiva"}">${delta > 0 ? '+' : ''}${delta} p.p.</span></div>
       </div>`;
         }).join("");
     }
@@ -223,6 +223,18 @@ function ultimosValores(equip) {
     }
 
     function desenharGrafico(labels) {
+        if (typeof Chart === "undefined") {
+            let aviso = document.getElementById("avisoGrafico");
+            if (!aviso) {
+                aviso = document.createElement("p");
+                aviso.id = "avisoGrafico";
+                aviso.setAttribute("role", "status");
+                el("chartUsoTempoReal").parentElement.append(aviso);
+            }
+            aviso.textContent = "Não foi possível carregar o gráfico. Verifique sua conexão e recarregue a página.";
+            el("chartUsoTempoReal").hidden = true;
+            return;
+        }
         const cfg = {
             type: "line",
             data: { labels, datasets: datasets() },
@@ -275,7 +287,8 @@ function ultimosValores(equip) {
         if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
         const n = c.dataset.m;
         if (visiveis.has(n)) { if (visiveis.size > 1) visiveis.delete(n); } else visiveis.add(n);
-        renderToggles(); chart.data.datasets = datasets(); chart.update();
+        renderToggles();
+        if (chart) { chart.data.datasets = datasets(); chart.update(); }
     }
     el("togglesMetricas").addEventListener("click", alternar);
     el("togglesMetricas").addEventListener("keydown", alternar);
@@ -297,7 +310,7 @@ function ultimosValores(equip) {
     let ultima = Date.now();
     setInterval(() => {
         const s = Math.floor((Date.now() - ultima) / 1000);
-        el("txtAtualizacao").textContent = s < 5 ? "Atualizado agora" : `Atualizado há ${s} segundos`;
+        el("txtAtualizacao").textContent = s < 5 ? "Simulação atualizada agora" : `Simulação atualizada há ${s} segundos`;
         if (s >= 30) { ultima = Date.now(); if (periodo === "30m" || periodo === "1h") carregar(); }
     }, 1000);
 

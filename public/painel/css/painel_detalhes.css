@@ -647,26 +647,33 @@
   flex-direction: column;
 }
 
-.tabela {
-  flex: 1 0 auto;
-  height: 100%;
+@media (min-width: 701px) {
+  .tabela {
+    flex: 1 0 auto;
+    height: 100%;
+  }
+
+  .tabela tbody td {
+    height: 72px;
+  }
+
+  .tabela tbody tr:first-child td {
+    padding-top: 18px;
+  }
 }
 
 .tabela tbody td {
-  height: 72px;
   font-size: 13px;
-}
-
-.tabela tbody tr:first-child td {
-  padding-top: 18px;
 }
 
 .tabela th {
   font-size: 10px;
 }
 
-.uso .barra {
-  width: 140px;
+@media (min-width: 701px) {
+  .uso .barra {
+    width: 140px;
+  }
 }
 
 .uso b {

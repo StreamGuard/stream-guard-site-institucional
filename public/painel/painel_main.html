@@ -146,6 +146,31 @@
             admin_name.innerHTML = adminName;
         if (adminRole != "" && adminRole.trim() != "")
             admin_role.innerHTML = adminRole;
+
+        const botaoSair = document.querySelector(".admin-logout");
+        let saindo = false;
+        botaoSair.addEventListener("click", async (evento) => {
+            evento.preventDefault();
+            if (saindo) return;
+            saindo = true;
+            botaoSair.setAttribute("aria-disabled", "true");
+            try {
+                const resposta = await fetch("/usuarios/sair", {
+                    method: "POST",
+                    credentials: "same-origin",
+                    headers: { "Content-Type": "application/json" },
+                    body: "{}"
+                });
+                if (!resposta.ok) throw new Error("Falha ao encerrar a sessão.");
+                sessionStorage.clear();
+                window.location.href = botaoSair.href;
+            } catch (erro) {
+                window.alert("Não foi possível sair. Verifique sua conexão e tente novamente.");
+            } finally {
+                saindo = false;
+                botaoSair.removeAttribute("aria-disabled");
+            }
+        });
     </script>
 </body>
 

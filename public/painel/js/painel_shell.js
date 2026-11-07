@@ -32,7 +32,8 @@
 
   function guardar(chave, padrao) {
     try {
-      return sessionStorage.getItem(chave) || padrao;
+      const valor = sessionStorage.getItem(chave);
+      return valor && valor.trim() && !/^(null|undefined|nan)$/i.test(valor.trim()) ? valor : padrao;
     } catch (erro) {
       return padrao;
     }
@@ -80,17 +81,13 @@
   }
 
   const usuario = {
-    nome: guardar("NOME_USUARIO", "Nome do Usuário"),
-    cargo: guardar("CARGO", NOMES_PERFIL[perfil]),
+    nome: guardar("NOME_USUARIO", "Nome não informado"),
+    cargo: guardar("CARGO", "Cargo não informado"),
     empresa: empresaAtual(),
   };
 
   function empresaAtual() {
-    try {
-      const salva = JSON.parse(localStorage.getItem("streamguard:empresa-selecionada"));
-      if (salva) return salva;
-    } catch (erro) { /* ignora */ }
-    return guardar("NOME_EMPRESA", "StreamCo Brasil");
+    return guardar("NOME_EMPRESA", "Empresa não informada");
   }
 
 
@@ -130,7 +127,7 @@
     alvo.innerHTML = `
       ${ICONES}
       <div class="logo">
-        <div class="logo-icone"><img src="../assets/streamGuard_logo.png"></img></div>
+        <div class="logo-icone"><img src="../assets/streamGuard_logo.png" alt="Stream Guard"></div>
         <div class="logo-texto">STREAM<span>GUARD</span></div>
       </div>
 
@@ -170,7 +167,6 @@
             <h6>Sair da conta</h6>
           </div>
         </div>
-      </div>
 
       
         
@@ -198,7 +194,7 @@
 
     alvo.innerHTML = `
       ${demo}
-      <span class="selo-online"><i class="bolinha verde"></i> Sistemas online</span>
+      <span class="selo-online">Painel de monitoramento</span>
       <div class="sino-wrap">
         <button class="btn-sino" id="btnSino" type="button" aria-label="Notificações" aria-expanded="false">
           <svg class="sg-ic" aria-hidden="true"><use href="#sg-bell"/></svg>
@@ -255,7 +251,7 @@
     badge.textContent = notificacoes.length;
 
     painel.innerHTML = notificacoes.length
-      ? `<h4>Ocorrências ativas</h4>` +
+      ? `<h4>Ocorrências de demonstração</h4>` +
         notificacoes
           .map(
             (n) => `
@@ -412,6 +408,16 @@
     }
 
     if (!principal) return;
+
+    const demonstracoes = ["dashGeral", "dashEspecifica", "detalhes", "alerta", "admin"];
+    if (demonstracoes.includes(document.body.dataset.pagina)) {
+      const aviso = document.createElement("p");
+      aviso.className = "aviso-demonstracao";
+      aviso.setAttribute("role", "note");
+      aviso.textContent = "Demonstração: os dados exibidos são exemplos. As alterações nesta tela ficam apenas na página e não são gravadas no servidor. " +
+        (semLoginReal ? "Nenhuma empresa autenticada neste navegador." : "Empresa da sessão: " + usuario.empresa + ".");
+      principal.prepend(aviso);
+    }
 
     const exigida = document.body.dataset.acesso;
     if (exigida && !pode(exigida)) {

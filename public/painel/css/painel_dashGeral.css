@@ -582,6 +582,11 @@ select:focus-visible,
 
 .container-chart {
     height: 230px;
+    min-width: 0;
+}
+
+.container-chart canvas {
+    max-width: 100%;
 }
 
 .grade-dashboard {

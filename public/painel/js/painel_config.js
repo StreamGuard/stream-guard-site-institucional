@@ -8,7 +8,8 @@
     const esc = SGModal.escapar;
     const normalizar = (texto) =>
         texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim();
-    const formatarIntervalo = (s) => (s >= 60 && s % 60 === 0 ? `${s / 60}min` : `${s}s`);
+    const formatarIntervalo = (s) => !Number.isInteger(s) || s < 1 || s > 2147483647
+        ? 'Intervalo inválido' : (s >= 60 && s % 60 === 0 ? `${s / 60}min` : `${s}s`);
     const definirResumo = (painel, chave, valor) => {
         const el = painel.querySelector(`[data-resumo="${chave}"]`);
         if (el) el.textContent = valor;
@@ -71,13 +72,16 @@
     const carregarBotao = document.getElementById('carregar-metricas');
     const salvarBotao = document.getElementById('salvar-metricas');
 
-    const iconeDe = (tipo) => ICONES.find(i => i.valor === (
-        tipo.includes('CPU') ? 'microchip' : tipo.includes('RAM') ? 'memory' :
-        tipo.includes('DISCO') ? 'hard-drive' : 'network-wired')) || ICONES[0];
+    const iconeDe = (metrica) => {
+        const tipo = `${metrica.componente || ''} ${metrica.tipo || ''}`.toUpperCase();
+        const valor = tipo.includes('CPU') ? 'microchip' : tipo.includes('RAM') ? 'memory' :
+            tipo.includes('DISCO') ? 'hard-drive' : tipo.includes('REDE') ? 'network-wired' : 'stopwatch';
+        return ICONES.find(i => i.valor === valor);
+    };
 
     function desenharMetricas() {
         listaM.innerHTML = metricas.map(m => {
-            const icone = iconeDe(m.tipo);
+            const icone = iconeDe(m);
             const limites = `Mín.: ${m.limite_minimo ?? 'não definido'} · Máx.: ${m.limite_maximo ?? 'não definido'}`;
             return `<div class="linha linha-metrica ${m.ativa ? '' : 'is-inativa'}" data-id="${m.id}">
                 <div class="col-metrica">
@@ -86,7 +90,7 @@
                 </div>
                 <div class="col-unidade"><span class="chip-unidade">${esc(m.unidade)}</span></div>
                 <div class="col-intervalo"><input class="input-sg" type="number" min="1" max="2147483647" step="1"
-                    value="${m.intervalo}" aria-label="Intervalo em segundos de ${esc(m.tipo)}"></div>
+                    value="${Number.isFinite(m.intervalo) ? m.intervalo : ''}" aria-label="Intervalo em segundos de ${esc(m.tipo)}"></div>
                 <div class="col-estado"><label class="switch">
                     <input type="checkbox" ${m.ativa ? 'checked' : ''} aria-label="Ativar ${esc(m.tipo)}">
                     <span class="switch-track"></span></label><span class="estado-texto">${m.ativa ? 'Ativa' : 'Inativa'}</span>
@@ -114,7 +118,9 @@
         definirResumo(painelM, 'total', metricas.length);
         definirResumo(painelM, 'ativas', ativas.length);
         definirResumo(painelM, 'inativas', metricas.length - ativas.length);
-        definirResumo(painelM, 'menor', ativas.length ? formatarIntervalo(Math.min(...ativas.map((m) => m.intervalo))) : '—');
+        const intervaloInvalido = ativas.some(m => !Number.isInteger(m.intervalo) || m.intervalo < 1 || m.intervalo > 2147483647);
+        definirResumo(painelM, 'menor', intervaloInvalido ? 'Intervalo inválido' :
+            ativas.length ? formatarIntervalo(Math.min(...ativas.map((m) => m.intervalo))) : '—');
     }
 
     function filtrarMetricas() {
@@ -177,7 +183,7 @@
                     throw new Error('Há configurações ausentes ou duplicadas. Regularize o cadastro antes de editar.');
                 }
                 ids.add(m.id_metrica);
-                return { id: m.id_metrica, tipo: m.tipo, unidade: m.unidade,
+                return { id: m.id_metrica, tipo: m.tipo, unidade: m.unidade, componente: m.componente,
                     intervalo: m.intervalo_coleta, ativa: m.habilitado === 1,
                     limite_minimo: m.limite_minimo === null ? null : Number(m.limite_minimo),
                     limite_maximo: m.limite_maximo === null ? null : Number(m.limite_maximo) };
