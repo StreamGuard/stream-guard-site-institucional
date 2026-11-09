@@ -1,0 +1,269 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Análise estatística | Stream Guard</title>
+
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_leonardo.css">
+    <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+   
+</head>
+
+<body data-pagina="dashGeral">
+    <div class="layout">
+        <aside class="sidebar" data-shell="sidebar"></aside>
+
+        <div class="conteudo">
+            <header class="topo">
+                <div>
+                    <h1>Análise estatística</h1>
+                    <p>Monitoramento / Análise estatística</p>
+                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+
+            <main class="principal">
+                <div class="analise-acoes">
+                    <div class="analise-filtros">
+                        <button type="button">Servidor principal</button>
+                        <button type="button">Últimos 60 min</button>
+                    </div>
+                    <p class="analise-atualizacao">
+                        Atualizado às <time datetime="14:37">14:37</time> • 30 amostras por minuto
+                    </p>
+                </div>
+
+                <section class="metricas-resumo" aria-label="Uso atual dos componentes">
+                    <article class="card-metrica">
+                        <h2>RAM</h2>
+                        <p><strong>75%</strong></p>
+                        <small>Margem até 100%</small>
+                    </article>
+
+                    <article class="card-metrica">
+                        <h2>CPU</h2>
+                        <p><strong>77%</strong></p>
+                        <small>Margem até 100%</small>
+                    </article>
+
+                    <article class="card-metrica">
+                        <h2>Disco</h2>
+                        <p><strong>85%</strong></p>
+                        <small>Margem até 100%</small>
+                    </article>
+
+                    <article class="card-metrica">
+                        <h2>Rede</h2>
+                        <p><strong>45%</strong></p>
+                        <small>Margem até 100%</small>
+                    </article>
+                </section>
+
+                <div class="grade-analise">
+                 <section class="painel-analise painel-ram-servidores">
+    <header class="painel-analise-cabecalho">
+        <div>
+            <h2>Uso de RAM por servidor</h2>
+            <p>Top 10 por uso; pesquise para filtrar</p>
+        </div>
+    </header>
+
+    <div class="filtros-grafico">
+        <label for="filtroServidorRam">Buscar servidor</label>
+        <input id="filtroServidorRam" type="search" placeholder="Ex.: stream-01">
+    </div>
+
+    <div class="grafico-container">
+        <canvas id="graficoRamServidores"
+            role="img"
+            aria-label="Ranking dos servidores por uso de RAM">
+        </canvas>
+    </div>
+</section>
+
+<section class="painel-analise painel-ram-historico">
+    <header class="painel-analise-cabecalho">
+        <div>
+            <h2>Histograma de uso de RAM</h2>
+            <p>Distribuição das medições, com média e mediana</p>
+        </div>
+    </header>
+
+    <div class="grafico-container">
+        <canvas id="graficoHistogramaRam"
+            role="img"
+            aria-label="Histograma de uso de RAM com média e mediana">
+        </canvas>
+    </div>
+</section>
+                    <section class="painel-analise painel-historico">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Histórico de uso</h2>
+                                <p>Últimos 30 minutos</p>
+                            </div>
+                        </header>
+
+                        <div class="grafico-container">
+                            <canvas id="graficoHistorico"
+                                role="img"
+                                aria-label="Gráfico de histórico de uso de CPU, RAM, disco e rede">
+                            </canvas>
+                        </div>
+
+                        <ul class="legenda-grafico" aria-label="Métricas do gráfico">
+                            <li>CPU</li>
+                            <li>RAM</li>
+                            <li>Disco</li>
+                            <li>Rede</li>
+                            <li>Acima de 80%</li>
+                        </ul>
+                    </section>
+
+                    <section class="painel-analise painel-disponibilidade">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Disponibilidade por componente</h2>
+                                <p>Capacidade livre agora</p>
+                            </div>
+                        </header>
+
+                        <div class="grade-disponibilidade">
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular"
+                                    role="progressbar"
+                                    aria-label="CPU disponível"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="23">
+                                    <span>23%</span>
+                                </div>
+                                <div>
+                                    <h3>CPU disponível</h3>
+                                    <p>23% livres, com uso médio de 77%.</p>
+                                </div>
+                            </article>
+
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular"
+                                    role="progressbar"
+                                    aria-label="RAM disponível"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="25">
+                                    <span>25%</span>
+                                </div>
+                                <div>
+                                    <h3>RAM disponível</h3>
+                                    <p>25% livres, com uso médio de 75%.</p>
+                                </div>
+                            </article>
+
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular"
+                                    role="progressbar"
+                                    aria-label="Disco disponível"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="15">
+                                    <span>15%</span>
+                                </div>
+                                <div>
+                                    <h3>Disco disponível</h3>
+                                    <p>15% livres, com uso médio de 85%.</p>
+                                </div>
+                            </article>
+
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular"
+                                    role="progressbar"
+                                    aria-label="Rede disponível"
+                                    aria-valuemin="0"
+                                    aria-valuemax="100"
+                                    aria-valuenow="55">
+                                    <span>55%</span>
+                                </div>
+                                <div>
+                                    <h3>Rede disponível</h3>
+                                    <p>55% livres, com uso médio de 45%.</p>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="painel-analise painel-correlacao">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Dispersão CPU × RAM</h2>
+                                <p>Uso de CPU em relação ao uso de RAM</p>
+                            </div>
+                            <strong>Correlação: 0,95</strong>
+                        </header>
+
+                        <div class="grafico-container">
+                            <canvas id="graficoCorrelacao"
+                                role="img"
+                                aria-label="Gráfico de dispersão da relação entre uso de CPU e RAM">
+                            </canvas>
+                        </div>
+
+                        <ul class="legenda-grafico" aria-label="Legenda da correlação">
+                            <li>Normal</li>
+                            <li>Atenção</li>
+                            <li>Alerta</li>
+                            <li>Tendência</li>
+                        </ul>
+                    </section>
+
+                    <section class="painel-analise painel-status">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Uso atual e status</h2>
+                                <p>Normal abaixo de 60% • Atenção de 60% a 79% • Alerta a partir de 80%</p>
+                            </div>
+                        </header>
+
+                        <ul class="lista-uso-status">
+                            <li class="item-uso-status">
+                                <span>CPU</span>
+                                <progress value="77" max="100" aria-label="Uso da CPU: 77%"></progress>
+                                <strong>77%</strong>
+                                <span class="selo-status status-atencao">Atenção</span>
+                            </li>
+
+                            <li class="item-uso-status">
+                                <span>RAM</span>
+                                <progress value="75" max="100" aria-label="Uso da RAM: 75%"></progress>
+                                <strong>75%</strong>
+                                <span class="selo-status status-atencao">Atenção</span>
+                            </li>
+
+                            <li class="item-uso-status">
+                                <span>Disco</span>
+                                <progress value="85" max="100" aria-label="Uso do disco: 85%"></progress>
+                                <strong>85%</strong>
+                                <span class="selo-status status-alerta">Alerta</span>
+                            </li>
+
+                            <li class="item-uso-status">
+                                <span>Rede</span>
+                                <progress value="45" max="100" aria-label="Uso da rede: 45%"></progress>
+                                <strong>45%</strong>
+                                <span class="selo-status status-normal">Normal</span>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+<script src="./js/painel_shell.js"></script>
+<script src="./js/painel_leonardo.js"></script>
+
+   
+</body>
+</html>

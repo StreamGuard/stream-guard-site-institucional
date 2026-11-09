@@ -1,0 +1,437 @@
+.analise-acoes {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+}
+
+.analise-filtros {
+    display: flex;
+    gap: 10px;
+}
+
+.analise-filtros button {
+    padding: 8px 12px;
+    color: var(--texto);
+    background: var(--painel);
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.analise-filtros button:hover {
+    background: var(--painel-2);
+}
+
+.analise-atualizacao {
+    color: var(--texto-suave);
+    font-size: 11px;
+    text-align: right;
+}
+
+.metricas-resumo {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 14px;
+}
+
+.card-metrica,
+.painel-analise {
+    min-width: 0;
+    background: var(--painel);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+}
+
+.card-metrica {
+    padding: 34px;
+}
+
+.card-metrica h2 {
+    margin-bottom: 9px;
+    color: var(--texto-suave);
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.card-metrica p {
+    margin-bottom: 5px;
+}
+
+.card-metrica strong {
+    color: var(--texto);
+    font-size: 24px;
+}
+
+.card-metrica small {
+    font-size: 10px;
+}
+
+.grade-analise {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+    grid-template-areas:
+        "historico disponibilidade"
+        "correlacao status";
+    gap: 14px;
+}
+
+.painel-historico {
+    grid-area: historico;
+}
+
+.painel-disponibilidade {
+    grid-area: disponibilidade;
+}
+
+.painel-correlacao {
+    grid-area: correlacao;
+}
+
+.painel-status {
+    grid-area: status;
+}
+
+.painel-analise {
+    padding: 14px;
+}
+
+.painel-analise-cabecalho {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.painel-analise-cabecalho h2 {
+    margin-bottom: 4px;
+    color: var(--texto);
+    font-size: 14px;
+}
+
+.painel-analise-cabecalho p {
+    color: var(--texto-suave);
+    font-size: 10px;
+    line-height: 1.5;
+}
+
+.painel-analise-cabecalho > strong {
+    color: var(--texto);
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.grafico-container {
+    position: relative;
+    width: 100%;
+    height: 210px;
+}
+
+.painel-correlacao .grafico-container {
+    height: 230px;
+}
+
+.legenda-grafico {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.legenda-grafico li {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--texto-suave);
+    font-size: 10px;
+}
+
+.legenda-grafico li::before {
+    width: 7px;
+    height: 7px;
+    background: var(--verde);
+    border-radius: 50%;
+    content: "";
+}
+
+.painel-historico .legenda-grafico li:nth-child(2)::before {
+    background: var(--roxo);
+}
+
+.painel-historico .legenda-grafico li:nth-child(3)::before {
+    background: var(--azul);
+}
+
+.painel-historico .legenda-grafico li:nth-child(4)::before {
+    background: #f5b700;
+}
+
+.painel-historico .legenda-grafico li:nth-child(5)::before,
+.painel-correlacao .legenda-grafico li:nth-child(3)::before {
+    background: var(--vermelho);
+}
+
+.painel-correlacao .legenda-grafico li:nth-child(2)::before {
+    background: #f5b700;
+}
+
+.painel-correlacao .legenda-grafico li:nth-child(4)::before {
+    background: var(--texto-suave);
+}
+
+.grade-disponibilidade {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.card-disponibilidade {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+    min-height: 92px;
+    padding: 10px;
+    background: rgba(12, 12, 24, 0.45);
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+}
+
+.indicador-circular {
+    display: grid;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    background: conic-gradient(var(--verde) 0 25%, var(--painel-2) 25% 100%);
+    border-radius: 50%;
+    position: relative;
+}
+
+.indicador-circular::before {
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    background: var(--painel);
+    border-radius: 50%;
+    content: "";
+}
+
+.indicador-circular span {
+    z-index: 1;
+    color: var(--texto);
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.card-disponibilidade:nth-child(2) .indicador-circular {
+    background: conic-gradient(var(--verde) 0 25%, var(--painel-2) 25% 100%);
+}
+
+.card-disponibilidade:nth-child(3) .indicador-circular {
+    background: conic-gradient(var(--verde) 0 15%, var(--painel-2) 15% 100%);
+}
+
+.card-disponibilidade:nth-child(4) .indicador-circular {
+    background: conic-gradient(#f5b700 0 55%, var(--painel-2) 55% 100%);
+}
+
+.card-disponibilidade h3 {
+    margin-bottom: 4px;
+    color: var(--texto);
+    font-size: 11px;
+}
+
+.card-disponibilidade p {
+    color: var(--texto-suave);
+    font-size: 9px;
+    line-height: 1.4;
+}
+
+.lista-uso-status {
+    display: flex;
+    flex-direction: column;
+}
+.grade-analise {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+    grid-template-areas:
+        "historico disponibilidade"
+        "correlacao status"
+        "ram-servidores ram-historico";
+    gap: 14px;
+}
+.painel-ram-servidores {
+    grid-area: ram-servidores;
+}
+
+.painel-ram-historico {
+    grid-area: ram-historico;
+}
+
+.painel-ram-servidores .grafico-container,
+.painel-ram-historico .grafico-container {
+    height: 300px;
+}
+.filtros-grafico,
+.filtro-historico-ram {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    color: var(--texto-suave);
+    font-size: 11px;
+}
+
+.filtros-grafico input,
+.filtro-historico-ram select {
+    min-width: 0;
+    padding: 7px 9px;
+    color: var(--texto);
+    background: var(--painel-2);
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    font: inherit;
+}
+
+.filtros-grafico input {
+    width: 100%;
+}
+
+.item-uso-status {
+    display: grid;
+    grid-template-columns: 38px minmax(50px, 1fr) 34px auto;
+    align-items: center;
+    gap: 9px;
+    min-height: 53px;
+    border-bottom: 1px solid var(--borda);
+}
+
+.item-uso-status:last-child {
+    border-bottom: 0;
+}
+
+.item-uso-status > span:first-child,
+.item-uso-status strong {
+    color: var(--texto);
+    font-size: 10px;
+}
+
+.item-uso-status strong {
+    text-align: right;
+}
+
+.item-uso-status progress {
+    width: 100%;
+    height: 6px;
+    overflow: hidden;
+    appearance: none;
+    border: 0;
+    border-radius: 6px;
+    background: var(--painel-2);
+}
+
+.item-uso-status progress::-webkit-progress-bar {
+    background: var(--painel-2);
+    border-radius: 6px;
+}
+
+.item-uso-status progress::-webkit-progress-value {
+    background: #f5b700;
+    border-radius: 6px;
+}
+
+.item-uso-status progress::-moz-progress-bar {
+    background: #f5b700;
+    border-radius: 6px;
+}
+
+.item-uso-status:has(.status-alerta) progress::-webkit-progress-value {
+    background: var(--vermelho);
+}
+
+.item-uso-status:has(.status-alerta) progress::-moz-progress-bar {
+    background: var(--vermelho);
+}
+
+.item-uso-status:has(.status-normal) progress::-webkit-progress-value {
+    background: var(--verde);
+}
+
+.item-uso-status:has(.status-normal) progress::-moz-progress-bar {
+    background: var(--verde);
+}
+
+.selo-status {
+    min-width: 48px;
+    padding: 4px 7px;
+    border-radius: 12px;
+    font-size: 9px;
+    text-align: center;
+}
+
+.status-atencao {
+    color: #f5b700;
+    background: rgba(245, 183, 0, 0.12);
+}
+
+.status-alerta {
+    color: var(--vermelho);
+    background: rgba(255, 77, 109, 0.12);
+}
+
+.status-normal {
+    color: var(--verde);
+    background: rgba(45, 226, 192, 0.12);
+}
+
+@media (max-width: 1050px) {
+    .grade-analise {
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-areas:
+            "historico"
+            "disponibilidade"
+            "correlacao"
+            "status"
+            "ram-servidores"
+            "ram-historico";
+    }
+}
+
+@media (max-width: 700px) {
+    .metricas-resumo {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .analise-acoes {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .analise-atualizacao {
+        text-align: left;
+    }
+}
+
+@media (max-width: 420px) {
+    .grade-disponibilidade {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .item-uso-status {
+        grid-template-columns: 32px minmax(40px, 1fr) 30px auto;
+        gap: 6px;
+    }
+
+    .selo-status {
+        min-width: 42px;
+        padding: 4px;
+        font-size: 10px;
+    }
+
+}
+
