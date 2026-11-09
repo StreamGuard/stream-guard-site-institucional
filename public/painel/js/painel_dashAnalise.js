@@ -12,7 +12,7 @@ const CAPACIDADE_REDE = 1000000000 / 8;
 const MINUTOS_JANELA = 5;
 const GIB = 1024 * 1024 * 1024;
 
-// Dados lidos dos CSVs
+// Dados que vêm da rota /analise
 let metricas = [];
 let processos = [];
 let servidores = [];
@@ -20,25 +20,17 @@ let servidores = [];
 // O que o usuário escolheu na tela
 let servidorAtual = "";
 let componenteAtual = "cpu";
+let periodoAtual = 0;          // 0 = todo o período, 1 = última hora, 2 = últimas 2 horas
+let inicioDoPeriodo = "";       // primeira janela que entra no período escolhido
+let todosInicios = [];          // todas as janelas de 5 min, em ordem
 
 // Guarda os gráficos criados (para refazer quando o filtro mudar)
 const graficos = {};
 
-async function lerCSV(caminho) {
+async function lerDados(caminho) {
     const resposta = await fetch(caminho);
-    if (!resposta.ok) throw new Error("Não achei " + caminho);
-
-    const texto = await resposta.text();
-    const linhas = texto.trim().split(/\r?\n/);
-    const colunas = linhas[0].split(",");
-
-    // Cada linha vira um objeto: { servidor_id: "77", tipo: "USO_CPU", ... }
-    return linhas.slice(1).map(function (linha) {
-        const partes = linha.split(",");
-        const objeto = {};
-        colunas.forEach(function (coluna, i) { objeto[coluna] = partes[i]; });
-        return objeto;
-    });
+    if (!resposta.ok) throw new Error("Não consegui buscar " + caminho);
+    return await resposta.json();
 }
 
 // Pega as janelas de 5 minutos de um servidor para um componente, em ordem de horário
@@ -46,7 +38,7 @@ function pegarSerie(servidor, componente) {
     const c = COMPONENTES[componente];
     const fator = (componente === "rede") ? 100 / CAPACIDADE_REDE : 1;   // bytes/s -> % da capacidade
 
-    const linhas = metricas.filter(function (l) { return l.servidor_id === servidor && l.tipo === c.tipo; });
+    const linhas = metricas.filter(function (l) { return l.servidor_id === servidor && l.tipo === c.tipo && l.inicio_periodo >= inicioDoPeriodo; });
     linhas.sort(function (a, b) { return a.inicio_periodo < b.inicio_periodo ? -1 : 1; });
 
     return linhas.map(function (l) {
@@ -144,25 +136,29 @@ function criarGrafico(id, configuracao) {
     graficos[id] = new Chart(pegar(id), configuracao);
 }
 
-
-// 4. DESENHAR A TELA
-
 function desenharNumeros(serie, c) {
-    const episodios = acharEpisodios(serie, c.limite);
-    let maiorEpisodio = 0;
-    episodios.forEach(function (e) { if (e.janelas > maiorEpisodio) maiorEpisodio = e.janelas; });
-
-    const emAlerta = serie.filter(function (j) { return estadoDaJanela(j, c.limite) === "alerta"; }).length;
+    const total = serie.length;
     const noLimite = serie.filter(function (j) { return j.maximo > c.limite; }).length;
-    const maiorValor = Math.max.apply(null, serie.map(function (j) { return j.maximo; }));
-    const mediaGeral = mediaPonderada(serie.map(function (j) { return j.media; }), serie.map(function (j) { return j.amostras; }));
+    const emRisco = serie.filter(function (j) { return estadoDaJanela(j, c.limite) !== "ok"; }).length;
+
+    let maiorEpisodio = 0;
+    acharEpisodios(serie, c.limite).forEach(function (e) { if (e.janelas > maiorEpisodio) maiorEpisodio = e.janelas; });
+
+    // Janela com o maior valor (o pior momento)
+    let pior = serie[0];
+    serie.forEach(function (j) { if (j.maximo > pior.maximo) pior = j; });
+    const folga = c.limite - pior.maximo;   // positivo = ainda tem margem, negativo = passou
+
+    const percentualNoLimite = noLimite / total * 100;
+    const percentualEmRisco = emRisco / total * 100;
+    const piorHorario = horaMinuto(pior.inicio);
 
     const cartoes = [
-        { titulo: "Maior valor de " + c.nome, valor: Math.round(maiorValor) + "%", texto: "o pico dentro do período", cor: c.cor },
-        { titulo: "Uso médio", valor: Math.round(mediaGeral) + "%", texto: "média de todo o período", cor: "var(--azul)" },
-        { titulo: "Tempo acima do limite", valor: noLimite * MINUTOS_JANELA + " min", texto: "limite de " + c.limite + "%", cor: "var(--vermelho)" },
-        { titulo: "Tempo em alerta", valor: emAlerta * MINUTOS_JANELA + " min", texto: "a menos de 10 pontos do limite", cor: "var(--laranja)" },
-        { titulo: "Maior episódio acima do limite", valor: maiorEpisodio > 0 ? maiorEpisodio * MINUTOS_JANELA + " min" : "Nenhum", texto: maiorEpisodio > 0 ? "tempo seguido acima do limite" : "nunca passou do limite", cor: "var(--roxo)" }
+        { titulo: "Tempo acima do limite", valor: noLimite * MINUTOS_JANELA + " min", texto: Math.round(percentualNoLimite) + "% do período • limite de " + c.limite + "%", cor: "var(--vermelho)" },
+        { titulo: "Tempo em risco", valor: emRisco * MINUTOS_JANELA + " min", texto: "alerta + crítico (" + Math.round(percentualEmRisco) + "% do período)", cor: "var(--laranja)" },
+        { titulo: "Maior episódio contínuo", valor: maiorEpisodio > 0 ? maiorEpisodio * MINUTOS_JANELA + " min" : "Nenhum", texto: maiorEpisodio > 0 ? "tempo seguido acima do limite" : "nunca passou do limite", cor: "var(--roxo)" },
+        { titulo: "Folga até o limite", valor: (folga >= 0 ? "+" : "") + formatar(folga) + " pts", texto: folga >= 0 ? "margem no pior momento" : "quanto passou no pior momento", cor: folga >= 0 ? "var(--verde)" : "var(--vermelho)" },
+        { titulo: "Pior momento", valor: piorHorario, texto: "maior valor: " + Math.round(pior.maximo) + "%", cor: c.cor }
     ];
 
     let html = "";
@@ -170,6 +166,18 @@ function desenharNumeros(serie, c) {
         html += '<div class="kpi" style="--cor:' + k.cor + '"><span>' + k.titulo + '</span><strong>' + k.valor + '</strong><small>' + k.texto + '</small></div>';
     });
     pegar("kpis").innerHTML = html;
+
+    // Frase de resumo no topo: diz se está tudo bem ou se precisa agir
+    const caixa = pegar("resumo");
+    const quem = c.nome + " do Servidor " + servidorAtual;
+    if (noLimite === 0) {
+        caixa.style.setProperty("--cor", "var(--verde)");
+        caixa.innerHTML = "<b>" + quem + " está sob controle.</b> Ficou abaixo do limite de " + c.limite + "% em todo o período. O maior valor foi " + Math.round(pior.maximo) + "% às " + piorHorario + ".";
+    } else {
+        const critico = percentualNoLimite >= 15;
+        caixa.style.setProperty("--cor", critico ? "var(--vermelho)" : "var(--laranja)");
+        caixa.innerHTML = "<b>" + quem + (critico ? " precisa de ação." : " pede atenção.") + "</b> Passou do limite de " + c.limite + "% por " + noLimite * MINUTOS_JANELA + " min (" + Math.round(percentualNoLimite) + "% do período). No pior momento chegou a " + Math.round(pior.maximo) + "% às " + piorHorario + ". Veja os episódios no fim da página para ligar com incidentes.";
+    }
 }
 
 // Gráfico 1: média de cada 5 minutos, com a faixa do menor ao maior valor
@@ -182,6 +190,7 @@ function desenharGraficoPrincipal(serie, c) {
     const pontosVermelhos = serie.map(function (j) { return j.maximo > c.limite ? j.maximo : null; });
 
     pegar("tituloPrincipal").textContent = "Como está o uso de " + c.nome + " a cada 5 minutos?";
+    pegar("legendaLimite").textContent = "Limite (" + c.limite + "%)";
 
     criarGrafico("graficoPrincipal", {
         type: "line",
@@ -270,6 +279,7 @@ function corDoCalor(valor) {
 
 // Gráfico 3: mapa de calor (hora x blocos de 5 minutos)
 function desenharMapaDeCalor(serie, c) {
+    // Agrupa as janelas por hora: "24/10 12h" -> lista de 12 blocos
     const linhas = {};
     const ordemDasLinhas = [];
     let pior = { valor: -1, linha: "", bloco: 0 };
@@ -403,7 +413,7 @@ function desenharProcessos(c) {
     }
 
     const coluna = (componenteAtual === "cpu") ? "cpu_media_amostral" : "ram_media_bytes";
-    const doServidor = processos.filter(function (p) { return p.servidor_id === servidorAtual; });
+    const doServidor = processos.filter(function (p) { return p.servidor_id === servidorAtual && p.inicio_periodo >= inicioDoPeriodo; });
 
     // Junta as janelas de cada processo numa média só (com peso das amostras)
     const nomes = [];
@@ -486,8 +496,15 @@ function desenharTela() {
     desenharEpisodios(serie, c);
 }
 
+// Define a partir de qual janela o período escolhido começa e atualiza o texto do topo
+function atualizarPeriodo() {
+    const janelasPorHora = 60 / MINUTOS_JANELA;
+    const posicao = periodoAtual === 0 ? 0 : Math.max(0, todosInicios.length - periodoAtual * janelasPorHora);
+    inicioDoPeriodo = todosInicios[posicao];
 
-//carregar os dados e ligar os filtros
+    const ultimo = todosInicios[todosInicios.length - 1];
+    pegar("subtitulo").textContent = servidores.length + " servidores • período de " + diaHoraMinuto(inicioDoPeriodo) + " até " + somarMinutos(ultimo, MINUTOS_JANELA) + " • uma janela a cada " + MINUTOS_JANELA + " minutos";
+}
 
 async function iniciar() {
     Chart.defaults.color = "#8888a8";
@@ -495,11 +512,11 @@ async function iniciar() {
     Chart.defaults.font.family = '"Figtree", "Segoe UI", sans-serif';
 
     try {
-        metricas = await lerCSV("./dados/resumo_metricas.csv");
-        processos = await lerCSV("./dados/resumo_processos.csv");
+        metricas = await lerDados("/analise/metricas");
+        processos = await lerDados("/analise/processos");
     } catch (erro) {
         pegar("subtitulo").textContent = "Não foi possível carregar os dados.";
-        pegar("kpis").innerHTML = '<p class="leitura">Não consegui ler os CSVs da pasta "dados". Abra a página pelo servidor do projeto (npm start) em vez de abrir o arquivo direto: o navegador bloqueia a leitura de arquivos locais.</p>';
+        pegar("kpis").innerHTML = '<p class="leitura">Não consegui buscar os dados na rota /analise. Confira se o servidor está rodando (npm start) e abra a página por ele: http://localhost:PORTA/painel/painel_dashAnalise.html.</p>';
         return;
     }
 
@@ -509,8 +526,11 @@ async function iniciar() {
     servidores.sort();
     servidorAtual = servidores[0];
 
-    const inicios = metricas.map(function (l) { return l.inicio_periodo; }).sort();
-    pegar("subtitulo").textContent = servidores.length + " servidores • de " + diaHoraMinuto(inicios[0]) + " até " + somarMinutos(inicios[inicios.length - 1], MINUTOS_JANELA) + " • uma janela a cada " + MINUTOS_JANELA + " minutos";
+    // Todas as janelas de 5 minutos que existem, em ordem
+    todosInicios = [];
+    metricas.forEach(function (l) { if (todosInicios.indexOf(l.inicio_periodo) === -1) todosInicios.push(l.inicio_periodo); });
+    todosInicios.sort();
+    atualizarPeriodo();
 
     // Lista de servidores
     let opcoes = "";
@@ -518,6 +538,14 @@ async function iniciar() {
     pegar("selectServidor").innerHTML = opcoes;
     pegar("selectServidor").addEventListener("change", function (e) {
         servidorAtual = e.target.value;
+        desenharTela();
+    });
+
+    // Escolha do período
+    pegar("selectPeriodo").innerHTML = '<option value="0">Todo o período</option><option value="1">Última hora</option><option value="2">Últimas 2 horas</option>';
+    pegar("selectPeriodo").addEventListener("change", function (e) {
+        periodoAtual = Number(e.target.value);
+        atualizarPeriodo();
         desenharTela();
     });
 

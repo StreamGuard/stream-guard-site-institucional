@@ -25,6 +25,8 @@ var servidoresRouter = require("./src/routes/servidores")
 var empresasRouter = require("./src/routes/empresas");
 var componentesRouter = require("./src/routes/componentes");
 var metricasRouter = require("./src/routes/metricas");
+var analiseRouter = require("./src/routes/analise");
+app.use("/analise", analiseRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));

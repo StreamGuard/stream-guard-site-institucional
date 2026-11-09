@@ -32,7 +32,6 @@ body {
     min-height: 100vh;
 }
 
-/* ---------- Layout geral ---------- */
 .layout {
     display: grid;
     grid-template-columns: 232px 1fr;
@@ -44,7 +43,6 @@ main {
     min-width: 0;
 }
 
-/* ---------- Menu lateral ---------- */
 .sidebar {
     background: var(--painel);
     border-right: 1px solid var(--borda);
@@ -180,6 +178,22 @@ select {
     box-shadow: 0 0 0 1px var(--borda);
 }
 
+.resumo {
+    margin-bottom: 16px;
+    padding: 16px 20px;
+    border: 1px solid var(--borda);
+    border-left: 4px solid var(--cor, var(--verde));
+    border-radius: 14px;
+    background: var(--painel);
+    font-size: 15px;
+    line-height: 1.55;
+}
+
+.resumo b {
+    font-family: var(--titulo);
+    color: var(--cor, var(--verde));
+}
+
 .kpis {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -309,7 +323,6 @@ select {
     border-radius: 3px;
 }
 
-/* ---------- Ranking ---------- */
 .ranking {
     list-style: none;
     display: grid;
