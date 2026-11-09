@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Análise de Dados | Stream Guard</title>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700&family=Figtree:wght@400;500;600&display=swap">
+    <link rel="stylesheet" href="./css/painel_dashAnalise.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+</head>
+
+<body>
+    <!-- Ícones do menu -->
+    <svg width="0" height="0" style="position:absolute">
+        <symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="9" rx="1.5" />
+            <rect x="14" y="3" width="7" height="5" rx="1.5" />
+            <rect x="14" y="12" width="7" height="9" rx="1.5" />
+            <rect x="3" y="16" width="7" height="5" rx="1.5" />
+        </symbol>
+        <symbol id="i-analise" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M3 20h18M6 16l4-5 4 3 5-8" />
+        </symbol>
+        <symbol id="i-lista" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01" />
+        </symbol>
+        <symbol id="i-sino" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6 8a6 6 0 1 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 21h4" />
+        </symbol>
+        <symbol id="i-config" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round">
+            <circle cx="12" cy="12" r="3" />
+            <path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2" />
+        </symbol>
+    </svg>
+
+    <div class="layout">
+
+        <aside class="sidebar">
+            <div class="logo">
+                <i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"
+                        stroke-linejoin="round">
+                        <path d="M3 12h4l3-8 4 16 3-8h4" />
+                    </svg></i>
+                Stream Guard
+            </div>
+            <nav class="menu">
+                <a href="./painel_dashGeral.html"><svg>
+                    </svg>Dashboard</a>
+                <a href="#" class="on"><svg>
+                        <use href="#i-analise" />
+                    </svg>Análise de dados</a>
+                <a href="./painel_detalhes.html"><svg>
+                    </svg>Detalhes</a>
+                <a href="./painel_alerta.html"><svg>
+                    </svg>Alertas</a>
+                <a href="./painel_perfil.html"><svg>
+                    </svg>Configurações</a>
+            </nav>
+            <div class="perfil"><b>Analista de dados</b>StreamCo Brasil</div>
+        </aside>
+
+        <main>
+            <header class="topo">
+                <div>
+                    <h1>Análise de dados</h1>
+                    <p id="subtitulo">Carregando dados...</p>
+                </div>
+                <div class="filtros">
+                    <select id="selectServidor" aria-label="Equipamento"></select>
+                    <div class="abas" id="abasMetrica"></div>
+                </div>
+            </header>
+
+            <section class="kpis" id="kpis"></section>
+
+            <div class="grade">
+
+                <!-- 1. Gráfico principal -->
+                <section class="card destaque c8">
+                    <h2 id="tituloPrincipal">Como está o uso?</h2>
+                    <p class="como">Como ler: a linha é a média de cada 5 minutos. A faixa azul vai do menor ao maior
+                        valor daquele intervalo. Ponto vermelho = o maior valor passou do limite.</p>
+                    <div class="grafico"><canvas id="graficoPrincipal"></canvas></div>
+                    <div class="legenda">
+                        <span><i style="background:#4f8cff"></i>Média de 5 min</span>
+                        <span><i style="background:rgba(79,140,255,.25)"></i>Do menor ao maior valor</span>
+                        <span><i style="background:#ff4d6d"></i>Passou do limite</span>
+                        <span><i style="background:#f59a3d"></i>Limite</span>
+                    </div>
+                    <p class="leitura" id="leituraPrincipal"></p>
+                </section>
+
+                <!-- 2. Ranking de servidores -->
+                <section class="card c4">
+                    <h2 id="tituloRanking">Qual servidor está pior?</h2>
+                    <p class="como">Como ler: a porcentagem dos intervalos de 5 minutos em que o servidor passou do
+                        limite. Clique para ver os detalhes dele.</p>
+                    <ol class="ranking" id="ranking"></ol>
+                    <p class="leitura" id="leituraRanking"></p>
+                </section>
+
+                <!-- 3. Mapa de calor -->
+                <section class="card c8">
+                    <h2 id="tituloCalor">Quando fica mais pesado?</h2>
+                    <p class="como">Como ler: cada linha é uma hora e cada quadradinho são 5 minutos. Azul = tranquilo,
+                        vermelho = pesado. A borda branca marca o pior momento.</p>
+                    <div class="calor" id="calor"></div>
+                    <div class="escala">0%<i></i>100%</div>
+                    <p class="leitura" id="leituraCalor"></p>
+                </section>
+
+                <!-- 4. Estados -->
+                <section class="card c4">
+                    <h2 id="tituloEstados">Quanto tempo em cada estado?</h2>
+                    <p class="como">Como ler: OK = longe do limite. Alerta = a menos de 10 pontos do limite. Crítico =
+                        passou do limite.</p>
+                    <div class="grafico pequeno"><canvas id="graficoEstados"></canvas></div>
+                    <p class="leitura" id="leituraEstados"></p>
+                </section>
+
+                <!-- 5. Hora a hora -->
+                <section class="card c8">
+                    <h2 id="tituloHoras">Como foi cada hora?</h2>
+                    <p class="como">Como ler: cada barra é o maior valor da hora. Barra vermelha = a hora passou do
+                        limite. A linha branca é a média da hora.</p>
+                    <div class="grafico pequeno"><canvas id="graficoHoras"></canvas></div>
+                    <p class="leitura" id="leituraHoras"></p>
+                </section>
+
+                <!-- 6. Processos -->
+                <section class="card c4">
+                    <h2 id="tituloProcessos">Quais processos mais pesam?</h2>
+                    <p class="como" id="comoProcessos"></p>
+                    <div class="grafico pequeno"><canvas id="graficoProcessos"></canvas></div>
+                    <p class="leitura" id="leituraProcessos"></p>
+                </section>
+
+                <!-- 7. Episódios -->
+                <section class="card c12">
+                    <h2 id="tituloEpisodios">Quando passou do limite?</h2>
+                    <p class="como">Como ler: cada linha é uma vez que o componente ficou acima do limite sem parar. Os
+                        mais longos aparecem primeiro, ótimo para ligar com incidentes.</p>
+                    <div id="tabelaEpisodios"></div>
+                    <p class="leitura" id="leituraEpisodios"></p>
+                </section>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="./js/painel_dashAnalise.js"></script>
+</body>
+
+</html>
