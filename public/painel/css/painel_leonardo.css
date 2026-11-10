@@ -17,7 +17,7 @@
     border: 1px solid var(--borda);
     border-radius: 6px;
     font: inherit;
-    font-size: 12px;
+    font-size: 14px;
     cursor: pointer;
 }
 
@@ -27,7 +27,7 @@
 
 .analise-atualizacao {
     color: var(--texto-suave);
-    font-size: 11px;
+    font-size: 16px;
     text-align: right;
 }
 
@@ -52,8 +52,8 @@
 .card-metrica h2 {
     margin-bottom: 9px;
     color: var(--texto-suave);
-    font-size: 17px;
-    font-weight: 500;
+    font-size: 20px;
+    font-weight: 600;
 }
 
 .card-metrica p {
@@ -66,7 +66,7 @@
 }
 
 .card-metrica small {
-    font-size: 10px;
+    font-size: 14px;
 }
 
 .grade-analise {
@@ -114,13 +114,13 @@
 
 .painel-analise-cabecalho p {
     color: var(--texto-suave);
-    font-size: 10px;
+    font-size: 15px;
     line-height: 1.5;
 }
 
 .painel-analise-cabecalho > strong {
     color: var(--texto);
-    font-size: 11px;
+    font-size: 15px;
     white-space: nowrap;
 }
 
@@ -147,7 +147,7 @@
     align-items: center;
     gap: 5px;
     color: var(--texto-suave);
-    font-size: 10px;
+    font-size: 15px;
 }
 
 .legenda-grafico li::before {
@@ -224,8 +224,8 @@
 .indicador-circular span {
     z-index: 1;
     color: var(--texto);
-    font-size: 10px;
-    font-weight: 700;
+    font-size: 13px;
+    font-weight: 800;
 }
 
 .card-disponibilidade:nth-child(2) .indicador-circular {
@@ -243,12 +243,12 @@
 .card-disponibilidade h3 {
     margin-bottom: 4px;
     color: var(--texto);
-    font-size: 11px;
+    font-size: 15px;
 }
 
 .card-disponibilidade p {
     color: var(--texto-suave);
-    font-size: 9px;
+    font-size: 14px;
     line-height: 1.4;
 }
 
@@ -284,7 +284,7 @@
     gap: 8px;
     margin-bottom: 12px;
     color: var(--texto-suave);
-    font-size: 11px;
+    font-size: 14px;
 }
 
 .filtros-grafico input,
@@ -318,7 +318,7 @@
 .item-uso-status > span:first-child,
 .item-uso-status strong {
     color: var(--texto);
-    font-size: 10px;
+    font-size: 15px;
 }
 
 .item-uso-status strong {
@@ -370,7 +370,7 @@
     min-width: 48px;
     padding: 4px 7px;
     border-radius: 12px;
-    font-size: 9px;
+    font-size: 13px;
     text-align: center;
 }
 
@@ -430,8 +430,67 @@
     .selo-status {
         min-width: 42px;
         padding: 4px;
-        font-size: 10px;
+        font-size: 14px;
     }
 
 }
+.card-metrica {
+    position: relative;
+}
 
+.card-metrica.status-atencao {
+    border-color: #f5b700;
+}
+
+.card-metrica.status-atencao strong {
+    color: #f5b700;
+}
+
+.card-metrica.status-alerta {
+    border-color: var(--vermelho);
+}
+
+.card-metrica.status-alerta strong {
+    color: var(--vermelho);
+}
+
+.card-metrica.status-normal {
+    border-color: var(--verde);
+}
+
+.card-metrica.status-normal strong {
+    color: var(--verde);
+}
+
+.card-metrica .selo-status {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+}
+
+#filtroPeriodo {
+    display: flex;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.botao-periodo {
+    padding: 6px 12px;
+    color: var(--texto-suave);
+    background: var(--painel);
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    font: inherit;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.botao-periodo:hover {
+    color: var(--texto);
+    background: var(--painel-2);
+}
+
+.botao-periodo.ativo {
+    color: var(--verde);
+    border-color: var(--verde);
+}

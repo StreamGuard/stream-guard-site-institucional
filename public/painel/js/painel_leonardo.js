@@ -6,19 +6,58 @@ const canvasRankingRam = document.getElementById("graficoRamServidores");
 const canvasHistogramaRam = document.getElementById("graficoHistogramaRam");
 const buscaRam = document.getElementById("filtroServidorRam");
 
-if (canvasRankingRam && canvasHistogramaRam && buscaRam ) {
-    const horarios = [
-        "17:11", "17:13", "17:15", "17:17", "17:19",
-        "17:21", "17:23", "17:25", "17:27", "17:29",
-        "17:31", "17:33", "17:35", "17:37", "17:39"
-    ];
-const limite80 = [];
+if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
+    const periodos = {
+        "30m": { minutos: 30, texto: "Últimos 30 minutos" },
+        "1h": { minutos: 60, texto: "Última hora" },
+        "24h": { minutos: 1440, texto: "Últimas 24 horas" }
+    };
+ 
+    // minha função recebe periodo q deve ser 30m, 1h e 24h
+    function criarHorarios(periodo) {
+        // vou preencher com os rótulos do eixo horizontal
+        const horarios = [];
+        // 15 horários pro grafico
+        const quantidade = 15;
 
-for (let i = 0; i < horarios.length; i++) {
-    limite80.push(80);
-}
+        for (let i = 0; i < quantidade; i++) {
+            // calculo quantos minutos antes de agora deve ficar cada horario
+            const minutosAtras = Math.round(
+                (quantidade - 1 - i) * periodos[periodo].minutos / (quantidade - 1)
+            );
+            // subtraio os minutos calculados e crio a data e hora dquele ponto
+            const data = new Date(Date.now() - minutosAtras * 60000);
 
-    new Chart(historico, {
+            if (periodo === "24h") {
+                horarios.push(
+                    data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) +
+                    " " +
+                    data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                );
+            } else {
+                horarios.push(
+                    data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+                );
+            }
+        }
+
+        return horarios;
+    }
+    
+    // crio essa variavel que chamo a minha função para montar 15 horarios cobrindo,
+    //meus ultimos 15 min
+    let horarios = criarHorarios("30m");
+
+    // esta lista vai armazenar os valores de limite do meu grafico que é 80
+    const limite80 = [];
+
+    for (let i = 0; i < horarios.length; i++) {
+        // vou ficar repetindo para criar 15 valores de 80% pra formar minha linha horizontal
+        limite80.push(80);
+    }
+
+
+    const graficoHistorico = new Chart(historico, {
         type: "line",
         data: {
             labels: horarios,
@@ -57,7 +96,7 @@ for (let i = 0; i < horarios.length; i++) {
                 },
                 {
                     label: "Limite de 80%",
-                   data: limite80,
+                    data: limite80,
                     borderColor: "#ff4d6d",
                     backgroundColor: "#ff4d6d",
                     borderDash: [4, 4],
@@ -98,10 +137,30 @@ for (let i = 0; i < horarios.length; i++) {
             }
         }
     });
+    const botoesPeriodo = document.querySelectorAll(".botao-periodo");
+    const textoPeriodo = document.getElementById("textoPeriodo");
+
+    for (let i = 0; i < botoesPeriodo.length; i++) {
+        botoesPeriodo[i].addEventListener("click", function () {
+            const periodo = this.dataset.periodo;
+
+            if (periodos[periodo] === undefined) {
+                return;
+            }
+
+            for (let j = 0; j < botoesPeriodo.length; j++) {
+                botoesPeriodo[j].classList.remove("ativo");
+            }
+
+            this.classList.add("ativo");
+            textoPeriodo.textContent = periodos[periodo].texto;
+            graficoHistorico.data.labels = criarHorarios(periodo);
+            graficoHistorico.update();
+        });
+    }
 
 
 
-   
     const servidores = [
         {
             nome: "srv-stream-01",
@@ -129,205 +188,205 @@ for (let i = 0; i < horarios.length; i++) {
         }
     ];
     const histogramaRam = new Chart(canvasHistogramaRam, {
-    type: "bar",
-    data: {
-        datasets: [
-            {
-                type: "bar",
-                label: "Medições",
-                data: [],
-                backgroundColor: "rgba(79, 140, 255, 0.65)",
-                borderColor: "#4f8cff",
-                borderWidth: 1,
-                barThickness: 18
-            },
-            {
-                type: "line",
-                label: "Média",
-                data: [],
-                borderColor: "#ff4d6d",
-                borderWidth: 2,
-                borderDash: [6, 4],
-                pointRadius: 0
-            },
-            {
-                type: "line",
-                label: "Mediana",
-                data: [],
-                // meu data vai começar vazia pois a minha função 
-                // atualizarHistogramaRam() calcula e coloca os dados aqui
-                borderColor: "#f5b700",
-                borderWidth: 2,
-                borderDash: [3, 3],
-                pointRadius: 0
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                position: "bottom"
-            },
-            tooltip: {
-                callbacks: {
-                    label(contexto) {
-                        if (contexto.dataset.type === "bar") {
-                            return "Medições: " + contexto.parsed.y;
-                        }
-
-                        return contexto.dataset.label + ": "
-                            + contexto.parsed.x.toFixed(1) + "%";
-                    }
+        type: "bar",
+        data: {
+            datasets: [
+                {
+                    type: "bar",
+                    label: "Medições",
+                    data: [],
+                    backgroundColor: "rgba(79, 140, 255, 0.65)",
+                    borderColor: "#4f8cff",
+                    borderWidth: 1,
+                    barThickness: 18
+                },
+                {
+                    type: "line",
+                    label: "Média",
+                    data: [],
+                    borderColor: "#ff4d6d",
+                    borderWidth: 2,
+                    borderDash: [6, 4],
+                    pointRadius: 0
+                },
+                {
+                    type: "line",
+                    label: "Mediana",
+                    data: [],
+                    // meu data vai começar vazia pois a minha função 
+                    // atualizarHistogramaRam() calcula e coloca os dados aqui
+                    borderColor: "#f5b700",
+                    borderWidth: 2,
+                    borderDash: [3, 3],
+                    pointRadius: 0
                 }
-            }
+            ]
         },
-        scales: {
-            x: {
-                type: "linear",
-                min: 0,
-                max: 100,
-                title: {
-                    display: true,
-                    text: "Uso de RAM"
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom"
                 },
-                ticks: {
-                    stepSize: 10,
-                    callback(valor) {
-                        return valor + "%";
+                tooltip: {
+                    callbacks: {
+                        label(contexto) {
+                            if (contexto.dataset.type === "bar") {
+                                return "Medições: " + contexto.parsed.y;
+                            }
+
+                            return contexto.dataset.label + ": "
+                                + contexto.parsed.x.toFixed(1) + "%";
+                        }
                     }
                 }
             },
-            y: {
-                beginAtZero: true,
-                ticks: {
-                    precision: 0
+            scales: {
+                x: {
+                    type: "linear",
+                    min: 0,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: "Uso de RAM"
+                    },
+                    ticks: {
+                        stepSize: 10,
+                        callback(valor) {
+                            return valor + "%";
+                        }
+                    }
                 },
-                title: {
-                    display: true,
-                    text: "Quantidade de medições"
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                    title: {
+                        display: true,
+                        text: "Quantidade de medições"
+                    }
                 }
             }
         }
-    }
-});
+    });
 
-function atualizarHistogramaRam() {
-    const valores = [];
+    function atualizarHistogramaRam() {
+        const valores = [];
 
-    // Junto as medições de todos os meus servidores.
-    for (let i = 0; i < servidores.length; i++) {
-        for (let j = 0; j < servidores[i].historico.length; j++) {
-            valores.push(servidores[i].historico[j]);
-        }
-    }
-
-    // Crio as faixas de 10%.
-    const faixas = [];
-
-    for (let i = 0; i < 10; i++) {
-        let nomeFaixa = (i * 10) + "-" + (i * 10 + 9) + "%";
-
-        if (i === 9) {
-            nomeFaixa = "90-100%";
-        }
-
-        faixas.push({
-            x: i * 10 + 5,
-            y: 0,
-            faixa: nomeFaixa
-        });
-    }
-
-    // Conto quantas medições caem em cada faixa.
-    for (let i = 0; i < valores.length; i++) {
-        let numeroFaixa = Math.floor(valores[i] / 10);
-
-        if (numeroFaixa > 9) {
-            numeroFaixa = 9;
-        }
-
-        faixas[numeroFaixa].y++;
-    }
-
-    // Calcula a média.
-    let soma = 0;
-
-    for (let i = 0; i < valores.length; i++) {
-        soma = soma + valores[i];
-    }
-
-    let media = 0;
-
-    if (valores.length > 0) {
-        media = soma / valores.length;
-    }
-
-    // Copia e ordena os valores para encontrar a mediana.
-    const ordenados = [];
-
-    for (let i = 0; i < valores.length; i++) {
-        ordenados.push(valores[i]);
-    }
-
-    // ordeno os numeros do menor para o maior, ou seja se um numero da direita for menor que o 
-    // da minha esquerda eles trocam de lugar
-    for (let i = 0; i < ordenados.length; i++) {
-        for (let j = i + 1; j < ordenados.length; j++) {
-            if (ordenados[j] < ordenados[i]) {
-                const temporario = ordenados[i];
-                ordenados[i] = ordenados[j];
-                ordenados[j] = temporario;
+        // Junto as medições de todos os meus servidores.
+        for (let i = 0; i < servidores.length; i++) {
+            for (let j = 0; j < servidores[i].historico.length; j++) {
+                valores.push(servidores[i].historico[j]);
             }
         }
-    }
 
-    let mediana = 0;
- 
-    // aqui eu calculo minha mediana a partir dos meus ordenados que fiz acima
-    if (ordenados.length > 0) {
-        const meio = Math.floor(ordenados.length / 2);
-        
-        //se minha qunatidade for par eu tiro minha mediana dos valores centrais
-        if (ordenados.length % 2 === 0) {
-            mediana = (ordenados[meio - 1] + ordenados[meio]) / 2;
-        } else {
-            mediana = ordenados[meio];
+        // Crio as faixas de 10%.
+        const faixas = [];
+
+        for (let i = 0; i < 10; i++) {
+            let nomeFaixa = (i * 10) + "-" + (i * 10 + 9) + "%";
+
+            if (i === 9) {
+                nomeFaixa = "90-100%";
+            }
+
+            faixas.push({
+                x: i * 10 + 5,
+                y: 0,
+                faixa: nomeFaixa
+            });
         }
-    }
 
-    // ajusto a altura das linhas de média e mediana.
-    let topo = 1;
+        // Conto quantas medições caem em cada faixa.
+        for (let i = 0; i < valores.length; i++) {
+            let numeroFaixa = Math.floor(valores[i] / 10);
 
-    for (let i = 0; i < faixas.length; i++) {
-        if (faixas[i].y >= topo) {
-            topo = faixas[i].y + 1;
+            if (numeroFaixa > 9) {
+                numeroFaixa = 9;
+            }
+
+            faixas[numeroFaixa].y++;
         }
+
+        // Calcula a média.
+        let soma = 0;
+
+        for (let i = 0; i < valores.length; i++) {
+            soma = soma + valores[i];
+        }
+
+        let media = 0;
+
+        if (valores.length > 0) {
+            media = soma / valores.length;
+        }
+
+        // Copia e ordena os valores para encontrar a mediana.
+        const ordenados = [];
+
+        for (let i = 0; i < valores.length; i++) {
+            ordenados.push(valores[i]);
+        }
+
+        // ordeno os numeros do menor para o maior, ou seja se um numero da direita for menor que o 
+        // da minha esquerda eles trocam de lugar
+        for (let i = 0; i < ordenados.length; i++) {
+            for (let j = i + 1; j < ordenados.length; j++) {
+                if (ordenados[j] < ordenados[i]) {
+                    const temporario = ordenados[i];
+                    ordenados[i] = ordenados[j];
+                    ordenados[j] = temporario;
+                }
+            }
+        }
+
+        let mediana = 0;
+
+        // aqui eu calculo minha mediana a partir dos meus ordenados que fiz acima
+        if (ordenados.length > 0) {
+            const meio = Math.floor(ordenados.length / 2);
+
+            //se minha qunatidade for par eu tiro minha mediana dos valores centrais
+            if (ordenados.length % 2 === 0) {
+                mediana = (ordenados[meio - 1] + ordenados[meio]) / 2;
+            } else {
+                mediana = ordenados[meio];
+            }
+        }
+
+        // ajusto a altura das linhas de média e mediana.
+        let topo = 1;
+
+        for (let i = 0; i < faixas.length; i++) {
+            if (faixas[i].y >= topo) {
+                topo = faixas[i].y + 1;
+            }
+        }
+
+        // envio os dados faça meu grafico la em data que iniciei vazio
+        histogramaRam.data.datasets[0].data = faixas;
+
+        histogramaRam.data.datasets[1].data = [
+            { x: media, y: 0 },
+            { x: media, y: topo }
+        ];
+
+        histogramaRam.data.datasets[2].data = [
+            { x: mediana, y: 0 },
+            { x: mediana, y: topo }
+        ];
+
+
+        histogramaRam.update();
     }
-
-    // envio os dados faça meu grafico la em data que iniciei vazio
-    histogramaRam.data.datasets[0].data = faixas;
-
-    histogramaRam.data.datasets[1].data = [
-        { x: media, y: 0 },
-        { x: media, y: topo }
-    ];
-
-    histogramaRam.data.datasets[2].data = [
-        { x: mediana, y: 0 },
-        { x: mediana, y: topo }
-    ];
-
-
-    histogramaRam.update();
-}
 
     // barras horizontais: mostro os 10 servidores com maior uso.
     const ranking = new Chart(canvasRankingRam, {
         type: "bar",
         data: {
-            // começo sem os dados depois minh afunçãoa atualizarRanking() preenche.
+            // começo sem os dados depois minha afunção atualizarRanking() preenche.
             labels: [],
             datasets: [{
                 label: "Uso de RAM",
@@ -384,7 +443,7 @@ function atualizarHistogramaRam() {
                 });
             }
         }
-        
+
         // A minha função atualizarRanking() le oq digitei e procura os servidores e ordena do
         // maior para o menor
         resultados.sort((a, b) => b.percentual - a.percentual);
@@ -405,20 +464,20 @@ function atualizarHistogramaRam() {
                 cores.push("#2de2c0");
             }
         }
-        
 
-    //Entrego ao gráfico os nomes, os valores e as cores preparados.Por fim, 
-    // ranking.update() pede ao Chart.js para redesenhar o gráfico com esses dados.
+
+        //Entrego ao gráfico os nomes, os valores e as cores preparados.Por fim, 
+        // ranking.update() pede ao Chart.js para redesenhar o gráfico com esses dados.
         ranking.data.labels = nomes;
         ranking.data.datasets[0].data = percentuais;
         ranking.data.datasets[0].backgroundColor = cores;
         ranking.update();
     }
 
-  buscaRam.addEventListener("input", atualizarRanking);
+    buscaRam.addEventListener("input", atualizarRanking);
 
-atualizarRanking();
-atualizarHistogramaRam();
+    atualizarRanking();
+    atualizarHistogramaRam();
 
     new Chart(correlacao, {
         type: "scatter",
@@ -485,7 +544,7 @@ atualizarHistogramaRam();
                         text: "Uso de CPU"
                     },
                     ticks: {
-                    
+
                         callback: valor => `${valor}%`
                     },
                     grid: {
