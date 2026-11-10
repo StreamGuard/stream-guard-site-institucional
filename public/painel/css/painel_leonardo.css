@@ -494,3 +494,37 @@
     color: var(--verde);
     border-color: var(--verde);
 }
+
+#filtroComponenteRanking,
+#filtroComponenteHistograma {
+    display: block;
+    min-width: 150px;
+    margin: 8px 0 14px;
+    padding: 9px 36px 9px 12px;
+    color: var(--texto);
+    background-color: var(--painel-2);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    font: inherit;
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+#filtroComponenteRanking:hover,
+#filtroComponenteHistograma:hover {
+    border-color: var(--verde);
+}
+
+#filtroComponenteRanking:focus,
+#filtroComponenteHistograma:focus {
+    outline: none;
+    border-color: var(--verde);
+    box-shadow: 0 0 0 3px rgba(45, 226, 192, 0.18);
+}
+
+#filtroComponenteRanking option,
+#filtroComponenteHistograma option {
+    color: var(--texto);
+    background: var(--painel);
+}

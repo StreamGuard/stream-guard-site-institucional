@@ -70,10 +70,18 @@
                     <section class="painel-analise painel-ram-servidores">
                         <header class="painel-analise-cabecalho">
                             <div>
-                                <h2>Uso de RAM por servidor</h2>
+                                <h2>Uso por servidor</h2>
                                 <p>Top 10 por uso; pesquise para filtrar</p>
                             </div>
                         </header>
+                        <!-- No painel "Uso por servidor" -->
+                        <label for="filtroComponenteRanking">Componente</label>
+                        <select id="filtroComponenteRanking">
+                            <option value="ram">RAM</option>
+                            <option value="cpu">CPU</option>
+                            <option value="disco">Disco</option>
+                            <option value="rede">Rede</option>
+                        </select>
 
                         <div class="filtros-grafico">
                             <label for="filtroServidorRam">Buscar servidor</label>
@@ -90,10 +98,18 @@
                     <section class="painel-analise painel-ram-historico">
                         <header class="painel-analise-cabecalho">
                             <div>
-                                <h2>Histograma de uso de RAM</h2>
+                                <h2>Histograma de uso </h2>
                                 <p>Distribuição das medições, com média e mediana</p>
                             </div>
                         </header>
+                        <!-- No painel "Histograma de uso" -->
+                        <label for="filtroComponenteHistograma">Componente</label>
+                        <select id="filtroComponenteHistograma">
+                            <option value="ram">RAM</option>
+                            <option value="cpu">CPU</option>
+                            <option value="disco">Disco</option>
+                            <option value="rede">Rede</option>
+                        </select>
 
                         <div class="grafico-container">
                             <canvas id="graficoHistogramaRam" role="img"

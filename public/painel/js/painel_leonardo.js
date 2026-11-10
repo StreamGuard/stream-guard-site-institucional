@@ -12,7 +12,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
         "1h": { minutos: 60, texto: "Última hora" },
         "24h": { minutos: 1440, texto: "Últimas 24 horas" }
     };
- 
+
     // minha função recebe periodo q deve ser 30m, 1h e 24h
     function criarHorarios(periodo) {
         // vou preencher com os rótulos do eixo horizontal
@@ -43,7 +43,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
         return horarios;
     }
-    
+
     // crio essa variavel que chamo a minha função para montar 15 horarios cobrindo,
     //meus ultimos 15 min
     let horarios = criarHorarios("30m");
@@ -162,30 +162,55 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
 
     const servidores = [
-        {
-            nome: "srv-stream-01",
-            usada: 12,
-            total: 16,
-            historico: [61, 64, 68, 66, 70, 72, 69, 73, 75, 74, 77, 75, 78, 76, 75]
-        },
+       {
+    nome: "srv-stream-01",
+    usada: 12,
+    total: 16,
+    historico: [61, 64, 68, 66, 70, 72, 69, 73, 75, 74, 77, 75, 78, 76, 75],
+    usos: { cpu: 77, disco: 85, rede: 45 },
+    historicos: {
+        cpu: [78, 80, 77,50,40,40,80,67,45,27,87,27,88,96,68 ],
+        disco: [42, 52, 48,57,78,76,88,95,38,75,48,74,62,42,57],
+        rede: [50, 48, 39,64,89,53,58,43,27,85,35,78,89,47,79 ]
+    }
+},
         {
             nome: "srv-stream-02",
             usada: 10,
             total: 16,
-            historico: [48, 50, 49, 52, 55, 53, 56, 58, 57, 60, 59, 61, 62, 60, 62]
+            historico: [48, 50, 49, 52, 55, 53, 56, 58, 57, 60, 59, 61, 62, 60, 62],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+    historicos: {
+        cpu: [78, 80, 77,50,40,40,80,67,45,27,87,27,88,96,68],
+        disco: [42, 52, 48 ,57,78,76,88,95,38,75,48,74,62,42,57],
+        rede: [50, 48, 39,64,89,53,58,43,27,85,35,78,89,47,79]
+    }
         },
         {
             nome: "srv-stream-03",
             usada: 13,
             total: 16,
-            historico: [70, 72, 74, 73, 75, 78, 77, 80, 79, 82, 81, 83, 80, 82, 81]
+            historico: [70, 72, 74, 73, 75, 78, 77, 80, 79, 82, 81, 83, 80, 82, 81],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+    historicos: {
+        cpu: [78, 80, 77,50,40,40,80,67,45,27,87,27,88,96,68 ],
+        disco: [42, 52, 48 ,57,78,76,88,95,38,75,48,74,62,42,57],
+        rede: [50, 48, 39,64,89,53,58,43,27,85,35,78,89,47,79 ]
+    }
         },
         {
             nome: "srv-encode-01",
             usada: 23,
             total: 32,
-            historico: [62, 65, 64, 66, 68, 67, 69, 71, 73, 72, 70, 71, 73, 72, 72]
+            historico: [62, 65, 64, 66, 68, 67, 69, 71, 73, 72, 70, 71, 73, 72, 72],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+    historicos: {
+        cpu: [78, 80, 77,50,40,40,80,67,45,27,87,27,88,96,68],
+        disco: [42, 52, 48,57,78,76,88,95,38,75,48,74,62,42,57],
+        rede: [50, 48, 39,64,89,53,58,43,27,85,35,78,89,47,79]
+    }
         }
+
     ];
     const histogramaRam = new Chart(canvasHistogramaRam, {
         type: "bar",
@@ -275,17 +300,29 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
     function atualizarHistogramaRam() {
         const valores = [];
 
-        // Junto as medições de todos os meus servidores.
-        for (let i = 0; i < servidores.length; i++) {
-            for (let j = 0; j < servidores[i].historico.length; j++) {
-                valores.push(servidores[i].historico[j]);
-            }
-        }
+        // Percorro a lista dos meus servidores, um servidor por vez i.
+       for (let i = 0; i < servidores.length; i++) {
+    let historico;
+    // recebo a lista de medições do componente escolhido
 
-        // Crio as faixas de 10%.
+    if (componenteHistograma === "ram") {
+        historico = servidores[i].historico;
+    } else {
+        historico = servidores[i].historicos[componenteHistograma];
+    }
+
+    //percorro as medicoes do servidor e add  lista de valores
+    for (let j = 0; j < historico.length; j++) {
+        valores.push(historico[j]);
+    }
+}
+
+       
         const faixas = [];
 
+        // crio a lista com minhas dez barras do histograma
         for (let i = 0; i < 10; i++) {
+            // repito o bloco dez vezes criando uma faixa para cada intervalo de 10%
             let nomeFaixa = (i * 10) + "-" + (i * 10 + 9) + "%";
 
             if (i === 9) {
@@ -431,53 +468,80 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
 
     // Vou preencher meu gráfico acima
-    function atualizarRanking() {
-        const textoBusca = buscaRam.value.toLowerCase();
-        const resultados = [];
+const filtroRanking = document.getElementById("filtroComponenteRanking");
+const filtroHistograma = document.getElementById("filtroComponenteHistograma");
 
-        for (const servidor of servidores) {
-            if (servidor.nome.toLowerCase().includes(textoBusca)) {
-                resultados.push({
-                    nome: servidor.nome,
-                    percentual: Math.round(servidor.usada / servidor.total * 100)
-                });
-            }
-        }
+let componenteRanking = "ram";
+let componenteHistograma = "ram";
 
-        // A minha função atualizarRanking() le oq digitei e procura os servidores e ordena do
-        // maior para o menor
-        resultados.sort((a, b) => b.percentual - a.percentual);
+function atualizarRanking() {
+    const textoBusca = buscaRam.value.toLowerCase();
+    const resultados = [];
 
-        const nomes = [];
-        const percentuais = [];
-        const cores = [];
+    for (const servidor of servidores) {
+        if (servidor.nome.toLowerCase().includes(textoBusca)) {
+            let percentual;
 
-        for (let i = 0; i < resultados.length && i < 10; i++) {
-            nomes.push(resultados[i].nome);
-            percentuais.push(resultados[i].percentual);
-
-            if (resultados[i].percentual >= 80) {
-                cores.push("#ff4d6d");
-            } else if (resultados[i].percentual >= 60) {
-                cores.push("#f5b700");
+            if (componenteRanking === "ram") {
+                percentual = Math.round(servidor.usada / servidor.total * 100);
             } else {
-                cores.push("#2de2c0");
+                percentual = servidor.usos[componenteRanking];
             }
+
+            resultados.push({
+                nome: servidor.nome,
+                percentual: percentual
+            });
         }
-
-
-        //Entrego ao gráfico os nomes, os valores e as cores preparados.Por fim, 
-        // ranking.update() pede ao Chart.js para redesenhar o gráfico com esses dados.
-        ranking.data.labels = nomes;
-        ranking.data.datasets[0].data = percentuais;
-        ranking.data.datasets[0].backgroundColor = cores;
-        ranking.update();
     }
+
+    resultados.sort((a, b) => b.percentual - a.percentual);
+
+    const nomes = [];
+    const percentuais = [];
+    const cores = [];
+
+    for (let i = 0; i < resultados.length && i < 10; i++) {
+        nomes.push(resultados[i].nome);
+        percentuais.push(resultados[i].percentual);
+
+        if (resultados[i].percentual >= 80) {
+            cores.push("#ff4d6d");
+        } else if (resultados[i].percentual >= 60) {
+            cores.push("#f5b700");
+        } else {
+            cores.push("#2de2c0");
+        }
+    }
+
+    ranking.data.labels = nomes;
+    ranking.data.datasets[0].label = "Uso de " + componenteRanking.toUpperCase();
+    ranking.data.datasets[0].data = percentuais;
+    ranking.data.datasets[0].backgroundColor = cores;
+    ranking.update();
+}
 
     buscaRam.addEventListener("input", atualizarRanking);
 
     atualizarRanking();
     atualizarHistogramaRam();
+
+    
+
+
+  filtroRanking.addEventListener("change", function () {
+    componenteRanking = this.value;
+    atualizarRanking();
+});
+    filtroHistograma.addEventListener("change", function () {
+        componenteHistograma = this.value;
+        atualizarHistogramaRam();
+    });
+
+
+
+
+
 
     new Chart(correlacao, {
         type: "scatter",
