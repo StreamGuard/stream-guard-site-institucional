@@ -49,6 +49,7 @@ CREATE TABLE componente (
     nome VARCHAR(100),
     tipo VARCHAR(50) NOT NULL,
     fk_servidor INT NOT NULL,
+    UNIQUE KEY uq_componente_identidade (fk_servidor, tipo, (COALESCE(nome, ''))),
     FOREIGN KEY (fk_servidor) REFERENCES equipamentos(id_equipamentos)
 );
 
@@ -58,6 +59,7 @@ CREATE TABLE metrica (
     nome VARCHAR(255) NOT NULL,
     unidade VARCHAR(20),
     fk_componente INT NOT NULL,
+    UNIQUE KEY uq_metrica_componente_tipo (fk_componente, tipo),
     FOREIGN KEY (fk_componente) REFERENCES componente(id_componente)
 );
 
@@ -65,11 +67,19 @@ CREATE TABLE config_metrica (
     id_config_metrica INT AUTO_INCREMENT PRIMARY KEY,
     habilitado TINYINT(1) NOT NULL DEFAULT 1,
     intervalo_coleta INT NOT NULL,
-    limite_maximo DECIMAL(10,2),
-    limite_minimo DECIMAL(10,2),
+    limite_maximo DECIMAL(20,2),
+    limite_minimo DECIMAL(20,2),
     fk_metrica INT NOT NULL,
+    UNIQUE KEY uq_config_metrica (fk_metrica),
     FOREIGN KEY (fk_metrica) REFERENCES metrica(id_metrica)
 );
+
+CREATE TABLE IF NOT EXISTS web_sessoes (
+    session_id VARCHAR(128) COLLATE utf8mb4_bin NOT NULL,
+    expires INT UNSIGNED NOT NULL,
+    data MEDIUMTEXT COLLATE utf8mb4_bin,
+    PRIMARY KEY (session_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_bin;
 
 -- Sample data to test (optional) --------------------------
 
@@ -95,10 +105,10 @@ VALUES ('srv-stream-01', 'AGENTE-0001', 'Ubuntu', '22.04', 'x86_64', 'Servidor',
 
 INSERT INTO componente (nome, tipo, fk_servidor) VALUES ('Processador', 'CPU', 1);
 
-INSERT INTO metrica (tipo, nome, unidade, fk_componente) VALUES ('Uso', 'Uso da CPU', '%', 1);
+INSERT INTO metrica (tipo, nome, unidade, fk_componente) VALUES ('USO_CPU', 'Uso da CPU', '%', 1);
 
 INSERT INTO config_metrica (habilitado, intervalo_coleta, limite_maximo, limite_minimo, fk_metrica)
-VALUES (1, 5, 90.00, 0.00, 1);
+VALUES (1, 5, 90.00, NULL, 1);
 
 SELECT e.razao_social, eq.hostname, c.tipo AS componente, m.nome AS metrica, cm.limite_maximo
 FROM empresa e

@@ -12,7 +12,6 @@
 </head>
 
 <body>
-    <!-- Ícones do menu -->
     <svg width="0" height="0" style="position:absolute">
         <symbol id="i-dash" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
             stroke-linecap="round" stroke-linejoin="round">
@@ -42,7 +41,6 @@
 
     <div class="layout">
 
-        <!-- MENU LATERAL -->
         <aside class="sidebar">
             <div class="logo">
                 <i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round"
@@ -52,19 +50,26 @@
                 Stream Guard
             </div>
             <nav class="menu">
-                <a href="../painel/painel_dashGeral.html"><svg></svg>Dashboard</a>
+                <a href="#"><svg>
+                        <use href="#i-dash" />
+                    </svg>Dashboard</a>
                 <a href="#" class="on"><svg>
                         <use href="#i-analise" />
                     </svg>Análise de dados</a>
-                <a href="../painel/painel_detalhes.html"><svg></svg>Componentes</a>
-                <a href="./painel_alerta.html"><svg></svg>Alertas</a>
-                <a href="./painel_perfil.html"><svg></svg>Perfil</a>
+                <a href="#"><svg>
+                        <use href="#i-lista" />
+                    </svg>Detalhes</a>
+                <a href="#"><svg>
+                        <use href="#i-sino" />
+                    </svg>Alertas</a>
+                <a href="#"><svg>
+                        <use href="#i-config" />
+                    </svg>Configurações</a>
             </nav>
             <div class="perfil"><b>Analista de dados</b>StreamCo Brasil</div>
         </aside>
 
         <main>
-            <!-- TOPO: título e filtros -->
             <header class="topo">
                 <div>
                     <h1>Análise de dados</h1>
@@ -77,21 +82,19 @@
                 </div>
             </header>
 
-            <!-- NÚMEROS PRINCIPAIS -->
             <section class="resumo" id="resumo"></section>
 
             <section class="kpis" id="kpis"></section>
 
             <div class="grade">
 
-                <!-- 1. Gráfico principal -->
-                <section class="card destaque c8">
+                <section class="card destaque c12">
                     <h2 id="tituloPrincipal">Como está o uso?</h2>
-                    <p class="como">Como ler: a linha é a média de cada 5 minutos. A faixa azul vai do menor ao maior
-                        valor daquele intervalo. Ponto vermelho = o maior valor passou do limite.</p>
+                    <p class="como">Como ler: a linha é a média do uso. A faixa azul vai do menor ao maior valor de cada
+                        intervalo de 5 minutos de coleta. Ponto vermelho = o maior valor passou do limite.</p>
                     <div class="grafico"><canvas id="graficoPrincipal"></canvas></div>
                     <div class="legenda">
-                        <span><i style="background:#4f8cff"></i>Média de 5 min</span>
+                        <span><i style="background:#4f8cff"></i>Média do uso</span>
                         <span><i style="background:rgba(79,140,255,.25)"></i>Do menor ao maior valor</span>
                         <span><i style="background:#ff4d6d"></i>Passou do limite</span>
                         <span><i style="background:#f59a3d"></i><span id="legendaLimite">Limite</span></span>
@@ -99,16 +102,6 @@
                     <p class="leitura" id="leituraPrincipal"></p>
                 </section>
 
-                <!-- 2. Ranking de servidores -->
-                <section class="card c4">
-                    <h2 id="tituloRanking">Qual servidor está pior?</h2>
-                    <p class="como">Como ler: a porcentagem dos intervalos de 5 minutos em que o servidor passou do
-                        limite. Clique para ver os detalhes dele.</p>
-                    <ol class="ranking" id="ranking"></ol>
-                    <p class="leitura" id="leituraRanking"></p>
-                </section>
-
-                <!-- 3. Mapa de calor -->
                 <section class="card c8">
                     <h2 id="tituloCalor">Quando fica mais pesado?</h2>
                     <p class="como">Como ler: cada linha é uma hora e cada quadradinho são 5 minutos. Azul = tranquilo,
@@ -118,7 +111,6 @@
                     <p class="leitura" id="leituraCalor"></p>
                 </section>
 
-                <!-- 4. Estados -->
                 <section class="card c4">
                     <h2 id="tituloEstados">Quanto tempo em cada estado?</h2>
                     <p class="como">Como ler: OK = longe do limite. Alerta = a menos de 10 pontos do limite. Crítico =
@@ -127,36 +119,19 @@
                     <p class="leitura" id="leituraEstados"></p>
                 </section>
 
-                <!-- 5. Hora a hora -->
                 <section class="card c8">
-                    <h2 id="tituloHoras">Como foi cada hora?</h2>
-                    <p class="como">Como ler: cada barra é o maior valor da hora. Barra vermelha = a hora passou do
-                        limite. A linha branca é a média da hora.</p>
-                    <div class="grafico pequeno"><canvas id="graficoHoras"></canvas></div>
-                    <div class="legenda">
-                        <span><i style="background:#4f8cff"></i>Maior valor da hora</span>
-                        <span><i style="background:#ff4d6d"></i>Hora que passou do limite</span>
-                        <span><i style="background:#f1f1f8"></i>Média da hora</span>
-                        <span><i style="background:#f59a3d"></i>Limite</span>
-                    </div>
-                    <p class="leitura" id="leituraHoras"></p>
-                </section>
-
-                <!-- 6. Processos -->
-                <section class="card c4">
-                    <h2 id="tituloProcessos">Quais processos mais pesam?</h2>
-                    <p class="como" id="comoProcessos"></p>
-                    <div class="grafico pequeno"><canvas id="graficoProcessos"></canvas></div>
-                    <p class="leitura" id="leituraProcessos"></p>
-                </section>
-
-                <!-- 7. Episódios -->
-                <section class="card c12">
                     <h2 id="tituloEpisodios">Quando passou do limite?</h2>
                     <p class="como">Como ler: cada linha é uma vez que o componente ficou acima do limite sem parar. Os
                         mais longos aparecem primeiro, ótimo para ligar com incidentes.</p>
                     <div id="tabelaEpisodios"></div>
                     <p class="leitura" id="leituraEpisodios"></p>
+                </section>
+
+                <section class="card c4">
+                    <h2 id="tituloProcessos">Quais processos mais pesam?</h2>
+                    <p class="como" id="comoProcessos"></p>
+                    <div class="grafico pequeno"><canvas id="graficoProcessos"></canvas></div>
+                    <p class="leitura" id="leituraProcessos"></p>
                 </section>
 
             </div>

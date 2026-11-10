@@ -394,3 +394,61 @@
     flex: 1;
     margin: 0;
 }
+
+.dash-coluna,
+.painel-box,
+.card-status {
+    min-width: 0;
+}
+
+.dash-acoes {
+    flex-wrap: wrap;
+}
+
+@media (max-width: 1100px) {
+    .dash-grade {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 767px) {
+    .cards-status,
+    .grade-normais {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .card-status,
+    .painel-box,
+    .item-normal,
+    .item-aviso {
+        padding: 16px;
+        overflow-wrap: anywhere;
+    }
+
+    .item-atencao {
+        grid-template-columns: minmax(0, 1fr) auto;
+        padding: 16px;
+        gap: 12px;
+    }
+
+    .atencao-problema {
+        grid-column: 1 / -1;
+    }
+
+    .atencao-servidor,
+    .atencao-problema {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .atencao-desde {
+        align-items: flex-start;
+    }
+
+    .btn-sg {
+        min-height: 44px;
+        white-space: normal;
+        text-align: center;
+    }
+}

@@ -629,3 +629,66 @@ body.modal-aberto {
         grid-template-columns: repeat(3, 1fr);
     }
 }
+
+.modal {
+    max-height: calc(100dvh - 32px);
+}
+
+.modal-corpo {
+    min-height: 0;
+    overflow-wrap: anywhere;
+}
+
+.modal-topo,
+.modal-rodape {
+    flex-shrink: 0;
+}
+
+.modal-rodape {
+    flex-wrap: wrap;
+}
+
+.toast-sg {
+    max-width: min(352px, calc(100vw - 32px));
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 560px) {
+    .modal-overlay {
+        padding: 12px;
+    }
+
+    .modal {
+        max-height: calc(100dvh - 24px);
+    }
+
+    .modal-topo,
+    .modal-corpo,
+    .modal-rodape,
+    .confirmar-conteudo {
+        padding: 16px;
+    }
+
+    .modal .input-sg,
+    .modal .select-sg,
+    .modal textarea {
+        min-width: 0;
+        font-size: 16px;
+    }
+
+    .modal .btn-sg,
+    .modal-fechar {
+        min-height: 44px;
+    }
+
+    .modal .btn-sg {
+        white-space: normal;
+        height: auto;
+        padding: 10px 14px;
+    }
+
+    .toast-sg {
+        right: 16px;
+        bottom: 16px;
+    }
+}
