@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#0c0c18">
+    <meta name="description"
+        content="Dashboard de inteligência gerencial do StreamGuard com indicadores, decisões e previsão demonstrativa de custos.">
+    <title>Inteligência Gerencial | StreamGuard</title>
+    <!-- Folha compartilhada: estrutura do painel, menu lateral, cabeçalho e perfil -->
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <!-- Estilos exclusivos desta dashboard -->
+    <link rel="stylesheet" href="./css/painel_gestor_insight.css">
+    <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+</head>
+
+<body data-pagina="dashIndividual">
+    <div class="layout">
+        <!-- Reaproveita a mesma sidebar do StreamGuard. Não duplicar o menu. -->
+        <aside class="sidebar" data-shell="sidebar"></aside>
+        <div class="conteudo">
+            <header class="topo">
+                <div>
+                    <h1>Inteligência Gerencial</h1>
+                    <p>Análise de infraestrutura e apoio às decisões</p>
+                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+            <main class="principal di-dashboard" id="main-content">
+                <!-- INICIO DO CONTEUDO DA DASHBOARD INDIVIDUAL -->
+
+                <nav class="di-quicknav" aria-label="Seções da dashboard individual">
+                    <a href="#resumo">Resumo</a>
+                    <a href="#decisoes">Decisões</a>
+                    <a href="#componentes">Recursos</a>
+                    <a href="#servidores">Servidores</a>
+                    <a href="#billing">Previsão de custos</a>
+                    <a href="#relatorios">Relatórios</a>
+                </nav>
+
+                <section class="section" id="resumo">
+                    <div class="pagehead">
+                        <div><span class="eyebrow">◉   VISÃO ESTRATÉGICA DA INFRAESTRUTURA</span>
+                            <h1>Inteligência Gerencial</h1>
+                            <p>Identifique riscos, compare CPU, RAM, disco e rede, avalie ações e projete o impacto
+                                financeiro das decisões sobre a infraestrutura de streaming.</p>
+                        </div>
+                        <div class="actions"><button class="button" id="buttonMethod" type="button">ⓘ   Entenda os
+                                indicadores</button><button class="button primary" id="buttonPrintTop" type="button">▤  
+                                Gerar relatório</button></div>
+                    </div>
+                    <div class="filterbar">
+                        <div class="field"><label for="periodo">Período de análise</label><select id="periodo">
+                                <option value="24h">Últimas 24 horas</option>
+                                <option selected="" value="7d">Últimos 7 dias</option>
+                                <option value="30d">Últimos 30 dias</option>
+                            </select></div>
+                        <div class="field large"><label for="cenario">Cenário de telemetria</label><select id="cenario">
+                                <option value="normal">Operação regular</option>
+                                <option selected="" value="pico">Pico de audiência</option>
+                                <option value="recuperacao">Pós-pico / recuperação</option>
+                            </select></div>
+                        <div class="field large"><label for="servidorFiltro">Equipamento no gráfico</label><select
+                                id="servidorFiltro">
+                                <option value="todos">Visão agregada (média)</option>
+                            </select></div>
+                        <div class="filter-info"><span class="tag-demo">DADOS DEMONSTRATIVOS</span><span>Atualização
+                                pelo filtro</span></div>
+                    </div>
+                    <div class="overview">
+                        <article class="card metric-kpi">
+                            <div class="kpi-title">Servidores sob atenção <span class="kpi-icon">▣</span></div><strong
+                                id="kpiRisk">—</strong>
+                            <p class="kpi-note" id="kpiRiskNote">Conforme limites por componente</p>
+                        </article>
+                        <article class="card metric-kpi">
+                            <div class="kpi-title">Limites excedidos <span class="kpi-icon">⚠</span></div><strong
+                                id="kpiComp">—</strong>
+                            <p class="kpi-note">Ocorrências de limites excedidos no cenário</p>
+                        </article>
+                        <article class="card metric-kpi">
+                            <div class="kpi-title">Maior prioridade <span class="kpi-icon">↗</span></div><strong
+                                id="kpiMain">—</strong>
+                            <p class="kpi-note" id="kpiMainNote">Equipamento com menor folga</p>
+                        </article>
+                        <article class="card metric-kpi highlight">
+                            <div class="kpi-title">Custo mensal projetado <span class="kpi-icon">＄</span></div><strong
+                                id="kpiCost">—</strong>
+                            <p class="kpi-note" id="kpiCostNote">Estimativa ilustrativa, não fatura</p>
+                        </article>
+                    </div>
+                    <div class="notice"><span class="notice-icon">!</span>
+                        <div><b id="noticeTitle">Riscos e oportunidades identificados</b>
+                            <p id="noticeDesc">Veja as recomendações organizadas por prioridade e evidência.</p>
+                        </div><a href="#decisoes">Ver decisões sugeridas →</a>
+                    </div>
+                </section>
+                <section class="section" id="decisoes">
+                    <div class="sectitle">
+                        <div>
+                            <h2>O que o gestor deve avaliar agora?</h2>
+                            <p>Recomendações por prioridade, sempre acompanhadas da evidência e do próximo passo
+                                sugerido.</p>
+                        </div><span class="section-hint">As recomendações são hipóteses baseadas em regras, não
+                            diagnósticos automáticos.</span>
+                    </div>
+                    <div class="decision-layout">
+                        <div class="decision-list" id="decisionList"></div>
+                        <aside class="card plan">
+                            <div class="planheader">
+                                <div>
+                                    <h3>Meu plano de ação</h3>
+                                    <p class="plantip">Transforme um insight em um item para análise.</p>
+                                </div><span class="counter" id="planCount">0 itens</span>
+                            </div>
+                            <ul class="planlist" id="planList">
+                                <li class="plan-empty">Selecione “Adicionar ao plano” em uma das recomendações.</li>
+                            </ul>
+                            <div class="planfooter"><strong>Como usar:</strong> documente as decisões no relatório.
+                                Itens salvos ficam apenas neste navegador (localStorage).</div>
+                        </aside>
+                    </div>
+                </section>
+                <section class="section" id="componentes">
+                    <div class="sectitle">
+                        <div>
+                            <h2>Os quatro componentes monitorados</h2>
+                            <p>Em cada cartão, o maior uso observado entre os servidores simulados e o equipamento que
+                                precisa de atenção.</p>
+                        </div><span class="section-hint">Clique em um componente para focar o gráfico.</span>
+                    </div>
+                    <div class="component-grid" id="componentCards"></div>
+                    <div class="chart-grid">
+                        <div class="card chart-panel">
+                            <div class="panel-title">
+                                <div>
+                                    <h3>Evolução das métricas</h3>
+                                    <p id="chartSubtitle">Uso de recursos durante o período selecionado.</p>
+                                </div><span class="tag-demo">SÉRIE ILUSTRATIVA</span>
+                            </div>
+                            <div class="chart-legend" id="chartToggles"></div>
+                            <div aria-label="Gráfico de linhas de consumo dos recursos" class="chart-host"
+                                id="chartHost" role="img"></div>
+                            <div class="chart-caption"><span>Escala: 0–100% de utilização. Rede considera enlace
+                                    hipotético de 1 Gbit/s.</span><span>Limites específicos nos cartões.</span></div>
+                        </div>
+                        <aside class="card insight-panel">
+                            <h3>Leitura rápida do recurso</h3>
+                            <div class="smalllabel" id="focusLabel">COMPONENTE EM DESTAQUE</div>
+                            <div class="big-val" id="focusValue">—</div>
+                            <div class="tiny" id="focusHost">—</div>
+                            <p class="readout" id="focusReadout">Selecione um cartão para explorar o comportamento.</p>
+                            <div class="readoutblock"><b>O QUE ISSO SIGNIFICA?</b>
+                                <p id="focusInterpretation">O valor isolado não é suficiente para concluir um incidente.
+                                </p>
+                            </div>
+                            <div class="readoutblock"><b>QUAL DECISÃO APOIAR?</b>
+                                <p id="focusAction">A decisão deve considerar o histórico, a persistência dos alertas e
+                                    as prioridades do serviço.</p>
+                            </div>
+                        </aside>
+                    </div>
+                </section>
+                <section class="section" id="servidores">
+                    <div class="sectitle">
+                        <div>
+                            <h2>Onde concentrar a investigação?</h2>
+                            <p>Servidores ordenados pelo componente com maior excedência do limite definido.</p>
+                        </div><span class="section-hint">Clique em “Analisar” para ver os quatro recursos de um
+                            equipamento.</span>
+                    </div>
+                    <div class="card ranking">
+                        <div class="table-scroll">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Servidor / função</th>
+                                        <th>CPU</th>
+                                        <th>RAM</th>
+                                        <th>Disco</th>
+                                        <th>Rede¹</th>
+                                        <th>Prioridade</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody id="serverRows"></tbody>
+                            </table>
+                        </div>
+                        <p class="tiny" style="margin-top:10px">¹ Rede: utilização estimada da capacidade de 1 Gbit/s.
+                            Em uma implementação real, deve ser calculada a partir das taxas em bytes/s do projeto.</p>
+                    </div>
+                </section>
+                <section class="section" id="billing">
+                    <div class="sectitle">
+                        <div>
+                            <h2>Previsão de custos em nuvem</h2>
+                            <p>Simule decisões de capacidade e orçamento. Ajuste nós adicionais, armazenamento e
+                                transferência de dados.</p>
+                        </div><span class="tag-demo">SIMULAÇÃO FINANCEIRA · NÃO É AWS BILLING</span>
+                    </div>
+                    <div class="billing-grid">
+                        <div class="card billing-result">
+                            <div class="bill-highlight">
+                                <div><small>Custo estimado no cenário configurado</small>
+                                    <div class="billtotal" id="billingTotal">—</div><span class="tiny"
+                                        id="billingUsd">—</span>
+                                </div><span class="billstatus">Projeção mensal</span>
+                            </div>
+                            <div class="bill-cards">
+                                <div class="bill-subcard"><label>Configuração de referência</label><strong
+                                        id="billingBase">—</strong><small>8 nós + recursos de referência</small></div>
+                                <div class="bill-subcard emphasis"><label>Variação da simulação</label><strong
+                                        id="billingDelta">—</strong><small id="billingDeltaPct">Em relação à
+                                        referência</small></div>
+                            </div>
+                            <div aria-label="Composição estimada dos custos" class="bill-bar" id="billingStack"></div>
+                            <div class="costrows" id="billingRows"></div>
+                            <p class="math-note">O consumo de CPU/RAM/disco/rede não gera automaticamente um valor de
+                                cobrança. A projeção usa <b>quantidade e horas de instâncias</b>, capacidade de
+                                armazenamento e volume de saída de dados. Tarifas e câmbio abaixo são <b>hipóteses
+                                    editáveis</b>.</p>
+                        </div>
+                        <div class="card bill-form">
+                            <h3>Simulador de decisão financeira</h3>
+                            <p>Compare quanto custaria manter a infraestrutura ou expandi-la para lidar com um pico.
+                                Nenhuma alteração real é aplicada.</p>
+                            <div class="control">
+                                <div class="control-head"><label for="extraNodes">Nós computacionais
+                                        adicionais</label><output id="extraNodesText">0 nó(s)</output></div><input
+                                    id="extraNodes" max="6" min="0" step="1" type="range" value="2" />
+                                <p>Referência: 8 nós já existentes. Cada nó extra aumenta custo por hora contratada.</p>
+                            </div>
+                            <div class="control">
+                                <div class="control-head"><label for="storage">Armazenamento previsto</label><output
+                                        id="storageText">—</output></div><input id="storage" max="4000" min="400"
+                                    step="100" type="range" value="1700" />
+                                <p>Capacidade considerada no cálculo mensal de armazenamento.</p>
+                            </div>
+                            <div class="control">
+                                <div class="control-head"><label for="egress">Tráfego de saída previsto</label><output
+                                        id="egressText">—</output></div><input id="egress" max="15" min="1" step="0.5"
+                                    type="range" value="6" />
+                                <p>Volume mensal estimado de saída; não confundir com percentual de uso da rede.</p>
+                            </div>
+                            <div class="scenario-eval" id="billingEvaluation">—</div>
+                            <details class="premises">
+                                <summary>Ver e editar as premissas do modelo ↘</summary>
+                                <p>Valores didáticos, não consultados na tabela atual da AWS. Troque-os pelos preços
+                                    reais e classe de instância quando o projeto definir a infraestrutura.</p>
+                                <div class="prem-grid"><label>USD por nó/hora <input id="priceNode" max="10" min="0"
+                                            step="0.001" type="number" value="0.096" /></label><label>Horas por mês
+                                        <input id="hours" max="744" min="1" step="1" type="number"
+                                            value="730" /></label><label>USD/GB-mês (disco) <input id="priceStorage"
+                                            max="5" min="0" step="0.01" type="number"
+                                            value="0.08" /></label><label>USD/GB (saída) <input id="priceTraffic"
+                                            max="5" min="0" step="0.01" type="number"
+                                            value="0.05" /></label><label>Câmbio R$/USD <input id="fx" max="30"
+                                            min="0.01" step="0.01" type="number" value="5.20" /></label></div>
+                            </details>
+                        </div>
+                    </div>
+                    <div class="card forecaster">
+                        <div class="panel-title">
+                            <div>
+                                <h3>Impacto de decisões de expansão</h3>
+                                <p>Projeção comparativa com as mesmas premissas e volumes de armazenamento/tráfego
+                                    configurados acima.</p>
+                            </div><span class="tiny">R$/mês • valores ilustrativos</span>
+                        </div>
+                        <div class="forecast-cols" id="forecastBars"></div>
+                        <p class="forecast-sub">Aumentar servidores pode melhorar a capacidade disponível, mas não
+                            garante redução de incidentes. O dimensionamento deve considerar métricas históricas e
+                            requisitos do serviço.</p>
+                    </div>
+                </section>
+                <section class="section" id="relatorios">
+                    <div class="card report-panel">
+                        <div>
+                            <h3>Relatório executivo</h3>
+                            <p>Exporte as métricas simuladas dos oito servidores, prioridades e decisões selecionadas em
+                                CSV, ou use o layout de impressão para criar um PDF resumido da dashboard.</p>
+                        </div>
+                        <div class="report-actions"><button class="button" id="buttonCsv" type="button">↓ Exportar
+                                CSV</button><button class="button primary" id="buttonPrint" type="button">▤ Salvar como
+                                PDF</button></div>
+                    </div>
+                </section>
+                <p class="footnote"><strong>Sobre este protótipo:</strong> todos os registros de infraestrutura e
+                    insights são <strong>sintéticos e demonstrativos</strong>. Os limiares usados são exemplos (CPU 85%,
+                    RAM 90%, disco 85%, rede 80% da capacidade hipotética). Os custos representam apenas uma conta
+                    matemática com preços ajustáveis; não são dados AWS nem permitem inferir uma fatura. Na versão
+                    integrada, as métricas deverão vir da captura/ETL do StreamGuard e as premissas financeiras devem
+                    ser verificadas e documentadas.</p>
+
+                <div class="toast" hidden="" id="toast" role="status"></div>
+                <div class="overlay" hidden="" id="overlay" role="presentation">
+                    <div aria-labelledby="dialogTitle" aria-modal="true" class="dialog" role="dialog">
+                        <div class="dialog-head">
+                            <h3 id="dialogTitle">Detalhes</h3><button aria-label="Fechar" class="close" id="closeDialog"
+                                type="button">×</button>
+                        </div>
+                        <p id="dialogText"></p>
+                    </div>
+                </div>
+                <!-- FIM DO CONTEUDO DA DASHBOARD INDIVIDUAL -->
+            </main>
+        </div>
+    </div>
+    <!-- Script compartilhado: sidebar, cabeçalho, notificações e permissões -->
+    <script src="./js/painel_shell.js"></script>
+    <!-- Script da dashboard: dados DEMO, análise, gráfico SVG, simulador e relatórios -->
+    <script src="./js/painel_gestor_insight.js"></script>
+</body>
+
+</html>
