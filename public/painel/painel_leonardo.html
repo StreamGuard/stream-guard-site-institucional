@@ -41,28 +41,28 @@
                     <article class="card-metrica status-atencao">
                         <span class="selo-status status-atencao">Atenção</span>
                         <h2>RAM</h2>
-                        <p><strong>75%</strong></p>
+                        <strong id="kpiRam">--%</strong>
                         <small>Margem até 100%</small>
                     </article>
 
                     <article class="card-metrica status-atencao">
                         <span class="selo-status status-atencao">Atenção</span>
                         <h2>CPU</h2>
-                        <p><strong>77%</strong></p>
+                        <strong id="kpiCpu">--%</strong>
                         <small>Margem até 100%</small>
                     </article>
 
                     <article class="card-metrica status-alerta">
                         <span class="selo-status status-alerta">Alerta</span>
                         <h2>Disco</h2>
-                        <p><strong>85%</strong></p>
+                        <strong id="kpiDisco">--%</strong>
                         <small>Margem até 100%</small>
                     </article>
 
                     <article class="card-metrica status-normal">
                         <span class="selo-status status-normal">OK</span>
                         <h2>Rede</h2>
-                        <p><strong>45%</strong></p>
+                        <strong id="kpiRede">--%</strong>
                         <small>Margem até 100%</small>
                     </article>
                 </section>
@@ -156,46 +156,47 @@
 
                         <div class="grade-disponibilidade">
                             <article class="card-disponibilidade">
-                                <div class="indicador-circular" role="progressbar" aria-label="CPU disponível"
-                                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="23">
-                                    <span>23%</span>
+                                <div class="indicador-circular" id="anelCpu" role="progressbar"
+                                    aria-label="CPU disponível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                    <span id="valorLivreCpu">--%</span>
                                 </div>
                                 <div>
                                     <h3>CPU disponível</h3>
-                                    <p>23% livres, com uso médio de 77%.</p>
+                                    <p id="textoLivreCpu">Aguardando dados.</p>
                                 </div>
                             </article>
-
                             <article class="card-disponibilidade">
-                                <div class="indicador-circular" role="progressbar" aria-label="RAM disponível"
-                                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="25">
-                                    <span>25%</span>
+                                <div class="indicador-circular" id="anelRam" role="progressbar"
+                                    aria-label="RAM disponível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                    <span id="valorLivreRam">--%</span>
                                 </div>
                                 <div>
                                     <h3>RAM disponível</h3>
-                                    <p>25% livres, com uso médio de 75%.</p>
+                                    <p id="textoLivreRam">Aguardando dados.</p>
                                 </div>
                             </article>
 
                             <article class="card-disponibilidade">
-                                <div class="indicador-circular" role="progressbar" aria-label="Disco disponível"
-                                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="15">
-                                    <span>15%</span>
+                                <div class="indicador-circular" id="anelDisco" role="progressbar"
+                                    aria-label="Disco disponível" aria-valuemin="0" aria-valuemax="100"
+                                    aria-valuenow="0">
+                                    <span id="valorLivreDisco">--%</span>
                                 </div>
                                 <div>
                                     <h3>Disco disponível</h3>
-                                    <p>15% livres, com uso médio de 85%.</p>
+                                    <p id="textoLivreDisco">Aguardando dados.</p>
                                 </div>
                             </article>
 
                             <article class="card-disponibilidade">
-                                <div class="indicador-circular" role="progressbar" aria-label="Rede disponível"
-                                    aria-valuemin="0" aria-valuemax="100" aria-valuenow="55">
-                                    <span>55%</span>
+                                <div class="indicador-circular" id="anelRede" role="progressbar"
+                                    aria-label="Rede disponível" aria-valuemin="0" aria-valuemax="100"
+                                    aria-valuenow="0">
+                                    <span id="valorLivreRede">--%</span>
                                 </div>
                                 <div>
                                     <h3>Rede disponível</h3>
-                                    <p>55% livres, com uso médio de 45%.</p>
+                                    <p id="textoLivreRede">Aguardando dados.</p>
                                 </div>
                             </article>
                         </div>
@@ -235,30 +236,30 @@
                         <ul class="lista-uso-status">
                             <li class="item-uso-status">
                                 <span>CPU</span>
-                                <progress value="77" max="100" aria-label="Uso da CPU: 77%"></progress>
-                                <strong>77%</strong>
-                                <span class="selo-status status-atencao">Atenção</span>
+                                <progress id="barraCpu" value="0" max="100"></progress>
+                                <strong id="usoCpu">--%</strong>
+                                <span id="seloCpu" class="selo-status status-normal">Aguardando</span>
                             </li>
 
                             <li class="item-uso-status">
                                 <span>RAM</span>
-                                <progress value="75" max="100" aria-label="Uso da RAM: 75%"></progress>
-                                <strong>75%</strong>
-                                <span class="selo-status status-atencao">Atenção</span>
+                                <progress id="barraRam" value="0" max="100"></progress>
+                                <strong id="usoRam">--%</strong>
+                                <span id="seloRam" class="selo-status status-normal">Aguardando</span>
                             </li>
 
                             <li class="item-uso-status">
                                 <span>Disco</span>
-                                <progress value="85" max="100" aria-label="Uso do disco: 85%"></progress>
-                                <strong>85%</strong>
-                                <span class="selo-status status-alerta">Alerta</span>
+                                <progress id="barraDisco" value="0" max="100"></progress>
+                                <strong id="usoDisco">--%</strong>
+                                <span id="seloDisco" class="selo-status status-normal">Aguardando</span>
                             </li>
 
                             <li class="item-uso-status">
                                 <span>Rede</span>
-                                <progress value="45" max="100" aria-label="Uso da rede: 45%"></progress>
-                                <strong>45%</strong>
-                                <span class="selo-status status-normal">Normal</span>
+                                <progress id="barraRede" value="0" max="100"></progress>
+                                <strong id="usoRede">--%</strong>
+                                <span id="seloRede" class="selo-status status-normal">Aguardando</span>
                             </li>
                         </ul>
                     </section>

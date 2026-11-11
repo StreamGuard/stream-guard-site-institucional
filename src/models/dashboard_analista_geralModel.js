@@ -3,12 +3,12 @@ var path = require("path");
 
 function transformarCsv(texto) {
     var linhas = texto.trim().split(/\r?\n/);
-    var colunas = linhas[0].split(";");
+   var colunas = linhas[0].split(",");
     // guardo os objetos criados
     var dados = [];
 
     for (var i = 1; i < linhas.length; i++) {
-        var valores = linhas[i].split(";");
+       var valores = linhas[i].split(",");
         // cada linha me vira uma lista de valores
         var registro = {};
 
