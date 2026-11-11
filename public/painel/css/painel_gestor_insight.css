@@ -1,9 +1,3 @@
-/*
- * StreamGuard | Dashboard Individual
- * Reaproveita painel_base.css e painel_shell.js do projeto em grupo.
- * Todos os seletores da dashboard foram isolados em .di-dashboard
- * para preservar os demais painéis.
- */
 .di-dashboard {
     --bg: #0c0c18;
     --side: #121224;
@@ -1313,6 +1307,99 @@
     line-height: 1.75;
     margin-top: 16px;
     white-space: pre-wrap
+}
+
+
+/*NAVEGAÇÃO GERENCIAL*/   
+
+
+.di-dashboard .di-quicknav {
+    display: flex;
+    gap: 10px;
+    padding: 12px;
+
+    background-color: var(--panel);
+
+    border: 1px solid var(--border);
+    border-radius: 12px;
+
+    margin-bottom: 20px;
+
+    position: sticky;
+    top: 72px;
+    z-index: 30;
+
+    overflow-x: auto;
+    scroll-margin-top: 80px;
+}
+
+
+.di-dashboard .di-tab {
+    background-color: transparent;
+
+    color: var(--muted);
+
+    border: 1px solid transparent;
+    border-radius: 8px;
+
+    padding: 12px 18px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    cursor: pointer;
+    white-space: nowrap;
+
+    transition: 0.2s;
+}
+
+
+
+.di-dashboard .di-tab:hover {
+    background-color: var(--panel2);
+    color: var(--text);
+}
+
+
+
+.di-dashboard .di-tab.ativo {
+    background-color: rgba(45, 226, 192, 0.12);
+
+    border-color: var(--mint);
+    color: var(--mint);
+}
+
+
+
+.di-dashboard > .filterbar {
+    margin-top: 10px;
+    margin-bottom: 22px;
+}
+
+
+
+@media (max-width: 768px) {
+
+    .di-dashboard .di-quicknav {
+        gap: 5px;
+        padding: 8px;
+    }
+
+    .di-dashboard .di-tab {
+        font-size: 12px;
+        padding: 10px 12px;
+    }
+
+}
+
+
+
+@media print {
+
+    .di-dashboard .section[hidden] {
+        display: block !important;
+    }
+
 }
 
 @media (max-width:1280px) {

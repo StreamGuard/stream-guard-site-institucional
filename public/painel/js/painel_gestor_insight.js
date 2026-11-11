@@ -1,9 +1,6 @@
 (() => {
     'use strict';
 
-    // ==========================================
-    // CONFIGURAÇÕES GERAIS
-    // ==========================================
 
     const $ = (id) => document.getElementById(id);
 
@@ -37,9 +34,7 @@
         Rede: 'Conectividade'
     };
 
-    // ==========================================
-    // DADOS DEMONSTRATIVOS
-    // ==========================================
+
 
     const HOSTS = [
         {
@@ -1560,5 +1555,147 @@ Os números devem ser validados antes de aplicação real.`
     }
 
     integrarMenuCompartilhado();
+
+
+const SECOES_ABA = {
+
+    executivo: [
+        'resumo'
+    ],
+
+    recursos: [
+        'componentes',
+        'servidores'
+    ],
+
+    custos: [
+        'billing'
+    ],
+
+    decisoes: [
+        'decisoes',
+        'relatorios'
+    ]
+
+};
+
+
+
+function mostrarAba(nomeAba, rolar = true) {
+
+    if (!SECOES_ABA[nomeAba]) {
+        return;
+    }
+
+    // Percorre as abas cadastradas
+
+    for (const nome in SECOES_ABA) {
+
+        const secoes = SECOES_ABA[nome];
+
+        // Mostra ou oculta cada seção
+
+        for (const id of secoes) {
+
+            const secao = document.getElementById(id);
+
+            if (secao) {
+                secao.hidden = nome !== nomeAba;
+            }
+
+        }
+
+    }
+
+    // Atualiza a aparência dos botões
+
+    const botoes = document.querySelectorAll('.di-tab');
+
+    botoes.forEach(botao => {
+
+        const selecionado = botao.dataset.tab === nomeAba;
+
+        botao.classList.toggle('ativo', selecionado);
+
+        botao.setAttribute(
+            'aria-pressed',
+            String(selecionado)
+        );
+
+    });
+
+    // Retorna ao início do conteúdo da aba
+
+    if (rolar) {
+
+        document.querySelector('.di-quicknav').scrollIntoView({
+            behavior: 'smooth',
+            block: 'start'
+        });
+
+    }
+
+}
+
+
+document.querySelector('.di-quicknav')
+    .addEventListener('click', function(evento) {
+
+        const botao = evento.target.closest('[data-tab]');
+
+        if (!botao) {
+            return;
+        }
+
+        mostrarAba(botao.dataset.tab);
+
+    });
+
+
+const barraFiltros = document.querySelector('#resumo .filterbar');
+
+const navegacao = document.querySelector('.di-quicknav');
+
+if (barraFiltros && navegacao) {
+
+    navegacao.insertAdjacentElement(
+        'afterend',
+        barraFiltros
+    );
+
+}
+
+const atalhoDecisoes = document.querySelector(
+    '.notice a[href="#decisoes"]'
+);
+
+if (atalhoDecisoes) {
+
+    atalhoDecisoes.addEventListener('click', function(evento) {
+
+        evento.preventDefault();
+
+        mostrarAba('decisoes');
+
+    });
+
+}
+
+
+const parametros = new URLSearchParams(window.location.search);
+
+const abaInicial = parametros.get('aba');
+
+if (SECOES_ABA[abaInicial]) {
+
+    mostrarAba(abaInicial, false);
+
+} else {
+
+    mostrarAba('executivo', false);
+
+}
+
+
 
 })();

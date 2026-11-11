@@ -30,14 +30,37 @@
             <main class="principal di-dashboard" id="main-content">
                 <!-- INICIO DO CONTEUDO DA DASHBOARD INDIVIDUAL -->
 
-                <nav class="di-quicknav" aria-label="Seções da dashboard individual">
-                    <a href="#resumo">Resumo</a>
-                    <a href="#decisoes">Decisões</a>
-                    <a href="#componentes">Recursos</a>
-                    <a href="#servidores">Servidores</a>
-                    <a href="#billing">Previsão de custos</a>
-                    <a href="#relatorios">Relatórios</a>
-                </nav>
+                <nav class="di-quicknav" aria-label="Navegação gerencial">
+
+    <button type="button"
+            class="di-tab ativo"
+            data-tab="executivo"
+            aria-pressed="true">
+        Visão Executiva
+    </button>
+
+    <button type="button"
+            class="di-tab"
+            data-tab="recursos"
+            aria-pressed="false">
+        Análise de Recursos
+    </button>
+
+    <button type="button"
+            class="di-tab"
+            data-tab="custos"
+            aria-pressed="false">
+        Custos e Planejamento
+    </button>
+
+    <button type="button"
+            class="di-tab"
+            data-tab="decisoes"
+            aria-pressed="false">
+        Decisões e Relatórios
+    </button>
+
+</nav>
 
                 <section class="section" id="resumo">
                     <div class="pagehead">
@@ -51,7 +74,7 @@
                                 Gerar relatório</button></div>
                     </div>
                     <div class="filterbar">
-                        <div class="field"><label for="periodo">Período de análise</label><select id="periodo">
+                        <div class="field"><label for="periodo">Período do gráfico (demo)</label><select id="periodo">
                                 <option value="24h">Últimas 24 horas</option>
                                 <option selected="" value="7d">Últimos 7 dias</option>
                                 <option value="30d">Últimos 30 dias</option>
@@ -303,7 +326,7 @@
                         <p id="dialogText"></p>
                     </div>
                 </div>
-                <!-- FIM DO CONTEUDO DA DASHBOARD INDIVIDUAL -->
+                
             </main>
         </div>
     </div>
