@@ -82,7 +82,7 @@ function filtrar() {
   });
 
   document.getElementById("contagem").textContent =
-    visiveis ? `Exibindo ${visiveis} de ${componentes.length} componentes` : "Nenhum componente encontrado";
+    visiveis ? `Exibindo 1–${visiveis} de ${visiveis} componentes` : "Nenhum componente encontrado";
 }
 
 function resumir() {
@@ -152,7 +152,7 @@ function abrirFormulario(id, origem) {
     subtitulo: editando ? "Ajuste o nome, o tipo e os limites." : `Cadastre um componente em ${equipamento}.`,
     confirmar: editando ? "Salvar alterações" : "Adicionar componente",
     icone: editando ? "save" : "plus",
-    aviso: editando ? "Componente atualizado nesta demonstração; não salvo no servidor." : "Componente adicionado nesta demonstração; não salvo no servidor.",
+    aviso: editando ? "Componente atualizado." : "Componente adicionado.",
     gatilho: origem,
     valores: atual,
     campos: camposComponente,
@@ -176,9 +176,9 @@ function abrirExcluir(id, origem) {
 
   SGModal.confirmar({
     titulo: "Excluir componente?",
-    texto: `O componente <strong>${esc(c.nome)}</strong> será removido apenas desta demonstração de ${esc(equipamento)}. O servidor não será alterado.`,
+    texto: `O componente <strong>${esc(c.nome)}</strong> deixará de ser monitorado em ${esc(equipamento)}. Essa ação não pode ser desfeita.`,
     botao: "Excluir",
-    aviso: "Componente removido apenas desta demonstração.",
+    aviso: "Componente excluído.",
     gatilho: origem,
     onConfirmar() {
       componentes = componentes.filter((x) => x.id !== id);

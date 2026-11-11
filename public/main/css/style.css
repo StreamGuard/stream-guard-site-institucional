@@ -644,12 +644,12 @@ body {
     border-top: 1px solid var(--sg-border-soft);
 }
 
-.footer-grid {
-    padding-inline: clamp(0px, calc(25% - 8rem), 4rem);
+.footer-section .row.gy-4 {
+    padding-inline: clamp(0px, calc(25% - 8rem), 4rem) !important;
 }
 
 .footer-text {
-    max-width: max(16rem, 70%);
+    max-width: max(16rem, 70%) !important;
     color: var(--sg-text-muted);
 }
 
@@ -1530,17 +1530,6 @@ body {
 .cabecalho,
 .cabecalho * {
     box-sizing: border-box;
-}
-
-.custom-offcanvas {
-    background: var(--sg-navy);
-    color: var(--sg-text);
-}
-
-.custom-offcanvas .nav-link,
-.navbar .login-button,
-.navbar .register-button {
-    color: var(--sg-text);
 }
 
 @media (max-width: 991.98px) {

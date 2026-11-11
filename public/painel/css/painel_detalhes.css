@@ -746,4 +746,21 @@
   .seletores-grupo .campo {
     flex: 1 1 180px;
   }
+
+  .busca {
+    min-width: 0;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .acoes {
+    flex-wrap: wrap;
+  }
+
+  .acoes .btn-ver,
+  .acoes .btn-editar,
+  .acoes .btn-excluir {
+    flex: 1 1 80px;
+    justify-content: center;
+  }
 }

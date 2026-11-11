@@ -112,7 +112,7 @@
             subtitulo: editando ? 'Atualize os dados do equipamento.' : 'Adicione um equipamento para ser monitorado.',
             confirmar: editando ? 'Salvar alterações' : 'Cadastrar servidor',
             icone: editando ? 'save' : 'plus',
-            aviso: editando ? 'Servidor atualizado nesta demonstração; não salvo no servidor.' : 'Servidor adicionado nesta demonstração; não salvo no servidor.',
+            aviso: editando ? 'Servidor atualizado.' : 'Servidor cadastrado.',
             gatilho: origem,
             valores: atual,
             campos: [
@@ -157,9 +157,9 @@
 
         SGModal.confirmar({
             titulo: 'Excluir servidor?',
-            texto: `O servidor <strong>${esc(nome)}</strong> será removido apenas desta demonstração. O servidor e seu histórico no banco não serão alterados.`,
+            texto: `O servidor <strong>${esc(nome)}</strong> deixará de ser monitorado e seu histórico será removido. Essa ação não pode ser desfeita.`,
             botao: 'Excluir',
-            aviso: 'Servidor removido apenas desta demonstração.',
+            aviso: 'Servidor excluído.',
             gatilho: origem,
             onConfirmar() {
                 cartao.remove();

@@ -806,12 +806,12 @@ a {
     border-top: 1px solid var(--sg-border-soft);
 }
 
-.footer-grid {
-    padding-inline: clamp(0px, calc(25% - 8rem), 4rem);
+.footer-section .row.gy-4 {
+    padding-inline: clamp(0px, calc(25% - 8rem), 4rem) !important;
 }
 
 .footer-text {
-    max-width: max(16rem, 70%);
+    max-width: max(16rem, 70%) !important;
     color: var(--sg-text-muted);
 }
 

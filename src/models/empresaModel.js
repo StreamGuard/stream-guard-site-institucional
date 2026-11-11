@@ -3,21 +3,22 @@ var database = require("../database/config");
 function cadastrar(razaoSocial, cnpj, codigoEmpresa) {
     var instrucaoSql = `
         INSERT INTO empresa (razao_social, cnpj, codigo_empresa)
-        VALUES (?, ?, ?);
+        VALUES ('${razaoSocial}', '${cnpj}', '${codigoEmpresa}');
     `;
-    return database.executar(instrucaoSql, [razaoSocial, cnpj, codigoEmpresa]);
+    return database.executar(instrucaoSql);
 }
 
 function buscarPorCnpj(cnpj) {
     var instrucaoSql = `
-        SELECT id_empresa FROM empresa WHERE cnpj = ?;
+        SELECT id_empresa FROM empresa WHERE cnpj = '${cnpj}';
     `;
-    return database.executar(instrucaoSql, [cnpj]);
+    return database.executar(instrucaoSql);
 }
 
 function buscarPorCodigoEmpresa(codigoEmpresa) {
-    var instrucaoSql = `SELECT id_empresa FROM empresa WHERE codigo_empresa = ?`;
-    return database.executar(instrucaoSql, [codigoEmpresa]);
+    console.log("Cheguei aqui pelo cadastro de usuário");
+    var instrucaoSql = `SELECT id_empresa FROM empresa WHERE codigo_empresa = '${codigoEmpresa}'`;
+    return database.executar(instrucaoSql);
 }
 
 module.exports = {

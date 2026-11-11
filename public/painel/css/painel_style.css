@@ -459,50 +459,30 @@ body.admin-body {
     }
 }
 
-.admin-sidebar-close,
-.admin-sidebar-backdrop {
-    display: none;
+.admin-nav {
+    min-height: 0;
+}
+
+.admin-sidebar > :not(.admin-nav) {
+    flex-shrink: 0;
 }
 
 @media (max-width: 700px) {
     .admin-sidebar {
-        max-width: calc(100vw - 32px);
-        visibility: hidden;
+        max-width: calc(100% - 64px);
     }
 
-    .admin-sidebar.show {
-        visibility: visible;
+    .admin-sidebar-toggle {
+        position: relative;
+        z-index: 1031;
+        min-width: 44px;
+        min-height: 44px;
     }
 
-    .admin-sidebar-close {
-        display: grid;
-        place-items: center;
-        position: absolute;
-        right: 8px;
-        top: 8px;
-        width: 44px;
-        height: 44px;
-        border: 1px solid var(--sg-border);
-        border-radius: 8px;
-        background: var(--sg-navy-2);
-        color: var(--sg-text);
-    }
-
-    .admin-sidebar-brand {
-        padding-top: 56px;
-    }
-
-    .admin-sidebar-backdrop:not([hidden]) {
-        display: block;
+    .admin-sidebar.show ~ .admin-main .admin-sidebar-toggle {
         position: fixed;
-        inset: 0;
-        z-index: 1025;
-        border: 0;
-        background: rgba(4, 4, 12, 0.74);
-    }
-
-    body.admin-menu-aberto {
-        overflow: hidden;
+        top: 16px;
+        left: min(276px, calc(100% - 56px));
     }
 
     .admin-empty-state {

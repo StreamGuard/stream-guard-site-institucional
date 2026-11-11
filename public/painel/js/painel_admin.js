@@ -48,14 +48,7 @@ function mostrarToast(mensagem) {
   timerToast = setTimeout(() => { toast.hidden = true; }, 2500);
 }
 
-const extras = lerStorage(CHAVE_EXTRAS, []);
-const extrasValidos = Array.isArray(extras) ? extras.filter(e => e &&
-  typeof e.nome === "string" && e.nome.trim() && typeof e.sigla === "string" && e.sigla.trim() &&
-  Object.hasOwn(statusInfo, e.status) &&
-  [e.equipamentos, e.ocorrencias].every(n => Number.isInteger(n) && n >= 0) &&
-  Number.isFinite(e.saude) && e.saude >= 0 && e.saude <= 100) : [];
-const exemplosInvalidos = !Array.isArray(extras) || extrasValidos.length !== extras.length;
-empresas.push(...extrasValidos);
+empresas.push(...lerStorage(CHAVE_EXTRAS, []));
 let selecionada = lerStorage(CHAVE_SELECIONADA, null);
 
 
@@ -65,9 +58,8 @@ function desenharResumo() {
 
   document.getElementById("saudacao").textContent = `Olá, ${usuario.nome}`;
   document.getElementById("textoResumo").textContent =
-    `Demonstração com ${empresas.length} empresas e ${ocorrencias} ocorrências de exemplo.` +
-    (exemplosInvalidos ? " Há exemplos locais inválidos que não puderam ser exibidos." : "");
-  document.getElementById("totalVinculadas").textContent = `${empresas.length} empresas de exemplo`;
+    `Você tem acesso a ${empresas.length} empresas. Há ${ocorrencias} ocorrências que precisam de atenção.`;
+  document.getElementById("totalVinculadas").textContent = `${empresas.length} empresas vinculadas`;
 
   document.getElementById("miniCards").innerHTML = `
     <div class="mini-card"><strong class="verde">${qtd("ok")}</strong><small>Tudo OK</small></div>
@@ -99,7 +91,7 @@ function desenharEmpresas() {
         <div class="barra ${info.cor}"><div style="width: ${e.saude}%"></div></div>
 
         <button class="btn-monitorar ${ativa ? "ativo" : ""}" data-indice="${i}">
-          ${ativa ? "✔ Exemplo selecionado" : "Selecionar exemplo"}
+          ${ativa ? "✔ Monitorando esta empresa" : "↗ Monitorar esta empresa"}
         </button>
       </article>
     `;
@@ -114,7 +106,7 @@ document.getElementById("empresas").addEventListener("click", (evento) => {
   selecionada = empresa.nome;
   salvarStorage(CHAVE_SELECIONADA, selecionada);
   desenharEmpresas();
-  mostrarToast(`Exemplo selecionado: ${empresa.nome}. A empresa autenticada permanece a mesma.`);
+  mostrarToast(`Monitorando ${empresa.nome}`);
 });
 
 

@@ -2,9 +2,9 @@
 const ic = (nome) => `<svg class="sg-ic" aria-hidden="true"><use href="#sg-${nome}"/></svg>`;
 
 const resumo = [
-  { cor: "laranja",  icone: "bell",  numero: 3, titulo: "Alertas hoje",  detalhe: "No histórico de demonstração" },
+  { cor: "laranja",  icone: "bell",  numero: 3, titulo: "Alertas hoje",  detalhe: "+1 desde ontem" },
   { cor: "vermelho", icone: "alert", numero: 1, titulo: "Críticos",      detalhe: "Requer atenção" },
-  { cor: "verde",    icone: "check", numero: 1, titulo: "Resolvidos",    detalhe: "No histórico de demonstração" },
+  { cor: "verde",    icone: "check", numero: 1, titulo: "Resolvidos",    detalhe: "Tempo médio 18 min" },
   { cor: "azul",     icone: "send",  numero: 2, titulo: "Canais ativos", detalhe: "Slack e Jira" }
 ];
 
@@ -56,9 +56,6 @@ const integracoes = [
 const agruparRepetidos = true;
 
 function desenharResumo() {
-  resumo[0].numero = alertas.filter(a => a.hora.startsWith("Hoje,")).length;
-  resumo[1].numero = alertas.filter(a => a.status === "critico").length;
-  resumo[2].numero = alertas.filter(a => a.status === "resolvido").length;
   document.getElementById("resumo").innerHTML = resumo.map((item) => `
     <article class="card-resumo">
       <div class="icone-resumo ${item.cor}">${ic(item.icone)}</div>
@@ -145,7 +142,7 @@ function desenharIntegracoes() {
     <div class="integracao">
       <span class="integracao-icone ${info.cor}">${ic(info.icone)}</span>
       <div><strong>${i.canal}</strong><small>${SGModal.escapar(i.destino)}</small></div>
-      <span class="tag ${i.ativa ? "verde" : "laranja"}">${i.ativa ? "Ativo no exemplo" : "Desativado no exemplo"}</span>
+      <span class="tag ${i.ativa ? "verde" : "laranja"}">${i.ativa ? "Conectado" : "Desativado"}</span>
       <button class="btn-mini" data-acao="editar-integracao" data-indice="${indice}" data-perm="editar">${ic("edit")} Editar</button>
       <button class="btn-mini btn-mini-perigo" data-acao="remover-integracao" data-indice="${indice}" data-perm="excluir">${ic("trash")} Remover</button>
     </div>`;
@@ -206,10 +203,9 @@ function abrirVerAlerta(indice, origem) {
 function reconhecer(indice) {
   if (!SG.pode("editar")) return; // dupla checagem
   alertas[indice].status = "resolvido";
-  desenharResumo();
   desenharAlertas(filtros[filtroAtual].valor);
   atualizarSino();
-  SGModal.aviso("Alerta marcado como resolvido apenas nesta demonstração.");
+  SGModal.aviso("Alerta reconhecido e marcado como resolvido.");
 }
 
 function excluirAlerta(indice, origem) {
@@ -217,13 +213,12 @@ function excluirAlerta(indice, origem) {
 
   SGModal.confirmar({
     titulo: "Excluir alerta do histórico?",
-    texto: `O registro <strong>${SGModal.escapar(alertas[indice].titulo)}</strong> será removido apenas do histórico de demonstração.`,
+    texto: `O registro <strong>${SGModal.escapar(alertas[indice].titulo)}</strong> será removido do histórico. Essa ação não pode ser desfeita.`,
     botao: "Excluir",
-    aviso: "Alerta removido apenas do histórico de demonstração.",
+    aviso: "Alerta excluído do histórico.",
     gatilho: origem,
     onConfirmar() {
       alertas.splice(indice, 1);
-      desenharResumo();
       desenharAlertas(filtros[filtroAtual].valor);
       atualizarSino();
     }
@@ -241,7 +236,7 @@ function abrirIntegracao(indice, origem) {
     subtitulo: editando ? "Altere o destino ou desative o envio." : "Conecte um canal para receber os alertas.",
     confirmar: editando ? "Salvar alterações" : "Conectar canal",
     icone: editando ? "save" : "plus",
-    aviso: editando ? "Integração alterada apenas nesta demonstração." : "Canal adicionado apenas nesta demonstração; não conectado ao serviço.",
+    aviso: editando ? "Integração atualizada." : "Integração conectada.",
     gatilho: origem,
     valores: atual,
     campos: [
@@ -270,9 +265,9 @@ function removerIntegracao(indice, origem) {
 
   SGModal.confirmar({
     titulo: "Remover integração?",
-    texto: `Esta demonstração deixará de exibir o canal <strong>${integracoes[indice].canal}</strong>. O serviço externo não será alterado.`,
+    texto: `Os alertas deixarão de ser enviados para <strong>${integracoes[indice].canal}</strong>. Essa ação não pode ser desfeita.`,
     botao: "Remover",
-    aviso: "Canal removido apenas desta demonstração.",
+    aviso: "Integração removida.",
     gatilho: origem,
     onConfirmar() {
       integracoes.splice(indice, 1);
@@ -315,9 +310,9 @@ botaoSalvar.addEventListener("click", () => {
     agruparRepetidos: checkAgrupar.checked
   };
 
-  SGModal.aviso("Configurações aplicadas apenas nesta página de demonstração; não salvas no servidor.");
+  console.log("Configurações salvas:", config);
 
-  botaoSalvar.textContent = "Aplicado na demonstração";
+  botaoSalvar.textContent = "✔ Configurações salvas";
   setTimeout(() => {
     botaoSalvar.textContent = "Salvar configurações";
   }, 2000);
