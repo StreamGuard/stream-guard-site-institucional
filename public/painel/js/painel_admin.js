@@ -20,6 +20,7 @@ const statusInfo = {
 function lerStorage(chave, padrao) {
   try {
     const valor = localStorage.getItem(chave);
+    console.log(sessionStorage.ID_EMPRESA)
     return valor ? JSON.parse(valor) : padrao;
   } catch (erro) {
     return padrao;
