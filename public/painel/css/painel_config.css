@@ -685,3 +685,71 @@
     outline: 2px solid var(--verde);
     outline-offset: 2px;
 }
+
+.box-tabela,
+.cards-resumo > * {
+    min-width: 0;
+}
+
+.box-tabela > .tabela {
+    overflow: auto;
+    max-width: 100%;
+}
+
+.grid-metricas .linha,
+.grid-metricas .linha-cabecalho {
+    min-width: 760px;
+}
+
+.grid-funcionarios .linha,
+.grid-funcionarios .linha-cabecalho {
+    min-width: 920px;
+}
+
+@media (max-width: 767px) {
+    .cards-resumo {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .card-resumo {
+        padding: 16px;
+    }
+
+    .box-tabela-acoes,
+    .box-tabela-rodape {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .campo-busca {
+        min-width: 0;
+        max-width: 100%;
+        flex: 1 1 200px;
+    }
+
+    .box-tabela-topo,
+    .box-tabela-rodape {
+        padding: 16px;
+    }
+
+    .rodape-nota {
+        min-width: 0;
+        overflow-wrap: anywhere;
+    }
+
+    .abas {
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .btn-sg {
+        height: auto;
+        min-height: 44px;
+        padding: 10px 14px;
+        white-space: normal;
+    }
+
+    .box-tabela > .tabela .linha {
+        max-height: none;
+    }
+}

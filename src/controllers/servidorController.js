@@ -1,61 +1,33 @@
 var servidorModel = require("../models/servidorModel");
 
-function cadastrar(req, res) {
-
-    var empresa_id = req.body.empresa_id;
-    var codigo_agente = req.body.codigo_agente;
-    var hostname = req.body.hostname;
-    var sistema_operacional = req.body.sistema_operacional;
-    var versao_so = req.body.versao_so;
-    var arquitetura = req.body.arquitetura;
-
-    if (!empresa_id) {
-
-        res.status(400).send("Empresa é obrigatória!");
-
-    } else if (!codigo_agente || codigo_agente.trim() === "") {
-
-        res.status(400).send("Código do agente é obrigatório!");
-
-    } else if (!hostname || hostname.trim() === "") {
-
-        res.status(400).send("Hostname é obrigatório!");
-
-    } else if (!sistema_operacional || sistema_operacional.trim() === "") {
-
-        res.status(400).send("Sistema operacional é obrigatório!");
-
-    } else if (!versao_so || versao_so.trim() === "") {
-
-        res.status(400).send("Versão do sistema operacional é obrigatória!");
-
-    } else if (!arquitetura || arquitetura.trim() === "") {
-
-        res.status(400).send("Arquitetura é obrigatória!");
-
-    } else {
-
-        servidorModel.cadastrar(empresa_id,codigo_agente,hostname,sistema_operacional,versao_so,arquitetura)
-            .then(function (resultadoCadastrar) {
-                let servidor = {
-                    id: resultadoCadastrar.insertId,
-                    empresa_id: empresa_id,
-                    codigo_agente: codigo_agente,
-                    hostname: hostname,
-                    sistema_operacional: sistema_operacional,
-                    versao_so: versao_so,
-                    arquitetura: arquitetura,
-                    ultimo_health_check: null
-                };
-
-                console.log(`\nServidor cadastrado: ${JSON.stringify(servidor)}`);
-                res.status(201).json(servidor);
-            })
-            .catch(function (erro) {
-                console.log(erro);
-                console.log("\nHouve um erro ao cadastrar o servidor! Erro: ", erro.sqlMessage);
-                res.status(500).json(erro.sqlMessage);
-            });
+async function cadastrar(req, res) {
+    const { empresa_id, codigo_agente, hostname, sistema_operacional, versao_so, arquitetura } = req.body;
+    const codigos = req.body.codigos_anteriores === undefined ? [] : req.body.codigos_anteriores;
+    const campos = [[codigo_agente, 64], [hostname, 100], [sistema_operacional, 100], [versao_so, 100], [arquitetura, 50]];
+    if (campos.some(([valor, maximo]) => typeof valor !== "string" || !valor.trim() || valor.length > maximo) ||
+        (empresa_id !== undefined && (!Number.isSafeInteger(empresa_id) || empresa_id <= 0)) ||
+        !Array.isArray(codigos) || codigos.length > 2 ||
+        codigos.some(valor => typeof valor !== "string" || !valor.trim() || valor.length > 64)) {
+        return res.status(400).json({ erro: "Dados do servidor inválidos." });
+    }
+    try {
+        const resultado = await servidorModel.cadastrar(empresa_id, codigo_agente, hostname, sistema_operacional, versao_so, arquitetura, req.session.usuario_id, codigos);
+        const servidor = resultado.servidor;
+        return res.status(201).json({
+            id: resultado.insertId,
+            empresa_id: servidor.fk_equipamento,
+            codigo_agente: servidor.codigo_agente,
+            hostname: servidor.hostname,
+            sistema_operacional: servidor.sistema_operacional,
+            versao_so: servidor.versao_so,
+            arquitetura: servidor.arquitetura,
+            ultimo_health_check: null
+        });
+    } catch (erro) {
+        if (!erro.status) console.error("Erro ao cadastrar servidor:", erro.code || "ERRO_INTERNO");
+        return res.status(erro.status || (erro.code === "ER_DUP_ENTRY" ? 409 : 500)).json({
+            erro: erro.status ? erro.message : erro.code === "ER_DUP_ENTRY" ? "Identidade já cadastrada; confira o vínculo." : "Não foi possível cadastrar o servidor."
+        });
     }
 }
 

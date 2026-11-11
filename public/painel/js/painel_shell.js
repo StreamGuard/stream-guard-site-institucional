@@ -32,7 +32,8 @@
 
   function guardar(chave, padrao) {
     try {
-      return sessionStorage.getItem(chave) || padrao;
+      const valor = sessionStorage.getItem(chave);
+      return valor && valor.trim() && !/^(null|undefined|nan)$/i.test(valor.trim()) ? valor : padrao;
     } catch (erro) {
       return padrao;
     }
@@ -80,17 +81,13 @@
   }
 
   const usuario = {
-    nome: guardar("NOME_USUARIO", "Nome do Usuário"),
-    cargo: guardar("CARGO", NOMES_PERFIL[perfil]),
+    nome: guardar("NOME_USUARIO", "Nome não informado"),
+    cargo: guardar("CARGO", "Cargo não informado"),
     empresa: empresaAtual(),
   };
 
   function empresaAtual() {
-    try {
-      const salva = JSON.parse(localStorage.getItem("streamguard:empresa-selecionada"));
-      if (salva) return salva;
-    } catch (erro) { /* ignora */ }
-    return guardar("NOME_EMPRESA", "StreamCo Brasil");
+    return guardar("NOME_EMPRESA", "Empresa não informada");
   }
 
 
@@ -130,13 +127,13 @@
     alvo.innerHTML = `
       ${ICONES}
       <div class="logo">
-        <div class="logo-icone"><img src="../assets/streamGuard_logo.png"></img></div>
+        <div class="logo-icone"><img src="../assets/streamGuard_logo.png" alt="Stream Guard"></div>
         <div class="logo-texto">STREAM<span>GUARD</span></div>
       </div>
 
       <p class="menu-titulo">Monitoramento</p>
       <nav class="menu">
-        ${item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard")}
+        ${DASHBOARD_POR_PERFIL[perfil] ? item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard") : ""}
         ${item("./painel_detalhes.html", "sg-server", "Componentes", "detalhes")}
         ${item("./painel_alerta.html", "sg-bell", "Alertas", "alerta")}
       </nav>
@@ -170,7 +167,6 @@
             <h6>Sair da conta</h6>
           </div>
         </div>
-      </div>
 
       
         
@@ -198,7 +194,7 @@
 
     alvo.innerHTML = `
       ${demo}
-      <span class="selo-online"><i class="bolinha verde"></i> Sistemas online</span>
+      <span class="selo-online">Painel de monitoramento</span>
       <div class="sino-wrap">
         <button class="btn-sino" id="btnSino" type="button" aria-label="Notificações" aria-expanded="false">
           <svg class="sg-ic" aria-hidden="true"><use href="#sg-bell"/></svg>
@@ -219,8 +215,22 @@
       });
     }
 
-    document.getElementById("btnSairShell").addEventListener("click", () => {
-      try { sessionStorage.clear(); } catch (e) { /* ignora */ }
+    document.getElementById("btnSairShell").addEventListener("click", async (evento) => {
+      evento.preventDefault();
+      const destino = evento.currentTarget.href;
+      try {
+        const resposta = await fetch("/usuarios/sair", {
+          method: "POST",
+          credentials: "same-origin",
+          headers: { "Content-Type": "application/json" },
+          body: "{}"
+        });
+        if (!resposta.ok) throw new Error("Não foi possível encerrar a sessão. Tente novamente.");
+        sessionStorage.clear();
+        location.href = destino;
+      } catch (erro) {
+        window.alert(erro.message);
+      }
     });
   }
 
@@ -241,7 +251,7 @@
     badge.textContent = notificacoes.length;
 
     painel.innerHTML = notificacoes.length
-      ? `<h4>Ocorrências ativas</h4>` +
+      ? `<h4>Ocorrências de demonstração</h4>` +
         notificacoes
           .map(
             (n) => `
@@ -305,6 +315,8 @@
         "<strong>Perfil Gerente.</strong> Você pode visualizar, cadastrar e editar. Excluir e as Configurações são exclusivos do Administrador.",
     };
 
+    if (!textos[perfil]) return;
+
     const faixa = document.createElement("div");
     faixa.className = `aviso-perfil nivel-${perfil}`;
     faixa.innerHTML = `<svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg><span>${textos[perfil]}</span>`;
@@ -318,18 +330,77 @@
           <div class="icone"><svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg></div>
           <h2>Acesso restrito ao Administrador</h2>
           <p>Seu perfil (${NOMES_PERFIL[perfil]}) não tem permissão para abrir esta tela. Se precisar de acesso, fale com o administrador da sua empresa.</p>
-          <a href="${DASHBOARD_POR_PERFIL[perfil]}">Voltar ao dashboard</a>
+          ${DASHBOARD_POR_PERFIL[perfil] ? `<a href="${DASHBOARD_POR_PERFIL[perfil]}">Voltar ao dashboard</a>` : ""}
         </div>
       </section>`;
   }
 
+
+  function ligarMenuResponsivo(sidebar) {
+    const topo = document.querySelector(".topo");
+    if (!topo) return;
+    sidebar.id = sidebar.id || "menu-painel";
+    const mobile = window.matchMedia("(max-width: 767px)");
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "btn-menu-painel";
+    botao.setAttribute("aria-label", "Abrir menu");
+    botao.setAttribute("aria-controls", sidebar.id);
+    botao.innerHTML = '<svg class="sg-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg>';
+    topo.prepend(botao);
+    const fechar = document.createElement("button");
+    fechar.type = "button";
+    fechar.className = "btn-fechar-sidebar";
+    fechar.setAttribute("aria-label", "Fechar menu");
+    fechar.innerHTML = '<svg class="sg-ic" aria-hidden="true"><use href="#sg-x"/></svg>';
+    sidebar.prepend(fechar);
+    const fundo = document.createElement("button");
+    fundo.type = "button";
+    fundo.className = "fundo-sidebar";
+    fundo.setAttribute("aria-label", "Fechar menu");
+    fundo.tabIndex = -1;
+    document.body.append(fundo);
+
+    function alternar(abrir, devolverFoco = true) {
+      abrir = abrir && mobile.matches;
+      sidebar.classList.toggle("aberta", abrir);
+      sidebar.inert = mobile.matches && !abrir;
+      fundo.hidden = !abrir;
+      botao.setAttribute("aria-expanded", String(abrir));
+      document.body.classList.toggle("menu-painel-aberto", abrir);
+      if (abrir) fechar.focus();
+      else if (devolverFoco && mobile.matches) botao.focus();
+    }
+
+    botao.addEventListener("click", () => alternar(!sidebar.classList.contains("aberta")));
+    fechar.addEventListener("click", () => alternar(false));
+    fundo.addEventListener("click", () => alternar(false));
+    sidebar.querySelectorAll("a").forEach(link => link.addEventListener("click", () => alternar(false, false)));
+    document.addEventListener("keydown", evento => {
+      if (!mobile.matches || !sidebar.classList.contains("aberta")) return;
+      if (evento.key === "Escape") alternar(false);
+      if (evento.key !== "Tab") return;
+      const focaveis = [...sidebar.querySelectorAll("a[href], button:not([disabled])")].filter(el => el.getClientRects().length);
+      const primeiro = focaveis[0], ultimo = focaveis[focaveis.length - 1];
+      if (evento.shiftKey && document.activeElement === primeiro) {
+        evento.preventDefault(); ultimo.focus();
+      } else if (!evento.shiftKey && document.activeElement === ultimo) {
+        evento.preventDefault(); primeiro.focus();
+      }
+    });
+    mobile.addEventListener("change", () => alternar(false, false));
+    alternar(false, false);
+  }
 
   function iniciar() {
     const sidebar = document.querySelector('[data-shell="sidebar"]');
     const topoDireita = document.querySelector('[data-shell="topo-direita"]');
     const principal = document.querySelector(".principal");
 
-    if (sidebar) desenharSidebar(sidebar);
+    if (sidebar) {
+      desenharSidebar(sidebar);
+      ligarMenuResponsivo(sidebar);
+    }
     if (topoDireita) {
       desenharTopo(topoDireita);
       desenharNotificacoes();
@@ -337,6 +408,16 @@
     }
 
     if (!principal) return;
+
+    const demonstracoes = ["dashGeral", "dashEspecifica", "detalhes", "alerta", "admin"];
+    if (demonstracoes.includes(document.body.dataset.pagina)) {
+      const aviso = document.createElement("p");
+      aviso.className = "aviso-demonstracao";
+      aviso.setAttribute("role", "note");
+      aviso.textContent = "Demonstração: os dados exibidos são exemplos. As alterações nesta tela ficam apenas na página e não são gravadas no servidor. " +
+        (semLoginReal ? "Nenhuma empresa autenticada neste navegador." : "Empresa da sessão: " + usuario.empresa + ".");
+      principal.prepend(aviso);
+    }
 
     const exigida = document.body.dataset.acesso;
     if (exigida && !pode(exigida)) {
@@ -346,6 +427,11 @@
 
     mostrarAviso(principal);
     aplicarPermissoes(document);
+    principal.querySelectorAll(".tabela-rolagem, .tabela-wrap, .box-tabela > .tabela").forEach(tabela => {
+      tabela.tabIndex = 0;
+      tabela.setAttribute("role", "region");
+      tabela.setAttribute("aria-label", "Tabela com rolagem");
+    });
 
     // as telas desenham listas pelo JS: reaplica sempre que algo novo entra
     let pendente = false;

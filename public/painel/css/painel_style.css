@@ -458,3 +458,54 @@ body.admin-body {
         padding: 1.1rem;
     }
 }
+
+.admin-sidebar-close,
+.admin-sidebar-backdrop {
+    display: none;
+}
+
+@media (max-width: 700px) {
+    .admin-sidebar {
+        max-width: calc(100vw - 32px);
+        visibility: hidden;
+    }
+
+    .admin-sidebar.show {
+        visibility: visible;
+    }
+
+    .admin-sidebar-close {
+        display: grid;
+        place-items: center;
+        position: absolute;
+        right: 8px;
+        top: 8px;
+        width: 44px;
+        height: 44px;
+        border: 1px solid var(--sg-border);
+        border-radius: 8px;
+        background: var(--sg-navy-2);
+        color: var(--sg-text);
+    }
+
+    .admin-sidebar-brand {
+        padding-top: 56px;
+    }
+
+    .admin-sidebar-backdrop:not([hidden]) {
+        display: block;
+        position: fixed;
+        inset: 0;
+        z-index: 1025;
+        border: 0;
+        background: rgba(4, 4, 12, 0.74);
+    }
+
+    body.admin-menu-aberto {
+        overflow: hidden;
+    }
+
+    .admin-empty-state {
+        padding: 24px 16px;
+    }
+}

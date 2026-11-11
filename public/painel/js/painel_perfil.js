@@ -1,12 +1,15 @@
-const dado = (chave, padrao) => sessionStorage.getItem(chave) || padrao;
+const dado = (chave, padrao) => {
+  const valor = sessionStorage.getItem(chave);
+  return valor && valor.trim() && !/^(null|undefined|nan)$/i.test(valor.trim()) ? valor : padrao;
+};
 
-const nome = dado('NOME_USUARIO', 'Nome do Usuário');
-const email = dado('EMAIL_USUARIO', 'usuario@streamco.com.br');
-const cargo = dado('CARGO', 'Gerente');
-const empresa = dado('NOME_EMPRESA', 'StreamCo Brasil');
+const nome = SG.usuario.nome;
+const email = dado('EMAIL_USUARIO', 'E-mail não informado');
+const cargo = SG.usuario.cargo;
+const empresa = SG.usuario.empresa;
 
-const partes = nome.trim().split(/\s+/);
-const iniciais = (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : '')).toUpperCase();
+const partes = nome.trim().split(/\s+/).filter(Boolean);
+const iniciais = partes.length ? (partes[0][0] + (partes.length > 1 ? partes[partes.length - 1][0] : '')).toUpperCase() : '—';
 
 const preencher = (seletor, texto) =>
   document.querySelectorAll(seletor).forEach(el => (el.textContent = texto));
@@ -18,9 +21,9 @@ preencher('[data-nivel]', SG.nomePerfil);
 preencher('[data-nivel-up]', SG.nomePerfil.toUpperCase());
 preencher('[data-empresa]', empresa);
 preencher('[data-iniciais]', iniciais);
-document.getElementById('inNome').value = nome;
-document.getElementById('inEmail').value = email;
-document.getElementById('inCargo').value = cargo;
+document.getElementById('inNome').value = dado('NOME_USUARIO', '');
+document.getElementById('inEmail').value = dado('EMAIL_USUARIO', '');
+document.getElementById('inCargo').value = dado('CARGO', '');
 
 // Último acesso: hora atual da sessão
 const agora = new Date();
@@ -67,12 +70,27 @@ document.getElementById('formPerfil').addEventListener('submit', (e) => {
     if (erro) return avisar(erro, 'err');
   }
 
-  pwAtual.value = pwNova.value = pwConf.value = '';
-  avisar('Alterações salvas.', 'ok');
+  avisar('Edição de perfil, senha e notificações ainda não implementada. Nenhuma alteração foi salva.', 'err');
 });
 
 // Sair
-document.getElementById('sair').addEventListener('click', () => {
-  sessionStorage.clear();
-  window.location.href = '../login/login.html';
+document.getElementById('sair').addEventListener('click', async (evento) => {
+  const botao = evento.currentTarget;
+  if (botao.disabled) return;
+  botao.disabled = true;
+  try {
+    const resposta = await fetch('/usuarios/sair', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: '{}'
+    });
+    if (!resposta.ok) throw new Error('Falha ao encerrar a sessão.');
+    sessionStorage.clear();
+    window.location.href = '../login/login.html';
+  } catch (erro) {
+    avisar('Não foi possível sair. Verifique sua conexão e tente novamente.', 'err');
+  } finally {
+    botao.disabled = false;
+  }
 });

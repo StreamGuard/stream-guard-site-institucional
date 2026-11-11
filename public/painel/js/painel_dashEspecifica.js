@@ -35,7 +35,7 @@
 
         definir(
             '[data-resumo="subtitulo"]',
-            `Estado geral da infraestrutura • StreamCo Brasil • ${plural(total, 'servidor monitorado', 'servidores monitorados')}`
+            `Demonstração da infraestrutura • StreamCo Brasil • ${plural(total, 'servidor monitorado', 'servidores monitorados')}`
         );
         definir(
             '[data-resumo="atencao"]',
