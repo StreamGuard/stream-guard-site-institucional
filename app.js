@@ -41,7 +41,7 @@ app.use(cors());
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/api", jiraRouter);
 app.use("/empresas", empresasRouter);
-app.use("analista_geral", metricasRouter);
+app.use("/analista_geral",dashboard_analista_geralRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/servidores", servidoresRouter)
 app.use("/componentes", componentesRouter);

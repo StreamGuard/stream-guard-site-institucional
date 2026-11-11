@@ -19,7 +19,7 @@ async function criarComponente(servidor_id, tipo, nome, usuario_id) {
     });
 }
 
-function buscarComponentes(){
+function buscarComponentes() {
     var instrucaoSql = `SELECT * FROM componente`;
     return database.executar(instrucaoSql);
 }

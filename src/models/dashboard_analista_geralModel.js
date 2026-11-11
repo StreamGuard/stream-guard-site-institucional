@@ -20,7 +20,6 @@ function transformarCsv(texto) {
     }
     return dados;
 }
-
 async function lerCsv(nomeArquivo, chaveS3) {
     var texto;
 
