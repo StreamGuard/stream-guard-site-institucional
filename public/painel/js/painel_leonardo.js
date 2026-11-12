@@ -109,6 +109,8 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
         }
     });
 
+
+    let metricasHistograma = [];
     // busco os dados na minha rota
     fetch("/analista_geral/dashboard")
         .then(function (resposta) {
@@ -122,15 +124,24 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                 throw new Error("O CSV não tem métricas.");
             }
 
+
+            histogramaRam.options.scales.x.title.text =
+                "Uso de " + componenteHistograma.toUpperCase();
+            // guardo os dados do meu histograma :
+            metricasHistograma = dados.metricas;
+            // atualizoolg
+            atualizarHistogramaRam();
+
             var servidorSelecionado = dados.metricas[0].servidor_id;
 
             var horariosReais = [];
             // esses valore são usados no meu historico de uso
             var valoresCpu = [];
             var valoresRam = [];
+            var pontosCpuRede = {};
             var valoresDisco = [];
             var valoresRede = [];
- 
+
 
             // esses valores eu uso como kpi, ultimos valores de valoresCpu por exemplo 
             var ultimoCpu = null;
@@ -160,9 +171,14 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
                     var usoCpu = Math.round(ultimoCpu);
                     var cpuLivre = 100 - usoCpu;
-                    document.getElementById("kpiCpu").textContent = usoRam + "%";
+                    document.getElementById("kpiCpu").textContent = usoCpu + "%";
                     document.getElementById("valorLivreCpu").textContent = cpuLivre + "%";
                     document.getElementById("textoLivreCpu").textContent = cpuLivre + "% livres, com uso de " + usoCpu + "%.";
+
+
+                    var horario = linha.inicio_periodo;
+                    pontosCpuRede[horario] = pontosCpuRede[horario] || {};
+                    pontosCpuRede[horario].x = valorCpu;
 
 
                 } else if (linha.tipo === "USO_RAM") {
@@ -196,8 +212,54 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                     var redeLivre = 100 - usoRede;
                     document.getElementById("valorLivreRede").textContent = redeLivre + "%";
                     document.getElementById("textoLivreRede").textContent = redeLivre + "% livres, com uso de " + redeLivre + "%.";
+
+                    var horario = linha.inicio_periodo;
+                    pontosCpuRede[horario] = pontosCpuRede[horario] || {};
+                    pontosCpuRede[horario].y = percentualRede;
                 }
             }
+
+            var pontos = [];
+            var somaX = 0, somaY = 0, somaXY = 0;
+            var somaX2 = 0, somaY2 = 0;
+            var menorX = Infinity, maiorX = -Infinity;
+
+            for (var horario in pontosCpuRede) {
+                var ponto = pontosCpuRede[horario];
+
+                if (ponto.x !== undefined && ponto.y !== undefined) {
+                    pontos.push(ponto);
+                    somaX += ponto.x;
+                    somaY += ponto.y;
+                    somaXY += ponto.x * ponto.y;
+                    somaX2 += ponto.x * ponto.x;
+                    somaY2 += ponto.y * ponto.y;
+
+                    if (ponto.x < menorX) menorX = ponto.x;
+                    if (ponto.x > maiorX) maiorX = ponto.x;
+                }
+            }
+
+            graficoCorrelacao.data.datasets[0].data = pontos;
+
+            var n = pontos.length;
+            var divisor = Math.sqrt((n * somaX2 - somaX * somaX) * (n * somaY2 - somaY * somaY));
+
+            if (n >= 2 && divisor > 0) {
+                var inclinacao = (n * somaXY - somaX * somaY) / (n * somaX2 - somaX * somaX);
+                var intercepto = (somaY - inclinacao * somaX) / n;
+
+                graficoCorrelacao.data.datasets[1].data = [
+                    { x: menorX, y: inclinacao * menorX + intercepto },
+                    { x: maiorX, y: inclinacao * maiorX + intercepto }
+                ];
+
+                document.getElementById("valorCorrelacao").textContent =
+                    "Correlação: " + ((n * somaXY - somaX * somaY) / divisor).toFixed(2).replace(".", ",");
+            }
+
+            graficoCorrelacao.update();
+
 
             function atualizarStatus(nome, valor) {
                 var uso = Math.round(valor);
@@ -431,24 +493,30 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
     function atualizarHistogramaRam() {
         const valores = [];
 
-        // Percorro a lista dos meus servidores, um servidor por vez i.
-        for (let i = 0; i < servidores.length; i++) {
-            let historico;
-            // recebo a lista de medições do componente escolhido
+        const tipos = {
+            ram: "USO_RAM",
+            cpu: "USO_CPU",
+            disco: "USO_DISCO",
+            rede: "TAXA_RECEBIMENTO_REDE"
+        };
 
-            if (componenteHistograma === "ram") {
-                historico = servidores[i].historico;
-            } else {
-                historico = servidores[i].historicos[componenteHistograma];
-            }
+        const tipoSelecionado = tipos[componenteHistograma];
 
-            //percorro as medicoes do servidor e add  lista de valores
-            for (let j = 0; j < historico.length; j++) {
-                valores.push(historico[j]);
+        for (let i = 0; i < metricasHistograma.length; i++) {
+            const linha = metricasHistograma[i];
+
+            if (linha.tipo === tipoSelecionado) {
+                let valor = Number(linha.media_amostral);
+
+                if (componenteHistograma === "rede") {
+                    valor = (valor * 8 / 1000000000) * 100;
+                }
+
+                if (Number.isFinite(valor)) {
+                    valores.push(valor);
+                }
             }
         }
-
-
         const faixas = [];
 
         // crio a lista com minhas dez barras do histograma
@@ -674,91 +742,40 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
 
 
-    new Chart(correlacao, {
+    const graficoCorrelacao = new Chart(correlacao, {
         type: "scatter",
         data: {
             datasets: [
                 {
-                    label: "Normal",
-                    data: [
-                        { x: 25, y: 38 }, { x: 30, y: 48 }, { x: 34, y: 45 },
-                        { x: 38, y: 52 }, { x: 42, y: 49 }, { x: 47, y: 56 },
-                        { x: 52, y: 60 }, { x: 55, y: 58 }
-                    ],
+                    label: "Medições",
+                    data: [],
                     backgroundColor: "#2de2c0",
-                    pointRadius: 3
+                    pointRadius: 4
                 },
                 {
-                    label: "Atenção",
-                    data: [
-                        { x: 48, y: 55 }, { x: 53, y: 62 }, { x: 58, y: 65 },
-                        { x: 61, y: 70 }, { x: 66, y: 68 }, { x: 70, y: 74 },
-                        { x: 74, y: 77 }
-                    ],
-                    backgroundColor: "#f5b700",
-                    pointRadius: 3
-                },
-                {
-                    label: "Alerta",
-                    data: [
-                        { x: 82, y: 80 }, { x: 85, y: 86 }, { x: 88, y: 83 },
-                        { x: 91, y: 89 }, { x: 94, y: 87 }
-                    ],
-                    backgroundColor: "#ff4d6d",
-                    pointRadius: 3
-                },
-                {
-                    label: "Tendência",
                     type: "line",
-                    data: [
-                        { x: 22, y: 42 },
-                        { x: 95, y: 90 }
-                    ],
+                    label: "Tendência",
+                    data: [],
                     borderColor: "#f1f1f8",
                     borderDash: [5, 5],
-                    pointRadius: 0,
-                    borderWidth: 1.5
+                    pointRadius: 0
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            plugins: {
-                legend: {
-                    position: "bottom"
-                }
-            },
             scales: {
                 x: {
-                    type: "linear",
-                    min: 20,
+                    min: 0,
                     max: 100,
-                    title: {
-                        display: true,
-                        text: "Uso de CPU"
-                    },
-                    ticks: {
-
-                        callback: valor => `${valor}%`
-                    },
-                    grid: {
-                        color: "rgba(136, 136, 168, 0.15)"
-                    }
+                    title: { display: true, text: "Uso de CPU (%)" }
                 },
                 y: {
-                    min: 20,
+                    min: 0,
                     max: 100,
-                    title: {
-                        display: true,
-                        text: "Uso de RAM"
-                    },
-                    ticks: {
-                        callback: valor => `${valor}%`
-                    },
-                    grid: {
-                        color: "rgba(136, 136, 168, 0.15)"
-                    }
+                    title: { display: true, text: "Uso de rede (%)" },
+                    ticks: { callback: valor => `${valor}%` }
                 }
             }
         }
