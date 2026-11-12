@@ -1,0 +1,466 @@
+/* Tela "Clientes". */
+/* Usa as cores e o layout do painel_base.css. */
+
+.so-leitor {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+button:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--verde);
+    outline-offset: 2px;
+}
+
+/* ---------- Fonte do dado (Banco, Data Lake...) ---------- */
+.fonte {
+    padding: 2px 7px;
+    border-radius: 5px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+
+.fonte-banco {
+    background: rgba(79, 140, 255, 0.12);
+    color: var(--azul);
+}
+
+.fonte-lake {
+    background: rgba(45, 226, 192, 0.1);
+    color: var(--verde);
+}
+
+.fonte-rejeitados {
+    background: rgba(245, 154, 61, 0.12);
+    color: var(--laranja);
+}
+
+.legenda-fontes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 0.72rem;
+    color: var(--texto-suave);
+}
+
+/* ---------- Filtros ---------- */
+.filtros-topo {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filtros-topo .legenda-fontes {
+    margin-left: auto;
+}
+
+.campo-select {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.campo-select label,
+.campo-select .rotulo {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--texto-suave);
+}
+
+.campo-select select {
+    min-width: 170px;
+    padding: 7px 12px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--painel);
+    color: #fff;
+}
+
+.grupo-periodo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.btn-periodo {
+    padding: 7px 14px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--texto-suave);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-periodo:hover {
+    background: var(--painel-2);
+}
+
+.btn-periodo.ativo {
+    border-color: rgba(45, 226, 192, 0.5);
+    background: rgba(45, 226, 192, 0.1);
+    color: var(--verde);
+}
+
+/* ---------- Cards de indicador ---------- */
+.cards-kpi {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: var(--espaco-entre);
+}
+
+.card {
+    --cor: var(--azul);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+    padding: 14px 16px;
+    border: 1px solid var(--borda);
+    border-top: 3px solid var(--cor);
+    border-radius: 12px;
+    background: var(--painel);
+}
+
+.card-roxo {
+    --cor: var(--roxo);
+}
+
+.card-verde {
+    --cor: var(--verde);
+}
+
+.card-alerta {
+    --cor: var(--laranja);
+    border-color: rgba(245, 154, 61, 0.5);
+}
+
+.card-cabecalho {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+}
+
+.card-cabecalho h3 {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+}
+
+.card-valor {
+    font-size: 1.9rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: #fff;
+}
+
+.card-valor small {
+    display: inline;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.card-detalhe {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--texto-suave);
+}
+
+/* ---------- Painéis ---------- */
+.grade {
+    display: grid;
+    gap: var(--espaco-entre);
+}
+
+.grade-3 {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.grade-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.grade-21 {
+    grid-template-columns: 2fr 1fr;
+}
+
+.painel {
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--borda);
+    border-radius: 12px;
+    background: var(--painel);
+}
+
+.painel-topo {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 14px;
+}
+
+.painel h2 {
+    font-size: 14px;
+    color: #fff;
+}
+
+.painel-topo p,
+.nota {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--texto-suave);
+}
+
+.nota {
+    margin-top: 12px;
+}
+
+.container-chart {
+    position: relative;
+    width: 100%;
+    height: 240px;
+}
+
+.container-chart.alto {
+    height: 280px;
+}
+
+/* ---------- Rankings e barras ---------- */
+.ranking {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+ol.ranking {
+    counter-reset: posicao;
+}
+
+.ranking li {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    counter-increment: posicao;
+}
+
+.ranking-linha {
+    display: flex;
+    justify-content: space-between;
+    gap: 8px;
+    font-size: 0.82rem;
+}
+
+.ranking-nome {
+    font-weight: 700;
+    color: #fff;
+}
+
+.ranking-valor {
+    color: var(--texto-suave);
+    text-align: right;
+}
+
+ol.ranking .ranking-nome::before {
+    content: counter(posicao);
+    display: inline-grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    border-radius: 6px;
+    background: var(--painel-2);
+    color: var(--texto-suave);
+    font-size: 11px;
+}
+
+.ranking-roxo {
+    --cor: var(--roxo);
+}
+
+.ranking-verde {
+    --cor: var(--verde);
+}
+
+meter {
+    display: block;
+    width: 100%;
+    height: 9px;
+    border: 0;
+    border-radius: 5px;
+    background: var(--painel-2);
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+meter::-webkit-meter-bar {
+    height: 9px;
+    border: 0;
+    border-radius: 5px;
+    background: var(--painel-2);
+}
+
+meter::-webkit-meter-optimum-value,
+meter::-webkit-meter-suboptimum-value,
+meter::-webkit-meter-even-less-good-value {
+    border-radius: 5px;
+    background: var(--cor, var(--azul));
+}
+
+meter::-moz-meter-bar {
+    border-radius: 5px;
+    background: var(--cor, var(--azul));
+}
+
+.camada-bronze {
+    --cor: #cd7f32;
+}
+
+.camada-silver {
+    --cor: #aab4c8;
+}
+
+.camada-gold {
+    --cor: #f5c542;
+}
+
+/* ---------- Tags ---------- */
+.tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 0.68rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.tag-ok {
+    background: rgba(45, 226, 192, 0.1);
+    color: var(--verde);
+}
+
+.tag-alerta {
+    background: rgba(245, 154, 61, 0.12);
+    color: var(--laranja);
+}
+
+.tag-critico {
+    background: rgba(255, 77, 109, 0.12);
+    color: var(--vermelho);
+}
+
+/* ---------- Tabelas ---------- */
+.tabela-wrap {
+    overflow-x: auto;
+}
+
+table {
+    width: 100%;
+    min-width: 520px;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+}
+
+th,
+td {
+    padding: 10px;
+    border-bottom: 1px solid var(--painel-2);
+    text-align: left;
+    white-space: nowrap;
+}
+
+thead th {
+    border-bottom-color: var(--borda);
+    font-size: 0.7rem;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+}
+
+tbody th {
+    color: #fff;
+}
+
+tbody tr:last-child :is(th, td) {
+    border-bottom: 0;
+}
+
+.num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.vazio {
+    padding: 18px;
+    border: 1px dashed var(--borda);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--texto-suave);
+}
+
+/* ---------- Específico da tela Clientes ---------- */
+.filtros-tabela {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 14px;
+}
+
+.lista-avisos {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.aviso {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-left: 3px solid var(--laranja);
+    border-radius: 8px;
+    background: #0b0e14;
+}
+
+.aviso-critico {
+    border-left-color: var(--vermelho);
+}
+
+.aviso strong {
+    display: block;
+    font-size: 0.82rem;
+    color: #fff;
+}
+
+@media (max-width: 1280px) {
+    .grade-3 {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 900px) {
+    .grade-3 {
+        grid-template-columns: 1fr;
+    }
+
+    .legenda-fontes {
+        justify-content: flex-start;
+    }
+}

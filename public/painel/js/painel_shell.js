@@ -40,8 +40,8 @@
 
   function perfilDoBanco(texto) {
     const t = (texto || "").toLowerCase();
-    if (t === "root" ) return "root" 
-    if(t === "admin" || t === "administrador") return "admin";
+    if (t === "root") return "root"
+    if (t === "admin" || t === "administrador") return "admin";
     if (t === "gerente") return "gerente";
     if (t === "user" || t === "usuario" || t === "usuário" || t === "comum") return "usuario";
     return null;
@@ -117,7 +117,8 @@
       <symbol id="sg-save" viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></symbol>
       <symbol id="sg-user-plus" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></symbol>
       <symbol id="sg-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
-    </svg>`;
+      <symbol id="sg-gauge" viewBox="0 0 24 24"><path d="M20.9 13A9 9 0 1 0 3.1 13"/><path d="M12 12l4-4"/><path d="M3 17h18"/></symbol>
+      </svg>`;
 
   function item(href, icone, texto, chave) {
     return `
@@ -149,7 +150,15 @@
       <nav class="menu">
         ${pode("configurar") ? item("./painel_config.html", "sg-settings", "Configurações", "config") : ""}
         ${item("./painel_perfil.html", "sg-user", "Perfil", "perfil")}
-        ${pode("conta") ? item("./painel_admin.html", "sg-building", "Conta", "admin") : ""}
+      </nav>
+
+      <p class="menu-titulo">Stream Guard</p>
+      <nav class="menu">
+        ${pode("conta") ? item("./painel_admin.html", "sg-building", "Empresas", "admin") : ""}
+        ${pode("conta") ? [
+          item("./painel_clientes.html", "sg-gauge", "Visão Geral", "clientes"),
+          item("./painel_dataLake.html", "sg-layers", "Data Lake", "dataLake")
+      ].join("") : ""}
       </nav>
 
       <div class="ambiente">
@@ -242,15 +251,15 @@
 
     painel.innerHTML = notificacoes.length
       ? `<h4>Ocorrências ativas</h4>` +
-        notificacoes
-          .map(
-            (n) => `
+      notificacoes
+        .map(
+          (n) => `
           <div class="notif-item">
             <i class="bolinha ${COR_STATUS[n.status] || "azul"}"></i>
             <div><strong>${escapar(n.nome)}</strong><small>${escapar(n.texto)}</small></div>
           </div>`
-          )
-          .join("")
+        )
+        .join("")
       : `<p class="vazio">Nenhuma ocorrência no momento</p>`;
   }
 

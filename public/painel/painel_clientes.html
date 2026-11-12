@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Clientes | Stream Guard</title>
+
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_clientes.css">
+    <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
+<body data-pagina="clientes" data-acesso="conta">
+    <div class="layout">
+
+        <aside class="sidebar" data-shell="sidebar"></aside>
+
+        <div class="conteudo">
+            <header class="topo">
+                <div>
+                    <h1>Clientes</h1>
+                    <p>Visão geral da base de empresas, usuários e servidores monitorados</p>
+                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+
+            <main class="principal">
+
+                <p class="legenda-fontes">
+                    Fonte de cada painel:
+                    <span class="fonte fonte-banco">Banco</span>
+                    <span class="fonte fonte-lake">Data Lake</span>
+                </p>
+
+                <!-- Indicadores principais -->
+                <section class="cards-kpi" id="cardsKpi" aria-label="Indicadores principais"></section>
+
+                <div class="grade grade-3">
+                    <section class="painel">
+                        <div class="painel-topo">
+                            <div>
+                                <h2>Empresas com mais usuários</h2>
+                                <p>Top 5</p>
+                            </div>
+                            <span class="fonte fonte-banco">Banco</span>
+                        </div>
+                        <ol class="ranking ranking-roxo" id="rankUsuarios"></ol>
+                    </section>
+
+                    <section class="painel">
+                        <div class="painel-topo">
+                            <div>
+                                <h2>Empresas com mais servidores</h2>
+                                <p>Top 5, reportando × total</p>
+                            </div>
+                            <span class="fonte fonte-banco">Banco</span>
+                        </div>
+                        <ol class="ranking ranking-verde" id="rankServidores"></ol>
+                    </section>
+
+                    <section class="painel">
+                        <div class="painel-topo">
+                            <div>
+                                <h2>Usuários por perfil</h2>
+                                <p>Todas as empresas</p>
+                            </div>
+                            <span class="fonte fonte-banco">Banco</span>
+                        </div>
+                        <div class="container-chart"><canvas id="chartPerfis" aria-label="Usuários por perfil"></canvas></div>
+                    </section>
+                </div>
+
+                <div class="grade grade-3">
+                    <section class="painel">
+                        <div class="painel-topo">
+                            <div>
+                                <h2>Novas empresas por mês</h2>
+                                <p>Últimos 6 meses</p>
+                            </div>
+                            <span class="fonte fonte-banco">Banco</span>
+                        </div>
+                        <div class="container-chart"><canvas id="chartNovas" aria-label="Novas empresas por mês"></canvas></div>
+                    </section>
+
+                    <section class="painel">
+                        <div class="painel-topo">
+                            <div>
+                                <h2>Data Lake</h2>
+                                <p>Volume por camada</p>
+                            </div>
+                            <span class="fonte fonte-lake">Data Lake</span>
+                        </div>
+                        <ul class="ranking" id="listaCamadas"></ul>
+                        <p class="nota" id="notaLake"></p>
+                    </section>
+
+                    <section class="painel">
+                        <div class="painel-topo">
+                            <div>
+                                <h2>Pedem atenção</h2>
+                                <p>Agente parado, dados faltando ou empresa dormente</p>
+                            </div>
+                            <span class="fonte fonte-lake">Data Lake</span>
+                        </div>
+                        <ul class="lista-avisos" id="listaAtencao"></ul>
+                    </section>
+                </div>
+
+                <!-- Tabela de todas as empresas -->
+                <section class="painel">
+                    <div class="painel-topo">
+                        <div>
+                            <h2>Todas as empresas</h2>
+                            <p id="subTabela"></p>
+                        </div>
+                        <div class="filtros-tabela">
+                            <div class="grupo-periodo" id="filtroSituacao" role="group" aria-label="Filtrar por situação">
+                                <button type="button" class="btn-periodo ativo" data-situacao="todas">Todas</button>
+                                <button type="button" class="btn-periodo" data-situacao="ativa">Ativas</button>
+                                <button type="button" class="btn-periodo" data-situacao="agente">Agente parado</button>
+                                <button type="button" class="btn-periodo" data-situacao="dormente">Dormentes</button>
+                            </div>
+                            <div class="campo-select">
+                                <label for="selectOrdem">ORDENAR POR</label>
+                                <select id="selectOrdem">
+                                    <option value="usuarios">Usuários</option>
+                                    <option value="servidores">Servidores</option>
+                                    <option value="alertas">Alertas (7 dias)</option>
+                                    <option value="cobertura">Cobertura (menor primeiro)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="tabela-wrap">
+                        <table>
+                            <caption class="so-leitor">Empresas cadastradas</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Empresa</th>
+                                    <th scope="col" class="num">Usuários</th>
+                                    <th scope="col" class="num">Servidores</th>
+                                    <th scope="col" class="num">Reportando</th>
+                                    <th scope="col" class="num">Cobertura</th>
+                                    <th scope="col" class="num">Alertas 7d</th>
+                                    <th scope="col">Último dado</th>
+                                    <th scope="col">Situação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaEmpresas"></tbody>
+                        </table>
+                    </div>
+                    <p class="nota">Cobertura = % das janelas de 5 min esperadas que chegaram ao Gold. Servidor silencioso = sem dado há mais de 15 min.</p>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+    <script src="./js/painel_shell.js"></script>
+    <script src="./js/painel_dadosMock.js"></script>
+    <script src="./js/painel_clientes.js"></script>
+</body>
+
+</html>

@@ -1,599 +1,22 @@
-/* Telas Carteira e Incidentes (persona StreamGuard).
-   Só usa os tokens do painel_base.css. Classes com prefixo "pf-". */
+/* Tela "Data Lake". */
+/* Usa as cores e o layout do painel_base.css. */
 
-:root {
-    --pf-cpu: #00e699;
-    --pf-ram: #a259ff;
-    --pf-disco: #4da3ff;
-    --pf-mudo: #6f7a94;
-    --pf-interno: #0b0e14;
-}
-
-button:focus-visible,
-select:focus-visible,
-input:focus-visible {
-    outline: 2px solid var(--verde);
-    outline-offset: 2px;
-}
-
-/* ---------- Filtros ---------- */
-.pf-filtros {
-    display: flex;
-    align-items: flex-end;
-    gap: 20px;
-    flex-wrap: wrap;
-}
-
-.pf-campo {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-
-.pf-campo label,
-.pf-rotulo {
-    font-size: 0.7rem;
-    font-weight: 700;
-    color: var(--pf-mudo);
-    letter-spacing: 0.5px;
-}
-
-.pf-campo select {
-    background: var(--painel);
-    border: 1px solid var(--borda);
-    color: #fff;
-    padding: 7px 12px;
-    border-radius: 8px;
-    min-width: 170px;
-}
-
-.pf-grupo {
-    display: flex;
-    gap: 6px;
-    flex-wrap: wrap;
-}
-
-.pf-btn {
-    background: transparent;
-    border: 1px solid var(--borda);
-    color: var(--texto-suave);
-    padding: 7px 14px;
-    border-radius: 8px;
-    font-size: 0.8rem;
-    cursor: pointer;
-    font-family: inherit;
-}
-
-.pf-btn:hover {
-    background: var(--painel-2);
-}
-
-.pf-btn.ativo {
-    color: var(--verde);
-    border-color: rgba(45, 226, 192, 0.5);
-    background: rgba(45, 226, 192, 0.1);
-}
-
-.pf-legenda-fonte {
-    margin-left: auto;
-    display: flex;
-    gap: 8px;
-    align-items: center;
-    font-size: 0.72rem;
-    color: var(--pf-mudo);
-    flex-wrap: wrap;
-}
-
-/* ---------- Fonte do dado ---------- */
-.pf-fonte {
-    font-size: 0.62rem;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    padding: 2px 7px;
-    border-radius: 5px;
-    text-transform: uppercase;
-    white-space: nowrap;
-}
-
-.pf-fonte.banco {
-    background: rgba(79, 140, 255, 0.12);
-    color: var(--azul);
-}
-
-.pf-fonte.lake {
-    background: rgba(45, 226, 192, 0.1);
-    color: var(--verde);
-}
-
-.pf-fonte.java {
-    background: rgba(245, 154, 61, 0.12);
-    color: var(--laranja);
-}
-
-/* ---------- KPIs ---------- */
-.pf-kpis {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-    gap: var(--espaco-entre);
-}
-
-.pf-kpi {
-    background: var(--painel);
-    border: 1px solid var(--borda);
-    border-top: 3px solid var(--cor, var(--azul));
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-}
-
-.pf-kpi.alerta {
-    border-color: rgba(245, 154, 61, 0.5);
-    border-top-color: var(--laranja);
-}
-
-.pf-kpi.critico {
-    border-color: rgba(255, 77, 109, 0.5);
-    border-top-color: var(--vermelho);
-}
-
-.pf-kpi-topo {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    color: var(--pf-mudo);
-}
-
-.pf-kpi-valor {
-    font-size: 1.9rem;
-    font-weight: 800;
-    color: #fff;
-    line-height: 1.2;
-}
-
-.pf-kpi-valor span {
-    font-size: 0.9rem;
-    font-weight: 500;
-    color: var(--pf-mudo);
-}
-
-.pf-kpi-sub {
-    font-size: 0.75rem;
-    color: var(--pf-mudo);
-    line-height: 1.4;
-}
-
-.pf-delta {
-    font-weight: 700;
-}
-
-.pf-delta.pior {
-    color: var(--laranja);
-}
-
-.pf-delta.melhor {
-    color: var(--verde);
-}
-
-/* ---------- Grades e painéis ---------- */
-.pf-grade {
-    display: grid;
-    gap: var(--espaco-entre);
-}
-
-.pf-g3 {
-    grid-template-columns: repeat(3, 1fr);
-}
-
-.pf-g2 {
-    grid-template-columns: 1fr 1fr;
-}
-
-.pf-g21 {
-    grid-template-columns: 2fr 1fr;
-}
-
-.pf-painel {
-    background: var(--painel);
-    border: 1px solid var(--borda);
-    border-radius: 12px;
-    padding: 18px;
-    min-width: 0;
-}
-
-.pf-painel-topo {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin-bottom: 14px;
-}
-
-.pf-painel h2 {
-    font-size: 14px;
-    color: #fff;
-}
-
-.pf-painel-topo p,
-.pf-nota {
-    font-size: 0.75rem;
-    color: var(--pf-mudo);
-    line-height: 1.5;
-}
-
-.pf-nota {
-    margin-top: 10px;
-}
-
-.pf-chart {
-    position: relative;
-    height: 240px;
-    width: 100%;
-}
-
-.pf-chart.alto {
-    height: 280px;
-}
-
-/* ---------- Ranking (barras) ---------- */
-.pf-rank {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.pf-rank-linha {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-}
-
-.pf-rank-cab {
-    display: flex;
-    justify-content: space-between;
-    gap: 8px;
-    font-size: 0.82rem;
-}
-
-.pf-rank-cab span:last-child {
-    color: var(--pf-mudo);
-    white-space: nowrap;
-}
-
-.pf-rank-cab b {
-    color: #fff;
-}
-
-.pf-pos {
-    display: inline-grid;
-    place-items: center;
-    width: 20px;
-    height: 20px;
-    border-radius: 6px;
-    background: var(--painel-2);
-    color: var(--pf-mudo);
-    font-size: 11px;
-    font-weight: 700;
-    margin-right: 8px;
-}
-
-.pf-trilho {
-    display: flex;
-    height: 9px;
-    border-radius: 5px;
-    background: var(--painel-2);
-    overflow: hidden;
-}
-
-.pf-trilho i {
-    display: block;
-    height: 100%;
-    background: var(--cor, var(--azul));
-}
-
-.pf-trilho i.critico {
-    background: var(--vermelho);
-}
-
-.pf-trilho i.atencao {
-    background: var(--laranja);
-}
-
-.pf-leg {
-    display: flex;
-    gap: 14px;
-    flex-wrap: wrap;
-    font-size: 0.72rem;
-    color: var(--pf-mudo);
-    margin-top: 12px;
-}
-
-.pf-leg span::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    border-radius: 3px;
-    background: var(--cor);
-    margin-right: 6px;
-    vertical-align: -1px;
-}
-
-/* ---------- Tags ---------- */
-.pf-tag {
-    font-size: 0.68rem;
-    padding: 3px 8px;
-    border-radius: 6px;
-    font-weight: 700;
-    white-space: nowrap;
-    display: inline-block;
-}
-
-.pf-tag.ok {
-    background: rgba(45, 226, 192, 0.1);
-    color: var(--verde);
-}
-
-.pf-tag.alerta {
-    background: rgba(245, 154, 61, 0.12);
-    color: var(--laranja);
-}
-
-.pf-tag.critico {
-    background: rgba(255, 77, 109, 0.12);
-    color: var(--vermelho);
-}
-
-.pf-tag.neutro {
-    background: rgba(79, 140, 255, 0.12);
-    color: var(--azul);
-}
-
-/* ---------- Lista de atenção ---------- */
-.pf-lista {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.pf-lista li {
-    background: var(--pf-interno);
-    border-radius: 8px;
-    padding: 9px 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    border-left: 3px solid var(--azul);
-}
-
-.pf-lista li.alerta {
-    border-left-color: var(--laranja);
-}
-
-.pf-lista li.critico {
-    border-left-color: var(--vermelho);
-}
-
-.pf-lista strong {
-    display: block;
-    color: #fff;
-    font-size: 0.82rem;
-}
-
-.pf-lista small {
-    color: var(--pf-mudo);
-    font-size: 0.72rem;
-}
-
-.pf-vazio {
-    padding: 18px;
-    text-align: center;
-    color: var(--pf-mudo);
-    font-size: 0.82rem;
-    border: 1px dashed var(--borda);
-    border-radius: 8px;
-}
-
-/* ---------- Tabela ---------- */
-.pf-rolagem {
-    overflow-x: auto;
-}
-
-.pf-tabela {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 0.82rem;
-    min-width: 640px;
-}
-
-.pf-tabela th {
-    text-align: left;
-    font-size: 0.7rem;
-    letter-spacing: 0.4px;
-    text-transform: uppercase;
-    color: var(--pf-mudo);
-    padding: 7px 10px;
-    border-bottom: 1px solid var(--borda);
-    font-weight: 700;
-    white-space: nowrap;
-}
-
-.pf-tabela td {
-    padding: 10px;
-    border-bottom: 1px solid var(--painel-2);
-    color: var(--texto);
-    white-space: nowrap;
-}
-
-.pf-tabela tr:last-child td {
-    border-bottom: 0;
-}
-
-.pf-tabela .num {
-    text-align: right;
-    font-variant-numeric: tabular-nums;
-}
-
-.pf-pto {
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background: var(--cor);
-    margin-right: 6px;
-}
-
-/* ---------- Mapa de calor ---------- */
-.pf-calor {
-    display: grid;
-    grid-template-columns: 34px repeat(24, minmax(14px, 1fr));
-    gap: 3px;
-    min-width: 520px;
-    font-size: 0.65rem;
-    color: var(--pf-mudo);
-    align-items: center;
-}
-
-.pf-calor .c {
-    height: 22px;
-    border-radius: 4px;
-    background: var(--painel-2);
-}
-
-.pf-calor .h {
-    text-align: center;
-}
-
-.pf-escala {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-top: 12px;
-    font-size: 0.7rem;
-    color: var(--pf-mudo);
-}
-
-.pf-escala i {
-    display: inline-block;
-    height: 8px;
-    width: 120px;
-    border-radius: 4px;
-    background: linear-gradient(90deg, var(--painel-2), var(--laranja));
-}
-
-/* ---------- Responsivo ---------- */
-@media (max-width: 1280px) {
-
-    .pf-g3,
-    .pf-g21 {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (max-width: 900px) {
-
-    .pf-g3,
-    .pf-g2,
-    .pf-g21 {
-        grid-template-columns: 1fr;
-    }
-
-    .pf-legenda-fonte {
-        margin-left: 0;
-    }
-}
-
-/* Tela "Carteira de clientes".
-   Depende do painel_base.css (cores, layout, sidebar, topo) e do icones.css.
-   Nomes de classe seguem o padrão bloco__elemento--variação. */
-
-/* ---------- Utilidades ---------- */
-.sr-only {
+.so-leitor {
     position: absolute;
     width: 1px;
     height: 1px;
-    margin: -1px;
-    padding: 0;
     overflow: hidden;
     clip: rect(0 0 0 0);
     white-space: nowrap;
-    border: 0;
 }
 
-.pular-conteudo {
-    position: absolute;
-    left: -999px;
-    top: 8px;
-    z-index: 100;
-    padding: 8px 14px;
-    border-radius: 8px;
-    background: var(--verde);
-    color: var(--fundo);
-    font-weight: 700;
-}
-
-.pular-conteudo:focus {
-    left: 8px;
-}
-
-:focus-visible {
+button:focus-visible,
+select:focus-visible {
     outline: 2px solid var(--verde);
     outline-offset: 2px;
 }
 
-/* ---------- Menu lateral (complementa o painel_base.css) ---------- */
-.menu-titulo {
-    font-weight: 400;
-}
-
-.sidebar hr {
-    width: 90%;
-    height: 1px;
-    margin: 12% 0 12% 2%;
-    border: 0;
-    background: var(--painel-2);
-}
-
-.ambiente {
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.ambiente .sair {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding-top: 12px;
-    border-top: 1px solid var(--painel);
-    font-size: 13px;
-    color: var(--texto-suave);
-}
-
-.ambiente .sair:hover {
-    color: var(--vermelho);
-}
-
-.nivel-root {
-    color: var(--verde);
-}
-
-/* ---------- Topo ---------- */
-.btn-sino .icone {
-    width: 18px;
-    height: 18px;
-}
-
-/* ---------- Fonte do dado ---------- */
+/* ---------- Fonte do dado (Banco, Data Lake...) ---------- */
 .fonte {
     padding: 2px 7px;
     border-radius: 5px;
@@ -604,14 +27,19 @@ input:focus-visible {
     white-space: nowrap;
 }
 
-.fonte--banco {
+.fonte-banco {
     background: rgba(79, 140, 255, 0.12);
     color: var(--azul);
 }
 
-.fonte--lake {
+.fonte-lake {
     background: rgba(45, 226, 192, 0.1);
     color: var(--verde);
+}
+
+.fonte-rejeitados {
+    background: rgba(245, 154, 61, 0.12);
+    color: var(--laranja);
 }
 
 .legenda-fontes {
@@ -623,14 +51,76 @@ input:focus-visible {
     color: var(--texto-suave);
 }
 
-/* ---------- Indicadores (KPIs) ---------- */
-.kpis {
+/* ---------- Filtros ---------- */
+.filtros-topo {
+    display: flex;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.filtros-topo .legenda-fontes {
+    margin-left: auto;
+}
+
+.campo-select {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.campo-select label,
+.campo-select .rotulo {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--texto-suave);
+}
+
+.campo-select select {
+    min-width: 170px;
+    padding: 7px 12px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: var(--painel);
+    color: #fff;
+}
+
+.grupo-periodo {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+}
+
+.btn-periodo {
+    padding: 7px 14px;
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--texto-suave);
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+}
+
+.btn-periodo:hover {
+    background: var(--painel-2);
+}
+
+.btn-periodo.ativo {
+    border-color: rgba(45, 226, 192, 0.5);
+    background: rgba(45, 226, 192, 0.1);
+    color: var(--verde);
+}
+
+/* ---------- Cards de indicador ---------- */
+.cards-kpi {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
     gap: var(--espaco-entre);
 }
 
-.kpi {
+.card {
     --cor: var(--azul);
     display: flex;
     flex-direction: column;
@@ -643,27 +133,27 @@ input:focus-visible {
     background: var(--painel);
 }
 
-.kpi--roxo {
+.card-roxo {
     --cor: var(--roxo);
 }
 
-.kpi--verde {
+.card-verde {
     --cor: var(--verde);
 }
 
-.kpi--alerta {
+.card-alerta {
     --cor: var(--laranja);
     border-color: rgba(245, 154, 61, 0.5);
 }
 
-.kpi header {
+.card-cabecalho {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 8px;
 }
 
-.kpi h3 {
+.card-cabecalho h3 {
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.4px;
@@ -671,20 +161,20 @@ input:focus-visible {
     color: var(--texto-suave);
 }
 
-.kpi__valor {
+.card-valor {
     font-size: 1.9rem;
     font-weight: 800;
     line-height: 1.2;
     color: #fff;
 }
 
-.kpi__valor small {
+.card-valor small {
     display: inline;
     font-size: 0.9rem;
     font-weight: 500;
 }
 
-.kpi__nota {
+.card-detalhe {
     font-size: 0.75rem;
     line-height: 1.4;
     color: var(--texto-suave);
@@ -696,8 +186,16 @@ input:focus-visible {
     gap: var(--espaco-entre);
 }
 
-.grade--tres {
+.grade-3 {
     grid-template-columns: repeat(3, 1fr);
+}
+
+.grade-2 {
+    grid-template-columns: 1fr 1fr;
+}
+
+.grade-21 {
+    grid-template-columns: 2fr 1fr;
 }
 
 .painel {
@@ -708,7 +206,7 @@ input:focus-visible {
     background: var(--painel);
 }
 
-.painel__topo {
+.painel-topo {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
@@ -722,7 +220,7 @@ input:focus-visible {
     color: #fff;
 }
 
-.painel__topo p,
+.painel-topo p,
 .nota {
     font-size: 0.75rem;
     line-height: 1.5;
@@ -733,11 +231,24 @@ input:focus-visible {
     margin-top: 12px;
 }
 
-/* ---------- Ranking e barras (ol + meter) ---------- */
+.container-chart {
+    position: relative;
+    width: 100%;
+    height: 240px;
+}
+
+.container-chart.alto {
+    height: 280px;
+}
+
+/* ---------- Rankings e barras ---------- */
 .ranking {
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+ol.ranking {
     counter-reset: posicao;
 }
 
@@ -748,24 +259,24 @@ input:focus-visible {
     counter-increment: posicao;
 }
 
-.ranking__linha {
+.ranking-linha {
     display: flex;
     justify-content: space-between;
     gap: 8px;
     font-size: 0.82rem;
 }
 
-.ranking__nome {
+.ranking-nome {
     font-weight: 700;
     color: #fff;
 }
 
-.ranking__valor {
+.ranking-valor {
     color: var(--texto-suave);
-    white-space: nowrap;
+    text-align: right;
 }
 
-ol.ranking .ranking__nome::before {
+ol.ranking .ranking-nome::before {
     content: counter(posicao);
     display: inline-grid;
     place-items: center;
@@ -778,11 +289,11 @@ ol.ranking .ranking__nome::before {
     font-size: 11px;
 }
 
-.ranking--roxo {
+.ranking-roxo {
     --cor: var(--roxo);
 }
 
-.ranking--verde {
+.ranking-verde {
     --cor: var(--verde);
 }
 
@@ -816,132 +327,20 @@ meter::-moz-meter-bar {
     background: var(--cor, var(--azul));
 }
 
-/* ---------- Gráfico de rosca (figure + conic-gradient) ---------- */
-.rosca {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 16px;
+.camada-bronze {
+    --cor: #cd7f32;
 }
 
-.rosca__anel {
-    width: 200px;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: conic-gradient(var(--azul) 0 var(--ate-usuario),
-            var(--roxo) var(--ate-usuario) var(--ate-gerente),
-            var(--laranja) var(--ate-gerente) 100%);
-    -webkit-mask: radial-gradient(circle closest-side, transparent 62%, #000 63%);
-    mask: radial-gradient(circle closest-side, transparent 62%, #000 63%);
+.camada-silver {
+    --cor: #aab4c8;
 }
 
-.legenda {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 6px 16px;
-    font-size: 0.8rem;
-    color: #a3adc2;
+.camada-gold {
+    --cor: #f5c542;
 }
 
-.legenda li::before {
-    content: "";
-    display: inline-block;
-    width: 10px;
-    height: 10px;
-    margin-right: 6px;
-    border-radius: 50%;
-    background: var(--cor);
-}
-
-.legenda strong {
-    color: #fff;
-}
-
-.cor-usuario {
-    --cor: var(--azul);
-}
-
-.cor-gerente {
-    --cor: var(--roxo);
-}
-
-.cor-admin {
-    --cor: var(--laranja);
-}
-
-/* ---------- Gráfico de colunas (figure + ol) ---------- */
-.colunas__lista {
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap: 14px;
-    height: 220px;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--borda);
-}
-
-.colunas__lista li {
-    display: grid;
-    grid-template-rows: 1fr auto;
-    justify-items: center;
-    height: 100%;
-}
-
-.colunas__barra {
-    align-self: end;
-    width: 100%;
-    max-width: 38px;
-    height: calc(var(--valor) / var(--maximo) * 100%);
-    min-height: 2px;
-    padding-top: 4px;
-    border-radius: 6px 6px 0 0;
-    background: var(--azul);
-    text-align: center;
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #fff;
-}
-
-.colunas__barra[value="0"] {
-    font-size: 0;
-}
-
-.colunas__rotulo {
-    padding-top: 6px;
-    font-size: 0.72rem;
-    color: var(--texto-suave);
-}
-
-/* ---------- Avisos ---------- */
-.avisos {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-
-.aviso {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    gap: 10px;
-    padding: 9px 12px;
-    border-left: 3px solid var(--laranja);
-    border-radius: 8px;
-    background: #0b0e14;
-}
-
-.aviso--critico {
-    border-left-color: var(--vermelho);
-}
-
-.aviso strong {
-    display: block;
-    font-size: 0.82rem;
-    color: #fff;
-}
-
-/* ---------- Selos ---------- */
-.selo {
+/* ---------- Tags ---------- */
+.tag {
     display: inline-block;
     padding: 3px 8px;
     border-radius: 6px;
@@ -950,73 +349,29 @@ meter::-moz-meter-bar {
     white-space: nowrap;
 }
 
-.selo--ok {
+.tag-ok {
     background: rgba(45, 226, 192, 0.1);
     color: var(--verde);
 }
 
-.selo--alerta {
+.tag-alerta {
     background: rgba(245, 154, 61, 0.12);
     color: var(--laranja);
 }
 
-.selo--critico {
+.tag-critico {
     background: rgba(255, 77, 109, 0.12);
     color: var(--vermelho);
 }
 
-/* ---------- Filtro da tabela (radios + :has, sem JavaScript) ---------- */
-.filtro {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    border: 0;
-}
-
-.filtro input {
-    position: absolute;
-    opacity: 0;
-    pointer-events: none;
-}
-
-.filtro label {
-    padding: 7px 14px;
-    border: 1px solid var(--borda);
-    border-radius: 8px;
-    font-size: 0.8rem;
-    color: var(--texto-suave);
-    cursor: pointer;
-}
-
-.filtro label:hover {
-    background: var(--painel-2);
-}
-
-.filtro input:checked+label {
-    border-color: rgba(45, 226, 192, 0.5);
-    background: rgba(45, 226, 192, 0.1);
-    color: var(--verde);
-}
-
-.filtro input:focus-visible+label {
-    outline: 2px solid var(--verde);
-    outline-offset: 2px;
-}
-
-body:has(#situacao-ativa:checked) tbody tr:not([data-situacao="ativa"]),
-body:has(#situacao-agente:checked) tbody tr:not([data-situacao="agente"]),
-body:has(#situacao-dormente:checked) tbody tr:not([data-situacao="dormente"]) {
-    display: none;
-}
-
-/* ---------- Tabela ---------- */
-.tabela-rolagem {
+/* ---------- Tabelas ---------- */
+.tabela-wrap {
     overflow-x: auto;
 }
 
 table {
     width: 100%;
-    min-width: 640px;
+    min-width: 520px;
     border-collapse: collapse;
     font-size: 0.82rem;
 }
@@ -1050,33 +405,65 @@ tbody tr:last-child :is(th, td) {
     font-variant-numeric: tabular-nums;
 }
 
-/* ---------- Responsivo ---------- */
+.vazio {
+    padding: 18px;
+    border: 1px dashed var(--borda);
+    border-radius: 8px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--texto-suave);
+}
+
+/* ---------- Específico da tela Data Lake ---------- */
+.barra-empilhada {
+    display: flex;
+    height: 9px;
+    overflow: hidden;
+    border-radius: 5px;
+    background: var(--painel-2);
+}
+
+.barra-empilhada span {
+    display: block;
+    height: 100%;
+    background: var(--cor);
+}
+
+.legenda-camadas {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    margin-top: 12px;
+    font-size: 0.72rem;
+    color: var(--texto-suave);
+}
+
+.legenda-camadas li::before {
+    content: "";
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    margin-right: 6px;
+    border-radius: 3px;
+    background: var(--cor);
+    vertical-align: -1px;
+}
+
+.tabela-execucoes small {
+    margin-left: 8px;
+    display: inline;
+}
+
 @media (max-width: 1280px) {
-    .grade--tres {
-        grid-template-columns: 1fr 1fr;
+
+    .grade-2,
+    .grade-21 {
+        grid-template-columns: 1fr;
     }
 }
 
 @media (max-width: 900px) {
-    .grade--tres {
-        grid-template-columns: 1fr;
-    }
-
-    .legenda-fontes {
-        justify-content: flex-start;
+    .filtros-topo .legenda-fontes {
+        margin-left: 0;
     }
 }
-
-/* ---------- Camadas do Data Lake ---------- */
-.camada--bronze {
-    --cor: #cd7f32;
-}
-
-.camada--silver {
-    --cor: #aab4c8;
-}
-
-.camada--gold {
-    --cor: #f5c542;
-}
-
