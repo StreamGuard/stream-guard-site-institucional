@@ -101,6 +101,14 @@ CREATE TABLE config_metrica (
 );
 
 -- DADOS DE TESTE
+-- Sample data to test (optional) --------------------------
+
+INSERT INTO permissao (nome) 
+VALUES 
+('Root'),
+('Admin'),
+('Gerente'),
+('User');
 
 INSERT INTO empresa
 (razao_social, cnpj, nome_resp, email, telefone, codigo_empresa)
@@ -108,8 +116,6 @@ VALUES
 ('Tech Stream Ltda', '12345678000199', 'Maria Silva',
  'contato@techstream.com', '5511999999999', 'ABC12345');
 
-INSERT INTO permissao (nome)
-VALUES ('Administrador'), ('Analista');
 
 INSERT INTO usuario
 (nome, cargo, email, senha_hash, fk_empresa, fk_permissao)
