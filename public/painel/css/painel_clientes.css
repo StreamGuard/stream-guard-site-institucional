@@ -359,6 +359,11 @@ meter::-moz-meter-bar {
     color: var(--laranja);
 }
 
+.tag-neutro {
+    background: var(--painel-2);
+    color: var(--texto-suave);
+}
+
 .tag-critico {
     background: rgba(255, 77, 109, 0.12);
     color: var(--vermelho);
