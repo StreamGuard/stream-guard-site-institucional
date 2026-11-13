@@ -1,21 +1,25 @@
-// Tela "Clientes": visão geral de empresas, usuários e servidores monitorados.
-// Os dados chegam no formato do JSON do backend (veja painel_dadosMock.js).
+
 document.addEventListener("DOMContentLoaded", async () => {
     // ---------- Configuração ----------
-    const SILENCIO_MIN = 15;     // sem lote há mais que isso: servidor silencioso
-    const COBERTURA_BAIXA = 92;  // % de janelas recebidas abaixo disso: dados faltando
+    const SILENCIO_MIN = 15
+    const COBERTURA_BAIXA = 92;
     const GOLD_ATRASADO_MIN = 10;
 
+    // true: usa o painel_dadosMock.js. false: busca no backend (banco + Data Lake).
+    const USAR_MOCK = true;
+
     const SITUACOES = {
+        semlake: { classe: "tag-neutro", texto: "Sem dados do lake" },
         ativa: { classe: "tag-ok", texto: "Ativa" },
         agente: { classe: "tag-alerta", texto: "Agente parado" },
         dormente: { classe: "tag-critico", texto: "Dormente" }
     };
+    
     const ORDENACOES = {
         usuarios: (a, b) => b.totalUsuarios - a.totalUsuarios,
         servidores: (a, b) => b.servidores.length - a.servidores.length,
         alertas: (a, b) => b.alertas_7d - a.alertas_7d,
-        cobertura: (a, b) => a.cobertura - b.cobertura
+        cobertura: (a, b) => (a.cobertura ?? 101) - (b.cobertura ?? 101)
     };
 
     const el = (id) => document.getElementById(id);
@@ -25,12 +29,33 @@ document.addEventListener("DOMContentLoaded", async () => {
     let ordenacao = "usuarios";
 
     // ---------- Dados ----------
-    // Hoje devolve o mock. Com o backend pronto, troque pelo fetch:
-    //   const resposta = await fetch("/insights/clientes");
-    //   return resposta.json();
+    // Formato esperado (igual ao clientes.json):
+    //   { empresas: [ { id, nome, criada_em, usuarios: { usuario, gerente, admin }, alertas_7d,
+    //                   servidores: [ { id, ultimo_lote_em?, cobertura_pct? } ] } ],
+    //     data_lake?: { bronze_gb, silver_gb, gold_gb, crescimento_gb_semana, ultimo_gold_em } }
+    // Os campos com "?" vêm do Data Lake. Enquanto não existirem, a tela mostra "—".
+
     async function carregarDados() {
-        return DADOS_MOCK.clientes;
+        if (USAR_MOCK) return DADOS_MOCK.clientes;
     }
+
+    // Função de teste (cole no front ou no console do navegador).
+    function carregarDadosTeste() {
+        fetch("/clientes/buscarDadosBanco")
+            .then(resposta => {
+                if (!resposta.ok) {
+                    throw new Error("Erro ao buscar dados das empresas");
+                }
+                return resposta.json();
+            })
+            .then(resultado => {
+                console.log(resultado.dados);
+            })
+            .catch(erro => {
+                console.error("Erro:", erro);
+            });
+    }
+
 
     function minutosDesde(dataISO) {
         return (Date.now() - new Date(dataISO).getTime()) / 60000;
@@ -40,26 +65,44 @@ document.addEventListener("DOMContentLoaded", async () => {
         return numeros.reduce((total, n) => total + n, 0) / numeros.length;
     }
 
+    // true quando o backend já entregou os dados do Data Lake.
+    let temLake = false;
+
     // Soma e classifica o que a tela precisa de cada empresa.
     function prepararEmpresa(empresa) {
-        const servidores = empresa.servidores.map((s) => ({ ...s, minutosSemLote: minutosDesde(s.ultimo_lote_em) }));
-        const silenciosos = servidores.filter((s) => s.minutosSemLote > SILENCIO_MIN).length;
+        const servidores = (empresa.servidores || []).map((s) => ({
+            ...s,
+            minutosSemLote: s.ultimo_lote_em ? minutosDesde(s.ultimo_lote_em) : null
+        }));
+        const { usuario = 0, gerente = 0, admin = 0 } = empresa.usuarios || {};
+        const base = {
+            ...empresa,
+            servidores,
+            alertas_7d: empresa.alertas_7d || 0,
+            totalUsuarios: usuario + gerente + admin,
+            silenciosos: null,
+            reportando: null,
+            cobertura: null,
+            minutosSemLote: null,
+            situacao: "semlake"
+        };
+        if (!temLake) return base;
+
+        const comLote = servidores.filter((s) => s.minutosSemLote !== null);
+        const silenciosos = servidores.filter((s) => s.minutosSemLote === null || s.minutosSemLote > SILENCIO_MIN).length;
         const reportando = servidores.length - silenciosos;
 
         let situacao = "ativa";
-        if (reportando === 0) situacao = "dormente";
+        if (servidores.length === 0 || reportando === 0) situacao = "dormente";
         else if (silenciosos > 0) situacao = "agente";
 
-        const { usuario, gerente, admin } = empresa.usuarios;
         return {
-            ...empresa,
-            servidores,
+            ...base,
             silenciosos,
             reportando,
             situacao,
-            totalUsuarios: usuario + gerente + admin,
-            cobertura: media(servidores.map((s) => s.cobertura_pct)),
-            minutosSemLote: Math.min(...servidores.map((s) => s.minutosSemLote))
+            cobertura: comLote.length ? media(comLote.map((s) => s.cobertura_pct)) : null,
+            minutosSemLote: comLote.length ? Math.min(...comLote.map((s) => s.minutosSemLote)) : null
         };
     }
 
@@ -94,26 +137,44 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     function desenharCards() {
-        const ativas = empresas.filter((e) => e.situacao !== "dormente").length;
-        const novas = empresas.filter((e) => minutosDesde(e.criada_em) < 30 * 1440).length;
+        const novas = empresas.filter((e) => e.criada_em && minutosDesde(e.criada_em) < 30 * 1440).length;
         const usuarios = empresas.reduce((total, e) => total + e.totalUsuarios, 0);
-        const admins = empresas.reduce((total, e) => total + e.usuarios.admin, 0);
-        const gerentes = empresas.reduce((total, e) => total + e.usuarios.gerente, 0);
-
+        const admins = empresas.reduce((total, e) => total + (e.usuarios?.admin || 0), 0);
+        const gerentes = empresas.reduce((total, e) => total + (e.usuarios?.gerente || 0), 0);
         const todosServidores = empresas.flatMap((e) => e.servidores);
+        const textoNovas = `${novas} nova${novas === 1 ? "" : "s"} nos últimos 30 dias`;
+
+        const cardsBanco = [
+            temLake
+                ? card("", "Empresas ativas", "banco", empresas.filter((e) => e.situacao !== "dormente").length,
+                    `de ${empresas.length}`, textoNovas)
+                : card("", "Empresas", "banco", empresas.length, "", textoNovas),
+            card("card-roxo", "Usuários", "banco", usuarios, "", `${admins} admins · ${gerentes} gerentes`)
+        ];
+
+        if (!temLake) {
+            const aguardando = "Aguardando o Data Lake";
+            el("cardsKpi").innerHTML = [
+                ...cardsBanco,
+                card("card-verde", "Servidores cadastrados", "banco", todosServidores.length, "", "Quantos reportam depende do lake"),
+                card("", "Servidores silenciosos", "lake", "—", "", aguardando),
+                card("", "Cobertura média", "lake", "—", "", aguardando),
+                card("", "Último Gold", "lake", "—", "", aguardando)
+            ].join("");
+            return;
+        }
+
         const reportando = empresas.reduce((total, e) => total + e.reportando, 0);
         const silenciosos = todosServidores.length - reportando;
         const comDado = todosServidores.filter((s) => s.cobertura_pct > 0);
         const goldMin = minutosDesde(lake.ultimo_gold_em);
 
         el("cardsKpi").innerHTML = [
-            card("", "Empresas ativas", "banco", ativas, `de ${empresas.length}`,
-                `${novas} nova${novas === 1 ? "" : "s"} nos últimos 30 dias`),
-            card("card-roxo", "Usuários", "banco", usuarios, "", `${admins} admins · ${gerentes} gerentes`),
+            ...cardsBanco,
             card("card-verde", "Servidores monitorados", "lake", todosServidores.length, "", `${reportando} reportando agora`),
             card(silenciosos ? "card-alerta" : "card-verde", "Servidores silenciosos", "lake", silenciosos, "",
                 `Sem dado há mais de ${SILENCIO_MIN} min`),
-            card("card-verde", "Cobertura média", "lake", numero(media(comDado.map((s) => s.cobertura_pct)), 1), "%",
+            card("card-verde", "Cobertura média", "lake", comDado.length ? numero(media(comDado.map((s) => s.cobertura_pct)), 1) : "—", "%",
                 "Janelas de 5 min recebidas (servidores com dado)"),
             card(goldMin > GOLD_ATRASADO_MIN ? "card-alerta" : "", "Último Gold", "lake", Math.round(goldMin), "min atrás",
                 goldMin > GOLD_ATRASADO_MIN ? "Processamento atrasado" : "Processamento em dia")
@@ -141,12 +202,18 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const maisServidores = [...empresas].sort(ORDENACOES.servidores).slice(0, 5);
         el("rankServidores").innerHTML = maisServidores
-            .map((e) => linhaRanking(e.nome, `${e.reportando}/${e.servidores.length} reportando`,
+            .map((e) => linhaRanking(e.nome,
+                temLake ? `${e.reportando}/${e.servidores.length} reportando` : `${e.servidores.length} servidores`,
                 e.servidores.length, maisServidores[0].servidores.length))
             .join("");
     }
 
     function desenharLake() {
+        if (!temLake) {
+            el("listaCamadas").innerHTML = `<li class="vazio">Dados do Data Lake ainda não conectados.</li>`;
+            el("notaLake").textContent = "";
+            return;
+        }
         const camadas = [
             { nome: "Bronze (bruto)", gb: lake.bronze_gb, classe: "camada-bronze" },
             { nome: "Silver (limpo)", gb: lake.silver_gb, classe: "camada-silver" },
@@ -165,16 +232,26 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ---------- Pedem atenção ----------
     function desenharAtencao() {
         const avisos = [];
+        if (!temLake) {
+            el("listaAtencao").innerHTML = `<li class="vazio">Depende dos dados do Data Lake.</li>`;
+            return;
+        }
         empresas.forEach((e) => {
             if (e.situacao === "dormente") {
-                avisos.push({ ordem: 0, classe: "critico", nome: e.nome, tag: "Dormente",
-                    texto: `Nenhum servidor envia dado há ${idade(e.minutosSemLote)}` });
+                avisos.push({
+                    ordem: 0, classe: "critico", nome: e.nome, tag: "Dormente",
+                    texto: `Nenhum servidor envia dado há ${idade(e.minutosSemLote)}`
+                });
             } else if (e.situacao === "agente") {
-                avisos.push({ ordem: 1, classe: "alerta", nome: e.nome, tag: "Agente parado",
-                    texto: `${e.silenciosos} de ${e.servidores.length} servidores silenciosos` });
+                avisos.push({
+                    ordem: 1, classe: "alerta", nome: e.nome, tag: "Agente parado",
+                    texto: `${e.silenciosos} de ${e.servidores.length} servidores silenciosos`
+                });
             } else if (e.cobertura < COBERTURA_BAIXA) {
-                avisos.push({ ordem: 2, classe: "alerta", nome: e.nome, tag: "Dados faltando",
-                    texto: `Cobertura de ${numero(e.cobertura, 1)}% no período` });
+                avisos.push({
+                    ordem: 2, classe: "alerta", nome: e.nome, tag: "Dados faltando",
+                    texto: `Cobertura de ${numero(e.cobertura, 1)}% no período`
+                });
             }
         });
         avisos.sort((a, b) => a.ordem - b.ordem);
@@ -206,10 +283,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <th scope="row">${escapar(e.nome)}</th>
                     <td class="num">${e.totalUsuarios}</td>
                     <td class="num">${e.servidores.length}</td>
-                    <td class="num">${e.reportando}/${e.servidores.length}</td>
+                    <td class="num">${e.reportando === null ? "—" : e.reportando + "/" + e.servidores.length}</td>
                     <td class="num">${e.cobertura > 0 ? numero(e.cobertura, 1) + "%" : "—"}</td>
                     <td class="num">${e.alertas_7d}</td>
-                    <td>${e.minutosSemLote < 1 ? "agora" : "há " + idade(e.minutosSemLote)}</td>
+                    <td>${e.minutosSemLote === null ? "—" : e.minutosSemLote < 1 ? "agora" : "há " + idade(e.minutosSemLote)}</td>
                     <td><span class="tag ${situacao.classe}">${situacao.texto}</span></td>
                 </tr>`;
             }).join("")
@@ -221,7 +298,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const COR_GRADE = "#1c1c3a";
 
     function desenharGraficoPerfis() {
-        const soma = (perfil) => empresas.reduce((total, e) => total + e.usuarios[perfil], 0);
+        const soma = (perfil) => empresas.reduce((total, e) => total + (e.usuarios?.[perfil] || 0), 0);
         new Chart(el("chartPerfis"), {
             type: "doughnut",
             data: {
@@ -252,6 +329,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const fim = new Date(hoje.getFullYear(), hoje.getMonth() - atras + 1, 1);
             meses.push(inicio.toLocaleDateString("pt-BR", { month: "short" }).replace(".", ""));
             quantidades.push(empresas.filter((e) => {
+                if (!e.criada_em) return false;
                 const criada = new Date(e.criada_em);
                 return criada >= inicio && criada < fim;
             }).length);
@@ -287,9 +365,16 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     // ---------- Início ----------
-    const dados = await carregarDados();
-    empresas = dados.empresas.map(prepararEmpresa);
-    lake = dados.data_lake;
+    try {
+        const dados = await carregarDados();
+        lake = dados.data_lake;
+        temLake = Boolean(lake);
+        empresas = dados.empresas.map(prepararEmpresa);
+    } catch (erro) {
+        console.error("Erro:", erro);
+        el("cardsKpi").innerHTML = `<p class="vazio">Não foi possível carregar os dados dos clientes.</p>`;
+        return;
+    }
 
     desenharCards();
     desenharRankings();
@@ -298,4 +383,5 @@ document.addEventListener("DOMContentLoaded", async () => {
     desenharTabela();
     desenharGraficoPerfis();
     desenharGraficoNovas();
+    carregarDadosTeste();
 });
