@@ -1,12 +1,14 @@
-
+// Tela "Clientes": visão geral de empresas, usuários e servidores monitorados.
+// Os dados chegam no formato do JSON do backend (veja painel_dadosMock.js).
 document.addEventListener("DOMContentLoaded", async () => {
     // ---------- Configuração ----------
-    const SILENCIO_MIN = 15
-    const COBERTURA_BAIXA = 92;
+    const SILENCIO_MIN = 15;     // sem lote há mais que isso: servidor silencioso
+    const COBERTURA_BAIXA = 92;  // % de janelas recebidas abaixo disso: dados faltando
     const GOLD_ATRASADO_MIN = 10;
 
     // true: usa o painel_dadosMock.js. false: busca no backend (banco + Data Lake).
-    const USAR_MOCK = true;
+    const USAR_MOCK = false;
+    const URL_API = "/clientes/buscarDadosBanco";
 
     const SITUACOES = {
         semlake: { classe: "tag-neutro", texto: "Sem dados do lake" },
@@ -14,12 +16,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         agente: { classe: "tag-alerta", texto: "Agente parado" },
         dormente: { classe: "tag-critico", texto: "Dormente" }
     };
-    
     const ORDENACOES = {
         usuarios: (a, b) => b.totalUsuarios - a.totalUsuarios,
         servidores: (a, b) => b.servidores.length - a.servidores.length,
         alertas: (a, b) => b.alertas_7d - a.alertas_7d,
-        cobertura: (a, b) => (a.cobertura ?? 101) - (b.cobertura ?? 101)
+        cobertura: (a, b) => (a.cobertura ?? 101) - (b.cobertura ?? 101),
+        cadastro: (a, b) => new Date(b.criada_em || 0) - new Date(a.criada_em || 0)
     };
 
     const el = (id) => document.getElementById(id);
@@ -34,28 +36,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     //                   servidores: [ { id, ultimo_lote_em?, cobertura_pct? } ] } ],
     //     data_lake?: { bronze_gb, silver_gb, gold_gb, crescimento_gb_semana, ultimo_gold_em } }
     // Os campos com "?" vêm do Data Lake. Enquanto não existirem, a tela mostra "—".
-
     async function carregarDados() {
         if (USAR_MOCK) return DADOS_MOCK.clientes;
-    }
 
-    // Função de teste (cole no front ou no console do navegador).
-    function carregarDadosTeste() {
-        fetch("/clientes/buscarDadosBanco")
-            .then(resposta => {
-                if (!resposta.ok) {
-                    throw new Error("Erro ao buscar dados das empresas");
-                }
-                return resposta.json();
-            })
-            .then(resultado => {
-                console.log(resultado.dados);
-            })
-            .catch(erro => {
-                console.error("Erro:", erro);
-            });
+        const resposta = await fetch(URL_API);
+        if (!resposta.ok) throw new Error("Erro ao buscar dados das empresas");
+        const corpo = await resposta.json();
+        return corpo.dados;
     }
-
 
     function minutosDesde(dataISO) {
         return (Date.now() - new Date(dataISO).getTime()) / 60000;
@@ -115,6 +103,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (minutos < 60) return `${Math.round(minutos)} min`;
         if (minutos < 2880) return `${Math.round(minutos / 60)} h`;
         return `${Math.round(minutos / 1440)} d`;
+    }
+
+    function dataCompleta(dataISO) {
+        return dataISO ? new Date(dataISO).toLocaleDateString("pt-BR") : "—";
     }
 
     function escapar(texto) {
@@ -208,27 +200,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             .join("");
     }
 
-    function desenharLake() {
-        if (!temLake) {
-            el("listaCamadas").innerHTML = `<li class="vazio">Dados do Data Lake ainda não conectados.</li>`;
-            el("notaLake").textContent = "";
-            return;
-        }
-        const camadas = [
-            { nome: "Bronze (bruto)", gb: lake.bronze_gb, classe: "camada-bronze" },
-            { nome: "Silver (limpo)", gb: lake.silver_gb, classe: "camada-silver" },
-            { nome: "Gold (resumos)", gb: lake.gold_gb, classe: "camada-gold" }
-        ];
-        const maior = Math.max(...camadas.map((c) => c.gb));
-        el("listaCamadas").innerHTML = camadas
-            .map((c) => linhaRanking(c.nome, `${numero(c.gb, 1)} GB`, c.gb, maior).replace("<li>", `<li class="${c.classe}">`))
-            .join("");
-
-        const total = lake.bronze_gb + lake.silver_gb + lake.gold_gb;
-        el("notaLake").textContent =
-            `Total de ${numero(total, 1)} GB, crescendo cerca de ${numero(lake.crescimento_gb_semana, 1)} GB por semana.`;
-    }
-
     // ---------- Pedem atenção ----------
     function desenharAtencao() {
         const avisos = [];
@@ -238,20 +209,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         empresas.forEach((e) => {
             if (e.situacao === "dormente") {
-                avisos.push({
-                    ordem: 0, classe: "critico", nome: e.nome, tag: "Dormente",
-                    texto: `Nenhum servidor envia dado há ${idade(e.minutosSemLote)}`
-                });
+                avisos.push({ ordem: 0, classe: "critico", nome: e.nome, tag: "Dormente",
+                    texto: `Nenhum servidor envia dado há ${idade(e.minutosSemLote)}` });
             } else if (e.situacao === "agente") {
-                avisos.push({
-                    ordem: 1, classe: "alerta", nome: e.nome, tag: "Agente parado",
-                    texto: `${e.silenciosos} de ${e.servidores.length} servidores silenciosos`
-                });
+                avisos.push({ ordem: 1, classe: "alerta", nome: e.nome, tag: "Agente parado",
+                    texto: `${e.silenciosos} de ${e.servidores.length} servidores silenciosos` });
             } else if (e.cobertura < COBERTURA_BAIXA) {
-                avisos.push({
-                    ordem: 2, classe: "alerta", nome: e.nome, tag: "Dados faltando",
-                    texto: `Cobertura de ${numero(e.cobertura, 1)}% no período`
-                });
+                avisos.push({ ordem: 2, classe: "alerta", nome: e.nome, tag: "Dados faltando",
+                    texto: `Cobertura de ${numero(e.cobertura, 1)}% no período` });
             }
         });
         avisos.sort((a, b) => a.ordem - b.ordem);
@@ -283,6 +248,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <th scope="row">${escapar(e.nome)}</th>
                     <td class="num">${e.totalUsuarios}</td>
                     <td class="num">${e.servidores.length}</td>
+                    <td>${dataCompleta(e.criada_em)}</td>
                     <td class="num">${e.reportando === null ? "—" : e.reportando + "/" + e.servidores.length}</td>
                     <td class="num">${e.cobertura > 0 ? numero(e.cobertura, 1) + "%" : "—"}</td>
                     <td class="num">${e.alertas_7d}</td>
@@ -290,7 +256,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <td><span class="tag ${situacao.classe}">${situacao.texto}</span></td>
                 </tr>`;
             }).join("")
-            : `<tr><td colspan="8"><p class="vazio">Nenhuma empresa nesta situação.</p></td></tr>`;
+            : `<tr><td colspan="9"><p class="vazio">Nenhuma empresa nesta situação.</p></td></tr>`;
     }
 
     // ---------- Gráficos (Chart.js) ----------
@@ -350,6 +316,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
     }
 
+    // Sem o Data Lake, filtrar por situação ou ordenar por cobertura/alertas não faz sentido.
+    function ajustarFiltrosSemLake() {
+        el("filtroSituacao").style.display = "none";
+        ["cobertura", "alertas"].forEach((valor) => {
+            el("selectOrdem").querySelector(`option[value="${valor}"]`).remove();
+        });
+    }
+
     // ---------- Eventos ----------
     el("filtroSituacao").addEventListener("click", (evento) => {
         const botao = evento.target.closest("[data-situacao]");
@@ -376,12 +350,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
+    if (!temLake) ajustarFiltrosSemLake();
+
     desenharCards();
     desenharRankings();
-    desenharLake();
     desenharAtencao();
     desenharTabela();
     desenharGraficoPerfis();
     desenharGraficoNovas();
-    carregarDadosTeste();
 });

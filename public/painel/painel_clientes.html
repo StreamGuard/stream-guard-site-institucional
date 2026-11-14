@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Visão Geral | Stream Guard</title>
+    <title>Clientes | Stream Guard</title>
 
     <link rel="stylesheet" href="./css/painel_base.css">
     <link rel="stylesheet" href="./css/painel_clientes.css">
@@ -21,7 +21,7 @@
         <div class="conteudo">
             <header class="topo">
                 <div>
-                    <h1>Visão Geral</h1>
+                    <h1>Clientes</h1>
                     <p>Visão geral da base de empresas, usuários e servidores monitorados</p>
                 </div>
                 <div class="topo-direita" data-shell="topo-direita"></div>
@@ -73,7 +73,7 @@
                     </section>
                 </div>
 
-                <div class="grade grade-3">
+                <div class="grade grade-2">
                     <section class="painel">
                         <div class="painel-topo">
                             <div>
@@ -83,18 +83,6 @@
                             <span class="fonte fonte-banco">Banco</span>
                         </div>
                         <div class="container-chart"><canvas id="chartNovas" aria-label="Novas empresas por mês"></canvas></div>
-                    </section>
-
-                    <section class="painel">
-                        <div class="painel-topo">
-                            <div>
-                                <h2>Data Lake</h2>
-                                <p>Volume por camada</p>
-                            </div>
-                            <span class="fonte fonte-lake">Data Lake</span>
-                        </div>
-                        <ul class="ranking" id="listaCamadas"></ul>
-                        <p class="nota" id="notaLake"></p>
                     </section>
 
                     <section class="painel">
@@ -130,6 +118,7 @@
                                     <option value="servidores">Servidores</option>
                                     <option value="alertas">Alertas (7 dias)</option>
                                     <option value="cobertura">Cobertura (menor primeiro)</option>
+                                    <option value="cadastro">Cadastro (mais recentes)</option>
                                 </select>
                             </div>
                         </div>
@@ -142,6 +131,7 @@
                                     <th scope="col">Empresa</th>
                                     <th scope="col" class="num">Usuários</th>
                                     <th scope="col" class="num">Servidores</th>
+                                    <th scope="col">Cadastro</th>
                                     <th scope="col" class="num">Reportando</th>
                                     <th scope="col" class="num">Cobertura</th>
                                     <th scope="col" class="num">Alertas 7d</th>
