@@ -303,6 +303,8 @@
         "<strong>Modo somente leitura.</strong> Seu perfil de Usuário pode visualizar as informações, mas não pode cadastrar, editar ou excluir.",
       gerente:
         "<strong>Perfil Gerente.</strong> Você pode visualizar, cadastrar e editar. Excluir e as Configurações são exclusivos do Administrador.",
+      root:
+        "<strong>Perfil Root.</strong> Você pode visualizar, cadastrar, editar, excluir e configurar."
     };
 
     const faixa = document.createElement("div");
