@@ -1,31 +1,31 @@
-const usuario = { nome: SG.usuario.nome };
 
-const CHAVE_EXTRAS = "streamguard:empresas-extras";
-const CHAVE_SELECIONADA = "streamguard:empresa-selecionada";
-
-const empresas = [
-    { sigla: "SB", nome: "StreamCo Brasil", equipamentos: 32, status: "ok", ocorrencias: 0, saude: 100 },
-    { sigla: "MF", nome: "MediaFlow LTDA", equipamentos: 18, status: "alerta", ocorrencias: 2, saude: 89 },
-    { sigla: "CN", nome: "CastNet Serviços", equipamentos: 9, status: "critico", ocorrencias: 1, saude: 71 },
-    { sigla: "VP", nome: "Vivo Play Infra", equipamentos: 27, status: "ok", ocorrencias: 0, saude: 100 },
-    { sigla: "VP", nome: "Vivo Play Infra", equipamentos: 27, status: "ok", ocorrencias: 0, saude: 100 },
-    { sigla: "VP", nome: "Vivo Play Infra", equipamentos: 27, status: "ok", ocorrencias: 0, saude: 100 },
-    { sigla: "VP", nome: "Vivo Play Infra", equipamentos: 27, status: "ok", ocorrencias: 0, saude: 100 },
-    { sigla: "VP", nome: "Vivo Play Infra", equipamentos: 27, status: "ok", ocorrencias: 0, saude: 100 },
-    { sigla: "VP", nome: "Vivo Play Infra", equipamentos: 27, status: "ok", ocorrencias: 0, saude: 100 },
-    { sigla: "VP", nome: "Vivo Play Infra", equipamentos: 27, status: "ok", ocorrencias: 0, saude: 100 }
-];
-
-const statusInfo = {
-    // 
+const usuario = {
+    nome: SG.usuario.nome
 };
 
+const CHAVE_SELECIONADA = "streamguard:empresa-selecionada";
+
+let empresas = [];
+let selecionada = null;
+
+let timerToast;
 
 function lerStorage(chave, padrao) {
     try {
         const valor = localStorage.getItem(chave);
-        return valor ? JSON.parse(valor) : padrao;
+
+        if (valor === null || valor === "undefined") {
+            localStorage.removeItem(chave);
+            return padrao;
+        }
+
+        return JSON.parse(valor);
+
     } catch (erro) {
+        console.warn(`Valor inválido no localStorage: ${chave}`);
+
+        localStorage.removeItem(chave);
+
         return padrao;
     }
 }
@@ -33,112 +33,243 @@ function lerStorage(chave, padrao) {
 function salvarStorage(chave, valor) {
     try {
         localStorage.setItem(chave, JSON.stringify(valor));
+        return true;
     } catch (erro) {
+        console.error("Erro ao salvar localStorage:", erro);
+        return false;
     }
+}
+
+function gerarSigla(nome) {
+    const palavras = String(nome ?? "")
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+
+    return palavras
+        .slice(0, 2)
+        .map(palavra => palavra[0].toUpperCase())
+        .join("");
 }
 
 function escapar(texto) {
     const div = document.createElement("div");
-    div.textContent = texto;
+    div.textContent = texto ?? "";
     return div.innerHTML;
 }
 
-let timerToast;
 function mostrarToast(mensagem) {
     const toast = document.getElementById("toast");
+
+    if (!toast) return;
+
     toast.textContent = mensagem;
     toast.hidden = false;
+
     clearTimeout(timerToast);
-    timerToast = setTimeout(() => { toast.hidden = true; }, 2500);
+
+    timerToast = setTimeout(() => {
+        toast.hidden = true;
+    }, 2500);
 }
 
-empresas.push(...lerStorage(CHAVE_EXTRAS, []));
-let selecionada = lerStorage(CHAVE_SELECIONADA, null);
+async function buscarDados() {
+    const resposta = await fetch("/admin/buscarDadosBanco");
 
+    if (!resposta.ok) {
+        throw new Error("Erro ao buscar empresas.");
+    }
 
-function desenharResumo() {
-    const qtd = (status) => empresas.filter((e) => e.status === status).length;
-    const ocorrencias = empresas.reduce((total, e) => total + e.ocorrencias, 0);
+    const resultado = await resposta.json();
 
-    document.getElementById("saudacao").textContent = `Olá, ${usuario.nome}`;
-    document.getElementById("textoResumo").textContent =
-        `Você tem acesso a ${empresas.length} empresas.`;
-    document.getElementById("totalVinculadas").textContent = `${empresas.length} empresas vinculadas`;
+    if (!Array.isArray(resultado.dados)) {
+        throw new Error("Formato de dados inválido.");
+    }
 
-    document.getElementById("miniCards").innerHTML = `
-    <div class="mini-card"><strong class="verde">${empresas.length}</strong><small>Empresas</small></div>
-  `;
+    empresas = resultado.dados.map(empresa => ({
+        ...empresa,
+        id_empresa: Number(empresa.id_empresa),
+        qtd_equipamentos: Number(empresa.qtd_equipamentos || 0),
+        sigla: gerarSigla(empresa.razao_social)
+    }));
+
+    console.log("Empresas carregadas:", empresas);
+
+    // Recupera a empresa selecionada anteriormente.
+    const idSalvo = Number(lerStorage(CHAVE_SELECIONADA, null));
+
+    // Verifica se a empresa salva ainda existe no banco.
+    const empresaSalva = empresas.find(
+        empresa => empresa.id_empresa === idSalvo
+    );
+
+    if (empresaSalva) {
+        selecionada = empresaSalva.id_empresa;
+    } else {
+        // Se o ID salvo não existir mais, seleciona a primeira empresa.
+        selecionada = empresas.length > 0
+            ? empresas[0].id_empresa
+            : null;
+
+        if (selecionada !== null) {
+            salvarStorage(CHAVE_SELECIONADA, selecionada);
+        } else {
+            localStorage.removeItem(CHAVE_SELECIONADA);
+        }
+    }
+
+    // Sincroniza o usuário global com a empresa selecionada.
+    atualizarEmpresaUsuario();
 }
 
+function atualizarEmpresaUsuario() {
+    if (!SG.usuario) return;
 
-function desenharEmpresas() {
-    document.getElementById("empresas").innerHTML = empresas.map((e, i) => {
-        const info = null;
-        const ativa = e.nome === selecionada;
-        return `
-      <article class="card-empresa ${ativa ? "selecionada" : ""}">
-        <div class="empresa-topo">
-          <div class="sigla ${info}">${escapar(e.sigla)}</div>
-          <div>
-            <strong>${escapar(e.nome)}</strong>
-            <small>${e.equipamentos} equipamentos monitorados</small>
-          </div>
-        </div>
+    SG.usuario.id_empresa = selecionada;
 
-        <button class="btn-monitorar ${ativa ? "ativo" : ""}" data-indice="${i}" onclick=monitorarEmpresa(i)">
-          ${ativa ? "✔ Monitorando esta empresa" : "↗ Monitorar esta empresa"}
-        </button>
-      </article>
-    `;
-    }).join("");
-}
-
-function monitorarEmpresa(idEmpresa){
-    // mudar sessionStorage;
-}
-
-document.getElementById("empresas").addEventListener("click", (evento) => {
-    const botao = evento.target.closest(".btn-monitorar");
-    if (!botao) return;
-
-    const empresa = empresas[botao.dataset.indice];
-    selecionada = empresa.nome;
-    salvarStorage(CHAVE_SELECIONADA, selecionada);
-    desenharEmpresas();
-    mostrarToast(`Monitorando ${empresa.nome}`);
-});
-
-
-function desenharNotificacoes() {
-    const comOcorrencia = empresas
-        .filter((e) => e.ocorrencias > 0)
-        .sort((a, b) => (a.status === "critico" ? -1 : 1) - (b.status === "critico" ? -1 : 1));
-
-    SG.definirNotificacoes(
-        comOcorrencia.map((e) => ({
-            nome: e.nome,
-            texto: null,
-            status: e.status
-        }))
+    console.log(
+        "Empresa atual do usuário:",
+        SG.usuario.id_empresa
     );
 }
 
-function gerarSigla(nome) {
-    const palavras = nome.trim().split(/\s+/).filter(Boolean);
-    if (palavras.length === 0) return "";
-    if (palavras.length === 1) return palavras[0].slice(0, 2).toUpperCase();
-    return (palavras[0][0] + palavras[1][0]).toUpperCase();
+function monitorarEmpresa(idEmpresa) {
+    const empresa = empresas.find(
+        e => e.id_empresa === Number(idEmpresa)
+    );
+
+    if (!empresa) {
+        mostrarToast("Empresa não encontrada.");
+        return;
+    }
+
+    selecionada = empresa.id_empresa;
+
+    // Salva o ID, não o nome da empresa.
+    const salvo = salvarStorage(
+        CHAVE_SELECIONADA,
+        selecionada
+    );
+
+    if (!salvo) {
+        mostrarToast("Não foi possível salvar a empresa selecionada.");
+        return;
+    }
+
+    // Atualiza a empresa vinculada ao usuário no sistema.
+    atualizarEmpresaUsuario();
+
+    // Atualiza os cards.
+    desenharEmpresas();
+
+    mostrarToast(`Monitorando ${empresa.razao_social}`);
 }
 
-// Adicionar empresa (modal padrão do painel_modais.js). Só gerente e admin chegam aqui.
+function desenharResumo() {
+    document.getElementById("saudacao").textContent =
+        `Olá, ${usuario.nome}`;
+
+    document.getElementById("textoResumo").textContent =
+        `Você tem acesso a ${empresas.length} empresas.`;
+
+    document.getElementById("totalVinculadas").textContent =
+        `${empresas.length} empresas vinculadas`;
+
+    document.getElementById("miniCards").innerHTML = `
+        <div class="mini-card">
+            <strong class="verde">${empresas.length}</strong>
+            <small>Empresas</small>
+        </div>
+    `;
+}
+
+function desenharEmpresas() {
+    const container = document.getElementById("empresas");
+
+    if (!empresas.length) {
+        container.innerHTML = `
+            <p>Nenhuma empresa encontrada.</p>
+        `;
+        return;
+    }
+
+    container.innerHTML = empresas.map((empresa, indice) => {
+
+        const ativa = empresa.id_empresa === selecionada;
+
+        return `
+            <article class="card-empresa ${ativa ? "selecionada" : ""}">
+
+                <div class="empresa-topo">
+
+                    <div class="sigla">
+                        ${escapar(empresa.sigla)}
+                    </div>
+
+                    <div>
+                        <strong>
+                            ${escapar(empresa.razao_social)}
+                        </strong>
+
+                        <small>
+                            ${empresa.qtd_equipamentos} equipamentos monitorados
+                        </small>
+                    </div>
+
+                </div>
+
+                <button
+                    class="btn-monitorar ${ativa ? "ativo" : ""}"
+                    data-id-empresa="${empresa.id_empresa}"
+                    ${ativa ? "disabled" : ""}
+                >
+                    ${ativa
+                        ? "✔ Monitorando esta empresa"
+                        : "↗ Monitorar esta empresa"
+                    }
+                </button>
+
+            </article>
+        `;
+    }).join("");
+}
+
+document.getElementById("empresas").addEventListener("click", evento => {
+
+    const botao = evento.target.closest(".btn-monitorar");
+
+    if (!botao) return;
+
+    const idEmpresa = Number(botao.dataset.idEmpresa);
+
+    monitorarEmpresa(idEmpresa);
+});
+
+function desenharNotificacoes() {
+    // A consulta atual não retorna ocorrências.
+    // Quando os dados de alertas forem implementados,
+    // esta função poderá ser preenchida.
+
+    SG.definirNotificacoes([]);
+}
+
 document.getElementById("btnAdicionar").addEventListener("click", () => {
     window.location.href = "./painel_cadastroEmpresa.html";
 });
 
-function atualizarTela() {
-    desenharResumo();
-    desenharEmpresas();
-    desenharNotificacoes();
+async function atualizarTela() {
+    try {
+        await buscarDados();
+
+        desenharResumo();
+        desenharEmpresas();
+        desenharNotificacoes();
+
+    } catch (erro) {
+        console.error(erro);
+
+        mostrarToast("Não foi possível carregar as empresas.");
+    }
 }
 
 atualizarTela();
