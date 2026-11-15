@@ -21,6 +21,7 @@ var app = express();
 
 var indexRouter = require("./src/routes/index");
 var adminRouter = require("./src/routes/admin");
+var perfilRouter = require("./src/routes/perfil");
 var usuariosRouter = require("./src/routes/usuarios");
 var servidoresRouter = require("./src/routes/servidores")
 var empresasRouter = require("./src/routes/empresas");
@@ -33,6 +34,7 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/admin", adminRouter);
+app.use("/perfil", perfilRouter);
 app.use("/api", jiraRouter);
 app.use("/empresas", empresasRouter);
 app.use("/usuarios", usuariosRouter);
