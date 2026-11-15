@@ -305,7 +305,7 @@
 .grid-metricas .linha-cabecalho,
 .grid-metricas .linha {
     display: grid;
-    grid-template-columns: 2.2fr 1fr 1.6fr 1.3fr 1fr;
+    grid-template-columns: 2.2fr 1fr 1.6fr 1.3fr 1.5fr;
     align-items: center;
 }
 
@@ -358,6 +358,19 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
+}
+
+.col-acoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.col-acoes .btn-sg {
+    flex-shrink: 0;
 }
 
 .col-email {
@@ -663,16 +676,12 @@
 .box-tabela>.tabela .linha {
     flex: 1 1 auto;
     max-height: 90px;
-    min-height: 54px;
+    min-height: 90px;
     align-items: center;
 }
 
 .linhas {
     display: contents;
-}
-
-.col-acoes {
-    flex-wrap: wrap;
 }
 
 .grid-funcionarios .linha-cabecalho,
@@ -684,4 +693,50 @@
 .btn-danger:focus-visible {
     outline: 2px solid var(--verde);
     outline-offset: 2px;
+}
+
+.box-tabela > .tabela {
+    flex: 0 1 auto;
+    height: 490px;
+    max-height: 490px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sg-navy-4) transparent;
+}
+
+/* Linhas com altura fixa */
+.box-tabela > .tabela .linha {
+    flex: 0 0 90px;
+    height: 90px;
+    min-height: 90px;
+    max-height: 90px;
+    box-sizing: border-box;
+    padding-block: 0;
+}
+
+.box-tabela > .tabela .linha[hidden] {
+    display: none;
+}
+
+/* Cabeçalho fixo */
+.box-tabela > .tabela .linha-cabecalho {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    flex: 0 0 44px;
+    height: 44px;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding-block: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), var(--sg-navy-2);
+}
+
+.box-tabela > .tabela .linha-cabecalho,
+.box-tabela > .tabela .linha {
+    align-items: center;
+}
+
+/* Rodapé no final */
+.box-tabela-rodape {
+    margin-top: auto;
 }

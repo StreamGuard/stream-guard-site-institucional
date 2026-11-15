@@ -25,7 +25,8 @@ CREATE TABLE usuario (
     senha_hash VARCHAR(255) NOT NULL,
     fk_empresa INT NOT NULL,
     fk_permissao INT NOT NULL,
-    dt_ultimo_acesso DATETIME;
+    dt_ultimo_acesso DATETIME,
+    ativo TINYINT(1) NOT NULL DEFAULT 1,
     FOREIGN KEY (fk_empresa) REFERENCES empresa(id_empresa),
     FOREIGN KEY (fk_permissao) REFERENCES permissao(id_permissao)
 );

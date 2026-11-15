@@ -227,19 +227,32 @@
     });
 
 
+    // ---------- Funcionários (ligados ao banco pela rota /config) ----------
+
     const PERFIS = {
+        root:          { titulo: 'Root',          badge: 'badge-admin',    descricao: 'Equipe StreamGuard: visão e acesso a todas as empresas.' },
         administrador: { titulo: 'Administrador', badge: 'badge-admin',    descricao: 'Acesso total, inclusive a usuários e configurações.' },
         gerente:       { titulo: 'Gerente',       badge: 'badge-gerente',  descricao: 'Cadastra, vê e edita; acompanha métricas e alertas.' },
         comum:         { titulo: 'Usuário comum', badge: 'badge-comum',    descricao: 'Apenas visualiza dashboard e componentes.' }
     };
+    // perfil da tela -> id da tabela permissao (1 Root, 2 Admin, 3 Gerente, 4 User)
+    const ID_PERMISSAO = { root: 1, administrador: 2, gerente: 3, comum: 4 };
+    // Quem está logado como Root escolhe entre os 4 perfis; os demais só enxergam os 3 perfis das empresas clientes.
+    const EH_ROOT = SG.perfil === 'root';
+    const PERFIS_SELECIONAVEIS = EH_ROOT ? ['root', 'administrador', 'gerente', 'comum'] : ['administrador', 'gerente', 'comum'];
 
-    let funcionarios = [
-        { id: 1, nome: 'Carlos Souza', email: 'carlos@streamco.com.br',   perfil: 'administrador', ativo: true },
-        { id: 2, nome: 'Fernanda Lima', email: 'fernanda@streamco.com.br', perfil: 'gerente',       ativo: true },
-        { id: 3, nome: 'João Pedro',    email: 'joao@streamco.com.br',     perfil: 'comum',         ativo: true },
-        { id: 4, nome: 'Ana Torres',    email: 'ana@streamco.com.br',      perfil: 'comum',         ativo: false }
-    ];
-    let proximoFunc = 5;
+    // nome que vem da tabela permissao -> perfil da tela
+    const perfilDoBanco = (nome) => {
+        const t = normalizar(String(nome || ''));
+        if (t === 'root') return 'root';
+        if (t === 'admin' || t === 'administrador') return 'administrador';
+        if (t === 'gerente') return 'gerente';
+        return 'comum';
+    };
+
+    const ID_USUARIO = Number(sessionStorage.getItem('ID_USUARIO'));
+    let idEmpresa = Number(sessionStorage.getItem('ID_EMPRESA')) || null;
+    let funcionarios = [];
 
     const painelF = document.getElementById('painel-funcionarios');
     const listaF = document.getElementById('lista-funcionarios');
@@ -248,9 +261,55 @@
     const vazioF = painelF.querySelector('.sem-resultados');
 
     const iniciais = (nome) => {
-        const p = nome.trim().split(/\s+/);
+        const p = String(nome || '').trim().split(/\s+/).filter(Boolean);
+        if (p.length === 0) return 'NU';
         return (p.length === 1 ? p[0].slice(0, 2) : p[0][0] + p[p.length - 1][0]).toUpperCase();
     };
+
+    // chamada ao back-end: devolve o JSON ou lança Error com a mensagem do servidor
+    async function chamar(url, opcoes) {
+        const resposta = await fetch(url, opcoes);
+        let corpo = null;
+        try { corpo = await resposta.json(); } catch (e) { /* resposta sem corpo */ }
+        if (!resposta.ok) throw new Error((corpo && corpo.mensagem) || 'Erro ao falar com o servidor.');
+        return corpo;
+    }
+
+    const enviarJson = (metodo, corpo) => ({
+        method: metodo,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(corpo)
+    });
+
+    // a empresa vem da sessão; se o login não guardou, busca no perfil do usuário logado
+    async function obterEmpresa() {
+        if (idEmpresa) return idEmpresa;
+        if (!Number.isInteger(ID_USUARIO) || ID_USUARIO <= 0) throw new Error('Sessão inválida. Faça login novamente.');
+        const perfil = await chamar(`/perfil/${ID_USUARIO}`);
+        idEmpresa = Number(perfil.empresa_id);
+        sessionStorage.setItem('ID_EMPRESA', String(idEmpresa));
+        return idEmpresa;
+    }
+
+    async function carregarFuncionarios() {
+        try {
+            const empresa = await obterEmpresa();
+            const linhas = await chamar(`/config/funcionarios/${empresa}`);
+            funcionarios = linhas.map((l) => ({
+                id: l.id,
+                nome: l.nome,
+                email: l.email,
+                cargo: l.cargo || '',
+                ativo: Boolean(l.ativo),
+                perfil: perfilDoBanco(l.permissao),
+                fkPermissao: l.fk_permissao
+            }));
+            desenharFuncionarios();
+        } catch (erro) {
+            console.error('Erro ao carregar funcionários:', erro);
+            SGModal.aviso(erro.message || 'Não foi possível carregar os funcionários.');
+        }
+    }
 
     function desenharFuncionarios() {
         listaF.innerHTML = funcionarios.map((f) => `
@@ -296,8 +355,33 @@
         vazioF.hidden = visiveis > 0;
     }
 
+    // na visão StreamGuard o filtro de perfil também precisa ter a opção Root
+    if (EH_ROOT && !filtroPerfil.querySelector('option[value="root"]')) {
+        filtroPerfil.insertAdjacentHTML('beforeend', '<option value="root">Root</option>');
+    }
+
     buscaF.addEventListener('input', filtrarFuncionarios);
     filtroPerfil.addEventListener('change', filtrarFuncionarios);
+
+    // o modal fecha sozinho quando o onSalvar devolve undefined; como aqui a resposta chega
+    // depois (fetch), o onSalvar devolve false (modal aberto) e quem fecha é esta função.
+    function erroNoModal(mensagem) {
+        const geral = document.querySelector('[data-erro-geral]');
+        if (!geral) { SGModal.fechar(); return SGModal.aviso(mensagem); } // modal de confirmação não tem área de erro
+        geral.textContent = mensagem;
+        geral.style.display = 'block';
+    }
+
+    async function concluir(promessa, mensagemOk) {
+        try {
+            await promessa;
+            SGModal.fechar();
+            SGModal.aviso(mensagemOk);
+            await carregarFuncionarios();
+        } catch (erro) {
+            erroNoModal(erro.message);
+        }
+    }
 
     function verFuncionario(id, origem) {
         const f = funcionarios.find((x) => x.id === id);
@@ -309,6 +393,7 @@
             destaque: { icone: `<b>${esc(iniciais(f.nome))}</b>`, cor: f.ativo ? 'verde' : '', titulo: f.nome, texto: f.email },
             itens: [
                 { rotulo: 'Perfil', valor: PERFIS[f.perfil].titulo },
+                { rotulo: 'Cargo', valor: f.cargo },
                 { rotulo: 'Acesso', tag: f.ativo ? 'Ativo' : 'Inativo', cor: f.ativo ? 'verde' : 'laranja' },
                 { rotulo: 'O que pode fazer', valor: PERFIS[f.perfil].descricao, inteira: true }
             ],
@@ -321,46 +406,73 @@
         const editando = id != null;
         if (editando ? !SG.pode('editar') : !SG.pode('criar')) return; // checagem dupla
 
-        const atual = editando ? funcionarios.find((f) => f.id === id) : { perfil: 'comum', ativo: true };
+        const atual = editando
+            ? funcionarios.find((f) => f.id === id)
+            : { perfil: 'comum', ativo: true, cargo: '' };
+
+        const campos = [
+            { tipo: 'texto', nome: 'nome', rotulo: 'Nome completo', placeholder: 'Ex.: Maria Oliveira', max: 60, erro: 'Informe o nome do funcionário.' },
+            { tipo: 'email', nome: 'email', rotulo: 'E-mail', placeholder: 'nome@streamco.com.br', erro: 'Informe um e-mail válido.' },
+            { tipo: 'texto', nome: 'cargo', rotulo: 'Cargo', placeholder: 'Ex.: Analista de TI', max: 50, obrigatorio: false }
+        ];
+        // a senha só é pedida no cadastro; quem já existe troca a senha pela tela de perfil
+        if (!editando) {
+            campos.push({
+                tipo: 'texto', nome: 'senha', rotulo: 'Senha inicial', placeholder: 'Mínimo de 8 caracteres', max: 60,
+                validar: (v) => String(v).length >= 8, erro: 'A senha precisa ter pelo menos 8 caracteres.'
+            });
+        }
+        campos.push(
+            { tipo: 'perfil', nome: 'perfil', rotulo: 'Perfil', opcoes: PERFIS_SELECIONAVEIS.map((valor) => ({ valor, titulo: PERFIS[valor].titulo, descricao: PERFIS[valor].descricao })) }
+        );
 
         SGModal.formulario({
             titulo: editando ? 'Editar funcionário' : 'Adicionar funcionário',
             subtitulo: editando ? 'Atualize os dados, o perfil ou o acesso.' : 'Defina os dados de acesso e o nível de perfil.',
             confirmar: editando ? 'Salvar alterações' : 'Adicionar funcionário',
             icone: editando ? 'save' : 'user-plus',
-            aviso: editando ? 'Funcionário atualizado.' : 'Funcionário adicionado.',
             gatilho: origem,
             valores: atual,
-            campos: [
-                { tipo: 'texto', nome: 'nome', rotulo: 'Nome completo', placeholder: 'Ex.: Maria Oliveira', max: 60, erro: 'Informe o nome do funcionário.' },
-                { tipo: 'email', nome: 'email', rotulo: 'E-mail', placeholder: 'nome@streamco.com.br', erro: 'Informe um e-mail válido.' },
-                { tipo: 'perfil', nome: 'perfil', rotulo: 'Perfil', opcoes: Object.entries(PERFIS).map(([valor, p]) => ({ valor, titulo: p.titulo, descricao: p.descricao })) },
-                { tipo: 'switch', nome: 'ativo', rotulo: 'Acesso ativo', descricao: 'Permite que o funcionário entre no StreamGuard.' }
-            ],
+            campos,
             onSalvar(v) {
                 const repetido = funcionarios.some((f) => f.id !== id && f.email.toLowerCase() === v.email.toLowerCase());
                 if (repetido) return 'Já existe um funcionário com esse e-mail.';
 
-                if (editando) Object.assign(atual, v);
-                else funcionarios.push({ id: proximoFunc++, ...v });
-                desenharFuncionarios();
+                const idPermissao = ID_PERMISSAO[v.perfil] || (editando ? atual.fkPermissao : ID_PERMISSAO.comum);
+
+                const envio = obterEmpresa().then((empresa) => editando
+                    ? chamar(`/config/funcionarios/${id}`, enviarJson('PUT', {
+                        idEmpresa: empresa, nome: v.nome, email: v.email, cargo: v.cargo, idPermissao, ativo: v.ativo
+                    }))
+                    : chamar('/config/funcionarios', enviarJson('POST', {
+                        idEmpresa: empresa, nome: v.nome, email: v.email, cargo: v.cargo, senha: v.senha, idPermissao
+                    })));
+
+                concluir(envio, editando ? 'Funcionário atualizado.' : 'Funcionário adicionado.');
+                return false; // mantém o modal aberto até a resposta do servidor
             }
         });
+
+        // o modal não tem campo de senha; aqui o campo de texto passa a esconder o que é digitado
+        const campoSenha = document.querySelector('.modal input[name="senha"]') || document.querySelector('input[name="senha"]');
+        if (campoSenha) { campoSenha.type = 'password'; campoSenha.autocomplete = 'new-password'; }
     }
 
     function removerFuncionario(id, origem) {
         const f = funcionarios.find((x) => x.id === id);
         if (!f || !SG.pode('excluir')) return; // checagem dupla
+        if (id === ID_USUARIO) return SGModal.aviso('Você não pode remover o seu próprio usuário.');
 
         SGModal.confirmar({
             titulo: 'Remover funcionário?',
             texto: `O acesso de <strong>${esc(f.nome)}</strong> ao StreamGuard será removido. Essa ação não pode ser desfeita.`,
             botao: 'Remover',
-            aviso: 'Funcionário removido.',
             gatilho: origem,
             onConfirmar() {
-                funcionarios = funcionarios.filter((x) => x.id !== id);
-                desenharFuncionarios();
+                const envio = obterEmpresa().then((empresa) =>
+                    chamar(`/config/funcionarios/${id}`, enviarJson('DELETE', { idEmpresa: empresa })));
+                concluir(envio, 'Funcionário removido.');
+                return false;
             }
         });
     }
@@ -384,6 +496,6 @@
 
 
     desenharMetricas();
-    desenharFuncionarios();
+    carregarFuncionarios();
     abrirAba(location.hash.replace('#', '') || 'metricas');
 })();

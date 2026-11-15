@@ -1,100 +1,100 @@
 
 
 (function () {
-  "use strict";
+    "use strict";
 
 
-  const PERFIS = ["usuario", "gerente", "admin", "root"];
+    const PERFIS = ["usuario", "gerente", "admin", "root"];
 
-  const NOMES_PERFIL = {
-    usuario: "Usuário",
-    gerente: "Gerente",
-    admin: "Administrador",
-    root: "StreamGuard"
-  };
+    const NOMES_PERFIL = {
+        usuario: "Usuário",
+        gerente: "Gerente",
+        admin: "Administrador",
+        root: "StreamGuard"
+    };
 
-  // o que cada perfil pode fazer (ver = todos)
-  const REGRAS = {
-    ver: ["usuario", "gerente", "admin", "root"],
-    criar: ["gerente", "admin"],
-    editar: ["gerente", "admin"],
-    excluir: ["admin"],
-    configurar: ["admin", "root"],
-    conta: ["root"]
-  };
+    // o que cada perfil pode fazer (ver = todos)
+    const REGRAS = {
+        ver: ["usuario", "gerente", "admin", "root"],
+        criar: ["gerente", "admin", "root"],
+        editar: ["gerente", "admin", "root"],
+        excluir: ["admin", "root"],
+        configurar: ["admin", "root"],
+        conta: ["root"]
+    };
 
-  const DASHBOARD_POR_PERFIL = {
-    usuario: "./painel_dashGeral.html",
-    gerente: "./painel_dashEspecifica.html",
-    admin: "./painel_dashGeral.html",
-    root: "./painel_dashGeral.html"
-  };
+    const DASHBOARD_POR_PERFIL = {
+        usuario: "./painel_dashGeral.html",
+        gerente: "./painel_dashEspecifica.html",
+        admin: "./painel_dashGeral.html",
+        root: "./painel_dashGeral.html"
+    };
 
-  function guardar(chave, padrao) {
-    try {
-      return sessionStorage.getItem(chave) || padrao;
-    } catch (erro) {
-      return padrao;
+    function guardar(chave, padrao) {
+        try {
+            return sessionStorage.getItem(chave) || padrao;
+        } catch (erro) {
+            return padrao;
+        }
     }
-  }
 
-  function perfilDoBanco(texto) {
-    const t = (texto || "").toLowerCase();
-    if (t === "root" ) return "root" 
-    if(t === "admin" || t === "administrador") return "admin";
-    if (t === "gerente") return "gerente";
-    if (t === "user" || t === "usuario" || t === "usuário" || t === "comum") return "usuario";
-    return null;
-  }
-
-  const semLoginReal = !perfilDoBanco(guardar("PERMISSAO", ""));
-
-  function resolverPerfil() {
-    const url = new URLSearchParams(location.search).get("perfil");
-    if (PERFIS.includes(url)) {
-      try { sessionStorage.setItem("PERFIL_DEMO", url); } catch (e) { /* ignora */ }
+    function perfilDoBanco(texto) {
+        const t = (texto || "").toLowerCase();
+        if (t === "root") return "root"
+        if (t === "admin" || t === "administrador") return "admin";
+        if (t === "gerente") return "gerente";
+        if (t === "user" || t === "usuario" || t === "usuário" || t === "comum") return "usuario";
+        return null;
     }
-    const demo = guardar("PERFIL_DEMO", "");
-    if (semLoginReal && PERFIS.includes(demo)) return demo;
 
-    return perfilDoBanco(guardar("PERMISSAO", "")) || "usuario";
-  }
+    const semLoginReal = !perfilDoBanco(guardar("PERMISSAO", ""));
 
-  const perfil = resolverPerfil();
+    function resolverPerfil() {
+        const url = new URLSearchParams(location.search).get("perfil");
+        if (PERFIS.includes(url)) {
+            try { sessionStorage.setItem("PERFIL_DEMO", url); } catch (e) { /* ignora */ }
+        }
+        const demo = guardar("PERFIL_DEMO", "");
+        if (semLoginReal && PERFIS.includes(demo)) return demo;
 
-  function pode(acao) {
-    return (REGRAS[acao] || []).includes(perfil);
-  }
+        return perfilDoBanco(guardar("PERMISSAO", "")) || "usuario";
+    }
 
-  function iniciais(nome) {
-    const partes = (nome || "").trim().split(/\s+/).filter(Boolean);
-    if (partes.length === 0) return "NU";
-    if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
-    return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
-  }
+    const perfil = resolverPerfil();
 
-  function escapar(texto) {
-    const div = document.createElement("div");
-    div.textContent = texto;
-    return div.innerHTML;
-  }
+    function pode(acao) {
+        return (REGRAS[acao] || []).includes(perfil);
+    }
 
-  const usuario = {
-    nome: guardar("NOME_USUARIO", "Nome do Usuário"),
-    cargo: guardar("CARGO", NOMES_PERFIL[perfil]),
-    empresa: empresaAtual(),
-  };
+    function iniciais(nome) {
+        const partes = (nome || "").trim().split(/\s+/).filter(Boolean);
+        if (partes.length === 0) return "NU";
+        if (partes.length === 1) return partes[0].slice(0, 2).toUpperCase();
+        return (partes[0][0] + partes[partes.length - 1][0]).toUpperCase();
+    }
 
-  function empresaAtual() {
-    try {
-      const salva = JSON.parse(localStorage.getItem("streamguard:empresa-selecionada"));
-      if (salva) return salva;
-    } catch (erro) { /* ignora */ }
-    return guardar("NOME_EMPRESA", "StreamCo Brasil");
-  }
+    function escapar(texto) {
+        const div = document.createElement("div");
+        div.textContent = texto;
+        return div.innerHTML;
+    }
+
+    const usuario = {
+        nome: guardar("NOME_USUARIO", "Nome do Usuário"),
+        cargo: guardar("CARGO", NOMES_PERFIL[perfil]),
+        empresa: empresaAtual(),
+    };
+
+    function empresaAtual() {
+        try {
+            const salva = JSON.parse(localStorage.getItem("streamguard:empresa-selecionada"));
+            if (salva) return salva;
+        } catch (erro) { /* ignora */ }
+        return guardar("NOME_EMPRESA", "StreamCo Brasil");
+    }
 
 
-  const ICONES = `
+    const ICONES = `
     <svg width="0" height="0" style="position:absolute" aria-hidden="true">
       <symbol id="sg-shield" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></symbol>
       <symbol id="sg-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></symbol>
@@ -119,15 +119,15 @@
       <symbol id="sg-logout" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></symbol>
     </svg>`;
 
-  function item(href, icone, texto, chave) {
-    return `
+    function item(href, icone, texto, chave) {
+        return `
       <a href="${href}" class="menu-item" data-menu="${chave}" title="${texto}">
         <svg class="sg-ic" aria-hidden="true"><use href="#${icone}"/></svg><span>${texto}</span>
       </a>`;
-  }
+    }
 
-  function desenharSidebar(alvo) {
-    alvo.innerHTML = `
+    function desenharSidebar(alvo) {
+        alvo.innerHTML = `
       ${ICONES}
       <div class="logo">
         <div class="logo-icone"><img src="../assets/streamGuard_logo.png"></img></div>
@@ -177,26 +177,26 @@
       <strong id="totalVinculadas">${escapar(usuario.empresa)}</strong>
       `;
 
-    // marca a tela atual
-    const pagina = document.body.dataset.pagina;
-    const chave = pagina === "dashGeral" || pagina === "dashEspecifica" ? "dashboard" : pagina;
-    const ativo = alvo.querySelector(`[data-menu="${chave}"]`);
-    if (ativo) {
-      ativo.classList.add("ativo");
-      ativo.setAttribute("aria-current", "page");
+        // marca a tela atual
+        const pagina = document.body.dataset.pagina;
+        const chave = pagina === "dashGeral" || pagina === "dashEspecifica" ? "dashboard" : pagina;
+        const ativo = alvo.querySelector(`[data-menu="${chave}"]`);
+        if (ativo) {
+            ativo.classList.add("ativo");
+            ativo.setAttribute("aria-current", "page");
+        }
     }
-  }
 
-  function desenharTopo(alvo) {
-    const demo = semLoginReal
-      ? `<label class="demo-perfil">Ver como
+    function desenharTopo(alvo) {
+        const demo = semLoginReal
+            ? `<label class="demo-perfil">Ver como
            <select id="demoPerfil" aria-label="Ver a tela como outro perfil">
              ${PERFIS.map((p) => `<option value="${p}" ${p === perfil ? "selected" : ""}>${NOMES_PERFIL[p]}</option>`).join("")}
            </select>
          </label>`
-      : "";
+            : "";
 
-    alvo.innerHTML = `
+        alvo.innerHTML = `
       ${demo}
       <span class="selo-online"><i class="bolinha verde"></i> Sistemas online</span>
       <div class="sino-wrap">
@@ -208,113 +208,113 @@
       </div>
       `;
 
-    const seletor = document.getElementById("demoPerfil");
-    if (seletor) {
-      seletor.addEventListener("change", () => {
-        try { sessionStorage.setItem("PERFIL_DEMO", seletor.value); } catch (e) { /* ignora */ }
-        // volta pro dashboard certo se o perfil novo não pode ver a tela atual
-        const url = new URL(location.href);
-        url.searchParams.delete("perfil");
-        location.href = url.toString();
-      });
+        const seletor = document.getElementById("demoPerfil");
+        if (seletor) {
+            seletor.addEventListener("change", () => {
+                try { sessionStorage.setItem("PERFIL_DEMO", seletor.value); } catch (e) { /* ignora */ }
+                // volta pro dashboard certo se o perfil novo não pode ver a tela atual
+                const url = new URL(location.href);
+                url.searchParams.delete("perfil");
+                location.href = url.toString();
+            });
+        }
+
+        document.getElementById("btnSairShell").addEventListener("click", () => {
+            try { sessionStorage.clear(); } catch (e) { /* ignora */ }
+        });
     }
 
-    document.getElementById("btnSairShell").addEventListener("click", () => {
-      try { sessionStorage.clear(); } catch (e) { /* ignora */ }
-    });
-  }
 
+    const COR_STATUS = { ok: "verde", alerta: "laranja", critico: "vermelho" };
 
-  const COR_STATUS = { ok: "verde", alerta: "laranja", critico: "vermelho" };
+    let notificacoes = [
+        { nome: "srv-stream-01", texto: "RAM em 92% (acima do limite)", status: "critico" },
+        { nome: "srv-stream-03", texto: "Rede em 78% (perto do limite)", status: "alerta" },
+    ];
 
-  let notificacoes = [
-    { nome: "srv-stream-01", texto: "RAM em 92% (acima do limite)", status: "critico" },
-    { nome: "srv-stream-03", texto: "Rede em 78% (perto do limite)", status: "alerta" },
-  ];
+    function desenharNotificacoes() {
+        const painel = document.getElementById("painelNotif");
+        const badge = document.getElementById("sinoBadge");
+        if (!painel || !badge) return;
 
-  function desenharNotificacoes() {
-    const painel = document.getElementById("painelNotif");
-    const badge = document.getElementById("sinoBadge");
-    if (!painel || !badge) return;
+        badge.hidden = notificacoes.length === 0;
+        badge.textContent = notificacoes.length;
 
-    badge.hidden = notificacoes.length === 0;
-    badge.textContent = notificacoes.length;
-
-    painel.innerHTML = notificacoes.length
-      ? `<h4>Ocorrências ativas</h4>` +
-        notificacoes
-          .map(
-            (n) => `
+        painel.innerHTML = notificacoes.length
+            ? `<h4>Ocorrências ativas</h4>` +
+            notificacoes
+                .map(
+                    (n) => `
           <div class="notif-item">
             <i class="bolinha ${COR_STATUS[n.status] || "azul"}"></i>
             <div><strong>${escapar(n.nome)}</strong><small>${escapar(n.texto)}</small></div>
           </div>`
-          )
-          .join("")
-      : `<p class="vazio">Nenhuma ocorrência no momento</p>`;
-  }
-
-  function ligarSino() {
-    const botao = document.getElementById("btnSino");
-    const painel = document.getElementById("painelNotif");
-
-    function alternar(abrir) {
-      painel.hidden = !abrir;
-      botao.setAttribute("aria-expanded", String(abrir));
+                )
+                .join("")
+            : `<p class="vazio">Nenhuma ocorrência no momento</p>`;
     }
 
-    botao.addEventListener("click", (evento) => {
-      evento.stopPropagation();
-      alternar(painel.hidden);
-    });
+    function ligarSino() {
+        const botao = document.getElementById("btnSino");
+        const painel = document.getElementById("painelNotif");
 
-    document.addEventListener("click", (evento) => {
-      if (!painel.hidden && !painel.contains(evento.target)) alternar(false);
-    });
+        function alternar(abrir) {
+            painel.hidden = !abrir;
+            botao.setAttribute("aria-expanded", String(abrir));
+        }
 
-    document.addEventListener("keydown", (evento) => {
-      if (evento.key === "Escape" && !painel.hidden) alternar(false);
-    });
-  }
+        botao.addEventListener("click", (evento) => {
+            evento.stopPropagation();
+            alternar(painel.hidden);
+        });
+
+        document.addEventListener("click", (evento) => {
+            if (!painel.hidden && !painel.contains(evento.target)) alternar(false);
+        });
+
+        document.addEventListener("keydown", (evento) => {
+            if (evento.key === "Escape" && !painel.hidden) alternar(false);
+        });
+    }
 
 
-  function aplicarPermissoes(raiz) {
-    raiz.querySelectorAll("[data-perm]").forEach((el) => {
-      el.hidden = !pode(el.dataset.perm);
-    });
+    function aplicarPermissoes(raiz) {
+        raiz.querySelectorAll("[data-perm]").forEach((el) => {
+            el.hidden = !pode(el.dataset.perm);
+        });
 
-    raiz.querySelectorAll("[data-perfis]").forEach((el) => {
-      el.hidden = !el.dataset.perfis.split(" ").includes(perfil);
-    });
+        raiz.querySelectorAll("[data-perfis]").forEach((el) => {
+            el.hidden = !el.dataset.perfis.split(" ").includes(perfil);
+        });
 
-    raiz.querySelectorAll("[data-perm-lock]").forEach((el) => {
-      const travar = !pode(el.dataset.permLock);
-      el.classList.toggle("somente-leitura", travar);
-      if (el.matches("input, select, textarea, button")) el.disabled = travar;
-    });
-  }
+        raiz.querySelectorAll("[data-perm-lock]").forEach((el) => {
+            const travar = !pode(el.dataset.permLock);
+            el.classList.toggle("somente-leitura", travar);
+            if (el.matches("input, select, textarea, button")) el.disabled = travar;
+        });
+    }
 
-  function mostrarAviso(principal) {
-    if (!document.body.hasAttribute("data-edicao") || perfil === "admin") return;
-    if (principal.querySelector(".aviso-perfil")) return;
+    function mostrarAviso(principal) {
+        if (!document.body.hasAttribute("data-edicao") || perfil === "admin") return;
+        if (principal.querySelector(".aviso-perfil")) return;
 
-    const textos = {
-      usuario:
-        "<strong>Modo somente leitura.</strong> Seu perfil de Usuário pode visualizar as informações, mas não pode cadastrar, editar ou excluir.",
-      gerente:
-        "<strong>Perfil Gerente.</strong> Você pode visualizar, cadastrar e editar. Excluir e as Configurações são exclusivos do Administrador.",
-      root:
-        "<strong>Perfil Root.</strong> Você pode visualizar, cadastrar, editar, excluir e configurar."
-    };
+        const textos = {
+            usuario:
+                "<strong>Modo somente leitura.</strong> Seu perfil de Usuário pode visualizar as informações, mas não pode cadastrar, editar ou excluir.",
+            gerente:
+                "<strong>Perfil Gerente.</strong> Você pode visualizar, cadastrar e editar. Excluir e as Configurações são exclusivos do Administrador.",
+            root:
+                "<strong>Perfil Root.</strong> Você pode visualizar, cadastrar, editar, excluir e configurar."
+        };
 
-    const faixa = document.createElement("div");
-    faixa.className = `aviso-perfil nivel-${perfil}`;
-    faixa.innerHTML = `<svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg><span>${textos[perfil]}</span>`;
-    principal.prepend(faixa);
-  }
+        const faixa = document.createElement("div");
+        faixa.className = `aviso-perfil nivel-${perfil}`;
+        faixa.innerHTML = `<svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg><span>${textos[perfil]}</span>`;
+        principal.prepend(faixa);
+    }
 
-  function bloquearTela(principal) {
-    principal.innerHTML = `
+    function bloquearTela(principal) {
+        principal.innerHTML = `
       <section class="acesso-negado">
         <div>
           <div class="icone"><svg class="sg-ic" aria-hidden="true"><use href="#sg-lock"/></svg></div>
@@ -323,57 +323,57 @@
           <a href="${DASHBOARD_POR_PERFIL[perfil]}">Voltar ao dashboard</a>
         </div>
       </section>`;
-  }
-
-
-  function iniciar() {
-    const sidebar = document.querySelector('[data-shell="sidebar"]');
-    const topoDireita = document.querySelector('[data-shell="topo-direita"]');
-    const principal = document.querySelector(".principal");
-
-    if (sidebar) desenharSidebar(sidebar);
-    if (topoDireita) {
-      desenharTopo(topoDireita);
-      desenharNotificacoes();
-      ligarSino();
     }
 
-    if (!principal) return;
 
-    const exigida = document.body.dataset.acesso;
-    if (exigida && !pode(exigida)) {
-      bloquearTela(principal);
-      return;
+    function iniciar() {
+        const sidebar = document.querySelector('[data-shell="sidebar"]');
+        const topoDireita = document.querySelector('[data-shell="topo-direita"]');
+        const principal = document.querySelector(".principal");
+
+        if (sidebar) desenharSidebar(sidebar);
+        if (topoDireita) {
+            desenharTopo(topoDireita);
+            desenharNotificacoes();
+            ligarSino();
+        }
+
+        if (!principal) return;
+
+        const exigida = document.body.dataset.acesso;
+        if (exigida && !pode(exigida)) {
+            bloquearTela(principal);
+            return;
+        }
+
+        mostrarAviso(principal);
+        aplicarPermissoes(document);
+
+        // as telas desenham listas pelo JS: reaplica sempre que algo novo entra
+        let pendente = false;
+        new MutationObserver(() => {
+            if (pendente) return;
+            pendente = true;
+            requestAnimationFrame(() => {
+                pendente = false;
+                aplicarPermissoes(principal);
+            });
+        }).observe(principal, { childList: true, subtree: true });
     }
 
-    mostrarAviso(principal);
-    aplicarPermissoes(document);
+    window.SG = {
+        perfil,
+        usuario,
+        pode,
+        nomePerfil: NOMES_PERFIL[perfil],
+        definirNotificacoes(lista) {
+            notificacoes = lista;
+            desenharNotificacoes();
+        },
+        reaplicarPermissoes() {
+            aplicarPermissoes(document);
+        },
+    };
 
-    // as telas desenham listas pelo JS: reaplica sempre que algo novo entra
-    let pendente = false;
-    new MutationObserver(() => {
-      if (pendente) return;
-      pendente = true;
-      requestAnimationFrame(() => {
-        pendente = false;
-        aplicarPermissoes(principal);
-      });
-    }).observe(principal, { childList: true, subtree: true });
-  }
-
-  window.SG = {
-    perfil,
-    usuario,
-    pode,
-    nomePerfil: NOMES_PERFIL[perfil],
-    definirNotificacoes(lista) {
-      notificacoes = lista;
-      desenharNotificacoes();
-    },
-    reaplicarPermissoes() {
-      aplicarPermissoes(document);
-    },
-  };
-
-  iniciar();
+    iniciar();
 })();
