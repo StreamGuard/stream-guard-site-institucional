@@ -1,5 +1,26 @@
 var database = require("../database/config");
 
+// Escapa aspas/barras para não quebrar o SQL com nomes tipo "D'Água"
+function txt(valor) {
+    return String(valor == null ? "" : valor)
+        .replace(/\\/g, "\\\\")
+        .replace(/'/g, "''");
+}
+
+function numeroOuNull(valor) {
+    if (valor === undefined || valor === null || valor === "" || isNaN(Number(valor))) return "NULL";
+    return Number(valor);
+}
+
+var NOME_COMPONENTE = {
+    CPU: "Processador",
+    RAM: "Memória RAM",
+    Armazenamento: "Disco",
+    Rede: "Rede"
+};
+
+// ---------- Funcionários ----------
+
 function listarFuncionarios(idEmpresa) {
     var instrucaoSql = `
         SELECT
@@ -16,7 +37,6 @@ function listarFuncionarios(idEmpresa) {
         WHERE u.fk_empresa = ${idEmpresa}
         ORDER BY u.nome;
     `;
-
     return database.executar(instrucaoSql);
 }
 
@@ -36,7 +56,6 @@ function buscarFuncionario(idUsuario, idEmpresa) {
         WHERE u.id_usuario = ${idUsuario}
         AND u.fk_empresa = ${idEmpresa};
     `;
-
     return database.executar(instrucaoSql);
 }
 
@@ -52,32 +71,32 @@ function cadastrarFuncionario(idEmpresa, nome, email, senha, idPermissao, cargo)
             ativo
         )
         VALUES (
-            '${nome}',
-            '${email}',
-            SHA2('${senha}', 256),
+            '${txt(nome)}',
+            '${txt(email)}',
+            SHA2('${txt(senha)}', 256),
             ${idEmpresa},
             ${idPermissao},
-            '${cargo}',
+            '${txt(cargo)}',
             1
         );
     `;
-
     return database.executar(instrucaoSql);
 }
 
+// ativo = 1, 0 ou null (null mantém o valor que já está no banco)
 function editarFuncionario(idUsuario, idEmpresa, nome, email, idPermissao, ativo, cargo) {
+    var valorAtivo = ativo === null || ativo === undefined ? "NULL" : Number(ativo);
     var instrucaoSql = `
         UPDATE usuario
         SET
-            nome = '${nome}',
-            email = '${email}',
+            nome = '${txt(nome)}',
+            email = '${txt(email)}',
             fk_permissao = ${idPermissao},
-            ativo = ${ativo},
-            cargo = '${cargo}'
+            ativo = COALESCE(${valorAtivo}, ativo),
+            cargo = '${txt(cargo)}'
         WHERE id_usuario = ${idUsuario}
         AND fk_empresa = ${idEmpresa};
     `;
-
     return database.executar(instrucaoSql);
 }
 
@@ -87,11 +106,9 @@ function excluirFuncionario(idUsuario, idEmpresa) {
         WHERE id_usuario = ${idUsuario}
         AND fk_empresa = ${idEmpresa};
     `;
-
     return database.executar(instrucaoSql);
 }
 
-// A empresa StreamGuard é a que possui usuários Root (permissao 1).
 function empresaTemRoot(idEmpresa) {
     var instrucaoSql = `
         SELECT COUNT(*) AS total
@@ -99,8 +116,208 @@ function empresaTemRoot(idEmpresa) {
         WHERE fk_empresa = ${idEmpresa}
         AND fk_permissao = 1;
     `;
-
     return database.executar(instrucaoSql);
+}
+
+// ---------- Métricas ----------
+
+function listarMetricas(idEmpresa) {
+    var instrucaoSql = `
+        SELECT
+            m.id_metrica AS id,
+            m.nome,
+            m.unidade,
+            m.tipo AS tipo_metrica,
+            c.tipo AS tipo_componente,
+            cm.id_config_metrica,
+            cm.intervalo_coleta AS intervalo,
+            cm.habilitado AS ativa,
+            cm.limite_maximo,
+            cm.limite_minimo,
+            ec.id_equipamento_componente
+        FROM empresa e
+        JOIN equipamentos eq ON eq.fk_empresa = e.id_empresa
+        JOIN equipamento_componente ec ON ec.fk_equipamento = eq.id_equipamentos
+        JOIN componente c ON c.id_componente = ec.fk_componente
+        JOIN metrica m ON m.fk_componente = c.id_componente
+        JOIN config_metrica cm ON cm.fk_equipamento_componente = ec.id_equipamento_componente
+            AND cm.fk_metrica = m.id_metrica
+        WHERE e.id_empresa = ${idEmpresa}
+        ORDER BY m.nome;
+    `;
+    return database.executar(instrucaoSql);
+}
+
+function buscarEquipamentoEmpresa(idEmpresa) {
+    var instrucaoSql = `
+        SELECT id_equipamentos
+        FROM equipamentos
+        WHERE fk_empresa = ${idEmpresa}
+        ORDER BY id_equipamentos
+        LIMIT 1;
+    `;
+    return database.executar(instrucaoSql);
+}
+
+function buscarVinculoEquipamentoComponente(idEquipamento, idComponente) {
+    var instrucaoSql = `
+        SELECT id_equipamento_componente
+        FROM equipamento_componente
+        WHERE fk_equipamento = ${idEquipamento}
+        AND fk_componente = ${idComponente}
+        LIMIT 1;
+    `;
+    return database.executar(instrucaoSql);
+}
+
+async function obterOuCriarEquipamento(idEmpresa) {
+    var eq = await buscarEquipamentoEmpresa(idEmpresa);
+    if (eq.length > 0) return eq[0].id_equipamentos;
+
+    var res = await database.executar(`
+        INSERT INTO equipamentos (hostname, codigo_agente, tipo, status, dt_atualizacao, fk_empresa)
+        VALUES ('srv-padrao-${idEmpresa}', CONCAT('AGENTE-${idEmpresa}-', UNIX_TIMESTAMP()), 'Servidor', 'Ativo', NOW(), ${idEmpresa});
+    `);
+    return res.insertId;
+}
+
+async function obterOuCriarComponente(tipo) {
+    var comp = await database.executar(`
+        SELECT id_componente
+        FROM componente
+        WHERE tipo = '${txt(tipo)}'
+        ORDER BY id_componente
+        LIMIT 1;
+    `);
+    if (comp.length > 0) return comp[0].id_componente;
+
+    var res = await database.executar(`
+        INSERT INTO componente (nome, tipo)
+        VALUES ('${txt(NOME_COMPONENTE[tipo] || tipo)}', '${txt(tipo)}');
+    `);
+    return res.insertId;
+}
+
+async function obterOuCriarVinculo(idEquipamento, idComponente) {
+    var v = await buscarVinculoEquipamentoComponente(idEquipamento, idComponente);
+    if (v.length > 0) return v[0].id_equipamento_componente;
+
+    var res = await database.executar(`
+        INSERT INTO equipamento_componente (fk_equipamento, fk_componente, data_instalacao, status)
+        VALUES (${idEquipamento}, ${idComponente}, NOW(), 'Ativo');
+    `);
+    return res.insertId;
+}
+
+async function cadastrarMetrica(idEmpresa, nome, unidade, intervalo, ativa, tipoComponente, limiteMaximo, limiteMinimo) {
+    var idEquipamento = await obterOuCriarEquipamento(idEmpresa);
+    var idComponente = await obterOuCriarComponente(tipoComponente || "CPU");
+    var idEquipamentoComponente = await obterOuCriarVinculo(idEquipamento, idComponente);
+
+    var resMetrica = await database.executar(`
+        INSERT INTO metrica (tipo, nome, unidade, fk_componente)
+        VALUES ('Uso', '${txt(nome)}', '${txt(unidade)}', ${idComponente});
+    `);
+    var idMetrica = resMetrica.insertId;
+
+    try {
+        return await database.executar(`
+            INSERT INTO config_metrica (habilitado, intervalo_coleta, limite_maximo, limite_minimo, fk_equipamento_componente, fk_metrica)
+            VALUES (${ativa ? 1 : 0}, ${intervalo}, ${numeroOuNull(limiteMaximo)}, ${numeroOuNull(limiteMinimo)}, ${idEquipamentoComponente}, ${idMetrica});
+        `);
+    } catch (erro) {
+        // não deixa métrica órfã se a config falhar
+        await database.executar(`DELETE FROM metrica WHERE id_metrica = ${idMetrica};`);
+        throw erro;
+    }
+}
+
+// Retorna null se a métrica não existir
+async function editarMetrica(idMetrica, nome, unidade, intervalo, ativa, tipoComponente, idEquipamentoComponente) {
+    // 1. Descobre o vínculo atual da métrica (e o tipo de componente em que ela está hoje)
+    var filtroVinculo = idEquipamentoComponente
+        ? `AND cm.fk_equipamento_componente = ${Number(idEquipamentoComponente)}`
+        : "";
+
+    var atual = await database.executar(`
+        SELECT
+            ec.id_equipamento_componente AS idEC,
+            ec.fk_equipamento AS idEquipamento,
+            c.tipo AS tipo_atual
+        FROM config_metrica cm
+        JOIN equipamento_componente ec ON ec.id_equipamento_componente = cm.fk_equipamento_componente
+        JOIN componente c ON c.id_componente = ec.fk_componente
+        WHERE cm.fk_metrica = ${idMetrica}
+        ${filtroVinculo}
+        ORDER BY cm.id_config_metrica
+        LIMIT 1;
+    `);
+    if (atual.length === 0) return null;
+
+    var idEC = atual[0].idEC;
+
+    // 2. Nome e unidade
+    await database.executar(`
+        UPDATE metrica
+        SET nome = '${txt(nome)}', unidade = '${txt(unidade)}'
+        WHERE id_metrica = ${idMetrica};
+    `);
+
+    // 3. Só mexe no componente se o tipo realmente mudou.
+    //    A métrica e o config_metrica precisam mudar JUNTOS, senão o JOIN da listagem
+    //    deixa de casar e a métrica "some" da tela.
+    if (tipoComponente && tipoComponente !== atual[0].tipo_atual) {
+        var idComponente = await obterOuCriarComponente(tipoComponente);
+        var novoEC = await obterOuCriarVinculo(atual[0].idEquipamento, idComponente);
+
+        await database.executar(`
+            UPDATE metrica SET fk_componente = ${idComponente} WHERE id_metrica = ${idMetrica};
+        `);
+        await database.executar(`
+            UPDATE config_metrica
+            SET fk_equipamento_componente = ${novoEC}
+            WHERE fk_metrica = ${idMetrica} AND fk_equipamento_componente = ${idEC};
+        `);
+        idEC = novoEC;
+    }
+
+    // 4. Intervalo e estado
+    return database.executar(`
+        UPDATE config_metrica
+        SET intervalo_coleta = ${intervalo}, habilitado = ${ativa ? 1 : 0}
+        WHERE fk_metrica = ${idMetrica} AND fk_equipamento_componente = ${idEC};
+    `);
+}
+
+async function excluirMetrica(idMetrica, idEquipamentoComponente) {
+    var filtroConfig = idEquipamentoComponente
+        ? `WHERE fk_metrica = ${idMetrica} AND fk_equipamento_componente = ${Number(idEquipamentoComponente)}`
+        : `WHERE fk_metrica = ${idMetrica}`;
+
+    await database.executar(`DELETE FROM config_metrica ${filtroConfig};`);
+
+    // só apaga a métrica se não sobrou config em nenhum outro equipamento (evita erro de FK)
+    var restantes = await database.executar(`
+        SELECT COUNT(*) AS total FROM config_metrica WHERE fk_metrica = ${idMetrica};
+    `);
+    if (Number(restantes[0].total) === 0) {
+        await database.executar(`DELETE FROM metrica WHERE id_metrica = ${idMetrica};`);
+    }
+}
+
+function salvarTodasMetricas(lista) {
+    var promessas = lista.map(function (m) {
+        var filtroConfig = m.idEquipamentoComponente
+            ? `WHERE fk_metrica = ${Number(m.id)} AND fk_equipamento_componente = ${Number(m.idEquipamentoComponente)}`
+            : `WHERE fk_metrica = ${Number(m.id)}`;
+
+        return database.executar(`
+            UPDATE config_metrica
+            SET intervalo_coleta = ${Number(m.intervalo)}, habilitado = ${m.ativa ? 1 : 0}
+            ${filtroConfig};
+        `);
+    });
+    return Promise.all(promessas);
 }
 
 module.exports = {
@@ -109,5 +326,10 @@ module.exports = {
     buscarFuncionario,
     cadastrarFuncionario,
     editarFuncionario,
-    excluirFuncionario
+    excluirFuncionario,
+    listarMetricas,
+    cadastrarMetrica,
+    editarMetrica,
+    excluirMetrica,
+    salvarTodasMetricas
 };
