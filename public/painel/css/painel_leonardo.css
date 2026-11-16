@@ -523,8 +523,3 @@
     box-shadow: 0 0 0 3px rgba(45, 226, 192, 0.18);
 }
 
-#filtroComponenteRanking option,
-#filtroComponenteHistograma option {
-    color: var(--texto);
-    background: var(--painel);
-}

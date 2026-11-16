@@ -13,48 +13,6 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
         "24h": { minutos: 1440, texto: "Últimas 24 horas" }
     };
 
-    // minha função recebe periodo q deve ser 30m, 1h e 24h
-    function criarHorarios(periodo) {
-        // vou preencher com os rótulos do eixo horizontal
-        const horarios = [];
-        // 15 horários pro grafico
-        const quantidade = 15;
-
-        for (let i = 0; i < quantidade; i++) {
-            // calculo quantos minutos antes de agora deve ficar cada horario
-            const minutosAtras = Math.round(
-                (quantidade - 1 - i) * periodos[periodo].minutos / (quantidade - 1)
-            );
-            // subtraio os minutos calculados e crio a data e hora dquele ponto
-            const data = new Date(Date.now() - minutosAtras * 60000);
-
-            if (periodo === "24h") {
-                horarios.push(
-                    data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) +
-                    " " +
-                    data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-                );
-            } else {
-                horarios.push(
-                    data.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
-                );
-            }
-        }
-
-        return horarios;
-    }
-
-    // crio essa variavel que chamo a minha função para montar 15 horarios cobrindo,
-    //meus ultimos 15 min
-    let horarios = criarHorarios("30m");
-
-    // esta lista vai armazenar os valores de limite do meu grafico que é 80
-    const limite80 = [];
-
-    for (let i = 0; i < horarios.length; i++) {
-        // vou ficar repetindo para criar 15 valores de 80% pra formar minha linha horizontal
-        limite80.push(80);
-    }
 
 
     const graficoHistorico = new Chart(historico, {
@@ -109,8 +67,71 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
         }
     });
 
+    const botoesPeriodo = document.querySelectorAll(".botao-periodo");
+    const textoPeriodo = document.getElementById("textoPeriodo");
 
-    let metricasHistograma = [];
+    for (let i = 0; i < botoesPeriodo.length; i++) {
+        botoesPeriodo[i].addEventListener("click", function () {
+            const periodo = this.dataset.periodo;
+
+            if (periodos[periodo] === undefined) {
+                return;
+            }
+
+            for (let j = 0; j < botoesPeriodo.length; j++) {
+                botoesPeriodo[j].classList.remove("ativo");
+            }
+
+            this.classList.add("ativo");
+            periodoHistorico = periodo;
+            //    graficoHistorico.data.labels = criarHorarios(periodo);
+           textoPeriodo.textContent = periodos[periodo].texto;
+        });
+    }
+
+    const graficoCorrelacao = new Chart(correlacao, {
+        type: "scatter",
+        data: {
+            datasets: [
+                {
+                    label: "Medições",
+                    data: [],
+                    backgroundColor: "#2de2c0",
+                    pointRadius: 4
+                },
+                {
+                    type: "line",
+                    label: "Tendência",
+                    data: [],
+                    borderColor: "#f1f1f8",
+                    borderDash: [5, 5],
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    min: 0,
+                    max: 100,
+                    title: { display: true, text: "Uso de CPU (%)" }
+                },
+                y: {
+                    min: 0,
+                    max: 100,
+                    title: { display: true, text: "Uso de rede (%)" },
+                    ticks: { callback: valor => `${valor}%` }
+                }
+            }
+        }
+    });
+
+    let metricasHistorico = [];
+    let servidorHistorico = null;
+    let periodoHistorico = "30m";
+
     // busco os dados na minha rota
     fetch("/analista_geral/dashboard")
         .then(function (resposta) {
@@ -129,26 +150,32 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                 "Uso de " + componenteHistograma.toUpperCase();
             // guardo os dados do meu histograma :
             metricasHistograma = dados.metricas;
-            // atualizoolg
+            // chamo a função que monta meu histograma
             atualizarHistogramaRam();
 
+            //No meu grafico de dispersão escolho o servidor da minha primiera metrica
             var servidorSelecionado = dados.metricas[0].servidor_id;
+            servidorHistorico = servidorSelecionado;
+            metricasHistorico = dados.metricas;
 
+            // Dados do gráfico de histórico
             var horariosReais = [];
-            // esses valore são usados no meu historico de uso
             var valoresCpu = [];
             var valoresRam = [];
-            var pontosCpuRede = {};
             var valoresDisco = [];
             var valoresRede = [];
 
+            // Dados do gráfico de dispersão
+            var pontosCpuRede = {};
 
-            // esses valores eu uso como kpi, ultimos valores de valoresCpu por exemplo 
+            // Valores atuais dos indicadores do painel
             var ultimoCpu = null;
             var ultimaRam = null;
             var ultimoDisco = null;
             var ultimaRede = null;
-            var capacidadeRedeMbps = 1000; // Ex: rede de 1 Gbps
+
+            // Capacidade da rede usada para calcular a porcentagem
+            var capacidadeRedeMbps = 1000;
 
 
 
@@ -174,9 +201,10 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                     document.getElementById("kpiCpu").textContent = usoCpu + "%";
                     document.getElementById("valorLivreCpu").textContent = cpuLivre + "%";
                     document.getElementById("textoLivreCpu").textContent = cpuLivre + "% livres, com uso de " + usoCpu + "%.";
-
-
                     var horario = linha.inicio_periodo;
+
+
+                    // para cada medição minha de cpu ela vira um x no meu grafico de dispersão
                     pontosCpuRede[horario] = pontosCpuRede[horario] || {};
                     pontosCpuRede[horario].x = valorCpu;
 
@@ -211,14 +239,19 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                     var usoRede = Math.round(ultimaRede);
                     var redeLivre = 100 - usoRede;
                     document.getElementById("valorLivreRede").textContent = redeLivre + "%";
-                    document.getElementById("textoLivreRede").textContent = redeLivre + "% livres, com uso de " + redeLivre + "%.";
+                    document.getElementById("textoLivreRede").textContent = redeLivre + "% livres, com uso de " + usoRede + "%.";
 
+
+                    // horario é o inicio_periodo da minha medição uso como ponto de uniao entre meus dois valores ou seja 
+                    // se os horarios de ambos forem diferentes eles não são pareados.
                     var horario = linha.inicio_periodo;
+                    //para cada medição minha de rede ela se torna um valor y no meu grafico de dispersão
                     pontosCpuRede[horario] = pontosCpuRede[horario] || {};
                     pontosCpuRede[horario].y = percentualRede;
                 }
             }
 
+            //Grafico correlacao:
             var pontos = [];
             var somaX = 0, somaY = 0, somaXY = 0;
             var somaX2 = 0, somaY2 = 0;
@@ -235,17 +268,20 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                     somaX2 += ponto.x * ponto.x;
                     somaY2 += ponto.y * ponto.y;
 
+                    // pego o maior e menor valor para entender aonde começa e termina meu grafico
                     if (ponto.x < menorX) menorX = ponto.x;
                     if (ponto.x > maiorX) maiorX = ponto.x;
                 }
             }
 
+            // os pontos sao colocados no 1 dataset
             graficoCorrelacao.data.datasets[0].data = pontos;
 
             var n = pontos.length;
             var divisor = Math.sqrt((n * somaX2 - somaX * somaX) * (n * somaY2 - somaY * somaY));
 
             if (n >= 2 && divisor > 0) {
+                // inclinacao e intercepto sao usadas para eu conseguir calcular minha reta q resume a tendencia dos meus pontos
                 var inclinacao = (n * somaXY - somaX * somaY) / (n * somaX2 - somaX * somaX);
                 var intercepto = (somaY - inclinacao * somaX) / n;
 
@@ -254,11 +290,16 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                     { x: maiorX, y: inclinacao * maiorX + intercepto }
                 ];
 
+                //a formula de correlação calclua entre um numero de -1 e 1 
                 document.getElementById("valorCorrelacao").textContent =
                     "Correlação: " + ((n * somaXY - somaX * somaY) / divisor).toFixed(2).replace(".", ",");
             }
 
             graficoCorrelacao.update();
+
+
+
+
 
 
             function atualizarStatus(nome, valor) {
@@ -330,81 +371,10 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
             console.error("Erro ao carregar métricas:", erro);
         });
 
-    const botoesPeriodo = document.querySelectorAll(".botao-periodo");
-    const textoPeriodo = document.getElementById("textoPeriodo");
 
-    for (let i = 0; i < botoesPeriodo.length; i++) {
-        botoesPeriodo[i].addEventListener("click", function () {
-            const periodo = this.dataset.periodo;
-
-            if (periodos[periodo] === undefined) {
-                return;
-            }
-
-            for (let j = 0; j < botoesPeriodo.length; j++) {
-                botoesPeriodo[j].classList.remove("ativo");
-            }
-
-            this.classList.add("ativo");
-            textoPeriodo.textContent = periodos[periodo].texto;
-            //    graficoHistorico.data.labels = criarHorarios(periodo);
-            graficoHistorico.update();
-        });
-    }
-
-
-
-    const servidores = [
-        {
-            nome: "srv-stream-01",
-            usada: 12,
-            total: 16,
-            historico: [61, 64, 68, 66, 70, 72, 69, 73, 75, 74, 77, 75, 78, 76, 75],
-            usos: { cpu: 77, disco: 85, rede: 45 },
-            historicos: {
-                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
-                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
-                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
-            }
-        },
-        {
-            nome: "srv-stream-02",
-            usada: 10,
-            total: 16,
-            historico: [48, 50, 49, 52, 55, 53, 56, 58, 57, 60, 59, 61, 62, 60, 62],
-            usos: { cpu: 77, disco: 85, rede: 45 },
-            historicos: {
-                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
-                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
-                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
-            }
-        },
-        {
-            nome: "srv-stream-03",
-            usada: 13,
-            total: 16,
-            historico: [70, 72, 74, 73, 75, 78, 77, 80, 79, 82, 81, 83, 80, 82, 81],
-            usos: { cpu: 77, disco: 85, rede: 45 },
-            historicos: {
-                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
-                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
-                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
-            }
-        },
-        {
-            nome: "srv-encode-01",
-            usada: 23,
-            total: 32,
-            historico: [62, 65, 64, 66, 68, 67, 69, 71, 73, 72, 70, 71, 73, 72, 72],
-            usos: { cpu: 77, disco: 85, rede: 45 },
-            historicos: {
-                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
-                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
-                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
-            }
-        }
-
-    ];
+    const filtroHistograma = document.getElementById("filtroComponenteHistograma");
+    let componenteHistograma = "ram";
+    let metricasHistograma = [];
     const histogramaRam = new Chart(canvasHistogramaRam, {
         type: "bar",
         data: {
@@ -537,6 +507,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
         // Conto quantas medições caem em cada faixa.
         for (let i = 0; i < valores.length; i++) {
+            //depois cada medição vai sendo colocada na faixa correspondemte ex: 20-29%
             let numeroFaixa = Math.floor(valores[i] / 10);
 
             if (numeroFaixa > 9) {
@@ -618,7 +589,66 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
         histogramaRam.update();
     }
 
+    const servidores = [
+        {
+            nome: "srv-stream-01",
+            usada: 12,
+            total: 16,
+            historico: [61, 64, 68, 66, 70, 72, 69, 73, 75, 74, 77, 75, 78, 76, 75],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        },
+        {
+            nome: "srv-stream-02",
+            usada: 10,
+            total: 16,
+            historico: [48, 50, 49, 52, 55, 53, 56, 58, 57, 60, 59, 61, 62, 60, 62],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        },
+        {
+            nome: "srv-stream-03",
+            usada: 13,
+            total: 16,
+            historico: [70, 72, 74, 73, 75, 78, 77, 80, 79, 82, 81, 83, 80, 82, 81],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        },
+        {
+            nome: "srv-encode-01",
+            usada: 23,
+            total: 32,
+            historico: [62, 65, 64, 66, 68, 67, 69, 71, 73, 72, 70, 71, 73, 72, 72],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        }
+
+    ];
+
+    filtroHistograma.addEventListener("change", function () {
+        componenteHistograma = this.value;
+        atualizarHistogramaRam();
+    });
+
     // barras horizontais: mostro os 10 servidores com maior uso.
+    const filtroRanking = document.getElementById("filtroComponenteRanking");
+    let componenteRanking = "ram";
     const ranking = new Chart(canvasRankingRam, {
         type: "bar",
         data: {
@@ -666,12 +696,10 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
     });
 
 
-    // Vou preencher meu gráfico acima
-    const filtroRanking = document.getElementById("filtroComponenteRanking");
-    const filtroHistograma = document.getElementById("filtroComponenteHistograma");
 
-    let componenteRanking = "ram";
-    let componenteHistograma = "ram";
+
+
+
 
     function atualizarRanking() {
         const textoBusca = buscaRam.value.toLowerCase();
@@ -720,64 +748,21 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
         ranking.update();
     }
 
-    buscaRam.addEventListener("input", atualizarRanking);
-
-    atualizarRanking();
-    atualizarHistogramaRam();
-
-
-
-
     filtroRanking.addEventListener("change", function () {
         componenteRanking = this.value;
         atualizarRanking();
     });
-    filtroHistograma.addEventListener("change", function () {
-        componenteHistograma = this.value;
-        atualizarHistogramaRam();
-    });
+
+    buscaRam.addEventListener("input", atualizarRanking);
+
+    atualizarRanking();
 
 
 
 
 
 
-    const graficoCorrelacao = new Chart(correlacao, {
-        type: "scatter",
-        data: {
-            datasets: [
-                {
-                    label: "Medições",
-                    data: [],
-                    backgroundColor: "#2de2c0",
-                    pointRadius: 4
-                },
-                {
-                    type: "line",
-                    label: "Tendência",
-                    data: [],
-                    borderColor: "#f1f1f8",
-                    borderDash: [5, 5],
-                    pointRadius: 0
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                x: {
-                    min: 0,
-                    max: 100,
-                    title: { display: true, text: "Uso de CPU (%)" }
-                },
-                y: {
-                    min: 0,
-                    max: 100,
-                    title: { display: true, text: "Uso de rede (%)" },
-                    ticks: { callback: valor => `${valor}%` }
-                }
-            }
-        }
-    });
+
+
+
 }
