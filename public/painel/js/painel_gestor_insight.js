@@ -1,17 +1,40 @@
-(() => {
+// ==========================================
+// STREAMGUARD - DASHBOARD INDIVIDUAL
+// ==========================================
+
+// Versão demonstrativa.
+// Futuramente, os dados serão recebidos da ETL
+// por meio do backend Node.js.
+
+(function () {
+
     'use strict';
 
+    // ==========================================
+    // 1. CONFIGURAÇÕES GERAIS
+    // ==========================================
 
-    const $ = (id) => document.getElementById(id);
+    function $(id) {
+        return document.getElementById(id);
+    }
 
-    const escaparHtml = (valor) =>
-        String(valor).replace(/[&<>"']/g, (s) => ({
-            '&': '&amp;',
-            '<': '&lt;',
-            '>': '&gt;',
-            '"': '&quot;',
-            "'": '&#39;'
-        }[s]));
+    function escaparHtml(texto) {
+
+        return String(texto).replace(/[&<>"']/g, function (caractere) {
+
+            const caracteres = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#39;'
+            };
+
+            return caracteres[caractere];
+        });
+    }
+
+    const COMPONENTES = ['CPU', 'RAM', 'Disco', 'Rede'];
 
     const CORES = {
         CPU: '#2de2c0',
@@ -34,7 +57,17 @@
         Rede: 'Conectividade'
     };
 
+    const NOMES_STATUS = {
+        critico: 'Crítico',
+        atencao: 'Atenção',
+        normal: 'Normal'
+    };
 
+    // ==========================================
+    // 2. DADOS DEMONSTRATIVOS
+    // ==========================================
+
+    // FUTURO: substituir pelas informações da API.
 
     const HOSTS = [
         {
@@ -103,7 +136,9 @@
         }
     ];
 
-    const CONTRAST = {
+    // Variações utilizadas na simulação.
+
+    const CENARIOS = {
         normal: {
             CPU: -13,
             RAM: -9,
@@ -124,292 +159,461 @@
         }
     };
 
-    const PERIODO = {
+    const PERIODOS = {
         '24h': {
             nome: '24 horas',
-            n: 24,
-            step: 'h'
+            amostras: 24
         },
         '7d': {
             nome: '7 dias',
-            n: 21,
-            step: 'd'
+            amostras: 21
         },
         '30d': {
             nome: '30 dias',
-            n: 30,
-            step: 'D'
+            amostras: 30
         }
     };
 
     // ==========================================
-    // REGRAS DE ANÁLISE GERENCIAL
+    // 3. REGRAS GERENCIAIS
     // ==========================================
 
     const REGRAS = {
+
         CPU: {
-            title: 'Revisar carga de processamento',
-            why: 'Processamento elevado pode indicar disputa por CPU em fases de codificação ou streaming, mas não confirma a causa.',
-            action: 'Investigar processos de maior consumo e a duração dos picos; avaliar distribuição da carga antes de dimensionar mais nós.'
+            titulo: 'Revisar carga de processamento',
+
+            explicacao:
+                'Processamento elevado pode indicar disputa por CPU, mas não confirma a causa.',
+
+            acao:
+                'Investigar os processos com maior consumo e avaliar a distribuição da carga.'
         },
+
         RAM: {
-            title: 'Investigar pressão de memória',
-            why: 'Memória próxima do limite reduz a folga para novos processos e picos de audiência.',
-            action: 'Verificar evolução da memória e processos residentes; investigar vazamentos ou necessidade de redistribuição.'
+            titulo: 'Investigar pressão de memória',
+
+            explicacao:
+                'Memória próxima do limite reduz a folga para novos processos e picos.',
+
+            acao:
+                'Verificar a evolução da RAM e investigar os processos que consomem mais memória.'
         },
+
         Disco: {
-            title: 'Planejar capacidade de armazenamento',
-            why: 'Disco com ocupação elevada pode limitar gravações, registros e processamento caso continue crescendo.',
-            action: 'Examinar crescimento histórico, retenção dos arquivos e políticas de limpeza antes de ampliar capacidade.'
+            titulo: 'Planejar capacidade de armazenamento',
+
+            explicacao:
+                'Ocupação elevada pode comprometer novas gravações caso continue crescendo.',
+
+            acao:
+                'Verificar retenção de arquivos e crescimento da ocupação antes de expandir.'
         },
+
         Rede: {
-            title: 'Verificar saturação de conectividade',
-            why: 'Tráfego alto no enlace pode elevar a chance de gargalos no fluxo de transmissão, sem comprovar impacto ao usuário.',
-            action: 'Comparar taxa de saída/entrada, configuração do enlace e picos recorrentes; investigar distribuição de tráfego.'
+            titulo: 'Verificar capacidade de conectividade',
+
+            explicacao:
+                'Tráfego elevado pode indicar risco de gargalo, mas não comprova falha.',
+
+            acao:
+                'Investigar picos de tráfego, capacidade do enlace e distribuição da demanda.'
         }
     };
 
     // ==========================================
-    // CONFIGURAÇÕES FINANCEIRAS
+    // 4. CONFIGURAÇÕES FINANCEIRAS
     // ==========================================
 
-    const BASE = {
-        nodes: 8,
-        storage: 1200,
-        egress: 4
+    const BASE_CUSTOS = {
+        servidores: 8,
+        armazenamento: 1200,
+        trafego: 4
     };
 
-    const STATE = {
-        hosts: [],
-        active: 'Todos',
-        plans: [],
-        scenario: 'pico',
-        period: '7d',
-        cost: null
+    // Armazena informações da interface.
+
+    const ESTADO = {
+        servidores: [],
+        componente: 'Todos',
+        acoes: [],
+        cenario: 'pico',
+        periodo: '7d',
+        custos: null
     };
 
-    const BRL = (valor) =>
-        new Intl.NumberFormat('pt-BR', {
+    // ==========================================
+    // 5. FUNÇÕES AUXILIARES
+    // ==========================================
+
+    function limitarPercentual(numero) {
+
+        numero = Math.round(numero);
+
+        if (numero < 1) {
+            return 1;
+        }
+
+        if (numero > 99) {
+            return 99;
+        }
+
+        return numero;
+    }
+
+    function classificar(fator) {
+
+        if (fator >= 1) {
+            return 'critico';
+
+        } else if (fator >= 0.92) {
+            return 'atencao';
+
+        } else {
+            return 'normal';
+        }
+    }
+
+    function moedaReal(numero) {
+
+        return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
             currency: 'BRL',
             maximumFractionDigits: 0
-        }).format(valor);
+        }).format(numero);
+    }
 
-    const USD = (valor) =>
-        new Intl.NumberFormat('pt-BR', {
+    function moedaDolar(numero) {
+
+        return new Intl.NumberFormat('pt-BR', {
             style: 'currency',
-            currency: 'USD',
-            maximumFractionDigits: 2
-        }).format(valor);
+            currency: 'USD'
+        }).format(numero);
+    }
 
-    const fmt = (valor) =>
-        new Intl.NumberFormat('pt-BR', {
+    function numeroFormatado(numero) {
+
+        return new Intl.NumberFormat('pt-BR', {
             maximumFractionDigits: 1
-        }).format(valor);
-
-    const cap = (valor) =>
-        Math.max(1, Math.min(99, Math.round(valor)));
-
-    const cl = (valor) =>
-        valor >= 1 ? 'critico' :
-        valor >= 0.92 ? 'atencao' : 'normal';
-
-    const lbl = {
-        critico: 'Crítico',
-        atencao: 'Atenção',
-        normal: 'Normal'
-    };
+        }).format(numero);
+    }
 
     // ==========================================
-    // CLASSIFICAÇÃO DOS SERVIDORES
+    // 6. CLASSIFICAÇÃO DOS SERVIDORES
     // ==========================================
 
-    function statusValue(servidor) {
+    function calcularPrioridade(servidor) {
 
-        const scores = Object.keys(LIMITES).map(componente => ({
-            c: componente,
-            value: servidor[componente],
-            factor: servidor[componente] / LIMITES[componente]
-        }));
+        let componentePrincipal = 'CPU';
+        let maiorFator = 0;
 
-        scores.sort((a, b) => b.factor - a.factor);
+        for (let i = 0; i < COMPONENTES.length; i++) {
+
+            let componente = COMPONENTES[i];
+
+            let utilizacao = servidor[componente];
+
+            let limite = LIMITES[componente];
+
+            let fator = utilizacao / limite;
+
+            if (fator > maiorFator) {
+
+                maiorFator = fator;
+
+                componentePrincipal = componente;
+            }
+        }
 
         return {
-            ...scores[0],
-            status: cl(scores[0].factor)
+            c: componentePrincipal,
+            value: servidor[componentePrincipal],
+            factor: maiorFator,
+            status: classificar(maiorFator)
         };
     }
 
-    // FUTURA INTEGRAÇÃO:
-    // Substituir pelos dados recebidos da API.
+    // Prepara os servidores demonstrativos.
 
-    function hosts() {
+    function prepararServidores() {
 
-        const delta = CONTRAST[$('cenario').value];
+        let resultado = [];
 
-        return HOSTS.map(servidor => {
+        let cenarioSelecionado = $('cenario').value;
 
-            const resultado = { ...servidor };
+        let variacao = CENARIOS[cenarioSelecionado];
 
-            for (const componente of Object.keys(LIMITES)) {
+        for (let i = 0; i < HOSTS.length; i++) {
 
-                resultado[componente] = cap(
-                    servidor[componente] +
-                    delta[componente] +
-                    (servidor.id.length % 3 - 1)
-                );
-            }
+            let original = HOSTS[i];
 
-            resultado.risk = statusValue(resultado);
-
-            return resultado;
-
-        }).sort((a, b) => b.risk.factor - a.risk.factor);
-    }
-
-    function topFor(componente) {
-
-        return [...STATE.hosts]
-            .sort((a, b) => b[componente] - a[componente])[0];
-    }
-
-    function allIssues() {
-
-        return Object.keys(LIMITES).map(componente => {
-
-            const servidor = topFor(componente);
-
-            const factor =
-                servidor[componente] / LIMITES[componente];
-
-            return {
-                key: componente,
-                host: servidor,
-                value: servidor[componente],
-                factor: factor,
-                status: cl(factor)
+            let servidor = {
+                id: original.id,
+                role: original.role
             };
 
-        }).sort((a, b) => b.factor - a.factor);
+            for (let j = 0; j < COMPONENTES.length; j++) {
+
+                let componente = COMPONENTES[j];
+
+                let ajuste = original.id.length % 3 - 1;
+
+                let valor =
+                    original[componente] +
+                    variacao[componente] +
+                    ajuste;
+
+                servidor[componente] = limitarPercentual(valor);
+            }
+
+            servidor.risk = calcularPrioridade(servidor);
+
+            resultado.push(servidor);
+        }
+
+        // Ordena pela prioridade.
+
+        resultado.sort(function (a, b) {
+
+            return b.risk.factor - a.risk.factor;
+        });
+
+        return resultado;
+    }
+
+    // Identifica o servidor com maior utilização
+    // de determinado componente.
+
+    function maiorServidor(componente) {
+
+        let maior = ESTADO.servidores[0];
+
+        for (let i = 1; i < ESTADO.servidores.length; i++) {
+
+            let servidor = ESTADO.servidores[i];
+
+            if (servidor[componente] > maior[componente]) {
+
+                maior = servidor;
+            }
+        }
+
+        return maior;
+    }
+
+    // Identifica os principais problemas.
+
+    function obterProblemas() {
+
+        let problemas = [];
+
+        for (let i = 0; i < COMPONENTES.length; i++) {
+
+            let componente = COMPONENTES[i];
+
+            let servidor = maiorServidor(componente);
+
+            let valor = servidor[componente];
+
+            let limite = LIMITES[componente];
+
+            let fator = valor / limite;
+
+            let problema = {
+                key: componente,
+                host: servidor,
+                value: valor,
+                factor: fator,
+                status: classificar(fator)
+            };
+
+            problemas.push(problema);
+        }
+
+        problemas.sort(function (a, b) {
+
+            return b.factor - a.factor;
+        });
+
+        return problemas;
     }
 
     // ==========================================
-    // MENSAGENS E MODAIS
+    // 7. INDICADORES EXECUTIVOS
     // ==========================================
 
-    function toast(mensagem) {
+    function atualizarResumo() {
 
-        const elemento = $('toast');
+        let sobAtencao = 0;
+        let servidoresCriticos = 0;
+        let limitesExcedidos = 0;
 
-        elemento.textContent = mensagem;
-        elemento.hidden = false;
+        for (let i = 0; i < ESTADO.servidores.length; i++) {
 
-        clearTimeout(window.sgIndividualToaster);
+            let servidor = ESTADO.servidores[i];
 
-        window.sgIndividualToaster = setTimeout(() => {
-            elemento.hidden = true;
-        }, 3200);
-    }
+            if (servidor.risk.status !== 'normal') {
 
-    function modal(titulo, mensagem) {
+                sobAtencao++;
+            }
 
-        $('dialogTitle').textContent = titulo;
-        $('dialogText').textContent = mensagem;
+            if (servidor.risk.status === 'critico') {
 
-        $('overlay').hidden = false;
-        $('closeDialog').focus();
-    }
+                servidoresCriticos++;
+            }
 
-    // ==========================================
-    // INDICADORES EXECUTIVOS
-    // ==========================================
+            for (let j = 0; j < COMPONENTES.length; j++) {
 
-    function renderOverview() {
+                let componente = COMPONENTES[j];
 
-        const issues = allIssues();
+                if (servidor[componente] >= LIMITES[componente]) {
 
-        const count = STATE.hosts.filter(
-            servidor => servidor.risk.status !== 'normal'
-        ).length;
+                    limitesExcedidos++;
+                }
+            }
+        }
 
-        const critical = STATE.hosts.reduce((total, servidor) => {
+        let principal = ESTADO.servidores[0];
 
-            return total + Object.keys(LIMITES).filter(
-                componente => servidor[componente] >= LIMITES[componente]
-            ).length;
+        let problemas = obterProblemas();
 
-        }, 0);
+        let recursosCriticos = 0;
 
-        const main = STATE.hosts[0];
+        for (let i = 0; i < problemas.length; i++) {
+
+            if (problemas[i].status === 'critico') {
+
+                recursosCriticos++;
+            }
+        }
+
+        // Atualiza os elementos HTML.
 
         $('kpiRisk').innerHTML =
-            `${count}<small> / ${STATE.hosts.length}</small>`;
+            sobAtencao +
+            '<small> / ' +
+            ESTADO.servidores.length +
+            '</small>';
 
         $('kpiRiskNote').textContent =
-            STATE.hosts.filter(
-                servidor => servidor.risk.status === 'critico'
-            ).length + ' com pelo menos um limite excedido';
+            servidoresCriticos +
+            ' com pelo menos um limite excedido';
 
-        $('kpiComp').textContent = critical;
+        $('kpiComp').textContent = limitesExcedidos;
 
         $('kpiMain').textContent =
-            main.id.replace('srv-', '');
+            principal.id.replace('srv-', '');
 
         $('kpiMainNote').textContent =
-            `${main.risk.c} ${main.risk.value}% • limite ${LIMITES[main.risk.c]}%`;
+            principal.risk.c +
+            ' ' +
+            principal.risk.value +
+            '% • limite ' +
+            LIMITES[principal.risk.c] +
+            '%';
 
         $('noticeTitle').textContent =
-            `${issues.filter(item => item.status === 'critico').length} recursos prioritários neste cenário`;
+            recursosCriticos +
+            ' recursos prioritários neste cenário';
 
         $('noticeDesc').textContent =
-            `Maior excedência: ${issues[0].key} em ${issues[0].host.id} (${issues[0].value}%). Use as evidências abaixo para priorizar a investigação.`;
+            'Maior excedência: ' +
+            problemas[0].key +
+            ' em ' +
+            problemas[0].host.id +
+            ' (' +
+            problemas[0].value +
+            '%). Investigue os componentes destacados.';
     }
 
     // ==========================================
-    // INSIGHTS E DECISÕES GERENCIAIS
+    // 8. INSIGHTS GERENCIAIS
     // ==========================================
 
-    function decisions() {
+    function atualizarDecisoes() {
 
-        const arr = allIssues();
+        let problemas = obterProblemas();
 
-        $('decisionList').innerHTML = arr.map((item, indice) => {
+        let html = '';
 
-            const regra = REGRAS[item.key];
+        for (let i = 0; i < problemas.length; i++) {
 
-            const cor =
-                item.status === 'critico' ? 'var(--pink)' :
-                item.status === 'atencao' ? 'var(--orange)' :
-                'var(--mint)';
+            let problema = problemas[i];
 
-            const already = STATE.plans.some(
-                plano => plano.key === item.key
-            );
+            let regra = REGRAS[problema.key];
 
-            return `
-                <article class="card decision" style="--status:${cor}">
+            let cor = 'var(--mint)';
+
+            let jaAdicionada = false;
+
+            if (problema.status === 'critico') {
+
+                cor = 'var(--pink)';
+
+            } else if (problema.status === 'atencao') {
+
+                cor = 'var(--orange)';
+            }
+
+            // Verifica se já está no plano.
+
+            for (let j = 0; j < ESTADO.acoes.length; j++) {
+
+                if (ESTADO.acoes[j].key === problema.key) {
+
+                    jaAdicionada = true;
+                }
+            }
+
+            let textoBotao = '+ Adicionar ao plano';
+
+            let desabilitado = '';
+
+            if (jaAdicionada) {
+
+                textoBotao = '✓ No plano de ação';
+
+                desabilitado = 'disabled';
+            }
+
+            // Monta o cartão da recomendação.
+
+            html += `
+                <article
+                    class="card decision"
+                    style="--status:${cor}"
+                >
 
                     <span class="decision-num">
-                        0${indice + 1}
+                        0${i + 1}
                     </span>
 
                     <div>
 
                         <div class="decision-top">
-                            <h3>${regra.title} · ${item.key}</h3>
+
+                            <h3>
+                                ${regra.titulo} · ${problema.key}
+                            </h3>
 
                             <span class="decision-tag">
-                                ${item.status.toUpperCase()}
+                                ${problema.status.toUpperCase()}
                             </span>
+
                         </div>
 
-                        <p>${regra.why}</p>
+                        <p>${regra.explicacao}</p>
 
                         <div class="evidence">
+
                             <b>Evidência:</b>
-                            ${escaparHtml(item.host.id)}
-                            • ${item.key} ${item.value}%
-                            • limite de referência ${LIMITES[item.key]}%.
+
+                            ${escaparHtml(problema.host.id)}
+
+                            • ${problema.key} ${problema.value}%
+
+                            • limite ${LIMITES[problema.key]}%.
+
                         </div>
 
                         <div class="recommendation">
@@ -417,45 +621,97 @@
                             <span>DECISÃO ›</span>
 
                             <span style="color:#d8d8ec;font-weight:500">
-                                ${regra.action}
+                                ${regra.acao}
                             </span>
 
                         </div>
 
                         <button
+                            type="button"
                             class="inline-action"
-                            data-add="${item.key}"
-                            ${already ? 'disabled' : ''}
+                            data-add="${problema.key}"
+                            ${desabilitado}
                         >
-                            ${already
-                                ? '✓ No plano de ação'
-                                : '+ Adicionar ao plano'}
+                            ${textoBotao}
                         </button>
 
                     </div>
 
                 </article>
             `;
+        }
 
-        }).join('');
+        $('decisionList').innerHTML = html;
     }
 
     // ==========================================
-    // PLANO DE AÇÃO
+    // 9. PLANO DE AÇÃO
     // ==========================================
 
-    function plans() {
+    function salvarPlano() {
 
-        const lista = $('planList');
+        try {
 
-        $('planCount').textContent =
-            `${STATE.plans.length} ${
-                STATE.plans.length === 1 ? 'item' : 'itens'
-            }`;
+            localStorage.setItem(
+                'streamguard:demo:actions-v2',
+                JSON.stringify(ESTADO.acoes)
+            );
 
-        if (STATE.plans.length === 0) {
+        } catch (erro) {
 
-            lista.innerHTML = `
+            console.error(
+                'Não foi possível salvar o plano:',
+                erro
+            );
+        }
+    }
+
+    function carregarPlano() {
+
+        try {
+
+            let texto = localStorage.getItem(
+                'streamguard:demo:actions-v2'
+            );
+
+            let dados = JSON.parse(texto || '[]');
+
+            if (Array.isArray(dados)) {
+
+                for (let i = 0; i < dados.length; i++) {
+
+                    if (dados[i] && REGRAS[dados[i].key]) {
+
+                        ESTADO.acoes.push({
+                            key: dados[i].key
+                        });
+                    }
+                }
+            }
+
+        } catch (erro) {
+
+            ESTADO.acoes = [];
+        }
+    }
+
+    function atualizarPlano() {
+
+        let quantidade = ESTADO.acoes.length;
+
+        if (quantidade === 1) {
+
+            $('planCount').textContent = '1 item';
+
+        } else {
+
+            $('planCount').textContent =
+                quantidade + ' itens';
+        }
+
+        if (quantidade === 0) {
+
+            $('planList').innerHTML = `
                 <li class="plan-empty">
                     Selecione “Adicionar ao plano”
                     em uma das recomendações.
@@ -465,218 +721,247 @@
             return;
         }
 
-        lista.innerHTML = STATE.plans.map(plano => `
-            <li class="planitem">
+        let html = '';
 
-                <div class="planitem-top">
+        for (let i = 0; i < ESTADO.acoes.length; i++) {
 
-                    <strong>
-                        ${plano.key} · ${REGRAS[plano.key].title}
-                    </strong>
+            let componente = ESTADO.acoes[i].key;
 
-                    <button
-                        type="button"
-                        aria-label="Remover ${plano.key}"
-                        data-remove="${plano.key}"
-                    >
-                        ×
-                    </button>
+            let regra = REGRAS[componente];
 
-                </div>
+            html += `
+                <li class="planitem">
 
-                <p>${REGRAS[plano.key].action}</p>
+                    <div class="planitem-top">
 
-            </li>
-        `).join('');
-    }
+                        <strong>
+                            ${componente} · ${regra.titulo}
+                        </strong>
 
-    function savePlans() {
+                        <button
+                            type="button"
+                            data-remove="${componente}"
+                            aria-label="Remover ${componente}"
+                        >
+                            ×
+                        </button>
 
-        try {
+                    </div>
 
-            localStorage.setItem(
-                'streamguard:demo:actions-v2',
-                JSON.stringify(STATE.plans)
-            );
+                    <p>${regra.acao}</p>
 
-        } catch (erro) {
-            console.error('Erro ao salvar plano:', erro);
+                </li>
+            `;
         }
-    }
 
-    function loadPlans() {
-
-        try {
-
-            const items = JSON.parse(
-                localStorage.getItem(
-                    'streamguard:demo:actions-v2'
-                ) || '[]'
-            );
-
-            STATE.plans = Array.isArray(items)
-                ? items.filter(item =>
-                    item && REGRAS[item.key]
-                ).slice(0, 4)
-                : [];
-
-        } catch (erro) {
-
-            STATE.plans = [];
-        }
+        $('planList').innerHTML = html;
     }
 
     // ==========================================
-    // CARDS DOS COMPONENTES
+    // 10. CARDS DOS COMPONENTES
     // ==========================================
 
-    function componentCards() {
+    function atualizarComponentes() {
 
-        const issues = allIssues();
+        let problemas = obterProblemas();
 
-        const componentes = [
-            'CPU',
-            'RAM',
-            'Disco',
-            'Rede'
-        ].map(componente =>
-            issues.find(item => item.key === componente)
-        );
+        let html = '';
 
-        $('componentCards').innerHTML = componentes.map(item => `
+        for (let i = 0; i < COMPONENTES.length; i++) {
 
-            <button
-                type="button"
-                class="card component ${
-                    STATE.active === item.key ? 'selected' : ''
-                }"
-                style="--c:${CORES[item.key]}"
-                data-resource="${item.key}"
-            >
+            let componente = COMPONENTES[i];
 
-                <div class="component-header">
+            let problema = null;
 
-                    <span class="component-label">
-                        <span class="circle"></span>
-                        ${item.key}
-                    </span>
+            for (let j = 0; j < problemas.length; j++) {
 
-                    <span class="component-status">
-                        ${lbl[item.status]}
-                    </span>
+                if (problemas[j].key === componente) {
 
-                </div>
-
-                <div class="component-value">
-                    ${item.value}
-                    <span>% • maior utilização</span>
-                </div>
-
-                <div class="meter">
-                    <i style="width:${item.value}%"></i>
-                </div>
-
-                <small>${escaparHtml(item.host.id)}</small>
-
-                <span class="target">
-                    Limite de atenção crítica:
-                    ${LIMITES[item.key]}%
-                </span>
-
-            </button>
-
-        `).join('');
-    }
-
-    // ==========================================
-    // GRÁFICO DE RECURSOS
-    // ==========================================
-
-    // Os dados do gráfico são demonstrativos.
-    // Posteriormente serão substituídos pelas séries da ETL.
-
-    function plot() {
-
-        const periodoSelecionado = $('periodo').value;
-        const periodo = PERIODO[periodoSelecionado];
-
-        const servidorSelecionado = $('servidorFiltro').value;
-
-        const componenteAtivo = STATE.active;
-
-        const servidor = STATE.hosts.find(
-            item => item.id === servidorSelecionado
-        );
-
-        const valores = {};
-
-        for (const componente of Object.keys(LIMITES)) {
-
-            const base = servidor
-                ? servidor[componente]
-                : STATE.hosts.reduce(
-                    (soma, item) => soma + item[componente], 0
-                ) / STATE.hosts.length;
-
-            valores[componente] = Array.from(
-                { length: periodo.n },
-                (_, indice) => {
-
-                    const fase = indice / (periodo.n - 1);
-
-                    const variacao =
-                        4.9 * Math.sin(
-                            indice * 0.62 + componente.length % 4
-                        ) +
-                        2.7 * Math.cos(
-                            indice * 1.02 + componente.length
-                        );
-
-                    return cap(
-                        base - 5 + fase * 5.5 + variacao
-                    );
+                    problema = problemas[j];
                 }
-            );
+            }
+
+            let selecionado = '';
+
+            if (ESTADO.componente === componente) {
+
+                selecionado = 'selected';
+            }
+
+            html += `
+                <button
+                    type="button"
+                    class="card component ${selecionado}"
+                    style="--c:${CORES[componente]}"
+                    data-resource="${componente}"
+                >
+
+                    <div class="component-header">
+
+                        <span class="component-label">
+
+                            <span class="circle"></span>
+
+                            ${componente}
+
+                        </span>
+
+                        <span class="component-status">
+                            ${NOMES_STATUS[problema.status]}
+                        </span>
+
+                    </div>
+
+                    <div class="component-value">
+
+                        ${problema.value}
+
+                        <span>% • maior utilização</span>
+
+                    </div>
+
+                    <div class="meter">
+                        <i style="width:${problema.value}%"></i>
+                    </div>
+
+                    <small>
+                        ${escaparHtml(problema.host.id)}
+                    </small>
+
+                    <span class="target">
+                        Limite de atenção crítica:
+                        ${LIMITES[componente]}%
+                    </span>
+
+                </button>
+            `;
         }
 
-        const W = 690;
-        const H = 218;
+        $('componentCards').innerHTML = html;
+    }
 
-        const padL = 37;
-        const padR = 12;
-        const padT = 11;
-        const padB = 28;
+    // ==========================================
+    // 11. GERAÇÃO DE DADOS PARA O GRÁFICO
+    // ==========================================
 
-        const x = indice =>
-            padL + (W - padL - padR) *
-            indice / (periodo.n - 1);
+    // FUTURO:
+    // Esta função será substituída por dados
+    // históricos recebidos do backend.
 
-        const y = valor =>
-            padT + (H - padT - padB) *
-            (100 - valor) / 100;
+    function gerarSerie(componente, servidor, quantidade) {
+
+        let base = 0;
+
+        if (servidor) {
+
+            base = servidor[componente];
+
+        } else {
+
+            for (let i = 0; i < ESTADO.servidores.length; i++) {
+
+                base += ESTADO.servidores[i][componente];
+            }
+
+            base = base / ESTADO.servidores.length;
+        }
+
+        let serie = [];
+
+        for (let i = 0; i < quantidade; i++) {
+
+            let fase = i / (quantidade - 1);
+
+            // Variação apenas demonstrativa.
+
+            let variacao =
+                4.9 * Math.sin(
+                    i * 0.62 + componente.length % 4
+                ) +
+                2.7 * Math.cos(
+                    i * 1.02 + componente.length
+                );
+
+            let valor = base - 5 + fase * 5.5 + variacao;
+
+            serie.push(limitarPercentual(valor));
+        }
+
+        return serie;
+    }
+
+    // ==========================================
+    // 12. GRÁFICO SVG
+    // ==========================================
+
+    function atualizarGrafico() {
+
+        let periodo = PERIODOS[$('periodo').value];
+
+        let idServidor = $('servidorFiltro').value;
+
+        let servidor = null;
+
+        for (let i = 0; i < ESTADO.servidores.length; i++) {
+
+            if (ESTADO.servidores[i].id === idServidor) {
+
+                servidor = ESTADO.servidores[i];
+            }
+        }
+
+        // Dimensões do SVG.
+
+        let largura = 690;
+        let altura = 218;
+
+        let margemEsquerda = 37;
+        let margemDireita = 12;
+        let margemSuperior = 11;
+        let margemInferior = 28;
+
+        // Calcula a posição horizontal de um ponto.
+
+        function posX(indice) {
+
+            return margemEsquerda +
+                (largura - margemEsquerda - margemDireita) *
+                indice / (periodo.amostras - 1);
+        }
+
+        // Calcula a posição vertical.
+
+        function posY(valor) {
+
+            return margemSuperior +
+                (altura - margemSuperior - margemInferior) *
+                (100 - valor) / 100;
+        }
 
         let svg = `
             <svg
-                viewBox="0 0 ${W} ${H}"
+                viewBox="0 0 ${largura} ${altura}"
                 preserveAspectRatio="none"
-                aria-label="Séries de CPU, RAM, Disco e Rede"
+                aria-label="Gráfico de utilização dos recursos"
             >
         `;
 
-        for (const valor of [0, 20, 40, 60, 80, 100]) {
+        // Desenha as linhas de referência.
+
+        for (let valor = 0; valor <= 100; valor += 20) {
 
             svg += `
                 <line
-                    x1="${padL}"
-                    y1="${y(valor)}"
-                    x2="${W - padR}"
-                    y2="${y(valor)}"
+                    x1="${margemEsquerda}"
+                    y1="${posY(valor)}"
+                    x2="${largura - margemDireita}"
+                    y2="${posY(valor)}"
                     class="gridline"
                 />
 
                 <text
-                    x="${padL - 8}"
-                    y="${y(valor) + 4}"
+                    x="${margemEsquerda - 8}"
+                    y="${posY(valor) + 4}"
                     text-anchor="end"
                     class="axis"
                 >
@@ -685,49 +970,82 @@
             `;
         }
 
-        const label = indice =>
-            periodoSelecionado === '24h'
-                ? `${String(indice).padStart(2, '0')}h`
-                : `D${indice + 1}`;
+        // Desenha os rótulos de tempo.
 
-        const intervalo = Math.max(
+        let intervalo = Math.max(
             1,
-            Math.floor((periodo.n - 1) / 6)
+            Math.floor((periodo.amostras - 1) / 6)
         );
 
-        for (let indice = 0; indice < periodo.n; indice += intervalo) {
+        for (let i = 0; i < periodo.amostras; i += intervalo) {
+
+            let rotulo = '';
+
+            if ($('periodo').value === '24h') {
+
+                rotulo = String(i).padStart(2, '0') + 'h';
+
+            } else {
+
+                rotulo = 'D' + (i + 1);
+            }
 
             svg += `
                 <text
-                    x="${x(indice)}"
-                    y="${H - 7}"
+                    x="${posX(i)}"
+                    y="${altura - 7}"
                     text-anchor="middle"
                     class="axis"
                 >
-                    ${label(indice)}
+                    ${rotulo}
                 </text>
             `;
         }
 
-        const componentes = componenteAtivo === 'Todos'
-            ? Object.keys(LIMITES)
-            : [componenteAtivo];
+        // Define quais componentes aparecem no gráfico.
 
-        for (const componente of componentes) {
+        let componentesGrafico = COMPONENTES;
 
-            const serie = valores[componente];
+        if (ESTADO.componente !== 'Todos') {
 
-            const path = serie.map((valor, indice) => {
+            componentesGrafico = [ESTADO.componente];
+        }
 
-                return `${
-                    indice ? 'L' : 'M'
-                }${x(indice).toFixed(1)} ${y(valor).toFixed(1)}`;
+        // Desenha cada linha.
 
-            }).join(' ');
+        for (let c = 0; c < componentesGrafico.length; c++) {
+
+            let componente = componentesGrafico[c];
+
+            let serie = gerarSerie(
+                componente,
+                servidor,
+                periodo.amostras
+            );
+
+            let caminho = '';
+
+            for (let i = 0; i < serie.length; i++) {
+
+                let comando = '';
+
+                if (i === 0) {
+                    comando = 'M';
+                } else {
+                    comando = 'L';
+                }
+
+                caminho +=
+                    comando +
+                    posX(i).toFixed(1) +
+                    ' ' +
+                    posY(serie[i]).toFixed(1) +
+                    ' ';
+            }
 
             svg += `
                 <path
-                    d="${path}"
+                    d="${caminho}"
                     fill="none"
                     stroke="${CORES[componente]}"
                     stroke-width="2.8"
@@ -736,8 +1054,8 @@
                 />
 
                 <circle
-                    cx="${x(serie.length - 1)}"
-                    cy="${y(serie.at(-1))}"
+                    cx="${posX(serie.length - 1)}"
+                    cy="${posY(serie[serie.length - 1])}"
                     r="4"
                     fill="${CORES[componente]}"
                     stroke="#151529"
@@ -748,315 +1066,474 @@
 
         $('chartHost').innerHTML = svg + '</svg>';
 
-        $('chartSubtitle').textContent = `
-            ${servidor
-                ? servidor.id
-                : 'Média ilustrativa dos 8 servidores'}
-            • ${periodo.nome}
-            • ${componenteAtivo === 'Todos'
-                ? 'quatro componentes'
-                : componenteAtivo}
-        `;
+        // Atualiza a descrição do gráfico.
 
-        // Informações de interpretação do gráfico
+        let tituloServidor =
+            'Média ilustrativa dos ' +
+            ESTADO.servidores.length +
+            ' servidores';
 
-        const selectedIssue = componenteAtivo === 'Todos'
-            ? allIssues()[0]
-            : allIssues().find(
-                item => item.key === componenteAtivo
-            );
+        if (servidor) {
 
-        const recurso = selectedIssue.key;
-        const regra = REGRAS[recurso];
+            tituloServidor = servidor.id;
+        }
+
+        $('chartSubtitle').textContent =
+            tituloServidor +
+            ' • ' +
+            periodo.nome +
+            ' • ' +
+            ESTADO.componente;
+
+        // Identifica o componente em destaque.
+
+        let problemas = obterProblemas();
+
+        let destaque = problemas[0];
+
+        if (ESTADO.componente !== 'Todos') {
+
+            for (let i = 0; i < problemas.length; i++) {
+
+                if (problemas[i].key === ESTADO.componente) {
+
+                    destaque = problemas[i];
+                }
+            }
+        }
+
+        let regra = REGRAS[destaque.key];
 
         $('focusLabel').textContent =
-            `${recurso.toUpperCase()} • MAIOR REGISTRO`;
+            destaque.key.toUpperCase() +
+            ' • MAIOR REGISTRO';
 
         $('focusValue').textContent =
-            selectedIssue.value + '%';
+            destaque.value + '%';
 
         $('focusValue').style.color =
-            CORES[recurso];
+            CORES[destaque.key];
 
         $('focusHost').textContent =
-            `${selectedIssue.host.id} • limite ${LIMITES[recurso]}%`;
+            destaque.host.id +
+            ' • limite ' +
+            LIMITES[destaque.key] +
+            '%';
+
+        let mensagem = '';
+
+        if (destaque.value >= LIMITES[destaque.key]) {
+
+            mensagem = 'O limite hipotético foi ultrapassado.';
+
+        } else {
+
+            mensagem = 'Acompanhar folga de utilização.';
+        }
 
         $('focusReadout').textContent =
-            `${LABELS[recurso]}: ${
-                lbl[selectedIssue.status].toLowerCase()
-            } no cenário selecionado. ${
-                selectedIssue.value >= LIMITES[recurso]
-                    ? 'O limite hipotético foi ultrapassado.'
-                    : 'Acompanhar folga de utilização.'
-            }`;
+            LABELS[destaque.key] +
+            ': ' +
+            NOMES_STATUS[destaque.status].toLowerCase() +
+            ' no cenário selecionado. ' +
+            mensagem;
 
-        $('focusInterpretation').textContent = regra.why;
-        $('focusAction').textContent = regra.action;
+        $('focusInterpretation').textContent =
+            regra.explicacao;
 
-        $('chartToggles').innerHTML = [
+        $('focusAction').textContent =
+            regra.acao;
+
+        // Botões de seleção dos componentes.
+
+        let legenda = '';
+
+        let botoes = [
             'Todos',
-            ...Object.keys(LIMITES)
-        ].map(componente => `
+            'CPU',
+            'RAM',
+            'Disco',
+            'Rede'
+        ];
 
-            <button
-                type="button"
-                data-chart="${componente}"
-                class="chart-toggle ${
-                    componente === componenteAtivo ? 'on' : ''
-                }"
-                style="--c:${CORES[componente] || '#8585a8'}"
-            >
-                <span class="key"></span>
-                ${componente}
-            </button>
+        for (let i = 0; i < botoes.length; i++) {
 
-        `).join('');
-    }
+            let nome = botoes[i];
 
-    // ==========================================
-    // TABELA DE SERVIDORES
-    // ==========================================
+            let ativo = '';
 
-    function table() {
+            if (nome === ESTADO.componente) {
 
-        function valorComponente(servidor, componente) {
-
-            let classe = '';
-
-            if (servidor[componente] >= LIMITES[componente]) {
-                classe = 'bad';
-
-            } else if (
-                servidor[componente] >= LIMITES[componente] * 0.94
-            ) {
-                classe = 'warn';
+                ativo = 'on';
             }
 
-            return `
-                <span class="mini-val ${classe}">
-                    ${servidor[componente]}%
-                </span>
+            legenda += `
+                <button
+                    type="button"
+                    data-chart="${nome}"
+                    class="chart-toggle ${ativo}"
+                    style="--c:${CORES[nome] || '#8585a8'}"
+                >
+                    <span class="key"></span>
+                    ${nome}
+                </button>
             `;
         }
 
-        $('serverRows').innerHTML = STATE.hosts.map(servidor => `
-
-            <tr>
-
-                <td>
-                    <b>${escaparHtml(servidor.id)}</b>
-                    <small>${escaparHtml(servidor.role)}</small>
-                </td>
-
-                <td>${valorComponente(servidor, 'CPU')}</td>
-                <td>${valorComponente(servidor, 'RAM')}</td>
-                <td>${valorComponente(servidor, 'Disco')}</td>
-                <td>${valorComponente(servidor, 'Rede')}</td>
-
-                <td>
-                    <span class="severity ${servidor.risk.status}">
-                        ${lbl[servidor.risk.status]}
-                        · ${servidor.risk.c}
-                    </span>
-                </td>
-
-                <td>
-                    <button
-                        class="tablebutton"
-                        type="button"
-                        data-server="${escaparHtml(servidor.id)}"
-                    >
-                        Analisar →
-                    </button>
-                </td>
-
-            </tr>
-
-        `).join('');
+        $('chartToggles').innerHTML = legenda;
     }
 
     // ==========================================
-    // SIMULADOR FINANCEIRO - BILLING
+    // 13. TABELA DE SERVIDORES
     // ==========================================
 
-    function getNum(id) {
+    function formatarMetrica(servidor, componente) {
 
-        return Math.max(0, Number($(id).value) || 0);
+        let classe = '';
+
+        if (servidor[componente] >= LIMITES[componente]) {
+
+            classe = 'bad';
+
+        } else if (
+            servidor[componente] >= LIMITES[componente] * 0.94
+        ) {
+
+            classe = 'warn';
+        }
+
+        return `
+            <span class="mini-val ${classe}">
+                ${servidor[componente]}%
+            </span>
+        `;
     }
 
-    function computeCost(nodes, storage, egress) {
+    function atualizarTabela() {
 
-        const horas = getNum('hours');
-        const precoServidor = getNum('priceNode');
-        const precoArmazenamento = getNum('priceStorage');
-        const precoTrafego = getNum('priceTraffic');
-        const cambio = getNum('fx');
+        let html = '';
 
-        const custos = {
-            nodes: nodes * horas * precoServidor,
-            storage: storage * precoArmazenamento,
-            traffic: egress * 1024 * precoTrafego
-        };
+        for (let i = 0; i < ESTADO.servidores.length; i++) {
 
-        const totalDolar =
-            custos.nodes +
-            custos.storage +
-            custos.traffic;
+            let servidor = ESTADO.servidores[i];
+
+            html += `
+                <tr>
+
+                    <td>
+                        <b>${escaparHtml(servidor.id)}</b>
+                        <small>${escaparHtml(servidor.role)}</small>
+                    </td>
+
+                    <td>${formatarMetrica(servidor, 'CPU')}</td>
+
+                    <td>${formatarMetrica(servidor, 'RAM')}</td>
+
+                    <td>${formatarMetrica(servidor, 'Disco')}</td>
+
+                    <td>${formatarMetrica(servidor, 'Rede')}</td>
+
+                    <td>
+                        <span class="severity ${servidor.risk.status}">
+                            ${NOMES_STATUS[servidor.risk.status]}
+                            · ${servidor.risk.c}
+                        </span>
+                    </td>
+
+                    <td>
+                        <button
+                            class="tablebutton"
+                            type="button"
+                            data-server="${escaparHtml(servidor.id)}"
+                        >
+                            Analisar →
+                        </button>
+                    </td>
+
+                </tr>
+            `;
+        }
+
+        $('serverRows').innerHTML = html;
+    }
+
+    // ==========================================
+    // 14. SIMULADOR FINANCEIRO
+    // ==========================================
+
+    function valorCampo(id) {
+
+        let valor = Number($(id).value);
+
+        if (!Number.isFinite(valor) || valor < 0) {
+
+            return 0;
+        }
+
+        return valor;
+    }
+
+    // Calcula os custos utilizando valores hipotéticos.
+    // FUTURO: o backend consultará preços da AWS.
+
+    function calcularCustos(
+        quantidadeServidores,
+        armazenamento,
+        trafego
+    ) {
+
+        let horas = valorCampo('hours');
+
+        let precoServidor = valorCampo('priceNode');
+
+        let precoArmazenamento = valorCampo('priceStorage');
+
+        let precoTrafego = valorCampo('priceTraffic');
+
+        let cambio = valorCampo('fx');
+
+        // Custo de computação.
+
+        let computacao =
+            quantidadeServidores *
+            horas *
+            precoServidor;
+
+        // Custo de armazenamento.
+
+        let disco =
+            armazenamento *
+            precoArmazenamento;
+
+        // Custo de transferência.
+
+        let rede =
+            trafego *
+            1024 *
+            precoTrafego;
+
+        // Soma dos custos.
+
+        let totalDolar =
+            computacao +
+            disco +
+            rede;
+
+        let totalReal = totalDolar * cambio;
 
         return {
-            ...custos,
+            nodes: computacao,
+            storage: disco,
+            traffic: rede,
             usd: totalDolar,
-            brl: totalDolar * cambio,
+            brl: totalReal,
             fx: cambio
         };
     }
 
-    function renderBill() {
+    function atualizarBilling() {
 
-        const extra = getNum('extraNodes');
-        const storage = getNum('storage');
-        const egress = getNum('egress');
+        let extra = valorCampo('extraNodes');
 
-        const base = computeCost(
-            BASE.nodes,
-            BASE.storage,
-            BASE.egress
+        let armazenamento = valorCampo('storage');
+
+        let trafego = valorCampo('egress');
+
+        // Calcula a configuração de referência.
+
+        let base = calcularCustos(
+            BASE_CUSTOS.servidores,
+            BASE_CUSTOS.armazenamento,
+            BASE_CUSTOS.trafego
         );
 
-        const scenario = computeCost(
-            BASE.nodes + extra,
-            storage,
-            egress
+        // Calcula a configuração simulada.
+
+        let simulacao = calcularCustos(
+            BASE_CUSTOS.servidores + extra,
+            armazenamento,
+            trafego
         );
 
-        const delta = scenario.brl - base.brl;
+        let diferenca = simulacao.brl - base.brl;
 
-        STATE.cost = {
-            base,
-            scenario,
-            delta,
-            extra,
-            storage,
-            egress
+        let percentual = 0;
+
+        if (base.brl > 0) {
+
+            percentual = diferenca / base.brl * 100;
+        }
+
+        ESTADO.custos = {
+            base: base,
+            scenario: simulacao,
+            delta: diferenca,
+            extra: extra,
+            storage: armazenamento,
+            egress: trafego
         };
 
-        $('extraNodesText').textContent =
-            `+${extra} ${extra === 1 ? 'nó' : 'nós'}`;
+        // Atualiza os campos do simulador.
+
+        let textoNos = '';
+
+        if (extra === 1) {
+
+            textoNos = '+1 nó';
+
+        } else {
+
+            textoNos = '+' + extra + ' nós';
+        }
+
+        $('extraNodesText').textContent = textoNos;
 
         $('storageText').textContent =
-            `${fmt(storage)} GB`;
+            numeroFormatado(armazenamento) + ' GB';
 
         $('egressText').textContent =
-            `${fmt(egress)} TB/mês`;
+            numeroFormatado(trafego) + ' TB/mês';
 
         $('billingTotal').textContent =
-            BRL(scenario.brl);
+            moedaReal(simulacao.brl);
 
         $('billingUsd').textContent =
-            USD(scenario.usd) +
+            moedaDolar(simulacao.usd) +
             ' • câmbio assumido R$ ' +
-            fmt(scenario.fx);
+            numeroFormatado(simulacao.fx);
 
         $('billingBase').textContent =
-            BRL(base.brl);
+            moedaReal(base.brl);
+
+        let sinal = '+';
+
+        if (diferenca < 0) {
+
+            sinal = '−';
+        }
 
         $('billingDelta').textContent =
-            (delta >= 0 ? '+' : '−') +
-            BRL(Math.abs(delta));
-
-        const percentual = base.brl > 0
-            ? delta / base.brl * 100
-            : 0;
+            sinal + moedaReal(Math.abs(diferenca));
 
         $('billingDeltaPct').textContent =
-            `${delta >= 0 ? '+' : ''}${fmt(percentual)}% em relação à referência`;
+            sinal +
+            numeroFormatado(percentual) +
+            '% em relação à referência';
 
-        $('billingDelta').style.color =
-            delta > 0 ? 'var(--orange)' : 'var(--mint)';
+        if (diferenca > 0) {
+
+            $('billingDelta').style.color = 'var(--orange)';
+
+        } else {
+
+            $('billingDelta').style.color = 'var(--mint)';
+        }
 
         $('kpiCost').textContent =
-            BRL(scenario.brl);
+            moedaReal(simulacao.brl);
 
         $('kpiCostNote').textContent =
-            `${extra} nó(s) adicional(is) • projeção simulada`;
+            extra +
+            ' nó(s) adicional(is) • projeção simulada';
 
-        // Distribuição dos custos
+        // ======================================
+        // COMPOSIÇÃO DOS CUSTOS
+        // ======================================
 
-        const categorias = [
+        let categorias = [
             {
-                name: 'Computação (instâncias)',
-                key: 'nodes',
-                color: CORES.CPU
+                nome: 'Computação (instâncias)',
+                chave: 'nodes',
+                cor: CORES.CPU
             },
             {
-                name: 'Disco / armazenamento',
-                key: 'storage',
-                color: CORES.Disco
+                nome: 'Disco / armazenamento',
+                chave: 'storage',
+                cor: CORES.Disco
             },
             {
-                name: 'Saída de dados / rede',
-                key: 'traffic',
-                color: CORES.Rede
+                nome: 'Saída de dados / rede',
+                chave: 'traffic',
+                cor: CORES.Rede
             }
         ];
 
-        $('billingStack').innerHTML = categorias.map(item => `
+        let barraHtml = '';
+        let linhasHtml = '';
 
-            <span
-                class="bill-segment"
-                title="${item.name}: ${
-                    BRL(scenario[item.key] * scenario.fx)
-                }"
-                style="
-                    width:${
-                        scenario.usd > 0
-                            ? scenario[item.key] / scenario.usd * 100
-                            : 0
-                    }%;
-                    background:${item.color}
-                "
-            ></span>
+        for (let i = 0; i < categorias.length; i++) {
 
-        `).join('');
+            let categoria = categorias[i];
 
-        $('billingRows').innerHTML = categorias.map(item => `
+            let custo = simulacao[categoria.chave];
 
-            <div class="costrow">
+            let largura = 0;
 
-                <span>
-                    <i style="background:${item.color}"></i>
-                    ${item.name}
-                </span>
+            if (simulacao.usd > 0) {
 
-                <strong>
-                    ${BRL(scenario[item.key] * scenario.fx)}
-                </strong>
+                largura = custo / simulacao.usd * 100;
+            }
 
-            </div>
+            barraHtml += `
+                <span
+                    class="bill-segment"
+                    style="
+                        width:${largura}%;
+                        background:${categoria.cor}
+                    "
+                    title="${categoria.nome}: ${moedaReal(custo * simulacao.fx)}"
+                ></span>
+            `;
 
-        `).join('');
+            linhasHtml += `
+                <div class="costrow">
 
-        // Análise financeira
+                    <span>
+                        <i style="background:${categoria.cor}"></i>
+                        ${categoria.nome}
+                    </span>
 
-        if (delta > 0) {
+                    <strong>
+                        ${moedaReal(custo * simulacao.fx)}
+                    </strong>
+
+                </div>
+            `;
+        }
+
+        $('billingStack').innerHTML = barraHtml;
+
+        $('billingRows').innerHTML = linhasHtml;
+
+        // ======================================
+        // INTERPRETAÇÃO FINANCEIRA
+        // ======================================
+
+        if (diferenca > 0) {
 
             $('billingEvaluation').innerHTML = `
                 <strong>Impacto da decisão:</strong>
-                sua configuração adiciona
-                ${BRL(delta)}/mês
-                (${fmt(percentual)}%)
-                em relação à referência.
-                Verifique se o ganho esperado de capacidade
+
+                a configuração aumenta o custo em
+
+                ${moedaReal(diferenca)}/mês
+
+                (${numeroFormatado(percentual)}%).
+
+                Avalie se o ganho esperado de capacidade
                 justifica o gasto.
             `;
 
-        } else if (delta < 0) {
+        } else if (diferenca < 0) {
 
             $('billingEvaluation').innerHTML = `
                 <strong>Impacto da decisão:</strong>
-                a simulação indica redução de
-                ${BRL(Math.abs(delta))}/mês.
-                Confirme a viabilidade técnica antes
+
+                redução estimada de
+
+                ${moedaReal(Math.abs(diferenca))}/mês.
+
+                Verifique a viabilidade técnica antes
                 de reduzir recursos.
             `;
 
@@ -1064,470 +1541,316 @@
 
             $('billingEvaluation').innerHTML = `
                 <strong>Referência:</strong>
-                a configuração atual produz o mesmo
+
+                a configuração possui o mesmo
                 custo estimado da base.
             `;
         }
 
-        // Comparação de cenários
+        // ======================================
+        // COMPARAÇÃO DE CENÁRIOS
+        // ======================================
 
-        const options = [
+        let quantidadeExpansao = Math.min(6, extra + 2);
+
+        let opcoes = [
             {
-                n: 0,
-                label: 'Manter nós atuais'
+                quantidade: 0,
+                nome: 'Manter nós atuais'
             },
             {
-                n: extra,
-                label: `Sua escolha (+${extra})`
+                quantidade: extra,
+                nome: 'Sua escolha (+' + extra + ')'
             },
             {
-                n: Math.min(6, extra + 2),
-                label: `Expandir (+${Math.min(6, extra + 2)})`
+                quantidade: quantidadeExpansao,
+                nome: 'Expandir (+' + quantidadeExpansao + ')'
             }
         ];
 
-        const valores = options.map(opcao =>
-            computeCost(
-                BASE.nodes + opcao.n,
-                storage,
-                egress
-            ).brl
-        );
+        let valores = [];
 
-        const maior = Math.max(...valores) * 1.06;
+        for (let i = 0; i < opcoes.length; i++) {
 
-        $('forecastBars').innerHTML = options.map((opcao, indice) => `
+            let valor = calcularCustos(
+                BASE_CUSTOS.servidores + opcoes[i].quantidade,
+                armazenamento,
+                trafego
+            ).brl;
 
-            <div class="forecast-col">
+            valores.push(valor);
+        }
 
-                <label>${opcao.label}</label>
+        let maior = Math.max(...valores) * 1.06;
 
-                <strong>${BRL(valores[indice])}</strong>
+        let cores = [
+            'var(--blue)',
+            'var(--mint)',
+            'var(--orange)'
+        ];
 
-                <div class="forecast-bar-area">
+        let grafico = '';
 
-                    <div
-                        class="forecast-bar"
-                        style="
-                            height:${
-                                maior > 0
-                                    ? (valores[indice] / maior * 100).toFixed(1)
-                                    : 0
-                            }%;
-                            background:${
-                                indice === 1
-                                    ? 'var(--mint)'
-                                    : indice === 2
-                                        ? 'var(--orange)'
-                                        : 'var(--blue)'
-                            }
-                        "
-                    ></div>
+        for (let i = 0; i < opcoes.length; i++) {
+
+            let altura = 0;
+
+            if (maior > 0) {
+
+                altura = valores[i] / maior * 100;
+            }
+
+            grafico += `
+                <div class="forecast-col">
+
+                    <label>${opcoes[i].nome}</label>
+
+                    <strong>
+                        ${moedaReal(valores[i])}
+                    </strong>
+
+                    <div class="forecast-bar-area">
+
+                        <div
+                            class="forecast-bar"
+                            style="
+                                height:${altura.toFixed(1)}%;
+                                background:${cores[i]}
+                            "
+                        ></div>
+
+                    </div>
+
+                    <small>
+                        ${BASE_CUSTOS.servidores + opcoes[i].quantidade}
+                        nós • mesmos volumes
+                    </small>
 
                 </div>
+            `;
+        }
 
-                <small>
-                    ${BASE.nodes + opcao.n} nós • mesmos volumes
-                </small>
-
-            </div>
-
-        `).join('');
+        $('forecastBars').innerHTML = grafico;
     }
 
     // ==========================================
-    // EXPORTAÇÃO CSV
+    // 15. EXPORTAÇÃO CSV
     // ==========================================
 
-    function reportCsv() {
+    // Exportação demonstrativa pelo navegador.
+    // FUTURO: relatórios PDF gerados pelo Java.
 
-        const linhas = [
-            ['STREAMGUARD • RELATORIO DEMONSTRATIVO'],
+    function exportarCsv() {
 
-            ['Periodo', PERIODO[STATE.period].nome],
-            ['Cenario', STATE.scenario],
-            ['Tipo de dados', 'Sinteticos / demonstrativos'],
+        let linhas = [
+            ['STREAMGUARD - RELATÓRIO DEMONSTRATIVO'],
+
+            ['Período', PERIODOS[ESTADO.periodo].nome],
+
+            ['Cenário', ESTADO.cenario],
+
+            ['Tipo', 'Dados sintéticos / demonstrativos'],
 
             [],
 
             [
                 'Servidor',
-                'Funcao',
+                'Função',
                 'CPU (%)',
                 'RAM (%)',
                 'Disco (%)',
                 'Rede (% de 1 Gbit/s)',
                 'Prioridade'
-            ],
+            ]
+        ];
 
-            ...STATE.hosts.map(servidor => [
+        // Adiciona os servidores.
+
+        for (let i = 0; i < ESTADO.servidores.length; i++) {
+
+            let servidor = ESTADO.servidores[i];
+
+            linhas.push([
                 servidor.id,
                 servidor.role,
                 servidor.CPU,
                 servidor.RAM,
                 servidor.Disco,
                 servidor.Rede,
-                lbl[servidor.risk.status]
-            ]),
+                NOMES_STATUS[servidor.risk.status]
+            ]);
+        }
 
-            [],
+        linhas.push([]);
 
-            ['CUSTOS ESTIMADOS • VALORES HIPOTETICOS'],
+        // Adiciona os custos.
 
-            [
-                'Configuracao de referencia (R$)',
-                STATE.cost.base.brl.toFixed(2)
-            ],
+        linhas.push([
+            'CUSTOS ESTIMADOS - VALORES HIPOTÉTICOS'
+        ]);
 
-            [
-                'Cenario configurado (R$)',
-                STATE.cost.scenario.brl.toFixed(2)
-            ],
+        linhas.push([
+            'Referência (R$)',
+            ESTADO.custos.base.brl.toFixed(2)
+        ]);
 
-            [
-                'Variacao (R$)',
-                STATE.cost.delta.toFixed(2)
-            ],
+        linhas.push([
+            'Simulação (R$)',
+            ESTADO.custos.scenario.brl.toFixed(2)
+        ]);
 
-            ['Nos adicionais', STATE.cost.extra],
-            ['Armazenamento (GB)', STATE.cost.storage],
-            ['Trafego saida (TB)', STATE.cost.egress],
+        linhas.push([
+            'Variação (R$)',
+            ESTADO.custos.delta.toFixed(2)
+        ]);
 
-            [],
+        linhas.push([
+            'Nós extras',
+            ESTADO.custos.extra
+        ]);
 
-            ['PLANO DE ACAO'],
+        linhas.push([
+            'Armazenamento (GB)',
+            ESTADO.custos.storage
+        ]);
 
-            ...STATE.plans.map(plano => [
-                plano.key,
-                REGRAS[plano.key].action
-            ])
-        ];
+        linhas.push([
+            'Tráfego de saída (TB)',
+            ESTADO.custos.egress
+        ]);
 
-        const conteudo = '\ufeff' + linhas.map(linha =>
-            linha.map(campo =>
-                '"' + String(campo ?? '').replaceAll('"', '""') + '"'
-            ).join(';')
-        ).join('\r\n');
+        linhas.push([]);
 
-        const arquivo = new Blob(
-            [conteudo],
-            { type: 'text/csv;charset=utf-8' }
+        linhas.push(['PLANO DE AÇÃO']);
+
+        for (let i = 0; i < ESTADO.acoes.length; i++) {
+
+            let componente = ESTADO.acoes[i].key;
+
+            linhas.push([
+                componente,
+                REGRAS[componente].acao
+            ]);
+        }
+
+        // Converte as linhas para texto CSV.
+
+        let texto = '\ufeff';
+
+        for (let i = 0; i < linhas.length; i++) {
+
+            let linha = linhas[i];
+
+            let campos = [];
+
+            for (let j = 0; j < linha.length; j++) {
+
+                let campo = String(linha[j]);
+
+                campo = campo.replaceAll('"', '""');
+
+                campos.push('"' + campo + '"');
+            }
+
+            texto += campos.join(';') + '\r\n';
+        }
+
+        // Gera o arquivo.
+
+        let arquivo = new Blob(
+            [texto],
+            {
+                type: 'text/csv;charset=utf-8'
+            }
         );
 
-        const url = URL.createObjectURL(arquivo);
+        let url = URL.createObjectURL(arquivo);
 
-        const link = document.createElement('a');
+        let link = document.createElement('a');
 
         link.href = url;
-        link.download =
-            'streamguard_inteligencia_gerencial_demonstrativo.csv';
+
+        link.download = 'streamguard_relatorio_demonstrativo.csv';
 
         document.body.appendChild(link);
 
         link.click();
+
         link.remove();
 
-        setTimeout(() => URL.revokeObjectURL(url), 1500);
+        setTimeout(function () {
 
-        toast('Relatório CSV demonstrativo gerado.');
+            URL.revokeObjectURL(url);
+
+        }, 1500);
+
+        mostrarToast(
+            'Relatório CSV demonstrativo gerado.'
+        );
     }
 
     // ==========================================
-    // RENDERIZAÇÃO GERAL
+    // 16. MENSAGENS E MODAIS
     // ==========================================
 
-    function render() {
+    function mostrarToast(mensagem) {
 
-        STATE.scenario = $('cenario').value;
-        STATE.period = $('periodo').value;
+        $('toast').textContent = mensagem;
 
-        STATE.hosts = hosts();
+        $('toast').hidden = false;
 
-        renderOverview();
-        decisions();
-        plans();
-        componentCards();
-        plot();
-        table();
-        renderBill();
+        setTimeout(function () {
+
+            $('toast').hidden = true;
+
+        }, 3200);
     }
 
-    function populateServers() {
+    function abrirModal(titulo, mensagem) {
 
-        HOSTS.forEach(servidor => {
+        $('dialogTitle').textContent = titulo;
 
-            const option = document.createElement('option');
+        $('dialogText').textContent = mensagem;
 
-            option.value = servidor.id;
-            option.textContent = servidor.id;
+        $('overlay').hidden = false;
 
-            $('servidorFiltro').appendChild(option);
-        });
+        $('closeDialog').focus();
     }
 
     // ==========================================
-    // INICIALIZAÇÃO
+    // 17. MENU COMPARTILHADO DO STREAMGUARD
     // ==========================================
 
-    populateServers();
-    loadPlans();
-    render();
+    function integrarMenu() {
 
-    // ==========================================
-    // EVENTOS DOS FILTROS
-    // ==========================================
-
-    $('cenario').addEventListener('change', render);
-
-    $('periodo').addEventListener('change', render);
-
-    $('servidorFiltro').addEventListener('change', plot);
-
-    // Seleção dos componentes
-
-    $('componentCards').addEventListener('click', evento => {
-
-        const botao = evento.target.closest('[data-resource]');
-
-        if (!botao) return;
-
-        STATE.active =
-            STATE.active === botao.dataset.resource
-                ? 'Todos'
-                : botao.dataset.resource;
-
-        componentCards();
-        plot();
-    });
-
-    $('chartToggles').addEventListener('click', evento => {
-
-        const botao = evento.target.closest('[data-chart]');
-
-        if (!botao) return;
-
-        STATE.active = botao.dataset.chart;
-
-        componentCards();
-        plot();
-    });
-
-    // ==========================================
-    // EVENTOS DO PLANO DE AÇÃO
-    // ==========================================
-
-    $('decisionList').addEventListener('click', evento => {
-
-        const botao = evento.target.closest('[data-add]');
-
-        if (!botao) return;
-
-        const jaExiste = STATE.plans.some(
-            plano => plano.key === botao.dataset.add
-        );
-
-        if (!jaExiste) {
-
-            STATE.plans.push({
-                key: botao.dataset.add
-            });
-
-            savePlans();
-            plans();
-            decisions();
-
-            toast('Ação adicionada ao plano gerencial.');
-        }
-    });
-
-    $('planList').addEventListener('click', evento => {
-
-        const botao = evento.target.closest('[data-remove]');
-
-        if (!botao) return;
-
-        STATE.plans = STATE.plans.filter(
-            plano => plano.key !== botao.dataset.remove
-        );
-
-        savePlans();
-        plans();
-        decisions();
-    });
-
-    // ==========================================
-    // DETALHES DOS SERVIDORES
-    // ==========================================
-
-    $('serverRows').addEventListener('click', evento => {
-
-        const botao = evento.target.closest('[data-server]');
-
-        if (!botao) return;
-
-        const servidor = STATE.hosts.find(
-            item => item.id === botao.dataset.server
-        );
-
-        if (!servidor) return;
-
-        modal(
-            `${servidor.id} • ${servidor.role}`,
-
-            `CENÁRIO SIMULADO · ${PERIODO[STATE.period].nome}
-
-CPU: ${servidor.CPU}% (limite ${LIMITES.CPU}%)
-
-RAM: ${servidor.RAM}% (limite ${LIMITES.RAM}%)
-
-Disco: ${servidor.Disco}% (limite ${LIMITES.Disco}%)
-
-Rede: ${servidor.Rede}% do enlace hipotético de 1 Gbit/s
-(limite ${LIMITES.Rede}%)
-
-Prioridade: ${lbl[servidor.risk.status]} — ${servidor.risk.c}.
-
-Próxima investigação sugerida:
-${REGRAS[servidor.risk.c].action}
-
-A presença de um valor crítico não comprova
-indisponibilidade nem explica sua causa.`
-        );
-    });
-
-    // ==========================================
-    // EVENTOS DO SIMULADOR FINANCEIRO
-    // ==========================================
-
-    const camposFinanceiros = [
-        'extraNodes',
-        'storage',
-        'egress',
-        'priceNode',
-        'hours',
-        'priceStorage',
-        'priceTraffic',
-        'fx'
-    ];
-
-    camposFinanceiros.forEach(id => {
-
-        $(id).addEventListener('input', renderBill);
-    });
-
-    // ==========================================
-    // EVENTOS DOS RELATÓRIOS
-    // ==========================================
-
-    $('buttonCsv').addEventListener('click', reportCsv);
-
-    for (const id of ['buttonPrintTop', 'buttonPrint']) {
-
-        $(id).addEventListener('click', () => {
-
-            toast(
-                'Na janela de impressão, escolha “Salvar como PDF”.'
-            );
-
-            setTimeout(() => window.print(), 200);
-        });
-    }
-
-    // ==========================================
-    // EXPLICAÇÃO DA METODOLOGIA
-    // ==========================================
-
-    $('buttonMethod').addEventListener('click', () => {
-
-        modal(
-            'Como interpretar este painel',
-
-            `Este é um PROTÓTIPO: dados e indicadores são simulados.
-
-1. O resumo exibe servidores com recursos em atenção,
-quantidade de limites excedidos e custo configurado.
-
-2. Os cartões CPU, RAM, disco e rede exibem o maior
-valor entre os servidores, não a média.
-
-No gráfico, a opção inicial mostra a MÉDIA ilustrativa
-do parque.
-
-3. A prioridade usa a relação entre utilização e limite
-de cada componente, não um diagnóstico de indisponibilidade.
-
-4. Rede usa um enlace hipotético de 1 Gbit/s para
-converter velocidade de tráfego em percentual.
-
-O StreamGuard coleta taxas em bytes/s, portanto será
-necessário validar a capacidade real do enlace.
-
-5. A projeção de custos usa:
-
-- Nós × horas × tarifa
-- Armazenamento (GB-mês)
-- Tráfego de saída (GB)
-
-CPU e RAM por si não determinam a fatura.
-
-6. As tarifas editáveis não são preços AWS verificados.
-Os números devem ser validados antes de aplicação real.`
-        );
-    });
-
-    // ==========================================
-    // FECHAMENTO DOS MODAIS
-    // ==========================================
-
-    $('closeDialog').addEventListener('click', () => {
-
-        $('overlay').hidden = true;
-    });
-
-    $('overlay').addEventListener('click', evento => {
-
-        if (evento.target === $('overlay')) {
-            $('overlay').hidden = true;
-        }
-    });
-
-    document.addEventListener('keydown', evento => {
-
-        if (evento.key === 'Escape') {
-            $('overlay').hidden = true;
-        }
-    });
-
-    // ==========================================
-    // INTEGRAÇÃO COM O MENU DO STREAMGUARD
-    // ==========================================
-
-    function integrarMenuCompartilhado() {
-
-        const sidebar = document.querySelector(
+        let sidebar = document.querySelector(
             '[data-shell="sidebar"]'
         );
 
-        const dashboardLink = sidebar?.querySelector(
-            '[data-menu="dashboard"]'
-        );
-
-        if (!dashboardLink) return;
-
-        if (
-            sidebar.querySelector(
-                '[data-menu="dashIndividual"]'
-            )
-        ) {
+        if (!sidebar) {
             return;
         }
 
-        dashboardLink.classList.remove('ativo');
-        dashboardLink.removeAttribute('aria-current');
+        let dashboard = sidebar.querySelector(
+            '[data-menu="dashboard"]'
+        );
 
-        const link = document.createElement('a');
+        if (!dashboard) {
+            return;
+        }
+
+        if (sidebar.querySelector('[data-menu="dashIndividual"]')) {
+            return;
+        }
+
+        dashboard.classList.remove('ativo');
+
+        dashboard.removeAttribute('aria-current');
+
+        let link = document.createElement('a');
 
         link.href = './painel_dashIndividual.html';
+
         link.className = 'menu-item ativo';
 
         link.dataset.menu = 'dashIndividual';
@@ -1542,160 +1865,533 @@ Os números devem ser validados antes de aplicação real.`
             <span>Inteligência Gerencial</span>
         `;
 
-        dashboardLink.insertAdjacentElement(
-            'afterend',
-            link
-        );
+        dashboard.insertAdjacentElement('afterend', link);
 
-        const selo = document.querySelector('.selo-online');
+        let selo = document.querySelector('.selo-online');
 
         if (selo) {
+
             selo.textContent = '● Dados demonstrativos';
         }
     }
 
-    integrarMenuCompartilhado();
+    // ==========================================
+    // 18. NAVEGAÇÃO POR ABAS
+    // ==========================================
 
+    const ABAS = {
 
-const SECOES_ABA = {
+        executivo: [
+            'resumo'
+        ],
 
-    executivo: [
-        'resumo'
-    ],
+        recursos: [
+            'componentes',
+            'servidores'
+        ],
 
-    recursos: [
-        'componentes',
-        'servidores'
-    ],
+        custos: [
+            'billing'
+        ],
 
-    custos: [
-        'billing'
-    ],
+        decisoes: [
+            'decisoes',
+            'relatorios'
+        ]
+    };
 
-    decisoes: [
-        'decisoes',
-        'relatorios'
-    ]
+    function mostrarAba(nome, rolar) {
 
-};
-
-
-
-function mostrarAba(nomeAba, rolar = true) {
-
-    if (!SECOES_ABA[nomeAba]) {
-        return;
-    }
-
-    // Percorre as abas cadastradas
-
-    for (const nome in SECOES_ABA) {
-
-        const secoes = SECOES_ABA[nome];
-
-        // Mostra ou oculta cada seção
-
-        for (const id of secoes) {
-
-            const secao = document.getElementById(id);
-
-            if (secao) {
-                secao.hidden = nome !== nomeAba;
-            }
-
-        }
-
-    }
-
-    // Atualiza a aparência dos botões
-
-    const botoes = document.querySelectorAll('.di-tab');
-
-    botoes.forEach(botao => {
-
-        const selecionado = botao.dataset.tab === nomeAba;
-
-        botao.classList.toggle('ativo', selecionado);
-
-        botao.setAttribute(
-            'aria-pressed',
-            String(selecionado)
-        );
-
-    });
-
-    // Retorna ao início do conteúdo da aba
-
-    if (rolar) {
-
-        document.querySelector('.di-quicknav').scrollIntoView({
-            behavior: 'smooth',
-            block: 'start'
-        });
-
-    }
-
-}
-
-
-document.querySelector('.di-quicknav')
-    .addEventListener('click', function(evento) {
-
-        const botao = evento.target.closest('[data-tab]');
-
-        if (!botao) {
+        if (!ABAS[nome]) {
             return;
         }
 
-        mostrarAba(botao.dataset.tab);
+        let nomes = Object.keys(ABAS);
 
-    });
+        // Mostra ou oculta as seções.
 
+        for (let i = 0; i < nomes.length; i++) {
 
-const barraFiltros = document.querySelector('#resumo .filterbar');
+            let aba = nomes[i];
 
-const navegacao = document.querySelector('.di-quicknav');
+            for (let j = 0; j < ABAS[aba].length; j++) {
 
-if (barraFiltros && navegacao) {
+                let secao = $(ABAS[aba][j]);
 
-    navegacao.insertAdjacentElement(
-        'afterend',
-        barraFiltros
-    );
+                if (secao) {
 
-}
+                    secao.hidden = aba !== nome;
+                }
+            }
+        }
 
-const atalhoDecisoes = document.querySelector(
-    '.notice a[href="#decisoes"]'
-);
+        // Atualiza os botões.
 
-if (atalhoDecisoes) {
+        let botoes = document.querySelectorAll('.di-tab');
 
-    atalhoDecisoes.addEventListener('click', function(evento) {
+        for (let i = 0; i < botoes.length; i++) {
 
-        evento.preventDefault();
+            let ativo = botoes[i].dataset.tab === nome;
 
-        mostrarAba('decisoes');
+            botoes[i].classList.toggle('ativo', ativo);
 
-    });
+            botoes[i].setAttribute(
+                'aria-pressed',
+                String(ativo)
+            );
+        }
 
-}
+        // Move a visualização até a navegação.
 
+        if (rolar) {
 
-const parametros = new URLSearchParams(window.location.search);
+            document.querySelector('.di-quicknav').scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+    }
 
-const abaInicial = parametros.get('aba');
+    function prepararNavegacao() {
 
-if (SECOES_ABA[abaInicial]) {
+        let menu = document.querySelector('.di-quicknav');
 
-    mostrarAba(abaInicial, false);
+        if (!menu) {
+            return;
+        }
 
-} else {
+        let primeiraAba = menu.querySelector('[data-tab]');
 
-    mostrarAba('executivo', false);
+        // Caso o HTML ainda utilize links por âncora,
+        // mantém o funcionamento original.
 
-}
+        if (!primeiraAba) {
+            return;
+        }
 
+        menu.addEventListener('click', function (evento) {
 
+            let botao = evento.target.closest('[data-tab]');
+
+            if (botao) {
+
+                mostrarAba(botao.dataset.tab, true);
+            }
+        });
+
+        // Mantém os filtros acessíveis em todas as abas.
+
+        let barra = document.querySelector(
+            '#resumo .filterbar'
+        );
+
+        if (barra) {
+
+            menu.insertAdjacentElement('afterend', barra);
+        }
+
+        // Atalho para a seção de decisões.
+
+        let atalho = document.querySelector(
+            '.notice a[href="#decisoes"]'
+        );
+
+        if (atalho) {
+
+            atalho.addEventListener('click', function (evento) {
+
+                evento.preventDefault();
+
+                mostrarAba('decisoes', true);
+            });
+        }
+
+        // Define a aba inicial.
+
+        let parametros = new URLSearchParams(
+            window.location.search
+        );
+
+        let abaInicial = parametros.get('aba');
+
+        if (!ABAS[abaInicial]) {
+
+            abaInicial = 'executivo';
+        }
+
+        mostrarAba(abaInicial, false);
+    }
+
+    // ==========================================
+    // 19. ATUALIZAÇÃO GERAL DA DASHBOARD
+    // ==========================================
+
+    function atualizarDashboard() {
+
+        ESTADO.cenario = $('cenario').value;
+
+        ESTADO.periodo = $('periodo').value;
+
+        ESTADO.servidores = prepararServidores();
+
+        atualizarResumo();
+
+        atualizarDecisoes();
+
+        atualizarPlano();
+
+        atualizarComponentes();
+
+        atualizarGrafico();
+
+        atualizarTabela();
+
+        atualizarBilling();
+    }
+
+    function preencherFiltroServidores() {
+
+        for (let i = 0; i < HOSTS.length; i++) {
+
+            let opcao = document.createElement('option');
+
+            opcao.value = HOSTS[i].id;
+
+            opcao.textContent = HOSTS[i].id;
+
+            $('servidorFiltro').appendChild(opcao);
+        }
+    }
+
+    // ==========================================
+    // 20. EVENTOS DA DASHBOARD
+    // ==========================================
+
+    function configurarEventos() {
+
+        // Filtros gerais.
+
+        $('cenario').addEventListener(
+            'change',
+            atualizarDashboard
+        );
+
+        $('periodo').addEventListener(
+            'change',
+            atualizarDashboard
+        );
+
+        $('servidorFiltro').addEventListener(
+            'change',
+            atualizarGrafico
+        );
+
+        // ======================================
+        // SELEÇÃO DOS COMPONENTES
+        // ======================================
+
+        $('componentCards').addEventListener('click', function (evento) {
+
+            let botao = evento.target.closest('[data-resource]');
+
+            if (!botao) {
+                return;
+            }
+
+            if (ESTADO.componente === botao.dataset.resource) {
+
+                ESTADO.componente = 'Todos';
+
+            } else {
+
+                ESTADO.componente = botao.dataset.resource;
+            }
+
+            atualizarComponentes();
+
+            atualizarGrafico();
+        });
+
+        $('chartToggles').addEventListener('click', function (evento) {
+
+            let botao = evento.target.closest('[data-chart]');
+
+            if (!botao) {
+                return;
+            }
+
+            ESTADO.componente = botao.dataset.chart;
+
+            atualizarComponentes();
+
+            atualizarGrafico();
+        });
+
+        // ======================================
+        // PLANO DE AÇÃO
+        // ======================================
+
+        $('decisionList').addEventListener('click', function (evento) {
+
+            let botao = evento.target.closest('[data-add]');
+
+            if (!botao) {
+                return;
+            }
+
+            let existe = false;
+
+            for (let i = 0; i < ESTADO.acoes.length; i++) {
+
+                if (ESTADO.acoes[i].key === botao.dataset.add) {
+
+                    existe = true;
+                }
+            }
+
+            if (!existe) {
+
+                ESTADO.acoes.push({
+                    key: botao.dataset.add
+                });
+
+                salvarPlano();
+
+                atualizarPlano();
+
+                atualizarDecisoes();
+
+                mostrarToast(
+                    'Ação adicionada ao plano gerencial.'
+                );
+            }
+        });
+
+        $('planList').addEventListener('click', function (evento) {
+
+            let botao = evento.target.closest('[data-remove]');
+
+            if (!botao) {
+                return;
+            }
+
+            let novasAcoes = [];
+
+            for (let i = 0; i < ESTADO.acoes.length; i++) {
+
+                if (ESTADO.acoes[i].key !== botao.dataset.remove) {
+
+                    novasAcoes.push(ESTADO.acoes[i]);
+                }
+            }
+
+            ESTADO.acoes = novasAcoes;
+
+            salvarPlano();
+
+            atualizarPlano();
+
+            atualizarDecisoes();
+        });
+
+        // ======================================
+        // DETALHES DOS SERVIDORES
+        // ======================================
+
+        $('serverRows').addEventListener('click', function (evento) {
+
+            let botao = evento.target.closest('[data-server]');
+
+            if (!botao) {
+                return;
+            }
+
+            let servidor = null;
+
+            for (let i = 0; i < ESTADO.servidores.length; i++) {
+
+                if (ESTADO.servidores[i].id === botao.dataset.server) {
+
+                    servidor = ESTADO.servidores[i];
+                }
+            }
+
+            if (!servidor) {
+                return;
+            }
+
+            let mensagem =
+                'CENÁRIO SIMULADO · ' +
+                PERIODOS[ESTADO.periodo].nome +
+                '\n\n' +
+
+                'CPU: ' +
+                servidor.CPU +
+                '% (limite ' +
+                LIMITES.CPU +
+                '%)\n' +
+
+                'RAM: ' +
+                servidor.RAM +
+                '% (limite ' +
+                LIMITES.RAM +
+                '%)\n' +
+
+                'Disco: ' +
+                servidor.Disco +
+                '% (limite ' +
+                LIMITES.Disco +
+                '%)\n' +
+
+                'Rede: ' +
+                servidor.Rede +
+                '% do enlace hipotético de 1 Gbit/s\n\n' +
+
+                'Prioridade: ' +
+                NOMES_STATUS[servidor.risk.status] +
+                '\n' +
+
+                'Ação sugerida: ' +
+                REGRAS[servidor.risk.c].acao;
+
+            abrirModal(
+                servidor.id + ' • ' + servidor.role,
+                mensagem
+            );
+        });
+
+        // ======================================
+        // SIMULADOR DE BILLING
+        // ======================================
+
+        let campos = [
+            'extraNodes',
+            'storage',
+            'egress',
+            'priceNode',
+            'hours',
+            'priceStorage',
+            'priceTraffic',
+            'fx'
+        ];
+
+        for (let i = 0; i < campos.length; i++) {
+
+            $(campos[i]).addEventListener(
+                'input',
+                atualizarBilling
+            );
+        }
+
+        // ======================================
+        // EXPORTAÇÃO DE RELATÓRIOS
+        // ======================================
+
+        $('buttonCsv').addEventListener(
+            'click',
+            exportarCsv
+        );
+
+        let botoesPdf = [
+            'buttonPrintTop',
+            'buttonPrint'
+        ];
+
+        for (let i = 0; i < botoesPdf.length; i++) {
+
+            $(botoesPdf[i]).addEventListener('click', function () {
+
+                mostrarToast(
+                    'Na janela de impressão, escolha “Salvar como PDF”.'
+                );
+
+                setTimeout(function () {
+
+                    window.print();
+
+                }, 200);
+            });
+        }
+
+        // ======================================
+        // EXPLICAÇÃO DOS INDICADORES
+        // ======================================
+
+        $('buttonMethod').addEventListener('click', function () {
+
+            let mensagem =
+                'Este é um PROTÓTIPO com dados simulados.\n\n' +
+
+                'Os cartões apresentam os maiores valores entre servidores.\n' +
+
+                'Os gráficos são ilustrativos, não históricos da ETL.\n' +
+
+                'A classificação compara utilização e limites definidos na demonstração.\n' +
+
+                'Rede considera um enlace hipotético de 1 Gbit/s.\n' +
+
+                'Billing usa premissas editáveis, não preços AWS consultados.\n' +
+
+                'CPU e RAM não determinam sozinhas a fatura de nuvem.';
+
+            abrirModal(
+                'Como interpretar este painel',
+                mensagem
+            );
+        });
+
+        // ======================================
+        // FECHAMENTO DOS MODAIS
+        // ======================================
+
+        $('closeDialog').addEventListener('click', function () {
+
+            $('overlay').hidden = true;
+        });
+
+        $('overlay').addEventListener('click', function (evento) {
+
+            if (evento.target === $('overlay')) {
+
+                $('overlay').hidden = true;
+            }
+        });
+
+        document.addEventListener('keydown', function (evento) {
+
+            if (evento.key === 'Escape') {
+
+                $('overlay').hidden = true;
+            }
+        });
+    }
+
+    // ==========================================
+    // 21. INICIALIZAÇÃO
+    // ==========================================
+
+    // Primeiro prepara os filtros.
+
+    preencherFiltroServidores();
+
+    // Recupera o plano de ação salvo.
+
+    carregarPlano();
+
+    // Atualiza todos os elementos da dashboard.
+
+    atualizarDashboard();
+
+    // Configura os eventos dos botões e filtros.
+
+    configurarEventos();
+
+    // Integra a página ao menu do StreamGuard.
+
+    integrarMenu();
+
+    // Configura a navegação por abas.
+
+    prepararNavegacao();
 
 })();
