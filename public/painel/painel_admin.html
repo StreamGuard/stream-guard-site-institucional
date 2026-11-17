@@ -11,7 +11,7 @@
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
 </head>
 
-<body data-pagina="admin" data-edicao>
+<body data-pagina="admin" data-edicao data-acesso="conta">
     <div class="layout">
 
         <aside class="sidebar" data-shell="sidebar"></aside>
@@ -38,6 +38,11 @@
 
                 <h3 class="titulo-secao">Suas empresas</h3>
                 <p class="sub">Acompanhe a saúde geral de cada operação</p>
+
+                <label class="busca-empresa">
+                    <input type="search" id="buscaEmpresa" placeholder="Buscar empresa por nome ou token..."
+                        autocomplete="off" aria-label="Buscar empresa">
+                </label>
                 <section class="empresas" id="empresas"></section>
 
                 <section class="adicionar" data-perm="criar">

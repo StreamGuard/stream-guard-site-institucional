@@ -52,7 +52,17 @@
     let idEmpresa = Number(sessionStorage.getItem('ID_EMPRESA')) || null;
 
     async function chamar(url, opcoes) {
-        const resposta = await fetch(url, opcoes);
+        const resposta = await fetch(url, {
+            ...opcoes,
+            headers: {
+                ...(opcoes && opcoes.headers),
+                Authorization: `Bearer ${sessionStorage.getItem('TOKEN')}`
+            }
+        });
+        if (resposta.status === 401) {
+            sessionStorage.clear();
+            window.location.href = '../login/login.html';
+        }
         let corpo = null;
         try { corpo = await resposta.json(); } catch (e) { /* resposta sem corpo */ }
         if (!resposta.ok) throw new Error((corpo && corpo.mensagem) || 'Erro ao falar com o servidor.');
@@ -586,6 +596,27 @@
         if (botao.dataset.modal === 'adicionar-funcionario') abrirFuncionario(null, botao);
     });
 
+    async function carregarToken() {
+        if (SG.perfil !== 'admin') return;
+        try {
+            const dados = await chamar(`/perfil/${ID_USUARIO}`);
+            document.getElementById('tokenValor').textContent = dados.codigo_empresa || 'Indisponível';
+        } catch (erro) {
+            document.getElementById('tokenValor').textContent = 'Indisponível';
+        }
+    }
+
+    const botaoToken = document.getElementById('btnCopiarToken');
+    if (botaoToken) {
+        botaoToken.addEventListener('click', () => {
+            const token = document.getElementById('tokenValor').textContent;
+            navigator.clipboard.writeText(token)
+                .then(() => SGModal.aviso('Token copiado!'))
+                .catch(() => SGModal.aviso('Não foi possível copiar o token.'));
+        });
+    }
+
+    carregarToken();
     carregarMetricas();
     carregarFuncionarios();
     abrirAba(location.hash.replace('#', '') || 'metricas');

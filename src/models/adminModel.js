@@ -6,6 +6,7 @@ function buscarDadosBanco() {
         SELECT
             e.id_empresa,
             e.razao_social,
+            e.codigo_empresa,
             COUNT(eq.id_equipamentos) AS qtd_equipamentos
 
         FROM empresa e
@@ -15,7 +16,8 @@ function buscarDadosBanco() {
 
         GROUP BY
             e.id_empresa,
-            e.razao_social
+            e.razao_social,
+            e.codigo_empresa
 
         ORDER BY e.id_empresa;
     `;

@@ -1,4 +1,3 @@
-
 var database = require("../database/config");
 
 function buscarPerfil(idUsuario) {
@@ -10,7 +9,9 @@ function buscarPerfil(idUsuario) {
             u.cargo,
             u.fk_empresa AS empresa_id,
             e.razao_social AS nome_empresa,
-            p.nome AS permissao
+            e.codigo_empresa,
+            p.nome AS permissao,
+            u.dt_ultimo_acesso
         FROM usuario u
         JOIN empresa e ON e.id_empresa = u.fk_empresa
         JOIN permissao p ON p.id_permissao = u.fk_permissao

@@ -653,3 +653,70 @@
 .saude-linha b {
     font-size: 13px;
 }
+
+/* busca de empresas */
+.busca-empresa {
+    display: block;
+    max-width: 380px;
+}
+
+.busca-empresa input {
+    width: 100%;
+    height: 40px;
+    padding: 0 14px;
+    background: var(--painel);
+    border: 1px solid var(--borda);
+    border-radius: 8px;
+    color: var(--texto);
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.busca-empresa input:focus {
+    border-color: var(--verde);
+}
+
+.busca-empresa input::placeholder {
+    color: var(--texto-suave);
+}
+
+/* token da empresa ao lado do nome */
+.empresa-topo > .token-empresa {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 4px;
+}
+
+.token-empresa small {
+    font-size: 9px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+}
+
+.token-empresa code {
+    font-family: monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    color: var(--verde);
+    background: var(--painel-2);
+    border: 1px solid var(--borda);
+    border-radius: 6px;
+    padding: 3px 8px;
+}
+
+.btn-copiar {
+    background: transparent;
+    border: none;
+    color: var(--azul);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 0;
+}
+
+.btn-copiar:hover {
+    text-decoration: underline;
+}

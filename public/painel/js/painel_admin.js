@@ -1,4 +1,3 @@
-
 const usuario = {
     nome: SG.usuario.nome
 };
@@ -7,6 +6,7 @@ const CHAVE_SELECIONADA = "streamguard:empresa-selecionada";
 
 let empresas = [];
 let selecionada = null;
+let termoBusca = "";
 
 let timerToast;
 
@@ -52,6 +52,14 @@ function gerarSigla(nome) {
         .join("");
 }
 
+function normalizar(texto) {
+    return String(texto ?? "")
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .trim();
+}
+
 function escapar(texto) {
     const div = document.createElement("div");
     div.textContent = texto ?? "";
@@ -74,7 +82,16 @@ function mostrarToast(mensagem) {
 }
 
 async function buscarDados() {
-    const resposta = await fetch("/admin/buscarDadosBanco");
+    const resposta = await fetch("/admin/buscarDadosBanco", {
+        headers: { Authorization: `Bearer ${sessionStorage.getItem("TOKEN")}` }
+    });
+
+    // sessão expirada (ou servidor reiniciado): volta pro login
+    if (resposta.status === 401) {
+        sessionStorage.clear();
+        window.location.href = "../login/login.html";
+        return;
+    }
 
     if (!resposta.ok) {
         throw new Error("Erro ao buscar empresas.");
@@ -186,14 +203,21 @@ function desenharResumo() {
 function desenharEmpresas() {
     const container = document.getElementById("empresas");
 
-    if (!empresas.length) {
+    // filtra pelo que foi digitado na busca (nome da empresa ou token)
+    const busca = normalizar(termoBusca);
+    const lista = empresas.filter(empresa =>
+        normalizar(empresa.razao_social).includes(busca) ||
+        normalizar(empresa.codigo_empresa).includes(busca)
+    );
+
+    if (!lista.length) {
         container.innerHTML = `
             <p>Nenhuma empresa encontrada.</p>
         `;
         return;
     }
 
-    container.innerHTML = empresas.map((empresa, indice) => {
+    container.innerHTML = lista.map((empresa) => {
 
         const ativa = empresa.id_empresa === selecionada;
 
@@ -216,6 +240,17 @@ function desenharEmpresas() {
                         </small>
                     </div>
 
+                    <div class="token-empresa" title="Token da empresa">
+                        <small>Token</small>
+                        <code>${escapar(empresa.codigo_empresa)}</code>
+                        <button
+                            type="button"
+                            class="btn-copiar"
+                            data-token="${escapar(empresa.codigo_empresa)}"
+                            aria-label="Copiar token"
+                        >Copiar</button>
+                    </div>
+
                 </div>
 
                 <button
@@ -234,7 +269,21 @@ function desenharEmpresas() {
     }).join("");
 }
 
+document.getElementById("buscaEmpresa").addEventListener("input", evento => {
+    termoBusca = evento.target.value;
+    desenharEmpresas();
+});
+
 document.getElementById("empresas").addEventListener("click", evento => {
+
+    const botaoCopiar = evento.target.closest(".btn-copiar");
+
+    if (botaoCopiar) {
+        navigator.clipboard.writeText(botaoCopiar.dataset.token)
+            .then(() => mostrarToast("Token copiado!"))
+            .catch(() => mostrarToast("Não foi possível copiar o token."));
+        return;
+    }
 
     const botao = evento.target.closest(".btn-monitorar");
 

@@ -740,3 +740,47 @@
 .box-tabela-rodape {
     margin-top: auto;
 }
+
+/* token da empresa (só o admin vê) */
+.token-empresa {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-left: auto;
+    margin-right: 1rem;
+    padding: 0.35rem 0.8rem;
+    background: var(--sg-navy-2);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.4rem;
+}
+
+.token-empresa[hidden] {
+    display: none;
+}
+
+.token-empresa span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sg-text-muted);
+}
+
+.token-empresa code {
+    font-family: monospace;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    color: var(--sg-accent);
+}
+
+.token-empresa button {
+    background: transparent;
+    border: none;
+    color: var(--sg-blue);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
+
+.token-empresa button:hover {
+    text-decoration: underline;
+}

@@ -19,8 +19,13 @@ function buscarPerfil(req, res) {
 
             var usuario = resultado[0];
 
-            // Nunca enviar o hash da senha para o frontend.
             delete usuario.senha_hash;
+
+            // O token da empresa só vai para quem é Admin ou Root.
+            var permissao = String(usuario.permissao || "").toLowerCase();
+            if (permissao !== "admin" && permissao !== "root") {
+                delete usuario.codigo_empresa;
+            }
 
             res.status(200).json(usuario);
         })
