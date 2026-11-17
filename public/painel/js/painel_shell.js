@@ -137,7 +137,6 @@
       <p class="menu-titulo">Monitoramento</p>
       <nav class="menu">
         ${item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard")}
-        ${item("./painel_detalhes.html", "sg-server", "Componentes", "detalhes")}
         ${item("./painel_alerta.html", "sg-bell", "Alertas", "alerta")}
       </nav>
 

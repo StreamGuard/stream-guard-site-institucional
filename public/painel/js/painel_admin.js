@@ -248,7 +248,10 @@ function desenharEmpresas() {
                             class="btn-copiar"
                             data-token="${escapar(empresa.codigo_empresa)}"
                             aria-label="Copiar token"
-                        >Copiar</button>
+                        >
+                        <i class="fa-regular fa-copy"></i>
+                        Copiar
+                        </button>
                     </div>
 
                 </div>
