@@ -1393,6 +1393,16 @@
 }
 
 
+.painel-gerencial #billing {
+
+    margin-top: 36px;
+
+    padding-top: 24px;
+
+    border-top: 1px solid var(--border);
+}
+
+
 
 @media print {
 
