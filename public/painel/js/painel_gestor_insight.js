@@ -50,13 +50,6 @@
         Rede: 80
     };
 
-    const LABELS = {
-        CPU: 'Processamento',
-        RAM: 'Memória',
-        Disco: 'Armazenamento',
-        Rede: 'Conectividade'
-    };
-
     const NOMES_STATUS = {
         critico: 'Crítico',
         atencao: 'Atenção',
@@ -159,66 +152,53 @@
         }
     };
 
-    const PERIODOS = {
-        '24h': {
-            nome: '24 horas',
-            amostras: 24
-        },
-        '7d': {
-            nome: '7 dias',
-            amostras: 21
-        },
-        '30d': {
-            nome: '30 dias',
-            amostras: 30
-        }
-    };
-
     // ==========================================
     // 3. REGRAS GERENCIAIS
     // ==========================================
 
+
     const REGRAS = {
 
         CPU: {
-            titulo: 'Revisar carga de processamento',
+            titulo: 'Avaliar capacidade de processamento',
 
             explicacao:
-                'Processamento elevado pode indicar disputa por CPU, mas não confirma a causa.',
+                'A utilização elevada pode reduzir a folga para picos de audiência, mas a causa precisa ser confirmada.',
 
             acao:
-                'Investigar os processos com maior consumo e avaliar a distribuição da carga.'
+                'Solicitar análise técnica da recorrência dos picos e avaliar o custo de expandir ou redistribuir a capacidade.'
         },
 
         RAM: {
-            titulo: 'Investigar pressão de memória',
+            titulo: 'Avaliar capacidade de memória',
 
             explicacao:
-                'Memória próxima do limite reduz a folga para novos processos e picos.',
+                'Pouca folga de memória pode limitar o crescimento da operação.',
 
             acao:
-                'Verificar a evolução da RAM e investigar os processos que consomem mais memória.'
+                'Priorizar a análise com a equipe técnica e avaliar ampliação de capacidade se a pressão persistir.'
         },
 
         Disco: {
-            titulo: 'Planejar capacidade de armazenamento',
+            titulo: 'Planejar expansão de armazenamento',
 
             explicacao:
-                'Ocupação elevada pode comprometer novas gravações caso continue crescendo.',
+                'A ocupação elevada pode exigir revisão da capacidade para manter gravações e arquivos.',
 
             acao:
-                'Verificar retenção de arquivos e crescimento da ocupação antes de expandir.'
+                'Solicitar previsão de crescimento, revisar a retenção e comparar custos de expansão.'
         },
 
         Rede: {
-            titulo: 'Verificar capacidade de conectividade',
+            titulo: 'Avaliar capacidade de distribuição',
 
             explicacao:
-                'Tráfego elevado pode indicar risco de gargalo, mas não comprova falha.',
+                'Tráfego elevado pode sinalizar necessidade de maior capacidade de entrega.',
 
             acao:
-                'Investigar picos de tráfego, capacidade do enlace e distribuição da demanda.'
+                'Validar o impacto com o analista e comparar os custos de ampliação da conectividade ou distribuição.'
         }
+
     };
 
     // ==========================================
@@ -235,10 +215,8 @@
 
     const ESTADO = {
         servidores: [],
-        componente: 'Todos',
         acoes: [],
         cenario: 'pico',
-        periodo: '7d',
         custos: null
     };
 
@@ -517,7 +495,7 @@
             ' recursos prioritários neste cenário';
 
         $('noticeDesc').textContent =
-            'Maior excedência: ' +
+            'Maior prioridade: ' +
             problemas[0].key +
             ' em ' +
             problemas[0].host.id +
@@ -758,504 +736,9 @@
     }
 
     // ==========================================
-    // 10. CARDS DOS COMPONENTES
-    // ==========================================
-
-    function atualizarComponentes() {
-
-        let problemas = obterProblemas();
-
-        let html = '';
-
-        for (let i = 0; i < COMPONENTES.length; i++) {
-
-            let componente = COMPONENTES[i];
-
-            let problema = null;
-
-            for (let j = 0; j < problemas.length; j++) {
-
-                if (problemas[j].key === componente) {
-
-                    problema = problemas[j];
-                }
-            }
-
-            let selecionado = '';
-
-            if (ESTADO.componente === componente) {
-
-                selecionado = 'selected';
-            }
-
-            html += `
-                <button
-                    type="button"
-                    class="card component ${selecionado}"
-                    style="--c:${CORES[componente]}"
-                    data-resource="${componente}"
-                >
-
-                    <div class="component-header">
-
-                        <span class="component-label">
-
-                            <span class="circle"></span>
-
-                            ${componente}
-
-                        </span>
-
-                        <span class="component-status">
-                            ${NOMES_STATUS[problema.status]}
-                        </span>
-
-                    </div>
-
-                    <div class="component-value">
-
-                        ${problema.value}
-
-                        <span>% • maior utilização</span>
-
-                    </div>
-
-                    <div class="meter">
-                        <i style="width:${problema.value}%"></i>
-                    </div>
-
-                    <small>
-                        ${escaparHtml(problema.host.id)}
-                    </small>
-
-                    <span class="target">
-                        Limite de atenção crítica:
-                        ${LIMITES[componente]}%
-                    </span>
-
-                </button>
-            `;
-        }
-
-        $('componentCards').innerHTML = html;
-    }
 
     // ==========================================
-    // 11. GERAÇÃO DE DADOS PARA O GRÁFICO
-    // ==========================================
-
-    // FUTURO:
-    // Esta função será substituída por dados
-    // históricos recebidos do backend.
-
-    function gerarSerie(componente, servidor, quantidade) {
-
-        let base = 0;
-
-        if (servidor) {
-
-            base = servidor[componente];
-
-        } else {
-
-            for (let i = 0; i < ESTADO.servidores.length; i++) {
-
-                base += ESTADO.servidores[i][componente];
-            }
-
-            base = base / ESTADO.servidores.length;
-        }
-
-        let serie = [];
-
-        for (let i = 0; i < quantidade; i++) {
-
-            let fase = i / (quantidade - 1);
-
-            // Variação apenas demonstrativa.
-
-            let variacao =
-                4.9 * Math.sin(
-                    i * 0.62 + componente.length % 4
-                ) +
-                2.7 * Math.cos(
-                    i * 1.02 + componente.length
-                );
-
-            let valor = base - 5 + fase * 5.5 + variacao;
-
-            serie.push(limitarPercentual(valor));
-        }
-
-        return serie;
-    }
-
-    // ==========================================
-    // 12. GRÁFICO SVG
-    // ==========================================
-
-    function atualizarGrafico() {
-
-        let periodo = PERIODOS[$('periodo').value];
-
-        let idServidor = $('servidorFiltro').value;
-
-        let servidor = null;
-
-        for (let i = 0; i < ESTADO.servidores.length; i++) {
-
-            if (ESTADO.servidores[i].id === idServidor) {
-
-                servidor = ESTADO.servidores[i];
-            }
-        }
-
-        // Dimensões do SVG.
-
-        let largura = 690;
-        let altura = 218;
-
-        let margemEsquerda = 37;
-        let margemDireita = 12;
-        let margemSuperior = 11;
-        let margemInferior = 28;
-
-        // Calcula a posição horizontal de um ponto.
-
-        function posX(indice) {
-
-            return margemEsquerda +
-                (largura - margemEsquerda - margemDireita) *
-                indice / (periodo.amostras - 1);
-        }
-
-        // Calcula a posição vertical.
-
-        function posY(valor) {
-
-            return margemSuperior +
-                (altura - margemSuperior - margemInferior) *
-                (100 - valor) / 100;
-        }
-
-        let svg = `
-            <svg
-                viewBox="0 0 ${largura} ${altura}"
-                preserveAspectRatio="none"
-                aria-label="Gráfico de utilização dos recursos"
-            >
-        `;
-
-        // Desenha as linhas de referência.
-
-        for (let valor = 0; valor <= 100; valor += 20) {
-
-            svg += `
-                <line
-                    x1="${margemEsquerda}"
-                    y1="${posY(valor)}"
-                    x2="${largura - margemDireita}"
-                    y2="${posY(valor)}"
-                    class="gridline"
-                />
-
-                <text
-                    x="${margemEsquerda - 8}"
-                    y="${posY(valor) + 4}"
-                    text-anchor="end"
-                    class="axis"
-                >
-                    ${valor}%
-                </text>
-            `;
-        }
-
-        // Desenha os rótulos de tempo.
-
-        let intervalo = Math.max(
-            1,
-            Math.floor((periodo.amostras - 1) / 6)
-        );
-
-        for (let i = 0; i < periodo.amostras; i += intervalo) {
-
-            let rotulo = '';
-
-            if ($('periodo').value === '24h') {
-
-                rotulo = String(i).padStart(2, '0') + 'h';
-
-            } else {
-
-                rotulo = 'D' + (i + 1);
-            }
-
-            svg += `
-                <text
-                    x="${posX(i)}"
-                    y="${altura - 7}"
-                    text-anchor="middle"
-                    class="axis"
-                >
-                    ${rotulo}
-                </text>
-            `;
-        }
-
-        // Define quais componentes aparecem no gráfico.
-
-        let componentesGrafico = COMPONENTES;
-
-        if (ESTADO.componente !== 'Todos') {
-
-            componentesGrafico = [ESTADO.componente];
-        }
-
-        // Desenha cada linha.
-
-        for (let c = 0; c < componentesGrafico.length; c++) {
-
-            let componente = componentesGrafico[c];
-
-            let serie = gerarSerie(
-                componente,
-                servidor,
-                periodo.amostras
-            );
-
-            let caminho = '';
-
-            for (let i = 0; i < serie.length; i++) {
-
-                let comando = '';
-
-                if (i === 0) {
-                    comando = 'M';
-                } else {
-                    comando = 'L';
-                }
-
-                caminho +=
-                    comando +
-                    posX(i).toFixed(1) +
-                    ' ' +
-                    posY(serie[i]).toFixed(1) +
-                    ' ';
-            }
-
-            svg += `
-                <path
-                    d="${caminho}"
-                    fill="none"
-                    stroke="${CORES[componente]}"
-                    stroke-width="2.8"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                />
-
-                <circle
-                    cx="${posX(serie.length - 1)}"
-                    cy="${posY(serie[serie.length - 1])}"
-                    r="4"
-                    fill="${CORES[componente]}"
-                    stroke="#151529"
-                    stroke-width="2"
-                />
-            `;
-        }
-
-        $('chartHost').innerHTML = svg + '</svg>';
-
-        // Atualiza a descrição do gráfico.
-
-        let tituloServidor =
-            'Média ilustrativa dos ' +
-            ESTADO.servidores.length +
-            ' servidores';
-
-        if (servidor) {
-
-            tituloServidor = servidor.id;
-        }
-
-        $('chartSubtitle').textContent =
-            tituloServidor +
-            ' • ' +
-            periodo.nome +
-            ' • ' +
-            ESTADO.componente;
-
-        // Identifica o componente em destaque.
-
-        let problemas = obterProblemas();
-
-        let destaque = problemas[0];
-
-        if (ESTADO.componente !== 'Todos') {
-
-            for (let i = 0; i < problemas.length; i++) {
-
-                if (problemas[i].key === ESTADO.componente) {
-
-                    destaque = problemas[i];
-                }
-            }
-        }
-
-        let regra = REGRAS[destaque.key];
-
-        $('focusLabel').textContent =
-            destaque.key.toUpperCase() +
-            ' • MAIOR REGISTRO';
-
-        $('focusValue').textContent =
-            destaque.value + '%';
-
-        $('focusValue').style.color =
-            CORES[destaque.key];
-
-        $('focusHost').textContent =
-            destaque.host.id +
-            ' • limite ' +
-            LIMITES[destaque.key] +
-            '%';
-
-        let mensagem = '';
-
-        if (destaque.value >= LIMITES[destaque.key]) {
-
-            mensagem = 'O limite hipotético foi ultrapassado.';
-
-        } else {
-
-            mensagem = 'Acompanhar folga de utilização.';
-        }
-
-        $('focusReadout').textContent =
-            LABELS[destaque.key] +
-            ': ' +
-            NOMES_STATUS[destaque.status].toLowerCase() +
-            ' no cenário selecionado. ' +
-            mensagem;
-
-        $('focusInterpretation').textContent =
-            regra.explicacao;
-
-        $('focusAction').textContent =
-            regra.acao;
-
-        // Botões de seleção dos componentes.
-
-        let legenda = '';
-
-        let botoes = [
-            'Todos',
-            'CPU',
-            'RAM',
-            'Disco',
-            'Rede'
-        ];
-
-        for (let i = 0; i < botoes.length; i++) {
-
-            let nome = botoes[i];
-
-            let ativo = '';
-
-            if (nome === ESTADO.componente) {
-
-                ativo = 'on';
-            }
-
-            legenda += `
-                <button
-                    type="button"
-                    data-chart="${nome}"
-                    class="chart-toggle ${ativo}"
-                    style="--c:${CORES[nome] || '#8585a8'}"
-                >
-                    <span class="key"></span>
-                    ${nome}
-                </button>
-            `;
-        }
-
-        $('chartToggles').innerHTML = legenda;
-    }
-
-    // ==========================================
-    // 13. TABELA DE SERVIDORES
-    // ==========================================
-
-    function formatarMetrica(servidor, componente) {
-
-    let classe = '';
-    let valor = servidor[componente];
-    let limite = LIMITES[componente];
-    let fator = valor / limite;
-    let situacao = classificar(fator);
-    if (situacao === 'critico') {
-        classe = 'bad';
-    } else if (situacao === 'atencao') {
-        classe = 'warn';
-    }
-    return `
-        <span class="mini-val ${classe}">
-            ${valor}%
-        </span>
-    `;
-}
-
-    function atualizarTabela() {
-
-        let html = '';
-
-        for (let i = 0; i < ESTADO.servidores.length; i++) {
-
-            let servidor = ESTADO.servidores[i];
-
-            html += `
-                <tr>
-
-                    <td>
-                        <b>${escaparHtml(servidor.id)}</b>
-                        <small>${escaparHtml(servidor.role)}</small>
-                    </td>
-
-                    <td>${formatarMetrica(servidor, 'CPU')}</td>
-
-                    <td>${formatarMetrica(servidor, 'RAM')}</td>
-
-                    <td>${formatarMetrica(servidor, 'Disco')}</td>
-
-                    <td>${formatarMetrica(servidor, 'Rede')}</td>
-
-                    <td>
-                        <span class="severity ${servidor.risk.status}">
-                            ${NOMES_STATUS[servidor.risk.status]}
-                            · ${servidor.risk.c}
-                        </span>
-                    </td>
-
-                    <td>
-                        <button
-                            class="tablebutton"
-                            type="button"
-                            data-server="${escaparHtml(servidor.id)}"
-                        >
-                            Analisar →
-                        </button>
-                    </td>
-
-                </tr>
-            `;
-        }
-
-        $('serverRows').innerHTML = html;
-    }
-
-    // ==========================================
-    // 14. SIMULADOR FINANCEIRO
+    // SIMULADOR FINANCEIRO
     // ==========================================
 
     function valorCampo(id) {
@@ -1642,8 +1125,6 @@
         let linhas = [
             ['STREAMGUARD - RELATÓRIO DEMONSTRATIVO'],
 
-            ['Período', PERIODOS[ESTADO.periodo].nome],
-
             ['Cenário', ESTADO.cenario],
 
             ['Tipo', 'Dados sintéticos / demonstrativos'],
@@ -1876,18 +1357,11 @@
     // 18. NAVEGAÇÃO POR ABAS
     // ==========================================
 
+
     const ABAS = {
 
         executivo: [
-            'resumo'
-        ],
-
-        recursos: [
-            'componentes',
-            'servidores'
-        ],
-
-        custos: [
+            'resumo',
             'billing'
         ],
 
@@ -1895,9 +1369,10 @@
             'decisoes',
             'relatorios'
         ]
+
     };
 
-    function mostrarAba(nome, rolar) {
+        function mostrarAba(nome, rolar) {
 
         if (!ABAS[nome]) {
             return;
@@ -1976,17 +1451,6 @@
             }
         });
 
-        // Mantém os filtros acessíveis em todas as abas.
-
-        let barra = document.querySelector(
-            '#resumo .filterbar'
-        );
-
-        if (barra) {
-
-            menu.insertAdjacentElement('afterend', barra);
-        }
-
         // Atalho para a seção de decisões.
 
         let atalho = document.querySelector(
@@ -2027,8 +1491,6 @@
 
         ESTADO.cenario = $('cenario').value;
 
-        ESTADO.periodo = $('periodo').value;
-
         ESTADO.servidores = prepararServidores();
 
         atualizarResumo();
@@ -2037,27 +1499,7 @@
 
         atualizarPlano();
 
-        atualizarComponentes();
-
-        atualizarGrafico();
-
-        atualizarTabela();
-
         atualizarBilling();
-    }
-
-    function preencherFiltroServidores() {
-
-        for (let i = 0; i < HOSTS.length; i++) {
-
-            let opcao = document.createElement('option');
-
-            opcao.value = HOSTS[i].id;
-
-            opcao.textContent = HOSTS[i].id;
-
-            $('servidorFiltro').appendChild(opcao);
-        }
     }
 
     // ==========================================
@@ -2072,57 +1514,6 @@
             'change',
             atualizarDashboard
         );
-
-        $('periodo').addEventListener(
-            'change',
-            atualizarDashboard
-        );
-
-        $('servidorFiltro').addEventListener(
-            'change',
-            atualizarGrafico
-        );
-
-        // ======================================
-        // SELEÇÃO DOS COMPONENTES
-        // ======================================
-
-        $('componentCards').addEventListener('click', function (evento) {
-
-            let botao = evento.target.closest('[data-resource]');
-
-            if (!botao) {
-                return;
-            }
-
-            if (ESTADO.componente === botao.dataset.resource) {
-
-                ESTADO.componente = 'Todos';
-
-            } else {
-
-                ESTADO.componente = botao.dataset.resource;
-            }
-
-            atualizarComponentes();
-
-            atualizarGrafico();
-        });
-
-        $('chartToggles').addEventListener('click', function (evento) {
-
-            let botao = evento.target.closest('[data-chart]');
-
-            if (!botao) {
-                return;
-            }
-
-            ESTADO.componente = botao.dataset.chart;
-
-            atualizarComponentes();
-
-            atualizarGrafico();
-        });
 
         // ======================================
         // PLANO DE AÇÃO
@@ -2192,72 +1583,6 @@
         });
 
         // ======================================
-        // DETALHES DOS SERVIDORES
-        // ======================================
-
-        $('serverRows').addEventListener('click', function (evento) {
-
-            let botao = evento.target.closest('[data-server]');
-
-            if (!botao) {
-                return;
-            }
-
-            let servidor = null;
-
-            for (let i = 0; i < ESTADO.servidores.length; i++) {
-
-                if (ESTADO.servidores[i].id === botao.dataset.server) {
-
-                    servidor = ESTADO.servidores[i];
-                }
-            }
-
-            if (!servidor) {
-                return;
-            }
-
-            let mensagem =
-                'CENÁRIO SIMULADO · ' +
-                PERIODOS[ESTADO.periodo].nome +
-                '\n\n' +
-
-                'CPU: ' +
-                servidor.CPU +
-                '% (limite ' +
-                LIMITES.CPU +
-                '%)\n' +
-
-                'RAM: ' +
-                servidor.RAM +
-                '% (limite ' +
-                LIMITES.RAM +
-                '%)\n' +
-
-                'Disco: ' +
-                servidor.Disco +
-                '% (limite ' +
-                LIMITES.Disco +
-                '%)\n' +
-
-                'Rede: ' +
-                servidor.Rede +
-                '% do enlace hipotético de 1 Gbit/s\n\n' +
-
-                'Prioridade: ' +
-                NOMES_STATUS[servidor.risk.status] +
-                '\n' +
-
-                'Ação sugerida: ' +
-                REGRAS[servidor.risk.c].acao;
-
-            abrirModal(
-                servidor.id + ' • ' + servidor.role,
-                mensagem
-            );
-        });
-
-        // ======================================
         // SIMULADOR DE BILLING
         // ======================================
 
@@ -2319,9 +1644,9 @@
             let mensagem =
                 'Este é um PROTÓTIPO com dados simulados.\n\n' +
 
-                'Os cartões apresentam os maiores valores entre servidores.\n' +
+                'Os indicadores destacam riscos e decisões prioritárias.\n' +
 
-                'Os gráficos são ilustrativos, não históricos da ETL.\n' +
+                'O cenário é demonstrativo, não um histórico real da ETL.\n' +
 
                 'A classificação compara utilização e limites definidos na demonstração.\n' +
 
@@ -2368,8 +1693,6 @@
     // ==========================================
 
     // Primeiro prepara os filtros.
-
-    preencherFiltroServidores();
 
     // Recupera o plano de ação salvo.
 

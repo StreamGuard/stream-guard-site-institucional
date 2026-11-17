@@ -30,43 +30,34 @@
             <main class="principal di-dashboard" id="main-content">
                 <!-- INICIO DO CONTEUDO DA DASHBOARD INDIVIDUAL -->
 
+
                 <nav class="di-quicknav" aria-label="Navegação gerencial">
 
-    <button type="button"
-            class="di-tab ativo"
-            data-tab="executivo"
-            aria-pressed="true">
-        Visão Executiva
-    </button>
+                    <button
+                        type="button"
+                        class="di-tab ativo"
+                        data-tab="executivo"
+                        aria-pressed="true"
+                    >
+                        Visão Gerencial
+                    </button>
 
-    <button type="button"
-            class="di-tab"
-            data-tab="recursos"
-            aria-pressed="false">
-        Análise de Recursos
-    </button>
+                    <button
+                        type="button"
+                        class="di-tab"
+                        data-tab="decisoes"
+                        aria-pressed="false"
+                    >
+                        Decisões e Relatórios
+                    </button>
 
-    <button type="button"
-            class="di-tab"
-            data-tab="custos"
-            aria-pressed="false">
-        Custos e Planejamento
-    </button>
-
-    <button type="button"
-            class="di-tab"
-            data-tab="decisoes"
-            aria-pressed="false">
-        Decisões e Relatórios
-    </button>
-
-</nav>
+                </nav>
 
                 <section class="section" id="resumo">
                     <div class="pagehead">
                         <div><span class="eyebrow">◉   VISÃO ESTRATÉGICA DA INFRAESTRUTURA</span>
                             <h1>Inteligência Gerencial</h1>
-                            <p>Identifique riscos, compare CPU, RAM, disco e rede, avalie ações e projete o impacto
+                            <p>Identifique prioridades, compare investimentos e projete o impacto
                                 financeiro das decisões sobre a infraestrutura de streaming.</p>
                         </div>
                         <div class="actions"><button class="button" id="buttonMethod" type="button">ⓘ   Entenda os
@@ -74,19 +65,10 @@
                                 Gerar relatório</button></div>
                     </div>
                     <div class="filterbar">
-                        <div class="field"><label for="periodo">Período do gráfico (demo)</label><select id="periodo">
-                                <option value="24h">Últimas 24 horas</option>
-                                <option selected="" value="7d">Últimos 7 dias</option>
-                                <option value="30d">Últimos 30 dias</option>
-                            </select></div>
-                        <div class="field large"><label for="cenario">Cenário de telemetria</label><select id="cenario">
+                        <div class="field large"><label for="cenario">Cenário operacional demonstrativo</label><select id="cenario">
                                 <option value="normal">Operação regular</option>
                                 <option selected="" value="pico">Pico de audiência</option>
                                 <option value="recuperacao">Pós-pico / recuperação</option>
-                            </select></div>
-                        <div class="field large"><label for="servidorFiltro">Equipamento no gráfico</label><select
-                                id="servidorFiltro">
-                                <option value="todos">Visão agregada (média)</option>
                             </select></div>
                         <div class="filter-info"><span class="tag-demo">DADOS DEMONSTRATIVOS</span><span>Atualização
                                 pelo filtro</span></div>
@@ -117,101 +99,6 @@
                         <div><b id="noticeTitle">Riscos e oportunidades identificados</b>
                             <p id="noticeDesc">Veja as recomendações organizadas por prioridade e evidência.</p>
                         </div><a href="#decisoes">Ver decisões sugeridas →</a>
-                    </div>
-                </section>
-                <section class="section" id="decisoes">
-                    <div class="sectitle">
-                        <div>
-                            <h2>O que o gestor deve avaliar agora?</h2>
-                            <p>Recomendações por prioridade, sempre acompanhadas da evidência e do próximo passo
-                                sugerido.</p>
-                        </div><span class="section-hint">As recomendações são hipóteses baseadas em regras, não
-                            diagnósticos automáticos.</span>
-                    </div>
-                    <div class="decision-layout">
-                        <div class="decision-list" id="decisionList"></div>
-                        <aside class="card plan">
-                            <div class="planheader">
-                                <div>
-                                    <h3>Meu plano de ação</h3>
-                                    <p class="plantip">Transforme um insight em um item para análise.</p>
-                                </div><span class="counter" id="planCount">0 itens</span>
-                            </div>
-                            <ul class="planlist" id="planList">
-                                <li class="plan-empty">Selecione “Adicionar ao plano” em uma das recomendações.</li>
-                            </ul>
-                            <div class="planfooter"><strong>Como usar:</strong> documente as decisões no relatório.
-                                Itens salvos ficam apenas neste navegador (localStorage).</div>
-                        </aside>
-                    </div>
-                </section>
-                <section class="section" id="componentes">
-                    <div class="sectitle">
-                        <div>
-                            <h2>Os quatro componentes monitorados</h2>
-                            <p>Em cada cartão, o maior uso observado entre os servidores simulados e o equipamento que
-                                precisa de atenção.</p>
-                        </div><span class="section-hint">Clique em um componente para focar o gráfico.</span>
-                    </div>
-                    <div class="component-grid" id="componentCards"></div>
-                    <div class="chart-grid">
-                        <div class="card chart-panel">
-                            <div class="panel-title">
-                                <div>
-                                    <h3>Evolução das métricas</h3>
-                                    <p id="chartSubtitle">Uso de recursos durante o período selecionado.</p>
-                                </div><span class="tag-demo">SÉRIE ILUSTRATIVA</span>
-                            </div>
-                            <div class="chart-legend" id="chartToggles"></div>
-                            <div aria-label="Gráfico de linhas de consumo dos recursos" class="chart-host"
-                                id="chartHost" role="img"></div>
-                            <div class="chart-caption"><span>Escala: 0–100% de utilização. Rede considera enlace
-                                    hipotético de 1 Gbit/s.</span><span>Limites específicos nos cartões.</span></div>
-                        </div>
-                        <aside class="card insight-panel">
-                            <h3>Leitura rápida do recurso</h3>
-                            <div class="smalllabel" id="focusLabel">COMPONENTE EM DESTAQUE</div>
-                            <div class="big-val" id="focusValue">—</div>
-                            <div class="tiny" id="focusHost">—</div>
-                            <p class="readout" id="focusReadout">Selecione um cartão para explorar o comportamento.</p>
-                            <div class="readoutblock"><b>O QUE ISSO SIGNIFICA?</b>
-                                <p id="focusInterpretation">O valor isolado não é suficiente para concluir um incidente.
-                                </p>
-                            </div>
-                            <div class="readoutblock"><b>QUAL DECISÃO APOIAR?</b>
-                                <p id="focusAction">A decisão deve considerar o histórico, a persistência dos alertas e
-                                    as prioridades do serviço.</p>
-                            </div>
-                        </aside>
-                    </div>
-                </section>
-                <section class="section" id="servidores">
-                    <div class="sectitle">
-                        <div>
-                            <h2>Onde concentrar a investigação?</h2>
-                            <p>Servidores ordenados pelo componente com maior excedência do limite definido.</p>
-                        </div><span class="section-hint">Clique em “Analisar” para ver os quatro recursos de um
-                            equipamento.</span>
-                    </div>
-                    <div class="card ranking">
-                        <div class="table-scroll">
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Servidor / função</th>
-                                        <th>CPU</th>
-                                        <th>RAM</th>
-                                        <th>Disco</th>
-                                        <th>Rede¹</th>
-                                        <th>Prioridade</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody id="serverRows"></tbody>
-                            </table>
-                        </div>
-                        <p class="tiny" style="margin-top:10px">¹ Rede: utilização estimada da capacidade de 1 Gbit/s.
-                            Em uma implementação real, deve ser calculada a partir das taxas em bytes/s do projeto.</p>
                     </div>
                 </section>
                 <section class="section" id="billing">
@@ -297,11 +184,37 @@
                             requisitos do serviço.</p>
                     </div>
                 </section>
+                <section class="section" id="decisoes">
+                    <div class="sectitle">
+                        <div>
+                            <h2>O que o gestor deve avaliar agora?</h2>
+                            <p>Recomendações por prioridade, sempre acompanhadas da evidência e do próximo passo
+                                sugerido.</p>
+                        </div><span class="section-hint">As recomendações são hipóteses baseadas em regras, não
+                            diagnósticos automáticos.</span>
+                    </div>
+                    <div class="decision-layout">
+                        <div class="decision-list" id="decisionList"></div>
+                        <aside class="card plan">
+                            <div class="planheader">
+                                <div>
+                                    <h3>Meu plano de ação</h3>
+                                    <p class="plantip">Transforme um insight em um item para análise.</p>
+                                </div><span class="counter" id="planCount">0 itens</span>
+                            </div>
+                            <ul class="planlist" id="planList">
+                                <li class="plan-empty">Selecione “Adicionar ao plano” em uma das recomendações.</li>
+                            </ul>
+                            <div class="planfooter"><strong>Como usar:</strong> documente as decisões no relatório.
+                                Itens salvos ficam apenas neste navegador (localStorage).</div>
+                        </aside>
+                    </div>
+                </section>
                 <section class="section" id="relatorios">
                     <div class="card report-panel">
                         <div>
                             <h3>Relatório executivo</h3>
-                            <p>Exporte as métricas simuladas dos oito servidores, prioridades e decisões selecionadas em
+                            <p>Exporte os indicadores, as evidências e as decisões selecionadas em
                                 CSV, ou use o layout de impressão para criar um PDF resumido da dashboard.</p>
                         </div>
                         <div class="report-actions"><button class="button" id="buttonCsv" type="button">↓ Exportar
