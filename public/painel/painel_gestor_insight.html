@@ -27,15 +27,15 @@
                 </div>
                 <div class="topo-direita" data-shell="topo-direita"></div>
             </header>
-            <main class="principal di-dashboard" id="main-content">
+            <main class="principal painel-gerencial" id="main-content">
                 <!-- INICIO DO CONTEUDO DA DASHBOARD INDIVIDUAL -->
 
 
-                <nav class="di-quicknav" aria-label="Navegação gerencial">
+                <nav class="navegacao-gerencial" aria-label="Navegação gerencial">
 
                     <button
                         type="button"
-                        class="di-tab ativo"
+                        class="aba-gerencial ativo"
                         data-tab="executivo"
                         aria-pressed="true"
                     >
@@ -44,7 +44,7 @@
 
                     <button
                         type="button"
-                        class="di-tab"
+                        class="aba-gerencial"
                         data-tab="decisoes"
                         aria-pressed="false"
                     >
@@ -53,112 +53,112 @@
 
                 </nav>
 
-                <section class="section" id="resumo">
-                    <div class="pagehead">
-                        <div><span class="eyebrow">◉   VISÃO ESTRATÉGICA DA INFRAESTRUTURA</span>
+                <section class="secao" id="resumo">
+                    <div class="cabecalho-pagina">
+                        <div><span class="rotulo-superior">◉   VISÃO ESTRATÉGICA DA INFRAESTRUTURA</span>
                             <h1>Inteligência Gerencial</h1>
                             <p>Identifique prioridades, compare investimentos e projete o impacto
                                 financeiro das decisões sobre a infraestrutura de streaming.</p>
                         </div>
-                        <div class="actions"><button class="button" id="buttonMethod" type="button">ⓘ   Entenda os
-                                indicadores</button><button class="button primary" id="buttonPrintTop" type="button">▤  
+                        <div class="acoes"><button class="botao" id="buttonMethod" type="button">ⓘ   Entenda os
+                                indicadores</button><button class="botao primario" id="buttonPrintTop" type="button">▤  
                                 Gerar relatório</button></div>
                     </div>
-                    <div class="filterbar">
-                        <div class="field large"><label for="cenario">Cenário operacional demonstrativo</label><select id="cenario">
+                    <div class="barra-filtros">
+                        <div class="campo largo"><label for="cenario">Cenário operacional demonstrativo</label><select id="cenario">
                                 <option value="normal">Operação regular</option>
                                 <option selected="" value="pico">Pico de audiência</option>
                                 <option value="recuperacao">Pós-pico / recuperação</option>
                             </select></div>
-                        <div class="filter-info"><span class="tag-demo">DADOS DEMONSTRATIVOS</span><span>Atualização
+                        <div class="informacao-filtro"><span class="etiqueta-demo">DADOS DEMONSTRATIVOS</span><span>Atualização
                                 pelo filtro</span></div>
                     </div>
-                    <div class="overview">
-                        <article class="card metric-kpi">
-                            <div class="kpi-title">Servidores sob atenção <span class="kpi-icon">▣</span></div><strong
+                    <div class="visao-geral">
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">Servidores sob atenção <span class="icone-indicador">▣</span></div><strong
                                 id="kpiRisk">—</strong>
-                            <p class="kpi-note" id="kpiRiskNote">Conforme limites por componente</p>
+                            <p class="observacao-indicador" id="kpiRiskNote">Conforme limites por componente</p>
                         </article>
-                        <article class="card metric-kpi">
-                            <div class="kpi-title">Limites excedidos <span class="kpi-icon">⚠</span></div><strong
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">Limites excedidos <span class="icone-indicador">⚠</span></div><strong
                                 id="kpiComp">—</strong>
-                            <p class="kpi-note">Ocorrências de limites excedidos no cenário</p>
+                            <p class="observacao-indicador">Ocorrências de limites excedidos no cenário</p>
                         </article>
-                        <article class="card metric-kpi">
-                            <div class="kpi-title">Maior prioridade <span class="kpi-icon">↗</span></div><strong
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">Maior prioridade <span class="icone-indicador">↗</span></div><strong
                                 id="kpiMain">—</strong>
-                            <p class="kpi-note" id="kpiMainNote">Equipamento com menor folga</p>
+                            <p class="observacao-indicador" id="kpiMainNote">Equipamento com menor folga</p>
                         </article>
-                        <article class="card metric-kpi highlight">
-                            <div class="kpi-title">Custo mensal projetado <span class="kpi-icon">＄</span></div><strong
+                        <article class="cartao cartao-indicador destaque">
+                            <div class="titulo-indicador">Custo mensal projetado <span class="icone-indicador">＄</span></div><strong
                                 id="kpiCost">—</strong>
-                            <p class="kpi-note" id="kpiCostNote">Estimativa ilustrativa, não fatura</p>
+                            <p class="observacao-indicador" id="kpiCostNote">Estimativa ilustrativa, não fatura</p>
                         </article>
                     </div>
-                    <div class="notice"><span class="notice-icon">!</span>
+                    <div class="aviso"><span class="icone-aviso">!</span>
                         <div><b id="noticeTitle">Riscos e oportunidades identificados</b>
                             <p id="noticeDesc">Veja as recomendações organizadas por prioridade e evidência.</p>
                         </div><a href="#decisoes">Ver decisões sugeridas →</a>
                     </div>
                 </section>
-                <section class="section" id="billing">
-                    <div class="sectitle">
+                <section class="secao" id="billing">
+                    <div class="titulo-secao">
                         <div>
                             <h2>Previsão de custos em nuvem</h2>
                             <p>Simule decisões de capacidade e orçamento. Ajuste nós adicionais, armazenamento e
                                 transferência de dados.</p>
-                        </div><span class="tag-demo">SIMULAÇÃO FINANCEIRA · NÃO É AWS BILLING</span>
+                        </div><span class="etiqueta-demo">SIMULAÇÃO FINANCEIRA · NÃO É AWS BILLING</span>
                     </div>
-                    <div class="billing-grid">
-                        <div class="card billing-result">
-                            <div class="bill-highlight">
+                    <div class="grade-custos">
+                        <div class="cartao resultado-custos">
+                            <div class="destaque-custo">
                                 <div><small>Custo estimado no cenário configurado</small>
-                                    <div class="billtotal" id="billingTotal">—</div><span class="tiny"
+                                    <div class="custo-total" id="billingTotal">—</div><span class="texto-pequeno"
                                         id="billingUsd">—</span>
-                                </div><span class="billstatus">Projeção mensal</span>
+                                </div><span class="situacao-custo">Projeção mensal</span>
                             </div>
-                            <div class="bill-cards">
-                                <div class="bill-subcard"><label>Configuração de referência</label><strong
+                            <div class="cartoes-custos">
+                                <div class="subcartao-custo"><label>Configuração de referência</label><strong
                                         id="billingBase">—</strong><small>8 nós + recursos de referência</small></div>
-                                <div class="bill-subcard emphasis"><label>Variação da simulação</label><strong
+                                <div class="subcartao-custo enfase"><label>Variação da simulação</label><strong
                                         id="billingDelta">—</strong><small id="billingDeltaPct">Em relação à
                                         referência</small></div>
                             </div>
-                            <div aria-label="Composição estimada dos custos" class="bill-bar" id="billingStack"></div>
-                            <div class="costrows" id="billingRows"></div>
-                            <p class="math-note">O consumo de CPU/RAM/disco/rede não gera automaticamente um valor de
+                            <div aria-label="Composição estimada dos custos" class="barra-custos" id="billingStack"></div>
+                            <div class="linhas-custos" id="billingRows"></div>
+                            <p class="observacao-calculo">O consumo de CPU/RAM/disco/rede não gera automaticamente um valor de
                                 cobrança. A projeção usa <b>quantidade e horas de instâncias</b>, capacidade de
                                 armazenamento e volume de saída de dados. Tarifas e câmbio abaixo são <b>hipóteses
                                     editáveis</b>.</p>
                         </div>
-                        <div class="card bill-form">
+                        <div class="cartao formulario-custos">
                             <h3>Simulador de decisão financeira</h3>
                             <p>Compare quanto custaria manter a infraestrutura ou expandi-la para lidar com um pico.
                                 Nenhuma alteração real é aplicada.</p>
-                            <div class="control">
-                                <div class="control-head"><label for="extraNodes">Nós computacionais
+                            <div class="controle">
+                                <div class="cabecalho-controle"><label for="extraNodes">Nós computacionais
                                         adicionais</label><output id="extraNodesText">0 nó(s)</output></div><input
                                     id="extraNodes" max="6" min="0" step="1" type="range" value="2" />
                                 <p>Referência: 8 nós já existentes. Cada nó extra aumenta custo por hora contratada.</p>
                             </div>
-                            <div class="control">
-                                <div class="control-head"><label for="storage">Armazenamento previsto</label><output
+                            <div class="controle">
+                                <div class="cabecalho-controle"><label for="storage">Armazenamento previsto</label><output
                                         id="storageText">—</output></div><input id="storage" max="4000" min="400"
                                     step="100" type="range" value="1700" />
                                 <p>Capacidade considerada no cálculo mensal de armazenamento.</p>
                             </div>
-                            <div class="control">
-                                <div class="control-head"><label for="egress">Tráfego de saída previsto</label><output
+                            <div class="controle">
+                                <div class="cabecalho-controle"><label for="egress">Tráfego de saída previsto</label><output
                                         id="egressText">—</output></div><input id="egress" max="15" min="1" step="0.5"
                                     type="range" value="6" />
                                 <p>Volume mensal estimado de saída; não confundir com percentual de uso da rede.</p>
                             </div>
-                            <div class="scenario-eval" id="billingEvaluation">—</div>
-                            <details class="premises">
+                            <div class="avaliacao-cenario" id="billingEvaluation">—</div>
+                            <details class="premissas">
                                 <summary>Ver e editar as premissas do modelo ↘</summary>
                                 <p>Valores didáticos, não consultados na tabela atual da AWS. Troque-os pelos preços
                                     reais e classe de instância quando o projeto definir a infraestrutura.</p>
-                                <div class="prem-grid"><label>USD por nó/hora <input id="priceNode" max="10" min="0"
+                                <div class="grade-premissas"><label>USD por nó/hora <input id="priceNode" max="10" min="0"
                                             step="0.001" type="number" value="0.096" /></label><label>Horas por mês
                                         <input id="hours" max="744" min="1" step="1" type="number"
                                             value="730" /></label><label>USD/GB-mês (disco) <input id="priceStorage"
@@ -170,70 +170,70 @@
                             </details>
                         </div>
                     </div>
-                    <div class="card forecaster">
-                        <div class="panel-title">
+                    <div class="cartao painel-projecoes">
+                        <div class="titulo-painel">
                             <div>
                                 <h3>Impacto de decisões de expansão</h3>
                                 <p>Projeção comparativa com as mesmas premissas e volumes de armazenamento/tráfego
                                     configurados acima.</p>
-                            </div><span class="tiny">R$/mês • valores ilustrativos</span>
+                            </div><span class="texto-pequeno">R$/mês • valores ilustrativos</span>
                         </div>
-                        <div class="forecast-cols" id="forecastBars"></div>
-                        <p class="forecast-sub">Aumentar servidores pode melhorar a capacidade disponível, mas não
+                        <div class="colunas-projecao" id="forecastBars"></div>
+                        <p class="descricao-projecao">Aumentar servidores pode melhorar a capacidade disponível, mas não
                             garante redução de incidentes. O dimensionamento deve considerar métricas históricas e
                             requisitos do serviço.</p>
                     </div>
                 </section>
-                <section class="section" id="decisoes">
-                    <div class="sectitle">
+                <section class="secao" id="decisoes">
+                    <div class="titulo-secao">
                         <div>
                             <h2>O que o gestor deve avaliar agora?</h2>
                             <p>Recomendações por prioridade, sempre acompanhadas da evidência e do próximo passo
                                 sugerido.</p>
-                        </div><span class="section-hint">As recomendações são hipóteses baseadas em regras, não
+                        </div><span class="dica-secao">As recomendações são hipóteses baseadas em regras, não
                             diagnósticos automáticos.</span>
                     </div>
-                    <div class="decision-layout">
-                        <div class="decision-list" id="decisionList"></div>
-                        <aside class="card plan">
-                            <div class="planheader">
+                    <div class="estrutura-decisoes">
+                        <div class="lista-decisoes" id="decisionList"></div>
+                        <aside class="cartao plano">
+                            <div class="cabecalho-plano">
                                 <div>
                                     <h3>Meu plano de ação</h3>
-                                    <p class="plantip">Transforme um insight em um item para análise.</p>
-                                </div><span class="counter" id="planCount">0 itens</span>
+                                    <p class="dica-plano">Transforme um insight em um item para análise.</p>
+                                </div><span class="contador" id="planCount">0 itens</span>
                             </div>
-                            <ul class="planlist" id="planList">
-                                <li class="plan-empty">Selecione “Adicionar ao plano” em uma das recomendações.</li>
+                            <ul class="lista-plano" id="planList">
+                                <li class="plano-vazio">Selecione “Adicionar ao plano” em uma das recomendações.</li>
                             </ul>
-                            <div class="planfooter"><strong>Como usar:</strong> documente as decisões no relatório.
+                            <div class="rodape-plano"><strong>Como usar:</strong> documente as decisões no relatório.
                                 Itens salvos ficam apenas neste navegador (localStorage).</div>
                         </aside>
                     </div>
                 </section>
-                <section class="section" id="relatorios">
-                    <div class="card report-panel">
+                <section class="secao" id="relatorios">
+                    <div class="cartao painel-relatorio">
                         <div>
                             <h3>Relatório executivo</h3>
                             <p>Exporte os indicadores, as evidências e as decisões selecionadas em
                                 CSV, ou use o layout de impressão para criar um PDF resumido da dashboard.</p>
                         </div>
-                        <div class="report-actions"><button class="button" id="buttonCsv" type="button">↓ Exportar
-                                CSV</button><button class="button primary" id="buttonPrint" type="button">▤ Salvar como
+                        <div class="acoes-relatorio"><button class="botao" id="buttonCsv" type="button">↓ Exportar
+                                CSV</button><button class="botao primario" id="buttonPrint" type="button">▤ Salvar como
                                 PDF</button></div>
                     </div>
                 </section>
-                <p class="footnote"><strong>Sobre este protótipo:</strong> todos os registros de infraestrutura e
+                <p class="nota-rodape"><strong>Sobre este protótipo:</strong> todos os registros de infraestrutura e
                     insights são <strong>sintéticos e demonstrativos</strong>. Os limiares usados são exemplos (CPU 85%,
                     RAM 90%, disco 85%, rede 80% da capacidade hipotética). Os custos representam apenas uma conta
                     matemática com preços ajustáveis; não são dados AWS nem permitem inferir uma fatura. Na versão
                     integrada, as métricas deverão vir da captura/ETL do StreamGuard e as premissas financeiras devem
                     ser verificadas e documentadas.</p>
 
-                <div class="toast" hidden="" id="toast" role="status"></div>
-                <div class="overlay" hidden="" id="overlay" role="presentation">
-                    <div aria-labelledby="dialogTitle" aria-modal="true" class="dialog" role="dialog">
-                        <div class="dialog-head">
-                            <h3 id="dialogTitle">Detalhes</h3><button aria-label="Fechar" class="close" id="closeDialog"
+                <div class="mensagem-flutuante" hidden="" id="toast" role="status"></div>
+                <div class="fundo-modal" hidden="" id="overlay" role="presentation">
+                    <div aria-labelledby="dialogTitle" aria-modal="true" class="modal" role="dialog">
+                        <div class="cabecalho-modal">
+                            <h3 id="dialogTitle">Detalhes</h3><button aria-label="Fechar" class="fechar" id="closeDialog"
                                 type="button">×</button>
                         </div>
                         <p id="dialogText"></p>

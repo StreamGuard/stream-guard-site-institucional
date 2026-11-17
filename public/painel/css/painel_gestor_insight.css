@@ -1,4 +1,4 @@
-.di-dashboard {
+.painel-gerencial {
     --bg: #0c0c18;
     --side: #121224;
     --panel: #151529;
@@ -21,47 +21,47 @@
     padding: 22px 30px 55px;
 }
 
-.di-dashboard button,
-.di-dashboard input,
-.di-dashboard select {
+.painel-gerencial button,
+.painel-gerencial input,
+.painel-gerencial select {
     font: inherit;
 }
 
-.di-dashboard button {
+.painel-gerencial button {
     cursor: pointer;
 }
 
-.di-dashboard button:focus-visible,
-.di-dashboard input:focus-visible,
-.di-dashboard select:focus-visible,
-.di-dashboard a:focus-visible,
-.di-dashboard summary:focus-visible {
+.painel-gerencial button:focus-visible,
+.painel-gerencial input:focus-visible,
+.painel-gerencial select:focus-visible,
+.painel-gerencial a:focus-visible,
+.painel-gerencial summary:focus-visible {
     outline: 2px solid var(--mint);
     outline-offset: 3px
 }
 
-.di-dashboard a {
+.painel-gerencial a {
     color: inherit;
     text-decoration: none
 }
 
-.di-dashboard svg {
+.painel-gerencial svg {
     display: block
 }
 
-.di-dashboard [hidden] {
+.painel-gerencial [hidden] {
     display: none !important
 }
 
-.di-dashboard .section {
+.painel-gerencial .secao {
     scroll-margin-top: 95px
 }
 
-.di-dashboard>.section:first-of-type {
+.painel-gerencial>.secao:first-of-type {
     margin-top: 16px
 }
 
-.di-dashboard .di-quicknav {
+.painel-gerencial .navegacao-gerencial {
     position: relative;
     display: flex;
     flex-wrap: nowrap;
@@ -72,7 +72,7 @@
     scrollbar-width: thin;
 }
 
-.di-dashboard .di-quicknav a {
+.painel-gerencial .navegacao-gerencial a {
     font-size: 11px;
     font-weight: 750;
     white-space: nowrap;
@@ -83,20 +83,20 @@
     background: var(--panel);
 }
 
-.di-dashboard .di-quicknav a:hover,
-.di-dashboard .di-quicknav a:focus-visible {
+.painel-gerencial .navegacao-gerencial a:hover,
+.painel-gerencial .navegacao-gerencial a:focus-visible {
     border-color: var(--mint);
     color: var(--mint);
     background: #1b3330;
 }
 
-.di-dashboard {
+.painel-gerencial {
     max-width: 1650px;
     margin: auto;
     padding: 26px 30px 55px
 }
 
-.di-dashboard .eyebrow {
+.painel-gerencial .rotulo-superior {
     font-size: 10px;
     letter-spacing: 1.6px;
     color: var(--mint);
@@ -106,14 +106,14 @@
     gap: 8px
 }
 
-.di-dashboard .pagehead {
+.painel-gerencial .cabecalho-pagina {
     display: flex;
     justify-content: space-between;
     gap: 22px;
     align-items: end
 }
 
-.di-dashboard .pagehead h1 {
+.painel-gerencial .cabecalho-pagina h1 {
     font-size: 27px;
     letter-spacing: -.95px;
     line-height: 1.15;
@@ -121,19 +121,19 @@
     font-weight: 850
 }
 
-.di-dashboard .pagehead p {
+.painel-gerencial .cabecalho-pagina p {
     color: var(--muted);
     font-size: 12px;
     max-width: 780px
 }
 
-.di-dashboard .actions {
+.painel-gerencial .acoes {
     display: flex;
     gap: 9px;
     flex-wrap: wrap
 }
 
-.di-dashboard .button {
+.painel-gerencial .botao {
     border: 1px solid #353550;
     background: #202039;
     color: var(--text);
@@ -147,30 +147,30 @@
     white-space: nowrap
 }
 
-.di-dashboard .button:hover {
+.painel-gerencial .botao:hover {
     background: #2b2b48
 }
 
-.di-dashboard .button.primary {
+.painel-gerencial .botao.primario {
     background: var(--mint);
     color: #072b26;
     border-color: var(--mint)
 }
 
-.di-dashboard .button.primary:hover {
+.painel-gerencial .botao.primario:hover {
     background: #59f4d7
 }
 
-.di-dashboard .button.light {
+.painel-gerencial .botao.secundario {
     background: transparent
 }
 
-.di-dashboard .button svg {
+.painel-gerencial .botao svg {
     width: 15px;
     height: 15px
 }
 
-.di-dashboard .filterbar {
+.painel-gerencial .barra-filtros {
     display: flex;
     flex-wrap: wrap;
     align-items: end;
@@ -182,13 +182,13 @@
     margin: 23px 0 17px
 }
 
-.di-dashboard .field {
+.painel-gerencial .campo {
     display: flex;
     flex-direction: column;
     gap: 5px
 }
 
-.di-dashboard .field label {
+.painel-gerencial .campo label {
     font-size: 9.6px;
     color: var(--faint);
     letter-spacing: 1px;
@@ -196,8 +196,8 @@
     text-transform: uppercase
 }
 
-.di-dashboard .field select,
-.di-dashboard .field input {
+.painel-gerencial .campo select,
+.painel-gerencial .campo input {
     background: #20203d;
     border: 1px solid #383855;
     border-radius: 7px;
@@ -208,15 +208,15 @@
     font-size: 11.5px
 }
 
-.di-dashboard .field select {
+.painel-gerencial .campo select {
     min-width: 160px
 }
 
-.di-dashboard .field.large select {
+.painel-gerencial .campo.largo select {
     min-width: 206px
 }
 
-.di-dashboard .filter-info {
+.painel-gerencial .informacao-filtro {
     margin-left: auto;
     align-self: center;
     display: flex;
@@ -226,7 +226,7 @@
     font-size: 11px
 }
 
-.di-dashboard .tag-demo {
+.painel-gerencial .etiqueta-demo {
     border-radius: 50px;
     padding: 5px 8px;
     color: #ffd19d;
@@ -236,12 +236,12 @@
     font-weight: 800
 }
 
-.di-dashboard .section {
+.painel-gerencial .secao {
     scroll-margin-top: 90px;
     margin-top: 25px
 }
 
-.di-dashboard .sectitle {
+.painel-gerencial .titulo-secao {
     display: flex;
     justify-content: space-between;
     gap: 12px;
@@ -249,40 +249,40 @@
     margin-bottom: 12px
 }
 
-.di-dashboard .sectitle h2 {
+.painel-gerencial .titulo-secao h2 {
     font-size: 16px;
     letter-spacing: -.25px
 }
 
-.di-dashboard .sectitle p {
+.painel-gerencial .titulo-secao p {
     color: var(--muted);
     font-size: 11.5px;
     margin-top: 3px
 }
 
-.di-dashboard .section-hint {
+.painel-gerencial .dica-secao {
     color: var(--faint);
     font-size: 10.5px
 }
 
-.di-dashboard .card {
+.painel-gerencial .cartao {
     background: var(--panel);
     border: 1px solid var(--border);
     border-radius: 12px;
     min-width: 0
 }
 
-.di-dashboard .overview {
+.painel-gerencial .visao-geral {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 13px
 }
 
-.di-dashboard .metric-kpi {
+.painel-gerencial .cartao-indicador {
     padding: 17px 17px 15px
 }
 
-.di-dashboard .kpi-title {
+.painel-gerencial .titulo-indicador {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -291,7 +291,7 @@
     font-size: 11px
 }
 
-.di-dashboard .kpi-icon {
+.painel-gerencial .icone-indicador {
     display: grid;
     place-items: center;
     background: #242441;
@@ -301,7 +301,7 @@
     font-size: 15px
 }
 
-.di-dashboard .metric-kpi strong {
+.painel-gerencial .cartao-indicador strong {
     font-size: 28px;
     display: block;
     letter-spacing: -1px;
@@ -309,24 +309,24 @@
     line-height: 1.2
 }
 
-.di-dashboard .metric-kpi strong small {
+.painel-gerencial .cartao-indicador strong small {
     font-weight: 600;
     font-size: 11px;
     color: var(--faint)
 }
 
-.di-dashboard .kpi-note {
+.painel-gerencial .observacao-indicador {
     margin-top: 8px;
     color: var(--muted);
     font-size: 10.7px
 }
 
-.di-dashboard .metric-kpi.highlight {
+.painel-gerencial .cartao-indicador.destaque {
     border-color: #2e766b;
     background: linear-gradient(145deg, #15332f, var(--panel) 75%)
 }
 
-.di-dashboard .notice {
+.painel-gerencial .aviso {
     margin-top: 14px;
     padding: 11px 15px;
     border: 1px solid #655036;
@@ -337,7 +337,7 @@
     gap: 12px
 }
 
-.di-dashboard .notice-icon {
+.painel-gerencial .icone-aviso {
     width: 30px;
     height: 30px;
     border-radius: 8px;
@@ -349,40 +349,40 @@
     font-size: 17px
 }
 
-.di-dashboard .notice div:nth-child(2) {
+.painel-gerencial .aviso div:nth-child(2) {
     min-width: 0;
     flex: 1
 }
 
-.di-dashboard .notice b {
+.painel-gerencial .aviso b {
     font-size: 11.5px
 }
 
-.di-dashboard .notice p {
+.painel-gerencial .aviso p {
     font-size: 10.7px;
     color: #b8aec2;
     margin-top: 2px
 }
 
-.di-dashboard .notice a {
+.painel-gerencial .aviso a {
     color: var(--mint);
     font-weight: 800;
     font-size: 11px;
     white-space: nowrap
 }
 
-.di-dashboard .decision-layout {
+.painel-gerencial .estrutura-decisoes {
     display: grid;
     grid-template-columns: minmax(0, 1.87fr) minmax(275px, .93fr);
     gap: 14px
 }
 
-.di-dashboard .decision-list {
+.painel-gerencial .lista-decisoes {
     display: grid;
     gap: 10px
 }
 
-.di-dashboard .decision {
+.painel-gerencial .decisao {
     padding: 15px 16px;
     display: grid;
     grid-template-columns: 40px minmax(0, 1fr);
@@ -390,7 +390,7 @@
     border-left: 3px solid var(--status, var(--orange))
 }
 
-.di-dashboard .decision-num {
+.painel-gerencial .numero-decisao {
     display: grid;
     place-items: center;
     width: 35px;
@@ -402,18 +402,18 @@
     font-weight: 900
 }
 
-.di-dashboard .decision-top {
+.painel-gerencial .cabecalho-decisao {
     display: flex;
     justify-content: space-between;
     gap: 10px;
     align-items: center
 }
 
-.di-dashboard .decision-top h3 {
+.painel-gerencial .cabecalho-decisao h3 {
     font-size: 13px
 }
 
-.di-dashboard .decision-tag {
+.painel-gerencial .etiqueta-decisao {
     border: 1px solid;
     color: var(--status);
     padding: 2px 7px;
@@ -423,13 +423,13 @@
     white-space: nowrap
 }
 
-.di-dashboard .decision p {
+.painel-gerencial .decisao p {
     color: var(--muted);
     font-size: 11.3px;
     margin-top: 5px
 }
 
-.di-dashboard .evidence {
+.painel-gerencial .evidencia {
     margin-top: 9px;
     font-size: 10.8px;
     color: #bcbcd1;
@@ -438,11 +438,11 @@
     border-radius: 8px
 }
 
-.di-dashboard .evidence b {
+.painel-gerencial .evidencia b {
     color: #dedff0
 }
 
-.di-dashboard .recommendation {
+.painel-gerencial .recomendacao {
     display: flex;
     gap: 8px;
     align-items: start;
@@ -451,19 +451,19 @@
     margin-top: 9px
 }
 
-.di-dashboard .recommendation span {
+.painel-gerencial .recomendacao span {
     color: var(--mint);
     font-weight: 900;
     flex: none
 }
 
-.di-dashboard .recommendation span:last-child {
+.painel-gerencial .recomendacao span:last-child {
     flex: 1;
     min-width: 0;
     overflow-wrap: anywhere
 }
 
-.di-dashboard .inline-action {
+.painel-gerencial .acao-inline {
     margin-top: 11px;
     border: 1px solid #33584f;
     background: #203c39;
@@ -474,29 +474,29 @@
     padding: 7px 10px
 }
 
-.di-dashboard .inline-action:disabled {
+.painel-gerencial .acao-inline:disabled {
     opacity: .7;
     cursor: default
 }
 
-.di-dashboard .plan {
+.painel-gerencial .plano {
     padding: 17px;
     display: flex;
     flex-direction: column
 }
 
-.di-dashboard .planheader {
+.painel-gerencial .cabecalho-plano {
     display: flex;
     justify-content: space-between;
     gap: 9px;
     align-items: start
 }
 
-.di-dashboard .planheader h3 {
+.painel-gerencial .cabecalho-plano h3 {
     font-size: 13px
 }
 
-.di-dashboard .counter {
+.painel-gerencial .contador {
     background: #2b2843;
     color: var(--purple);
     border-radius: 50px;
@@ -505,13 +505,13 @@
     font-weight: 800
 }
 
-.di-dashboard .plantip {
+.painel-gerencial .dica-plano {
     color: var(--muted);
     font-size: 11px;
     margin-top: 7px
 }
 
-.di-dashboard .planlist {
+.painel-gerencial .lista-plano {
     padding: 0;
     margin: 14px 0;
     list-style: none;
@@ -521,7 +521,7 @@
     gap: 9px
 }
 
-.di-dashboard .plan-empty {
+.painel-gerencial .plano-vazio {
     border: 1px dashed #444461;
     border-radius: 9px;
     padding: 18px 12px;
@@ -530,30 +530,30 @@
     color: var(--faint)
 }
 
-.di-dashboard .planitem {
+.painel-gerencial .item-plano {
     background: #1e1e38;
     border: 1px solid #33334d;
     border-radius: 9px;
     padding: 11px
 }
 
-.di-dashboard .planitem-top {
+.painel-gerencial .cabecalho-item-plano {
     display: flex;
     justify-content: space-between;
     gap: 6px
 }
 
-.di-dashboard .planitem strong {
+.painel-gerencial .item-plano strong {
     font-size: 11px
 }
 
-.di-dashboard .planitem p {
+.painel-gerencial .item-plano p {
     font-size: 10.5px;
     color: var(--muted);
     margin-top: 5px
 }
 
-.di-dashboard .planitem button {
+.painel-gerencial .item-plano button {
     color: var(--pink);
     background: none;
     border: none;
@@ -561,7 +561,7 @@
     padding: 0 3px
 }
 
-.di-dashboard .planfooter {
+.painel-gerencial .rodape-plano {
     padding: 11px;
     border-radius: 9px;
     background: #1e1e34;
@@ -569,17 +569,17 @@
     color: #b2b2cd
 }
 
-.di-dashboard .planfooter strong {
+.painel-gerencial .rodape-plano strong {
     color: var(--mint)
 }
 
-.di-dashboard .component-grid {
+.painel-gerencial .grade-componentes {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px
 }
 
-.di-dashboard .component {
+.painel-gerencial .componente {
     padding: 16px;
     border: 1px solid var(--border);
     cursor: pointer;
@@ -588,23 +588,23 @@
     overflow: hidden
 }
 
-.di-dashboard .component:hover,
-.di-dashboard .component.selected {
+.painel-gerencial .componente:hover,
+.painel-gerencial .componente.selecionado {
     border-color: var(--c)
 }
 
-.di-dashboard .component.selected {
+.painel-gerencial .componente.selecionado {
     box-shadow: 0 0 0 1px var(--c) inset
 }
 
-.di-dashboard .component-header {
+.painel-gerencial .cabecalho-componente {
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 7px
 }
 
-.di-dashboard .component-label {
+.painel-gerencial .rotulo-componente {
     display: flex;
     gap: 8px;
     align-items: center;
@@ -612,7 +612,7 @@
     font-weight: 850
 }
 
-.di-dashboard .component .circle {
+.painel-gerencial .componente .circulo {
     width: 9px;
     height: 9px;
     border-radius: 3px;
@@ -620,7 +620,7 @@
     display: block
 }
 
-.di-dashboard .component-status {
+.painel-gerencial .situacao-componente {
     font-size: 9.7px;
     font-weight: 800;
     border-radius: 50px;
@@ -629,7 +629,7 @@
     padding: 4px 7px
 }
 
-.di-dashboard .component-value {
+.painel-gerencial .valor-componente {
     font-size: 27px;
     line-height: 1.1;
     letter-spacing: -1px;
@@ -637,14 +637,14 @@
     margin-top: 15px
 }
 
-.di-dashboard .component-value span {
+.painel-gerencial .valor-componente span {
     font-size: 12px;
     color: var(--muted);
     letter-spacing: 0;
     font-weight: 600
 }
 
-.di-dashboard .component .meter {
+.painel-gerencial .componente .medidor {
     height: 6px;
     background: #292943;
     border-radius: 40px;
@@ -652,63 +652,63 @@
     overflow: hidden
 }
 
-.di-dashboard .component .meter i {
+.painel-gerencial .componente .medidor i {
     height: 100%;
     display: block;
     background: var(--c);
     border-radius: 30px
 }
 
-.di-dashboard .component small {
+.painel-gerencial .componente small {
     display: block;
     color: var(--muted);
     margin-top: 10px;
     font-size: 10.7px
 }
 
-.di-dashboard .component .target {
+.painel-gerencial .componente .limite-referencia {
     display: block;
     font-size: 10px;
     color: var(--faint);
     margin-top: 4px
 }
 
-.di-dashboard .chart-grid {
+.painel-gerencial .grade-graficos {
     display: grid;
     grid-template-columns: minmax(0, 1.75fr) minmax(260px, .8fr);
     gap: 14px;
     margin-top: 13px
 }
 
-.di-dashboard .chart-panel {
+.painel-gerencial .painel-grafico {
     padding: 17px 18px
 }
 
-.di-dashboard .panel-title {
+.painel-gerencial .titulo-painel {
     display: flex;
     justify-content: space-between;
     align-items: start;
     gap: 10px
 }
 
-.di-dashboard .panel-title h3 {
+.painel-gerencial .titulo-painel h3 {
     font-size: 13px
 }
 
-.di-dashboard .panel-title p {
+.painel-gerencial .titulo-painel p {
     color: var(--muted);
     font-size: 11px;
     margin-top: 4px
 }
 
-.di-dashboard .chart-legend {
+.painel-gerencial .legenda-grafico {
     display: flex;
     flex-wrap: wrap;
     gap: 7px;
     margin: 16px 0 2px
 }
 
-.di-dashboard .chart-toggle {
+.painel-gerencial .seletor-grafico {
     border: 1px solid #343451;
     background: #1d1d34;
     color: var(--muted);
@@ -720,48 +720,48 @@
     gap: 6px
 }
 
-.di-dashboard .chart-toggle .key {
+.painel-gerencial .seletor-grafico .marcador-legenda {
     height: 8px;
     width: 8px;
     border-radius: 2px;
     background: var(--c)
 }
 
-.di-dashboard .chart-toggle.on {
+.painel-gerencial .seletor-grafico.ligado {
     border-color: var(--c);
     color: #f2f3ff;
     background: #25253b
 }
 
-.di-dashboard .chart-host {
+.painel-gerencial .area-grafico {
     height: 227px;
     position: relative;
     min-width: 0
 }
 
-.di-dashboard .chart-host svg {
+.painel-gerencial .area-grafico svg {
     height: 100%;
     width: 100%
 }
 
-.di-dashboard .axis {
+.painel-gerencial .eixo {
     fill: #8888a7;
     font-size: 9.8px
 }
 
-.di-dashboard .gridline {
+.painel-gerencial .linha-grade {
     stroke: #32324b;
     stroke-width: 1;
     stroke-dasharray: 3 5
 }
 
-.di-dashboard .limitline {
+.painel-gerencial .linha-limite {
     stroke: #747493;
     stroke-dasharray: 4 5;
     opacity: .7
 }
 
-.di-dashboard .chart-caption {
+.painel-gerencial .descricao-grafico {
     display: flex;
     justify-content: space-between;
     gap: 10px;
@@ -771,15 +771,15 @@
     margin-top: 7px
 }
 
-.di-dashboard .insight-panel {
+.painel-gerencial .painel-interpretacao {
     padding: 18px
 }
 
-.di-dashboard .insight-panel h3 {
+.painel-gerencial .painel-interpretacao h3 {
     font-size: 13px
 }
 
-.di-dashboard .insight-panel .smalllabel {
+.painel-gerencial .painel-interpretacao .rotulo-pequeno {
     font-size: 10px;
     letter-spacing: .6px;
     text-transform: uppercase;
@@ -787,19 +787,19 @@
     margin-top: 16px
 }
 
-.di-dashboard .insight-panel .big-val {
+.painel-gerencial .painel-interpretacao .valor-destaque {
     font-size: 28px;
     font-weight: 850;
     margin-top: 4px
 }
 
-.di-dashboard .insight-panel .readout {
+.painel-gerencial .painel-interpretacao .interpretacao {
     font-size: 11px;
     color: #c5c5d8;
     margin-top: 9px
 }
 
-.di-dashboard .readoutblock {
+.painel-gerencial .bloco-interpretacao {
     margin-top: 15px;
     background: #1f203b;
     border: 1px solid #333454;
@@ -807,34 +807,34 @@
     padding: 12px
 }
 
-.di-dashboard .readoutblock b {
+.painel-gerencial .bloco-interpretacao b {
     font-size: 10px;
     color: var(--mint);
     letter-spacing: .5px
 }
 
-.di-dashboard .readoutblock p {
+.painel-gerencial .bloco-interpretacao p {
     color: var(--muted);
     font-size: 11px;
     margin-top: 5px
 }
 
-.di-dashboard .ranking {
+.painel-gerencial .classificacao {
     padding: 17px 18px
 }
 
-.di-dashboard .table-scroll {
+.painel-gerencial .rolagem-tabela {
     overflow-x: auto
 }
 
-.di-dashboard .ranking table {
+.painel-gerencial .classificacao table {
     border-collapse: collapse;
     width: 100%;
     margin-top: 10px;
     min-width: 670px
 }
 
-.di-dashboard .ranking th {
+.painel-gerencial .classificacao th {
     text-align: left;
     color: #8d8dac;
     font-size: 9.8px;
@@ -844,47 +844,47 @@
     text-transform: uppercase
 }
 
-.di-dashboard .ranking td {
+.painel-gerencial .classificacao td {
     padding: 10px 9px;
     border-bottom: 1px solid #25253d;
     font-size: 11px;
     color: #c5c5d7
 }
 
-.di-dashboard .ranking td b {
+.painel-gerencial .classificacao td b {
     font-size: 11.5px;
     color: #fff
 }
 
-.di-dashboard .ranking td small {
+.painel-gerencial .classificacao td small {
     display: block;
     color: var(--faint);
     font-size: 10px;
     margin-top: 3px
 }
 
-.di-dashboard .ranking tr:last-child td {
+.painel-gerencial .classificacao tr:last-child td {
     border-bottom: none
 }
 
-.di-dashboard .ranking tr:hover td {
+.painel-gerencial .classificacao tr:hover td {
     background: #202039
 }
 
-.di-dashboard .mini-val {
+.painel-gerencial .valor-metrica {
     font-weight: 750;
     color: #e4e4f0
 }
 
-.di-dashboard .mini-val.bad {
+.painel-gerencial .valor-metrica.valor-critico {
     color: var(--pink)
 }
 
-.di-dashboard .mini-val.warn {
+.painel-gerencial .valor-metrica.valor-atencao {
     color: var(--orange)
 }
 
-.di-dashboard .severity {
+.painel-gerencial .criticidade {
     font-size: 9.5px;
     font-weight: 800;
     border-radius: 50px;
@@ -893,22 +893,22 @@
     display: inline-block
 }
 
-.di-dashboard .severity.critico {
+.painel-gerencial .criticidade.critico {
     background: #442337;
     color: #ff8298
 }
 
-.di-dashboard .severity.atencao {
+.painel-gerencial .criticidade.atencao {
     background: #473321;
     color: #ffc383
 }
 
-.di-dashboard .severity.normal {
+.painel-gerencial .criticidade.normal {
     background: #193830;
     color: #65eacb
 }
 
-.di-dashboard .tablebutton {
+.painel-gerencial .botao-tabela {
     color: var(--mint);
     background: transparent;
     border: 0;
@@ -918,36 +918,36 @@
     white-space: nowrap
 }
 
-.di-dashboard .billing-grid {
+.painel-gerencial .grade-custos {
     display: grid;
     grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
     gap: 14px
 }
 
-.di-dashboard .billing-result {
+.painel-gerencial .resultado-custos {
     padding: 19px
 }
 
-.di-dashboard .bill-highlight {
+.painel-gerencial .destaque-custo {
     display: flex;
     align-items: start;
     justify-content: space-between;
     gap: 13px
 }
 
-.di-dashboard .bill-highlight small {
+.painel-gerencial .destaque-custo small {
     color: var(--muted);
     font-size: 11px
 }
 
-.di-dashboard .billtotal {
+.painel-gerencial .custo-total {
     font-size: 34px;
     font-weight: 900;
     letter-spacing: -1.5px;
     margin-top: 6px
 }
 
-.di-dashboard .billstatus {
+.painel-gerencial .situacao-custo {
     color: #a6f9e7;
     font-size: 10px;
     border: 1px solid #31554e;
@@ -957,43 +957,43 @@
     white-space: nowrap
 }
 
-.di-dashboard .bill-cards {
+.painel-gerencial .cartoes-custos {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 11px;
     margin-top: 15px
 }
 
-.di-dashboard .bill-subcard {
+.painel-gerencial .subcartao-custo {
     background: #1c1c35;
     border: 1px solid #30304d;
     border-radius: 9px;
     padding: 13px
 }
 
-.di-dashboard .bill-subcard label {
+.painel-gerencial .subcartao-custo label {
     font-size: 10px;
     color: var(--faint);
     display: block
 }
 
-.di-dashboard .bill-subcard strong {
+.painel-gerencial .subcartao-custo strong {
     display: block;
     font-size: 17px;
     margin-top: 5px
 }
 
-.di-dashboard .bill-subcard small {
+.painel-gerencial .subcartao-custo small {
     font-size: 10px;
     color: var(--muted)
 }
 
-.di-dashboard .bill-subcard.emphasis {
+.painel-gerencial .subcartao-custo.enfase {
     background: #19302e;
     border-color: #2f554e
 }
 
-.di-dashboard .bill-bar {
+.painel-gerencial .barra-custos {
     height: 13px;
     background: #292941;
     border-radius: 100px;
@@ -1002,24 +1002,24 @@
     margin: 19px 0 10px
 }
 
-.di-dashboard .bill-segment {
+.painel-gerencial .segmento-custo {
     height: 100%;
     transition: width .3s
 }
 
-.di-dashboard .costrows {
+.painel-gerencial .linhas-custos {
     display: grid;
     gap: 10px
 }
 
-.di-dashboard .costrow {
+.painel-gerencial .linha-custo {
     display: flex;
     justify-content: space-between;
     font-size: 11.5px;
     align-items: center
 }
 
-.di-dashboard .costrow i {
+.painel-gerencial .linha-custo i {
     display: inline-block;
     height: 9px;
     width: 9px;
@@ -1027,40 +1027,40 @@
     margin-right: 9px
 }
 
-.di-dashboard .costrow span {
+.painel-gerencial .linha-custo span {
     color: #b9b9d0
 }
 
-.di-dashboard .costrow strong {
+.painel-gerencial .linha-custo strong {
     color: #f1f1ff
 }
 
-.di-dashboard .math-note {
+.painel-gerencial .observacao-calculo {
     font-size: 10.5px;
     color: var(--muted);
     margin-top: 15px;
     line-height: 1.55
 }
 
-.di-dashboard .bill-form {
+.painel-gerencial .formulario-custos {
     padding: 18px
 }
 
-.di-dashboard .bill-form h3 {
+.painel-gerencial .formulario-custos h3 {
     font-size: 13px
 }
 
-.di-dashboard .bill-form>p {
+.painel-gerencial .formulario-custos>p {
     font-size: 10.8px;
     color: var(--muted);
     margin-top: 5px
 }
 
-.di-dashboard .control {
+.painel-gerencial .controle {
     margin-top: 17px
 }
 
-.di-dashboard .control-head {
+.painel-gerencial .cabecalho-controle {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -1068,29 +1068,29 @@
     font-size: 11px
 }
 
-.di-dashboard .control-head label {
+.painel-gerencial .cabecalho-controle label {
     font-weight: 750
 }
 
-.di-dashboard .control-head output {
+.painel-gerencial .cabecalho-controle output {
     font-weight: 900;
     color: var(--mint)
 }
 
-.di-dashboard .control p {
+.painel-gerencial .controle p {
     font-size: 10px;
     color: var(--faint);
     margin-top: 5px
 }
 
-.di-dashboard .control input[type=range] {
+.painel-gerencial .controle input[type=range] {
     display: block;
     width: 100%;
     accent-color: var(--mint);
     margin-top: 9px
 }
 
-.di-dashboard .scenario-eval {
+.painel-gerencial .avaliacao-cenario {
     margin-top: 16px;
     background: #21213c;
     padding: 11px;
@@ -1100,37 +1100,37 @@
     font-size: 11px
 }
 
-.di-dashboard .scenario-eval strong {
+.painel-gerencial .avaliacao-cenario strong {
     color: var(--orange)
 }
 
-.di-dashboard details.premises {
+.painel-gerencial details.premissas {
     margin-top: 15px;
     border-top: 1px solid #30304b;
     padding-top: 12px
 }
 
-.di-dashboard details.premises summary {
+.painel-gerencial details.premissas summary {
     cursor: pointer;
     color: var(--mint);
     font-size: 11px;
     font-weight: 850
 }
 
-.di-dashboard details.premises p {
+.painel-gerencial details.premissas p {
     font-size: 10px;
     color: var(--muted);
     margin-top: 8px
 }
 
-.di-dashboard .prem-grid {
+.painel-gerencial .grade-premissas {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 9px;
     margin-top: 11px
 }
 
-.di-dashboard .prem-grid label {
+.painel-gerencial .grade-premissas label {
     color: var(--muted);
     font-size: 10px;
     display: flex;
@@ -1138,7 +1138,7 @@
     gap: 4px
 }
 
-.di-dashboard .prem-grid input {
+.painel-gerencial .grade-premissas input {
     min-width: 0;
     width: 100%;
     background: #23233e;
@@ -1149,12 +1149,12 @@
     font-size: 11.5px
 }
 
-.di-dashboard .forecaster {
+.painel-gerencial .painel-projecoes {
     padding: 18px;
     margin-top: 14px
 }
 
-.di-dashboard .forecast-cols {
+.painel-gerencial .colunas-projecao {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     align-items: end;
@@ -1162,18 +1162,18 @@
     margin-top: 16px
 }
 
-.di-dashboard .forecast-col {
+.painel-gerencial .coluna-projecao {
     display: flex;
     flex-direction: column;
     gap: 7px
 }
 
-.di-dashboard .forecast-col label {
+.painel-gerencial .coluna-projecao label {
     font-size: 10px;
     color: var(--muted)
 }
 
-.di-dashboard .forecast-bar-area {
+.painel-gerencial .area-barra-projecao {
     height: 106px;
     border-radius: 6px;
     border-bottom: 1px solid #383853;
@@ -1182,7 +1182,7 @@
     padding: 3px 8px 0
 }
 
-.di-dashboard .forecast-bar {
+.painel-gerencial .barra-projecao {
     width: 100%;
     border-radius: 5px 5px 0 0;
     background: var(--blue);
@@ -1190,22 +1190,22 @@
     transition: height .25s
 }
 
-.di-dashboard .forecast-col strong {
+.painel-gerencial .coluna-projecao strong {
     font-size: 12px
 }
 
-.di-dashboard .forecast-col small {
+.painel-gerencial .coluna-projecao small {
     font-size: 10px;
     color: var(--faint)
 }
 
-.di-dashboard .forecast-sub {
+.painel-gerencial .descricao-projecao {
     margin-top: 11px;
     color: var(--muted);
     font-size: 10.5px
 }
 
-.di-dashboard .report-panel {
+.painel-gerencial .painel-relatorio {
     padding: 17px 18px;
     display: flex;
     justify-content: space-between;
@@ -1213,24 +1213,24 @@
     align-items: center
 }
 
-.di-dashboard .report-panel h3 {
+.painel-gerencial .painel-relatorio h3 {
     font-size: 13px
 }
 
-.di-dashboard .report-panel p {
+.painel-gerencial .painel-relatorio p {
     font-size: 11px;
     color: var(--muted);
     margin-top: 5px;
     max-width: 680px
 }
 
-.di-dashboard .report-actions {
+.painel-gerencial .acoes-relatorio {
     display: flex;
     gap: 9px;
     flex-wrap: wrap
 }
 
-.di-dashboard .footnote {
+.painel-gerencial .nota-rodape {
     margin-top: 22px;
     color: #8585a6;
     font-size: 10.6px;
@@ -1240,11 +1240,11 @@
     background: #121222
 }
 
-.di-dashboard .footnote strong {
+.painel-gerencial .nota-rodape strong {
     color: #d1d1e7
 }
 
-.di-dashboard .toast {
+.painel-gerencial .mensagem-flutuante {
     position: fixed;
     right: 23px;
     bottom: 20px;
@@ -1259,7 +1259,7 @@
     max-width: 350px
 }
 
-.di-dashboard .overlay {
+.painel-gerencial .fundo-modal {
     position: fixed;
     inset: 0;
     background: #07070bdc;
@@ -1270,7 +1270,7 @@
     padding: 22px
 }
 
-.di-dashboard .dialog {
+.painel-gerencial .modal {
     width: 100%;
     max-width: 560px;
     background: #19192e;
@@ -1280,18 +1280,18 @@
     box-shadow: 0 20px 65px #0009
 }
 
-.di-dashboard .dialog-head {
+.painel-gerencial .cabecalho-modal {
     display: flex;
     justify-content: space-between;
     align-items: center;
     gap: 12px
 }
 
-.di-dashboard .dialog h3 {
+.painel-gerencial .modal h3 {
     font-size: 17px
 }
 
-.di-dashboard .close {
+.painel-gerencial .fechar {
     border: 0;
     background: #292946;
     color: #fff;
@@ -1301,7 +1301,7 @@
     height: 32px
 }
 
-.di-dashboard .dialog p {
+.painel-gerencial .modal p {
     font-size: 12px;
     color: var(--muted);
     line-height: 1.75;
@@ -1313,7 +1313,7 @@
 /*NAVEGAÇÃO GERENCIAL*/   
 
 
-.di-dashboard .di-quicknav {
+.painel-gerencial .navegacao-gerencial {
     display: flex;
     gap: 10px;
     padding: 12px;
@@ -1334,7 +1334,7 @@
 }
 
 
-.di-dashboard .di-tab {
+.painel-gerencial .aba-gerencial {
     background-color: transparent;
 
     color: var(--muted);
@@ -1355,14 +1355,14 @@
 
 
 
-.di-dashboard .di-tab:hover {
+.painel-gerencial .aba-gerencial:hover {
     background-color: var(--panel2);
     color: var(--text);
 }
 
 
 
-.di-dashboard .di-tab.ativo {
+.painel-gerencial .aba-gerencial.ativo {
     background-color: rgba(45, 226, 192, 0.12);
 
     border-color: var(--mint);
@@ -1371,7 +1371,7 @@
 
 
 
-.di-dashboard > .filterbar {
+.painel-gerencial > .barra-filtros {
     margin-top: 10px;
     margin-bottom: 22px;
 }
@@ -1380,12 +1380,12 @@
 
 @media (max-width: 768px) {
 
-    .di-dashboard .di-quicknav {
+    .painel-gerencial .navegacao-gerencial {
         gap: 5px;
         padding: 8px;
     }
 
-    .di-dashboard .di-tab {
+    .painel-gerencial .aba-gerencial {
         font-size: 12px;
         padding: 10px 12px;
     }
@@ -1396,150 +1396,150 @@
 
 @media print {
 
-    .di-dashboard .section[hidden] {
+    .painel-gerencial .secao[hidden] {
         display: block !important;
     }
 
 }
 
 @media (max-width:1280px) {
-    .di-dashboard {
+    .painel-gerencial {
         padding: 22px 21px 48px
     }
 
-    .di-dashboard .decision-layout {
+    .painel-gerencial .estrutura-decisoes {
         grid-template-columns: 1.4fr 1fr
     }
 
-    .di-dashboard .component-grid {
+    .painel-gerencial .grade-componentes {
         grid-template-columns: repeat(2, minmax(0, 1fr))
     }
 }
 
 @media (max-width:950px) {
-    .di-dashboard .pagehead {
+    .painel-gerencial .cabecalho-pagina {
         align-items: flex-start;
         flex-direction: column
     }
 
-    .di-dashboard .filter-info {
+    .painel-gerencial .informacao-filtro {
         margin-left: 0
     }
 
-    .di-dashboard .overview {
+    .painel-gerencial .visao-geral {
         grid-template-columns: repeat(2, minmax(0, 1fr))
     }
 
-    .di-dashboard .decision-layout,
-    .di-dashboard .billing-grid,
-    .di-dashboard .chart-grid {
+    .painel-gerencial .estrutura-decisoes,
+    .painel-gerencial .grade-custos,
+    .painel-gerencial .grade-graficos {
         grid-template-columns: 1fr
     }
 
-    .di-dashboard .plan {
+    .painel-gerencial .plano {
         min-height: 230px
     }
 
-    .di-dashboard .forecast-cols {
+    .painel-gerencial .colunas-projecao {
         max-width: 550px
     }
 }
 
 @media (max-width:600px) {
-    .di-dashboard {
+    .painel-gerencial {
         padding: 15px 13px 38px
     }
 
-    .di-dashboard .pagehead h1 {
+    .painel-gerencial .cabecalho-pagina h1 {
         font-size: 23px
     }
 
-    .di-dashboard .filterbar {
+    .painel-gerencial .barra-filtros {
         gap: 11px
     }
 
-    .di-dashboard .field,
-    .di-dashboard .field select,
-    .di-dashboard .field.large select {
+    .painel-gerencial .campo,
+    .painel-gerencial .campo select,
+    .painel-gerencial .campo.largo select {
         width: 100%;
         min-width: 0
     }
 
-    .di-dashboard .field {
+    .painel-gerencial .campo {
         flex: 1 1 155px
     }
 
-    .di-dashboard .overview,
-    .di-dashboard .component-grid {
+    .painel-gerencial .visao-geral,
+    .painel-gerencial .grade-componentes {
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 8px
     }
 
-    .di-dashboard .metric-kpi {
+    .painel-gerencial .cartao-indicador {
         padding: 14px 12px
     }
 
-    .di-dashboard .metric-kpi strong {
+    .painel-gerencial .cartao-indicador strong {
         font-size: 23px
     }
 
-    .di-dashboard .metric-kpi .kpi-title {
+    .painel-gerencial .cartao-indicador .titulo-indicador {
         font-size: 10px
     }
 
-    .di-dashboard .component {
+    .painel-gerencial .componente {
         padding: 13px
     }
 
-    .di-dashboard .component-value {
+    .painel-gerencial .valor-componente {
         font-size: 22px
     }
 
-    .di-dashboard .decision {
+    .painel-gerencial .decisao {
         padding: 12px;
         grid-template-columns: 28px 1fr;
         gap: 9px
     }
 
-    .di-dashboard .decision-num {
+    .painel-gerencial .numero-decisao {
         width: 27px;
         height: 27px
     }
 
-    .di-dashboard .decision-top {
+    .painel-gerencial .cabecalho-decisao {
         align-items: flex-start;
         flex-direction: column;
         gap: 5px
     }
 
-    .di-dashboard .panel-title {
+    .painel-gerencial .titulo-painel {
         flex-direction: column
     }
 
-    .di-dashboard .report-panel {
+    .painel-gerencial .painel-relatorio {
         align-items: stretch;
         flex-direction: column
     }
 
-    .di-dashboard .bill-cards {
+    .painel-gerencial .cartoes-custos {
         gap: 8px
     }
 
-    .di-dashboard .billtotal {
+    .painel-gerencial .custo-total {
         font-size: 29px
     }
 
-    .di-dashboard .sectitle {
+    .painel-gerencial .titulo-secao {
         align-items: flex-start;
         flex-direction: column
     }
 
-    .di-dashboard .notice {
+    .painel-gerencial .aviso {
         align-items: flex-start;
         flex-wrap: wrap
     }
 
-    .di-dashboard .notice a {
+    .painel-gerencial .aviso a {
         white-space: normal
     }
 }
@@ -1559,77 +1559,77 @@
         margin: 0 !important
     }
 
-    body .di-dashboard {
+    body .painel-gerencial {
         color: #111 !important;
         max-width: none;
         padding: 0 6px
     }
 
-    .di-dashboard .di-quicknav,
-    .di-dashboard .actions,
-    .di-dashboard .filterbar,
-    .di-dashboard .button,
-    .di-dashboard .inline-action,
-    .di-dashboard .chart-toggle,
-    .di-dashboard .tablebutton,
-    .di-dashboard .report-actions,
-    .di-dashboard .toast,
-    .di-dashboard .overlay {
+    .painel-gerencial .navegacao-gerencial,
+    .painel-gerencial .acoes,
+    .painel-gerencial .barra-filtros,
+    .painel-gerencial .botao,
+    .painel-gerencial .acao-inline,
+    .painel-gerencial .seletor-grafico,
+    .painel-gerencial .botao-tabela,
+    .painel-gerencial .acoes-relatorio,
+    .painel-gerencial .mensagem-flutuante,
+    .painel-gerencial .fundo-modal {
         display: none !important
     }
 
-    .di-dashboard .card,
-    .di-dashboard .notice,
-    .di-dashboard .footnote {
+    .painel-gerencial .cartao,
+    .painel-gerencial .aviso,
+    .painel-gerencial .nota-rodape {
         background: #fff !important;
         border-color: #c3c3c9 !important;
         break-inside: avoid
     }
 
-    .di-dashboard .decision-layout,
-    .di-dashboard .billing-grid,
-    .di-dashboard .chart-grid {
+    .painel-gerencial .estrutura-decisoes,
+    .painel-gerencial .grade-custos,
+    .painel-gerencial .grade-graficos {
         grid-template-columns: 1fr 1fr
     }
 
-    .di-dashboard .component-grid,
-    .di-dashboard .overview {
+    .painel-gerencial .grade-componentes,
+    .painel-gerencial .visao-geral {
         grid-template-columns: repeat(4, 1fr)
     }
 
-    .di-dashboard .section {
+    .painel-gerencial .secao {
         margin-top: 17px;
         break-inside: avoid
     }
 
-    .di-dashboard .decision p,
-    .di-dashboard .muted,
-    .di-dashboard .footnote {
+    .painel-gerencial .decisao p,
+    .painel-gerencial .texto-secundario,
+    .painel-gerencial .nota-rodape {
         color: #333 !important
     }
 
-    .di-dashboard .component-value,
-    .di-dashboard .metric-kpi strong,
-    .di-dashboard .billtotal {
+    .painel-gerencial .valor-componente,
+    .painel-gerencial .cartao-indicador strong,
+    .painel-gerencial .custo-total {
         color: #000 !important
     }
 
-    .di-dashboard .report-panel {
+    .painel-gerencial .painel-relatorio {
         display: none
     }
 
-    .di-dashboard .chart-host {
+    .painel-gerencial .area-grafico {
         height: 185px
     }
 
-    .di-dashboard .ranking td,
-    .di-dashboard .ranking th {
+    .painel-gerencial .classificacao td,
+    .painel-gerencial .classificacao th {
         color: #222 !important
     }
 
-    .di-dashboard h1,
-    .di-dashboard h2,
-    .di-dashboard h3 {
+    .painel-gerencial h1,
+    .painel-gerencial h2,
+    .painel-gerencial h3 {
         color: #111 !important
     }
 }

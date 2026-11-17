@@ -558,23 +558,23 @@
 
             html += `
                 <article
-                    class="card decision"
+                    class="cartao decisao"
                     style="--status:${cor}"
                 >
 
-                    <span class="decision-num">
+                    <span class="numero-decisao">
                         0${i + 1}
                     </span>
 
                     <div>
 
-                        <div class="decision-top">
+                        <div class="cabecalho-decisao">
 
                             <h3>
                                 ${regra.titulo} · ${problema.key}
                             </h3>
 
-                            <span class="decision-tag">
+                            <span class="etiqueta-decisao">
                                 ${problema.status.toUpperCase()}
                             </span>
 
@@ -582,7 +582,7 @@
 
                         <p>${regra.explicacao}</p>
 
-                        <div class="evidence">
+                        <div class="evidencia">
 
                             <b>Evidência:</b>
 
@@ -594,7 +594,7 @@
 
                         </div>
 
-                        <div class="recommendation">
+                        <div class="recomendacao">
 
                             <span>DECISÃO ›</span>
 
@@ -606,7 +606,7 @@
 
                         <button
                             type="button"
-                            class="inline-action"
+                            class="acao-inline"
                             data-add="${problema.key}"
                             ${desabilitado}
                         >
@@ -690,7 +690,7 @@
         if (quantidade === 0) {
 
             $('planList').innerHTML = `
-                <li class="plan-empty">
+                <li class="plano-vazio">
                     Selecione “Adicionar ao plano”
                     em uma das recomendações.
                 </li>
@@ -708,9 +708,9 @@
             let regra = REGRAS[componente];
 
             html += `
-                <li class="planitem">
+                <li class="item-plano">
 
-                    <div class="planitem-top">
+                    <div class="cabecalho-item-plano">
 
                         <strong>
                             ${componente} · ${regra.titulo}
@@ -956,7 +956,7 @@
 
             barraHtml += `
                 <span
-                    class="bill-segment"
+                    class="segmento-custo"
                     style="
                         width:${largura}%;
                         background:${categoria.cor}
@@ -966,7 +966,7 @@
             `;
 
             linhasHtml += `
-                <div class="costrow">
+                <div class="linha-custo">
 
                     <span>
                         <i style="background:${categoria.cor}"></i>
@@ -1081,7 +1081,7 @@
             }
 
             grafico += `
-                <div class="forecast-col">
+                <div class="coluna-projecao">
 
                     <label>${opcoes[i].nome}</label>
 
@@ -1089,10 +1089,10 @@
                         ${moedaReal(valores[i])}
                     </strong>
 
-                    <div class="forecast-bar-area">
+                    <div class="area-barra-projecao">
 
                         <div
-                            class="forecast-bar"
+                            class="barra-projecao"
                             style="
                                 height:${altura.toFixed(1)}%;
                                 background:${cores[i]}
@@ -1399,7 +1399,7 @@
 
         // Atualiza os botões.
 
-        let botoes = document.querySelectorAll('.di-tab');
+        let botoes = document.querySelectorAll('.aba-gerencial');
 
         for (let i = 0; i < botoes.length; i++) {
 
@@ -1417,7 +1417,7 @@
 
         if (rolar) {
 
-            document.querySelector('.di-quicknav').scrollIntoView({
+            document.querySelector('.navegacao-gerencial').scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
             });
@@ -1426,7 +1426,7 @@
 
     function prepararNavegacao() {
 
-        let menu = document.querySelector('.di-quicknav');
+        let menu = document.querySelector('.navegacao-gerencial');
 
         if (!menu) {
             return;
@@ -1454,7 +1454,7 @@
         // Atalho para a seção de decisões.
 
         let atalho = document.querySelector(
-            '.notice a[href="#decisoes"]'
+            '.aviso a[href="#decisoes"]'
         );
 
         if (atalho) {
