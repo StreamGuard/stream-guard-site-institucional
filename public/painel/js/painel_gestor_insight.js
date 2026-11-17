@@ -1189,25 +1189,22 @@
 
     function formatarMetrica(servidor, componente) {
 
-        let classe = '';
-
-        if (servidor[componente] >= LIMITES[componente]) {
-
-            classe = 'bad';
-
-        } else if (
-            servidor[componente] >= LIMITES[componente] * 0.94
-        ) {
-
-            classe = 'warn';
-        }
-
-        return `
-            <span class="mini-val ${classe}">
-                ${servidor[componente]}%
-            </span>
-        `;
+    let classe = '';
+    let valor = servidor[componente];
+    let limite = LIMITES[componente];
+    let fator = valor / limite;
+    let situacao = classificar(fator);
+    if (situacao === 'critico') {
+        classe = 'bad';
+    } else if (situacao === 'atencao') {
+        classe = 'warn';
     }
+    return `
+        <span class="mini-val ${classe}">
+            ${valor}%
+        </span>
+    `;
+}
 
     function atualizarTabela() {
 
@@ -1417,7 +1414,7 @@
 
         $('billingDeltaPct').textContent =
             sinal +
-            numeroFormatado(percentual) +
+            numeroFormatado(Math.abs(percentual)) +
             '% em relação à referência';
 
         if (diferenca > 0) {
@@ -1849,7 +1846,7 @@
 
         let link = document.createElement('a');
 
-        link.href = './painel_dashIndividual.html';
+        link.href = './painel_gestor_insight.html';
 
         link.className = 'menu-item ativo';
 
