@@ -24,6 +24,23 @@ router.delete("/funcionarios/:idUsuario", function (req, res) {
     configController.excluirFuncionario(req, res);
 });
 
+// Rotas de Componentes
+router.get("/componentes/:idEmpresa", function (req, res) {
+    configController.listarComponentes(req, res);
+});
+
+router.post("/componentes", function (req, res) {
+    configController.cadastrarComponente(req, res);
+});
+
+router.put("/componentes/:idVinculo", function (req, res) {
+    configController.editarComponente(req, res);
+});
+
+router.delete("/componentes/:idVinculo", function (req, res) {
+    configController.excluirComponente(req, res);
+});
+
 // Rotas de Métricas
 router.get("/metricas/:idEmpresa", function (req, res) {
     configController.listarMetricas(req, res);

@@ -21,6 +21,88 @@ function intervaloValido(valor) {
     return Number.isInteger(numero) && numero > 0;
 }
 
+// Componentes
+
+function nomeComponenteValido(nome) {
+    return nome.length > 0 && nome.length <= 40;
+}
+
+async function listarComponentes(req, res) {
+    var idEmpresa = Number(req.params.idEmpresa);
+    if (!idValido(idEmpresa)) return res.status(400).json({ mensagem: "Empresa inválida." });
+
+    try {
+        var resultado = await configModel.listarComponentes(idEmpresa);
+        res.status(200).json(resultado);
+    } catch (erro) {
+        console.error("Erro ao listar componentes:", erro);
+        res.status(500).json({ mensagem: "Erro ao listar componentes." });
+    }
+}
+
+async function cadastrarComponente(req, res) {
+    var idEmpresa = Number(req.body.idEmpresa);
+    var nome = String(req.body.nome || "").trim();
+    var tipo = String(req.body.tipo || "").trim();
+    var ativo = req.body.ativo === undefined || req.body.ativo === null ? 1 : (req.body.ativo ? 1 : 0);
+
+    if (!idValido(idEmpresa) || !nomeComponenteValido(nome)) {
+        return res.status(400).json({ mensagem: "Informe o nome do componente (até 40 caracteres)." });
+    }
+    if (TIPOS_COMPONENTE.indexOf(tipo) === -1) {
+        return res.status(400).json({ mensagem: "Tipo de componente inválido." });
+    }
+
+    try {
+        await configModel.cadastrarComponente(idEmpresa, nome, tipo, ativo);
+        res.status(201).json({ mensagem: "Componente cadastrado com sucesso." });
+    } catch (erro) {
+        console.error("Erro ao cadastrar componente:", erro);
+        if (erro.code === "COMPONENTE_DUPLICADO") return res.status(409).json({ mensagem: erro.message });
+        res.status(500).json({ mensagem: "Erro ao cadastrar componente." });
+    }
+}
+
+async function editarComponente(req, res) {
+    var idVinculo = Number(req.params.idVinculo);
+    var idEmpresa = Number(req.body.idEmpresa);
+    var nome = String(req.body.nome || "").trim();
+    var ativo = req.body.ativo === undefined || req.body.ativo === null ? null : (req.body.ativo ? 1 : 0);
+
+    if (!idValido(idVinculo) || !idValido(idEmpresa) || !nomeComponenteValido(nome)) {
+        return res.status(400).json({ mensagem: "Dados obrigatórios não informados." });
+    }
+
+    try {
+        var resultado = await configModel.editarComponente(idVinculo, idEmpresa, nome, ativo);
+        if (!resultado) return res.status(404).json({ mensagem: "Componente não encontrado." });
+        res.status(200).json({ mensagem: "Componente atualizado com sucesso." });
+    } catch (erro) {
+        console.error("Erro ao editar componente:", erro);
+        if (erro.code === "COMPONENTE_DUPLICADO" || erro.code === "COMPONENTE_COMPARTILHADO") {
+            return res.status(409).json({ mensagem: erro.message });
+        }
+        res.status(500).json({ mensagem: "Erro ao editar componente." });
+    }
+}
+
+async function excluirComponente(req, res) {
+    var idVinculo = Number(req.params.idVinculo);
+    var idEmpresa = Number(req.body && req.body.idEmpresa);
+    if (!idValido(idVinculo) || !idValido(idEmpresa)) {
+        return res.status(400).json({ mensagem: "Dados obrigatórios não informados." });
+    }
+
+    try {
+        var resultado = await configModel.excluirComponente(idVinculo, idEmpresa);
+        if (!resultado) return res.status(404).json({ mensagem: "Componente não encontrado." });
+        res.status(200).json({ mensagem: "Componente removido com sucesso." });
+    } catch (erro) {
+        console.error("Erro ao excluir componente:", erro);
+        res.status(500).json({ mensagem: "Erro ao excluir componente." });
+    }
+}
+
 // ---------- Funcionários ----------
 
 function listarFuncionarios(req, res) {
@@ -253,5 +335,9 @@ module.exports = {
     cadastrarMetrica,
     editarMetrica,
     excluirMetrica,
-    salvarTodasMetricas
+    salvarTodasMetricas,
+    listarComponentes,
+    cadastrarComponente,
+    editarComponente,
+    excluirComponente
 };

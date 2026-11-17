@@ -119,17 +119,14 @@ INSERT INTO empresa
 (razao_social, cnpj, nome_resp, email, telefone, codigo_empresa)
 VALUES
 ('Tech Stream Ltda', '12345678000199', 'Maria Silva',
- 'contato@techstream.com', '5511999999999', 'ABC12345'),
-('StreamGuard', '12345678000198', 'Mariana', 
- 'contato@streamguard.com', '5511999999998', 'ABC12344');
+ 'contato@techstream.com', '5511999999999', 'ABC12345');
+
 
 INSERT INTO usuario
-(nome, cargo, email, senha_hash, fk_empresa, fk_permissao, ativo)
+(nome, cargo, email, senha_hash, fk_empresa, fk_permissao)
 VALUES
 ('Joao Souza', 'Analista de TI', 'joao@techstream.com',
- 'hash_exemplo', 1, 4, 1),
-('Caio', 'Analista de TI', 'caio@streamguard.com',
- 'hash_exemplo', 2, 1, 1);
+ 'hash_exemplo', 1, 1);
 
 INSERT INTO equipamentos
 (hostname, codigo_agente, sistema_operacional, versao_so,
@@ -142,8 +139,7 @@ INSERT INTO componente (nome, tipo)
 VALUES
 ('Processador', 'CPU'),
 ('Memória RAM', 'RAM'),
-('Disco', 'Armazenamento'),
-('Rede', 'Rede');
+('Disco', 'Armazenamento');
 
 INSERT INTO equipamento_componente
 (fk_equipamento, fk_componente, data_instalacao, status)

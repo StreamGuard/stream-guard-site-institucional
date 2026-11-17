@@ -26,8 +26,8 @@ var perfilRouter = require("./src/routes/perfil");
 var usuariosRouter = require("./src/routes/usuarios");
 var servidoresRouter = require("./src/routes/servidores")
 var empresasRouter = require("./src/routes/empresas");
-var componentesRouter = require("./src/routes/componentes");
-var metricasRouter = require("./src/routes/metricas");
+//var componentesRouter = require("./src/routes/componentes");
+//var metricasRouter = require("./src/routes/metricas");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -41,8 +41,8 @@ app.use("/api", jiraRouter);
 app.use("/empresas", empresasRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/servidores", servidoresRouter)
-app.use("/componentes", componentesRouter);
-app.use("/metricas", metricasRouter);
+//app.use("/componentes", componentesRouter);
+//app.use("/metricas", metricasRouter);
 app.use("/", indexRouter);
 
 app.listen(PORTA_APP, function () {

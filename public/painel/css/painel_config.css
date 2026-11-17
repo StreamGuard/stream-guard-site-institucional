@@ -784,3 +784,22 @@
 .token-empresa button:hover {
     text-decoration: underline;
 }
+
+.grid-componentes .linha-cabecalho,
+.grid-componentes .linha {
+    display: grid;
+    grid-template-columns: 2.2fr 1.5fr 0.9fr 1fr 1.1fr 2.6fr;
+    align-items: center;
+}
+
+.col-comp {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.col-qtd,
+.col-data {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
+}
