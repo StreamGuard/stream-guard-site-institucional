@@ -29,8 +29,10 @@
             <main class="principal">
                 <div class="analise-acoes">
                     <div class="analise-filtros">
-                        <button type="button">Servidor principal</button>
-                        <button type="button">Últimos 60 min</button>
+                        <label for="filtroServidor">Servidor</label>
+                        <select id="filtroServidor" class="botao-periodo">
+                            <option value="">Todos os servidores</option>
+                        </select>
                     </div>
                     <p class="analise-atualizacao">
                         Atualizado às <time datetime="14:37">14:37</time> • 30 amostras por minuto
@@ -38,29 +40,29 @@
                 </div>
 
                 <section class="metricas-resumo" aria-label="Uso atual dos componentes">
-                    <article class="card-metrica status-atencao">
-                        <span class="selo-status status-atencao">Atenção</span>
+                    <article class="card-metrica">
+                        <span id="kpiSeloRam" class="selo-status">Aguardando</span>
                         <h2>RAM</h2>
                         <strong id="kpiRam">--%</strong>
                         <small>Margem até 100%</small>
                     </article>
 
-                    <article class="card-metrica status-atencao">
-                        <span class="selo-status status-atencao">Atenção</span>
+                    <article class="card-metrica">
+                        <span id="kpiSeloCpu" class="selo-status">Aguardando</span>
                         <h2>CPU</h2>
                         <strong id="kpiCpu">--%</strong>
                         <small>Margem até 100%</small>
                     </article>
 
-                    <article class="card-metrica status-alerta">
-                        <span class="selo-status status-alerta">Alerta</span>
+                    <article class="card-metrica">
+                        <span id="kpiSeloDisco" class="selo-status">Aguardando</span>
                         <h2>Disco</h2>
                         <strong id="kpiDisco">--%</strong>
                         <small>Margem até 100%</small>
                     </article>
 
-                    <article class="card-metrica status-normal">
-                        <span class="selo-status status-normal">OK</span>
+                    <article class="card-metrica">
+                        <span id="kpiSeloRede" class="selo-status">Aguardando</span>
                         <h2>Rede</h2>
                         <strong id="kpiRede">--%</strong>
                         <small>Margem até 100%</small>
@@ -208,7 +210,7 @@
                                 <h2>Dispersão CPU × Rede</h2>
                                 <p>Uso de CPU em relação ao uso de rede</p>
                             </div>
-                          <strong id="valorCorrelacao">Correlação: --</strong>
+                            <strong id="valorCorrelacao">Correlação: --</strong>
                         </header>
 
                         <div class="grafico-container">

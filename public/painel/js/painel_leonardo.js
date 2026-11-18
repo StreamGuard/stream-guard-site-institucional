@@ -5,6 +5,7 @@ const correlacao = document.getElementById("graficoCorrelacao");
 const canvasRankingRam = document.getElementById("graficoRamServidores");
 const canvasHistogramaRam = document.getElementById("graficoHistogramaRam");
 const buscaRam = document.getElementById("filtroServidorRam");
+const filtroServidor = document.getElementById("filtroServidor");
 
 if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
     const periodos = {
@@ -85,7 +86,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
             this.classList.add("ativo");
             periodoHistorico = periodo;
             //    graficoHistorico.data.labels = criarHorarios(periodo);
-           textoPeriodo.textContent = periodos[periodo].texto;
+            textoPeriodo.textContent = periodos[periodo].texto;
         });
     }
 
@@ -182,9 +183,22 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
             for (var i = 0; i < dados.metricas.length; i++) {
                 var linha = dados.metricas[i];
 
+                // Converte o horário da linha para comparação
+                // O CSV tem formato: "2026-10-24 12:00:00"
+                var horaLinha = linha.inicio_periodo;
+                var minutosAgo = 0;
+                if (periodoHistorico === "30m") {
+                    minutosAgo = 30;
+                } else if (periodoHistorico === "1h") {
+                    minutosAgo = 60;
+                } else if (periodoHistorico === "24h") {
+                    minutosAgo = 1440; // 24 * 60
+                }
+
                 if (linha.servidor_id !== servidorSelecionado) {
                     continue;
                 }
+
                 if (linha.tipo === "USO_CPU") {
                     var valorCpu = Number(linha.media_amostral);
                     valoresCpu.push(valorCpu);
@@ -198,7 +212,6 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
                     var usoCpu = Math.round(ultimoCpu);
                     var cpuLivre = 100 - usoCpu;
-                    document.getElementById("kpiCpu").textContent = usoCpu + "%";
                     document.getElementById("valorLivreCpu").textContent = cpuLivre + "%";
                     document.getElementById("textoLivreCpu").textContent = cpuLivre + "% livres, com uso de " + usoCpu + "%.";
                     var horario = linha.inicio_periodo;
@@ -297,11 +310,6 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
             graficoCorrelacao.update();
 
-
-
-
-
-
             function atualizarStatus(nome, valor) {
                 var uso = Math.round(valor);
 
@@ -309,18 +317,38 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                 document.getElementById("uso" + nome).textContent = uso + "%";
 
                 var selo = document.getElementById("selo" + nome);
-
+                var classeStatus;
                 if (uso >= 80) {
                     selo.textContent = "Alerta";
                     selo.className = "selo-status status-alerta";
+                    classeStatus = "status-alerta";
                 } else if (uso >= 60) {
                     selo.textContent = "Atenção";
                     selo.className = "selo-status status-atencao";
+                    classeStatus = "status-atencao";
                 } else {
                     selo.textContent = "Normal";
                     selo.className = "selo-status status-normal";
+                    classeStatus = "status-normal";
                 }
+
+                // Atualizando Kpis
+                var cardKpi = document.getElementById("kpi" + nome)
+                    .closest(".card-metrica");
+                var seloKpi = document.getElementById("kpiSelo" + nome);
+
+                seloKpi.textContent = selo.textContent;
+                seloKpi.className = "selo-status " + classeStatus;
+
+                // removo do cartão qualquer clase de esatdo anterior
+                cardKpi.classList.remove(
+                    "status-alerta",
+                    "status-atencao",
+                    "status-normal"
+                );
+                cardKpi.classList.add(classeStatus);
             }
+
 
 
             if (ultimoCpu !== null) atualizarStatus("Cpu", ultimoCpu);
@@ -517,7 +545,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
             faixas[numeroFaixa].y++;
         }
 
-        // Calcula a média.
+        // Calculo a média.
         let soma = 0;
 
         for (let i = 0; i < valores.length; i++) {
@@ -756,13 +784,4 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
     buscaRam.addEventListener("input", atualizarRanking);
 
     atualizarRanking();
-
-
-
-
-
-
-
-
-
 }
