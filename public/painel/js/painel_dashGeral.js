@@ -1,305 +1,132 @@
-document.addEventListener("DOMContentLoaded", () => {
-    // ---------- Configuração ----------
-    const METRICAS = {
-        CPU: { cor: "#00e699", limite: 85, base: 55 },
-        RAM: { cor: "#a259ff", limite: 90, base: 70 },
-        Disco: { cor: "#4da3ff", limite: 90, base: 34 },
-        Rede: { cor: "#ff9f1c", limite: 75, base: 55 }
-    };
-    const PERIODOS = {
-        "30m": { pontos: 30, passoMin: 1, texto: "Últimos 30 minutos" },
-        "1h": { pontos: 12, passoMin: 5, texto: "Última hora" },
-        "24h": { pontos: 24, passoMin: 60, texto: "Últimas 24 horas" },
-        "7d": { pontos: 28, passoMin: 360, texto: "Últimos 7 dias" },
-        "30d": { pontos: 30, passoMin: 1440, texto: "Últimos 30 dias" }
-    };
-    const NOMES_SERVIDORES = [
-    "srv-stream-01", "srv-stream-02", "srv-stream-03", "srv-stream-04"
-];
-
-    const el = (id) => document.getElementById(id);
-    let periodo = "30m";
-    let visiveis = new Set(["CPU", "RAM"]); // set com métricas exibidas no meu gráfico
-    let serie = {};      // { CPU: [..], ... }
-    let incidentes = []; // lista completa do período
-    let chart; // Guardo o gráfico aonde o destruo e recrio
-
-    // ---------- Dados simulados ---------
-    function rng(seed) {
-        return () => (seed = (seed * 16807) % 2147483647) / 2147483647; // aqui eu retorno uma função que a cada chamada me gera um número entre 0 e 1, 
+document.addEventListener('DOMContentLoaded', () => {
+    'use strict';
+    // Exclusivamente mock: nenhuma API, autenticação ou escrita de dados.
+    const $ = id => document.getElementById(id);
+    const nomes = ['srv-stream-01', 'srv-stream-02', 'srv-edge-01', 'srv-backup-01'];
+    const limites = {CPU:85, RAM:90, Disco:85, Rede:80};
+    const cores = {CPU:'#2de2c0', RAM:'#b095fc', Disco:'#66a8ff', Rede:'#f5b45f'};
+    const dias = ['Seg','Ter','Qua','Qui','Sex','Sáb','Dom'];
+    const fracaoDia = 14 / 24;
+    const fmt = (n, casas=1) => n.toLocaleString('pt-BR', {maximumFractionDigits:casas, minimumFractionDigits:casas});
+    const esc = texto => String(texto).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    const media = valores => valores.reduce((s,v)=>s+v,0)/valores.length;
+    const selecionados = () => $('servidor').value === 'todos' ? [0,1,2,3] : [Number($('servidor').value)];
+    const diaAtual = () => Number($('dia').value);
+    // Ajuste por mínimos quadrados: tempo em dias e valor da série.
+    function regressao(valores) {
+        const x=valores.map((_,i)=>i), mx=media(x), my=media(valores);
+        const b=x.reduce((s,v,i)=>s+(v-mx)*(valores[i]-my),0)/x.reduce((s,v)=>s+(v-mx)**2,0);
+        return {b, prever:t=>my+b*(t-mx)};
     }
-    function gerarSerie(equip, per) {
-        const { pontos } = PERIODOS[per];
-        const out = {};
-        let s = 7;
-        for (const c of equip + per + "x") s = (s * 31 + c.charCodeAt(0)) % 2147483647;
-        const r = rng(s || 1);
-        Object.entries(METRICAS).forEach(([nome, m]) => {
-            let v = m.base, arr = [];
-            for (let i = 0; i < pontos; i++) {
-                v += (r() - 0.5) * 14 + (m.base - v) * 0.05;
-                if (i > pontos - 4 && nome === "RAM") v += 6; // tendência recente
-                v = Math.max(5, Math.min(99, v));
-                arr.push(Math.round(v));
-            }
-            out[nome] = arr;
-        });
-        return out;
-    }
-    // Retorna o ÚLTIMO valor de cada métrica de um servidor
-function ultimosValores(equip) {
-    const s = gerarSerie(equip, periodo);
-    const out = {};
-    Object.keys(METRICAS).forEach((n) => (out[n] = s[n].at(-1)));
-    return out;
-}
-    function gerarLabels(per) {
-        const { pontos, passoMin } = PERIODOS[per];
-        const agora = Date.now();
-        return Array.from({ length: pontos }, (_, i) => {
-            const d = new Date(agora - (pontos - 1 - i) * passoMin * 60000);
-            return passoMin >= 1440
-                ? d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
-                : passoMin >= 360
-                    ? d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) + " " + d.getHours() + "h"
-                    : d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+    function historicoDisco(s) { return Array.from({length:28},(_,i)=> 47+s*5+i*(.61+s*.045)+Math.sin(i*.9+s)*1.1); }
+    function historicoAlertas(s,c) { return Array.from({length:28},(_,i)=>Math.max(0,Math.round(1+(3-s)*.8+c*.45+i*.055+Math.sin(i*1.4+s+c)*1.5))); }
+    function historicoTotal(ids) { return Array.from({length:28},(_,i)=>ids.reduce((total,s)=>total+[0,1,2].reduce((soma,c)=>soma+historicoAlertas(s,c)[i],0),0)); }
+    // Janela de 16 medições por componente, com um episódio e um pico isolado.
+    function amostrasPico(s,c,d) {
+        const limite=limites[c];
+        return Array.from({length:16},(_,i)=>{
+            if(i>=5 && i<=8) return Math.min(99,limite+2+(s+d+Object.keys(limites).indexOf(c))%5+(i===7?3:0));
+            if(i===12) return 99; // Ignorado: único ponto acima do limite.
+            return limite-13+(i+s+d)%7;
         });
     }
-
-    // ---------- Incidentes: faixas contíguas perto/acima do limite ----------
-    function detectarIncidentes(labels, equip) {
-        const lista = [];
-        const passo = PERIODOS[periodo].passoMin;
-        Object.entries(METRICAS).forEach(([nome, m]) => {
-            let ini = null, pico = 0;
-            const fecha = (fim) => {
-                // aqui fecho o trecho e adiciono à lista um objeto com data, equipamento, componente, severidade
-                const n = fim - ini;
-                lista.push({
-                    data: labels[ini], equip: equip === "todos" ? "srv-stream-01" : equip, comp: nome,
-                    sev: pico > m.limite ? "Crítico" : "Alerta", pico, limite: m.limite,
-                    duracaoMin: n * passo, aberto: fim >= labels.length
-                });
-                ini = null; pico = 0;
-            };
-            serie[nome].forEach((v, i) => {
-                if (v >= m.limite - 5) { if (ini === null) ini = i; pico = Math.max(pico, v); }
-                else if (ini !== null) fecha(i);
-            });
-            if (ini !== null) fecha(serie[nome].length);
-        });
-        return lista;
-    }
-    function fmtDuracao(min) {
-        if (min < 60) return min + " min";
-        if (min < 1440) return (min / 60).toFixed(1).replace(".0", "") + " h";
-        return Math.round(min / 1440) + " d";
-    }
-
-    // ---------- Status por valor ----------
-    function status(nome, v) {
-        const l = METRICAS[nome].limite;
-        return v > l ? "critico" : v >= l - 5 ? "alerta" : "ok";
-    }
-    const ROTULO = { ok: " OK", alerta: "ALERTA", critico: " CRÍTICO" };
-
-    // ---------- Renderizações ----------
-    function renderCards() {
-        el("cardsMetricas").innerHTML = Object.keys(METRICAS).map((nome) => {
-            const d = serie[nome], ult = d[d.length - 1], ant = d[d.length - 2] ?? ult;
-            const media = Math.round(d.reduce((a, b) => a + b, 0) / d.length), pico = Math.max(...d);
-            const st = status(nome, ult), delta = ult - ant;
-            return `<div class="card card-${st}">
-        <div class="card-cabecalho"><span>${nome.toUpperCase()}</span><span class="tag tag-${st}">${ROTULO[st]}</span></div>
-        <div class="card-valor">${ult}<span>%</span></div>
-        <div class="card-progresso"><div class="barra" style="width:${ult}%"></div></div>
-        <div class="card-detalhe"><span>Média ${media}% • Pico ${pico}%</span>
-          <span class="card-variacao ${delta > 0 && st !== "ok" ? "perigo" : "positiva"}">${delta >= 0 ? "" : ""}</div>
-      </div>`;
-        }).join("");
-    }
-
-    function renderBanner() {
-        const crit = Object.keys(METRICAS).filter((n) => status(n, serie[n].at(-1)) === "critico");
-        const alt = Object.keys(METRICAS).filter((n) => status(n, serie[n].at(-1)) === "alerta");
-        const b = el("bannerAlerta");
-        b.style.display = crit.length || alt.length ? "flex" : "none";
-        b.innerHTML = `<div class="alerta-info"><span class="icone-alerta">⚠️</span>
-      <strong>${crit.length ? crit.map((n) => `${n} acima do limite (${serie[n].at(-1)}%)`).join(", ") : "Nenhum componente crítico"}</strong></div>
-      <div class="alerta-link"><span>${alt.length ? alt.map((n) => `${n} próxima do limite (${serie[n].at(-1)}%)`).join(", ") : ""}</span>
-      <a href="#painel-incidentes">VER INCIDENTES →</a></div>`;
-    }
-
-    function renderStatus() {
-        const nomes = { CPU: "CPU", RAM: "Memória RAM", Disco: "Disco", Rede: "Placa de rede" };
-        const itens = Object.keys(METRICAS).map((n) => {
-            const v = serie[n].at(-1), st = status(n, v);
-            return `<li class="${st !== "ok" ? "item-" + st : ""}"><div><strong>${nomes[n]}</strong>
-        <small>${v}% • limite ${METRICAS[n].limite}%</small></div><span class="tag tag-${st}">${ROTULO[st]}</span></li>`;
-        });
-        itens.push(`<li><div><strong>Fonte de energia</strong><small>Operação estável</small></div><span class="tag tag-ok">● OK</span></li>`);
-        el("listaStatus").innerHTML = itens.join("");
-    }
-
-   function renderVisaoGeral() {
-    // Pior componente de cada servidor (maior proximidade do limite)
-    const servidores = NOMES_SERVIDORES.map((nome) => {
-        const vals = ultimosValores(nome);
-        let pior = null;
-        Object.entries(vals).forEach(([comp, valor]) => {
-            const folga = METRICAS[comp].limite - valor; // menor = pior
-            if (!pior || folga < pior.folga) pior = { comp, valor, folga };
-        });
-        return { nome, comp: pior.comp, valor: pior.valor, st: status(pior.comp, pior.valor) };
-    });
-
-    
-
-    const crit = servidores.filter((s) => s.st === "critico").length;
-    const alt = servidores.filter((s) => s.st === "alerta").length;
-    const ok = servidores.length - crit - alt;
-
-    el("cntCritico").textContent = crit;
-    el("cntAlerta").textContent = alt;
-    el("cntOk").textContent = ok;
-
-    // Ranking: só mostra quem não está normal, do pior para o melhor
-    const problemas = servidores
-        .filter((s) => s.st !== "ok")
-        .sort((a, b) => (METRICAS[a.comp].limite - a.valor) - (METRICAS[b.comp].limite - b.valor));
-
-    el("listaRanking").innerHTML = problemas.length
-        ? problemas.map((s) =>
-            `<li><span>${s.nome}<small>${s.comp} ${s.valor}%</small></span>
-             <span class="tag tag-${s.st}">${ROTULO[s.st]}</span></li>`).join("")
-        : `<li><span>Nenhum servidor em alerta ou crítico</span></li>`;
-}
-
-
-
-    function renderTabela() {
-        const sev = el("filtroSeveridade").value, comp = el("filtroComponente").value;
-        const linhas = incidentes.filter((i) => (!sev || i.sev === sev) && (!comp || i.comp === comp));
-        el("subIncidentes").textContent = `${PERIODOS[periodo].texto} • ${linhas.length} registro(s)`;
-        el("tbodyIncidentes").innerHTML = linhas.length
-            ? linhas.map((i) => `<tr><td>${i.data}</td><td>${i.equip}</td><td>${i.comp}</td>
-          <td><span class="tag tag-${i.sev === "Crítico" ? "critico" : "alerta"}">${i.sev}</span></td>
-          <td>${i.pico}%</td><td>${i.limite}%</td><td>${fmtDuracao(i.duracaoMin)}</td>
-          <td>${i.aberto ? "Em aberto" : "Resolvido"}</td></tr>`).join("")
-            : `<tr><td colspan="8" class="vazio">Nenhum incidente neste período com os filtros atuais.</td></tr>`;
-        return linhas;
-    }
-
-    // ---------- Gráfico ----------
-    const limitPlugin = {
-        id: "limitLine",
-        afterDraw(c) {
-            const { ctx, chartArea: { left, right }, scales: { y } } = c;
-            ctx.save();
-            visiveis.forEach((n) => {
-                const yy = y.getPixelForValue(METRICAS[n].limite);
-                ctx.beginPath(); ctx.setLineDash([5, 4]);
-                ctx.strokeStyle = METRICAS[n].cor; ctx.globalAlpha = 0.7; ctx.lineWidth = 1;
-                ctx.moveTo(left, yy); ctx.lineTo(right, yy); ctx.stroke();
-                ctx.setLineDash([]); ctx.fillStyle = METRICAS[n].cor; ctx.font = "11px sans-serif";
-                ctx.fillText(`Limite ${n} ${METRICAS[n].limite}%`, right - 100, yy - 5);
-            });
-            ctx.restore();
-        }
-    };
-
-    function datasets() {
-        const ds = [];
-        visiveis.forEach((n) => {
-            ds.push({ label: n, data: serie[n], borderColor: METRICAS[n].cor, borderWidth: 2, tension: 0.4, pointRadius: 0 });
-            // marcações de incidente (▲) nos pontos perto/acima do limite
-            ds.push({
-                label: `Incidente ${n}`, type: "line", showLine: false,
-                data: serie[n].map((v) => (v >= METRICAS[n].limite - 5 ? v : null)),
-                pointStyle: "triangle", pointRadius: 6, pointBackgroundColor: "#ff002b", pointBorderColor: "#ff002b"
-            });
-        });
-        return ds;
-    }
-
-    function desenharGrafico(labels) {
-        const cfg = {
-            type: "line",
-            data: { labels, datasets: datasets() },
-            options: {
-                responsive: true, maintainAspectRatio: false,
-                interaction: { mode: "index", intersect: false },
-                plugins: {
-                    legend: {
-                        position: "top", align: "start",
-                        labels: { color: "#a0a5b5", usePointStyle: true, boxWidth: 8, filter: (i) => !i.text.startsWith("Incidente") }
-                    },
-                    tooltip: { filter: (i) => i.raw !== null }
-                },
-                scales: {
-                    x: { grid: { color: "#1e2235" }, ticks: { color: "#6c728f", maxTicksLimit: 8 } },
-                    y: { min: 0, max: 100, grid: { color: "#1e2235" }, ticks: { color: "#6c728f", stepSize: 20, callback: (v) => v + "%" } }
+    function maiorPico(componente) {
+        const episodios=[];
+        for(const s of selecionados()) for(const c of [componente]) for(let d=0;d<=diaAtual();d++) {
+            const serie=amostrasPico(s,c,d); let inicio=null;
+            for(let i=0;i<=serie.length;i++) {
+                if(i<serie.length && serie[i]>=limites[c]) { if(inicio===null) inicio=i; }
+                else if(inicio!==null) {
+                    if(i-inicio>=2) episodios.push({s,c,d,valor:Math.max(...serie.slice(inicio,i)),amostras:i-inicio,duracao:i-inicio-1});
+                    inicio=null;
                 }
-            },
-          
-        };
-        if (chart) chart.destroy();
-        chart = new Chart(el("chartUsoTempoReal").getContext("2d"), cfg);
+            }
+        }
+        return episodios.sort((a,b)=>b.valor-a.valor || b.d-a.d)[0];
     }
-
-    function renderToggles() {
-        el("togglesMetricas").innerHTML = Object.entries(METRICAS).map(([n, m]) =>
-            `<span class="chip ${visiveis.has(n) ? "on" : ""}" style="--cor:${m.cor}" role="button" tabindex="0" data-m="${n}"><i></i>${n}</span>`
-        ).join("");
+    function kpis() {
+        $('picosComponentes').innerHTML=Object.keys(limites).map(c=>{
+            const pico=maiorPico(c);
+            const nome={CPU:'CPU',RAM:'Memória RAM',Disco:'Disco',Rede:'Rede'}[c];
+            return `<section class="pico-quadrante" style="--cor-componente:${cores[c]}"><h4>${nome}</h4><strong>${pico?fmt(pico.valor,0):'—'}<span>${pico?'%':''}</span></strong><p>${pico?nomes[pico.s]:'Sem pico persistente'}</p><small>${pico?`${dias[pico.d]}, 13h07 · ${pico.amostras} medições<br>${pico.duracao} min · limite ${limites[c]}%`:'Nenhum episódio elegível'}</small></section>`;
+        }).join('');
+        const rank=nomes.map((nome,s)=>({nome,contagens:[0,1,2].map(c=>historicoAlertas(s,c).reduce((a,b)=>a+b,0))}));
+        rank.forEach(r=>r.total=r.contagens.reduce((a,b)=>a+b,0));rank.sort((a,b)=>b.total-a.total);
+        $('ranking').innerHTML=rank.slice(0,3).map(r=>`<div><div class="rank-label"><span>${r.nome}</span><b>${r.total} episódios</b></div><div class="rank-trilho" role="img" aria-label="${esc(r.nome)}: CPU ${r.contagens[0]}, RAM ${r.contagens[1]}, disco ${r.contagens[2]} episódios"><div class="rank-barra" style="width:${r.total/rank[0].total*100}%">${r.contagens.map((n,c)=>`<span style="width:${n/r.total*100}%;background:${cores[['CPU','RAM','Disco'][c]]}" title="${['CPU','RAM','Disco'][c]}: ${n} episódios"></span>`).join('')}</div></div></div>`).join('');
+        const ids=selecionados(), dia=diaAtual();
+        const anterior=media(ids.map(s=>[52,42,68,24][s]+dia*.8));
+        const atual=media(ids.map(s=>[61,38,77,29][s]+dia*.5));
+        const delta=(atual-anterior)/anterior*100, pontos=atual-anterior;
+        $('redeValor').innerHTML=`${fmt(atual)}<span>%</span>`;
+        $('redeComparacao').innerHTML=`<span class="variacao ${delta<0?'queda':''}">${delta>=0?'↑':'↓'} ${fmt(Math.abs(delta))}%</span> em relação à hora anterior<br><span>${pontos>=0?'+':''}${fmt(pontos)} pontos percentuais · antes ${fmt(anterior)}%</span>`;
+        $('redeBarra').innerHTML=`<span style="width:${atual}%"></span>`;
+        $('redeNota').textContent=`${dias[dia]} · 13–14h versus 12–13h. Capacidade hipotética: ${ids.length} Gbit/s de saída ${ids.length>1?'somados no parque':'no enlace'}.`;
     }
-
-    // ---------- Atualização geral ----------
-    let labels = [];
-    function carregar() {
-        const equip = el("selectEquipamento").value;
-        serie = gerarSerie(equip, periodo);
-        labels = gerarLabels(periodo);
-        incidentes = detectarIncidentes(labels, equip);
-        el("subPeriodo").textContent = PERIODOS[periodo].texto;
-        renderVisaoGeral(); renderCards(); renderBanner(); renderStatus(); renderTabela(); desenharGrafico(labels);
+    function eixos(w,h,max,rotulos,xMax=7) {
+        const p={l:43,r:20,t:24,b:35};
+        const x=v=>p.l+(w-p.l-p.r)*v/xMax, y=v=>h-p.b-(h-p.t-p.b)*v/max;
+        let svg=`<svg viewBox="0 0 ${w} ${h}" xmlns="http://www.w3.org/2000/svg">`;
+        for(let i=0;i<=4;i++) {const v=max*i/4;svg+=`<line x1="${p.l}" y1="${y(v)}" x2="${w-p.r}" y2="${y(v)}" stroke="#2a2a44"/><text x="${p.l-8}" y="${y(v)+4}" text-anchor="end">${Math.round(v)}${rotulos==='%'?'%':''}</text>`;}
+        return {svg,x,y,p};
     }
-
-    // ---------- Eventos ----------
-    el("grupoPeriodo").addEventListener("click", (e) => {
-        const b = e.target.closest(".btn-periodo"); if (!b) return;
-        document.querySelectorAll(".btn-periodo").forEach((x) => x.classList.remove("ativo"));
-        b.classList.add("ativo"); periodo = b.dataset.p; carregar();
-    });
-    function alternar(e) {
-        const c = e.target.closest(".chip"); if (!c) return;
-        if (e.type === "keydown" && e.key !== "Enter" && e.key !== " ") return;
-        const n = c.dataset.m;
-        if (visiveis.has(n)) { if (visiveis.size > 1) visiveis.delete(n); } else visiveis.add(n);
-        renderToggles(); chart.data.datasets = datasets(); chart.update();
+    function linha(pontos,x,y,cor,tracejada=false) {
+        return `<path d="${pontos.map((p,i)=>`${i?'L':'M'} ${x(p[0]).toFixed(2)} ${y(p[1]).toFixed(2)}`).join(' ')}" stroke="${cor}" stroke-width="2.8" fill="none" ${tracejada?'stroke-dasharray="6 5"':''} stroke-linejoin="round"/>`;
     }
-    el("togglesMetricas").addEventListener("click", alternar);
-    el("togglesMetricas").addEventListener("keydown", alternar);
-    el("selectEquipamento").addEventListener("change", carregar);
-    el("filtroSeveridade").addEventListener("change", renderTabela);
-    el("filtroComponente").addEventListener("change", renderTabela);
-
-    el("btnExportar").addEventListener("click", () => {
-        const linhas = renderTabela();
-        const csv = ["Data/hora;Equipamento;Componente;Severidade;Pico(%);Limite(%);Duracao(min);Status",
-            ...linhas.map((i) => [i.data, i.equip, i.comp, i.sev, i.pico, i.limite, i.duracaoMin, i.aberto ? "Em aberto" : "Resolvido"].join(";"))
-        ].join("\n");
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(new Blob(["\ufeff" + csv], { type: "text/csv;charset=utf-8" }));
-        a.download = `incidentes_${periodo}.csv`; a.click(); URL.revokeObjectURL(a.href);
-    });
-
-    // "Atualizado há X segundos" dinâmico
-    let ultima = Date.now();
-    setInterval(() => {
-        const s = Math.floor((Date.now() - ultima) / 1000);
-        el("txtAtualizacao").textContent = s < 5 ? "Atualizado agora" : `Atualizado há ${s} segundos`;
-        if (s >= 30) { ultima = Date.now(); if (periodo === "30m" || periodo === "1h") carregar(); }
-    }, 1000);
-
-    renderToggles(); renderVisaoGeral(); carregar();
+    function contexto() { return $('servidor').value==='todos'?'Parque completo · média simples dos servidores':nomes[Number($('servidor').value)]; }
+    function graficoHorarios() {
+        const comp=$('componente').value, ids=selecionados(), dia=diaAtual();
+        const base={CPU:[31,59,78,50],RAM:[55,68,80,65],Disco:[64,65,67,68],Rede:[24,48,73,52]}[comp];
+        const horas=[6,6,2,0].map((v,i)=>dia*6+v);
+        const valores=base.map((b,i)=>horas[i]?Math.min(99,media(ids.map(s=>b+s*2+Math.sin(s+dia+i)*3))):null);
+        const w=Math.max(270,Math.min(1000,$('graficoHorarios').clientWidth)),h=232,{svg,x,y}=eixos(w,h,100,'%',4);
+        const larguraBarra=Math.min(86,(w-63)/4*.56);
+        let out=svg;const labels=['00h–06h','06h–12h','12h–18h','18h–24h'];
+        valores.forEach((v,i)=>{const cx=x(i+.5);if(v!==null)out+=`<rect x="${cx-larguraBarra/2}" y="${y(v)}" width="${larguraBarra}" height="${y(0)-y(v)}" rx="5" fill="${cores[comp]}" fill-opacity=".8"><title>${labels[i]}: ${fmt(v)}%, ${horas[i]} horas observadas</title></rect><text class="valor-barra" x="${cx}" y="${y(v)-9}" text-anchor="middle">${fmt(v)}%</text>`;else out+=`<text x="${cx}" y="${y(0)-14}" text-anchor="middle"><title>Faixa ainda sem observação nesta semana</title>—</text>`;out+=`<text x="${cx}" y="${h-11}" text-anchor="middle">${labels[i]}</text>`;});
+        $('graficoHorarios').innerHTML=out+'</svg>';
+        $('horarioContexto').textContent=`${comp} · ${contexto()} · até ${dias[dia]}, 14h`;
+    }
+    function graficoDisco() {
+        const ids=selecionados(), dia=diaAtual(), t=dia+fracaoDia;
+        const history=Array.from({length:28},(_,i)=>media(ids.map(s=>historicoDisco(s)[i])));
+        const fit=regressao(history), inicio=history.at(-1);
+        const observado=[[0,inicio]];
+        for(let d=0;d<dia;d++)observado.push([d+1,inicio+fit.b*(d+1)+Math.sin(d+1)*.55]);
+        observado.push([t,inicio+fit.b*t+Math.sin(t)*.55]);
+        const ultimo=observado.at(-1)[1];
+        const previsto=Array.from({length:8},(_,d)=>[d,fit.prever(27+d)]);
+        const domingo=previsto.at(-1)[1], max=Math.max(100,Math.ceil(domingo/10)*10);
+        const w=Math.max(270,Math.min(550,$('graficoDisco').clientWidth)),h=260,{svg,x,y,p}=eixos(w,h,max,'%');let out=svg;
+        out+=`<rect x="${x(t)}" y="${p.t}" width="${x(7)-x(t)}" height="${y(0)-p.t}" fill="#66a8ff" fill-opacity=".035"/><line x1="${p.l}" x2="${w-p.r}" y1="${y(85)}" y2="${y(85)}" stroke="#ff8799" stroke-dasharray="4 5"/><text x="${w-p.r}" y="${y(85)-6}" text-anchor="end" style="fill:#ff8799">Limite 85%</text>`;
+        out+=linha(previsto,x,y,'#f5b45f',true)+linha(observado,x,y,cores.Disco);
+        out+=`<circle cx="${x(t)}" cy="${y(ultimo)}" r="4" fill="${cores.Disco}"/><circle cx="${x(7)}" cy="${y(domingo)}" r="4" fill="#f5b45f"/>`;
+        dias.forEach((d,i)=>out+=`<text x="${x(i+.5)}" y="${h-10}" text-anchor="middle">${d}</text>`);
+        $('graficoDisco').innerHTML=out+'</svg>';
+        $('discoContexto').textContent=`${contexto()} · tendência baseada em 28 médias diárias`;
+        $('discoResumo').innerHTML=`Atual: <strong>${fmt(ultimo)}%</strong> · estimativa ao fim de domingo: <strong>${fmt(domingo)}%</strong>.<br>${domingo>=85?'A tendência alcança o limite de referência. Investigue retenção e capacidade.':'A tendência permanece abaixo do limite de referência.'} Inclinação histórica: ${fmt(fit.b,2)} p.p./dia.`;
+    }
+    function graficoAlertas() {
+        const ids=selecionados(), dia=diaAtual(), t=dia+fracaoDia, fit=regressao(historicoTotal(ids));
+        const observado=[[0,0]];let acumulado=0;
+        for(let d=0;d<dia;d++){acumulado+=Math.max(0,Math.round(fit.prever(28+d)+Math.sin(d+2)*3));observado.push([d+1,acumulado]);}
+        acumulado+=Math.max(0,Math.round((fit.prever(28+dia)+2)*fracaoDia));observado.push([t,acumulado]);
+        const previsto=[[0,0]];let futuro=0;
+        for(let d=0;d<7;d++){futuro+=Math.max(0,fit.prever(28+d));previsto.push([d+1,futuro]);}
+        const max=Math.max(20,Math.ceil(Math.max(futuro,acumulado)/20)*20);
+        const w=Math.max(270,Math.min(550,$('graficoAlertas').clientWidth)),h=260,{svg,x,y,p}=eixos(w,h,max,'');let out=svg;
+        out+=`<rect x="${x(t)}" y="${p.t}" width="${x(7)-x(t)}" height="${y(0)-p.t}" fill="#b095fc" fill-opacity=".035"/>`;
+        out+=linha(previsto,x,y,'#f5b45f',true)+linha(observado,x,y,cores.RAM);
+        out+=`<circle cx="${x(t)}" cy="${y(acumulado)}" r="4" fill="${cores.RAM}"/>`;
+        dias.forEach((d,i)=>out+=`<text x="${x(i+.5)}" y="${h-10}" text-anchor="middle">${d}</text>`);
+        $('graficoAlertas').innerHTML=out+'</svg>';
+        $('alertaContexto').textContent=`${ids.length>1?'Soma do parque':contexto()} · episódios de CPU, RAM e disco`;
+        $('alertaResumo').innerHTML=`Observados: <strong>${acumulado} episódios</strong> · predição da semana até domingo: <strong>≈ ${Math.round(futuro)}</strong>.<br>Regressão de contagens diárias das quatro semanas anteriores; dia atual parcial. Não é previsão validada.`;
+    }
+    function render() { $('escopo').textContent=`Até ${dias[diaAtual()]}, 14h · valores simulados`;kpis();graficoHorarios();graficoDisco();graficoAlertas(); }
+    ['servidor','componente','dia'].forEach(id=>$(id).addEventListener('change',render));
+    document.querySelector('.aviso-demonstracao')?.remove();
+    const selo=document.querySelector('.selo-online');if(selo)selo.textContent='Protótipo semanal';
+    window.SG?.definirNotificacoes([]);
+    let quadro;
+    window.addEventListener('resize',()=>{cancelAnimationFrame(quadro);quadro=requestAnimationFrame(()=>{graficoHorarios();graficoDisco();graficoAlertas();});});
+    render();
 });
