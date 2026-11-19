@@ -1403,6 +1403,131 @@
 }
 
 
+/* ==========================================
+   ORÇAMENTO E PREVISÃO FINANCEIRA
+   ========================================== */
+
+.painel-gerencial .painel-orcamento {
+    margin-top: 14px;
+    padding: 20px;
+}
+
+.painel-gerencial .painel-orcamento h3 {
+    font-size: 15px;
+    margin-bottom: 8px;
+}
+
+.painel-gerencial .descricao-orcamento {
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 8px;
+}
+
+.painel-gerencial .campos-orcamento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.painel-gerencial .campos-orcamento label {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.painel-gerencial .campos-orcamento input {
+    background: #23233e;
+    border: 1px solid #41415f;
+    border-radius: 7px;
+    color: var(--text);
+    padding: 10px;
+    width: 100%;
+    min-width: 0;
+}
+
+.painel-gerencial .indicadores-orcamento {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.painel-gerencial .indicadores-orcamento div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.painel-gerencial .indicadores-orcamento small {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.painel-gerencial .indicadores-orcamento strong {
+    font-size: 17px;
+}
+
+.painel-gerencial #orcamentoProgresso {
+    width: 100%;
+    height: 12px;
+    margin-top: 15px;
+    accent-color: var(--mint);
+}
+
+.painel-gerencial #orcamentoSituacao {
+    font-size: 11px;
+    font-weight: 700;
+    margin-top: 8px;
+}
+
+.painel-gerencial .titulo-previsao {
+    margin-top: 28px;
+}
+
+.painel-gerencial .previsao-mensal {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.painel-gerencial .mes-projetado {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.painel-gerencial .mes-projetado span {
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.painel-gerencial .mes-projetado strong {
+    color: var(--mint);
+    font-size: 16px;
+}
+
+.painel-gerencial .mes-projetado small {
+    color: var(--orange);
+    font-size: 10px;
+}
+
+@media (max-width: 768px) {
+
+    .painel-gerencial .campos-orcamento,
+    .painel-gerencial .indicadores-orcamento,
+    .painel-gerencial .previsao-mensal {
+        grid-template-columns: 1fr;
+    }
+}
+
 
 @media print {
 
