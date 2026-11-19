@@ -170,6 +170,85 @@
                             </details>
                         </div>
                     </div>
+
+                    <div class="cartao painel-orcamento">
+
+    <h3>Planejamento financeiro</h3>
+
+    <p class="descricao-orcamento">
+        Defina o orçamento disponível e estime a evolução
+        dos custos da infraestrutura nos próximos meses.
+    </p>
+
+    <div class="campos-orcamento">
+
+        <label for="orcamentoMensal">
+            Orçamento mensal (R$)
+
+            <input
+                type="number"
+                id="orcamentoMensal"
+                min="0"
+                step="100"
+                value="7000"
+            >
+        </label>
+
+        <label for="crescimentoMensal">
+            Crescimento mensal estimado (%)
+
+            <input
+                type="number"
+                id="crescimentoMensal"
+                min="0"
+                max="100"
+                step="1"
+                value="5"
+            >
+        </label>
+
+    </div>
+
+    <div class="indicadores-orcamento">
+
+        <div>
+            <small>Orçamento comprometido</small>
+            <strong id="orcamentoPercentual">—</strong>
+        </div>
+
+        <div>
+            <small>Saldo do orçamento</small>
+            <strong id="orcamentoSaldo">—</strong>
+        </div>
+
+    </div>
+
+    <progress
+        id="orcamentoProgresso"
+        value="0"
+        max="100"
+        aria-label="Percentual do orçamento utilizado"
+    ></progress>
+
+    <p id="orcamentoSituacao"></p>
+
+    <h3 class="titulo-previsao">
+        Previsão financeira — próximos 3 meses
+    </h3>
+
+    <div
+        id="previsaoMensal"
+        class="previsao-mensal"
+    ></div>
+
+    <p class="descricao-orcamento">
+        Projeção baseada no crescimento informado para
+        armazenamento e tráfego. A quantidade de servidores,
+        as tarifas e o câmbio permanecem constantes.
+        Não representa uma fatura da AWS.
+    </p>
+
+</div>
                     <div class="cartao painel-projecoes">
                         <div class="titulo-painel">
                             <div>
