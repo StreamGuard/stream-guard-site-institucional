@@ -10,18 +10,48 @@ async function cadastrarMetrica(componente_id, tipo, nome, unidade) {
 
     var metricas = await database.executar(consultaSql);
 
+    var resultado;
+
     if (metricas.length > 0) {
-        return {
+        resultado = {
             insertId: metricas[0].id_metrica
         };
+    } else {
+        var cadastroSql = `
+            INSERT INTO metrica (fk_componente, tipo, nome, unidade)
+            VALUES (${componente_id}, '${tipo}', '${nome}', '${unidade}');
+        `;
+
+        resultado = await database.executar(cadastroSql);
     }
 
-    var cadastroSql = `
-        INSERT INTO metrica (fk_componente, tipo, nome, unidade)
-        VALUES (${componente_id}, '${tipo}', '${nome}', '${unidade}');
+    var idMetrica = Number(resultado.insertId);
+    if (!Number.isSafeInteger(idMetrica) || idMetrica <= 0) {
+        throw new Error("O banco não confirmou o identificador da métrica.");
+    }
+
+    var limiteMaximo = "NULL";
+    if (tipo === "USO_CPU") {
+        limiteMaximo = 85;
+    } else if (tipo === "USO_RAM") {
+        limiteMaximo = 90;
+    } else if (tipo === "USO_DISCO") {
+        limiteMaximo = 85;
+    }
+
+    // Também completa métricas já cadastradas, preservando configurações existentes.
+    var configuracaoSql = `
+        INSERT INTO config_metrica
+            (fk_metrica, habilitado, intervalo_coleta, limite_minimo, limite_maximo)
+        SELECT ${idMetrica}, 1, 5, NULL, ${limiteMaximo}
+        WHERE NOT EXISTS (
+            SELECT 1 FROM config_metrica WHERE fk_metrica = ${idMetrica}
+        );
     `;
 
-    return database.executar(cadastroSql);
+    await database.executar(configuracaoSql);
+
+    return resultado;
 }
 
 function buscarConfiguracoes(servidor_id) {

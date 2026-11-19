@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Análise estatística | Stream Guard</title>
+
+    <link rel="stylesheet" href="./css/painel_base.css">
+    <link rel="stylesheet" href="./css/painel_leonardo.css">
+    <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+
+<body data-pagina="dashGeral">
+    <div class="layout">
+        <aside class="sidebar" data-shell="sidebar"></aside>
+
+        <div class="conteudo">
+            <header class="topo">
+                <div>
+                    <h1>Análise estatística</h1>
+                    <p>Monitoramento / Análise estatística</p>
+                </div>
+                <div class="topo-direita" data-shell="topo-direita"></div>
+            </header>
+
+            <main class="principal">
+                <div class="analise-acoes">
+                    <div class="analise-filtros">
+                        <label for="filtroServidor">Servidor</label>
+                        <select id="filtroServidor" class="botao-periodo">
+                            <option value="">Todos os servidores</option>
+                        </select>
+                    </div>
+                    <p class="analise-atualizacao">
+                        Atualizado às <time datetime="14:37">14:37</time> • 30 amostras por minuto
+                    </p>
+                </div>
+
+                <section class="metricas-resumo" aria-label="Uso atual dos componentes">
+                    <article class="card-metrica">
+                        <span id="kpiSeloRam" class="selo-status">Aguardando</span>
+                        <h2>RAM</h2>
+                        <strong id="kpiRam">--%</strong>
+                        <small>Margem até 100%</small>
+                    </article>
+
+                    <article class="card-metrica">
+                        <span id="kpiSeloCpu" class="selo-status">Aguardando</span>
+                        <h2>CPU</h2>
+                        <strong id="kpiCpu">--%</strong>
+                        <small>Margem até 100%</small>
+                    </article>
+
+                    <article class="card-metrica">
+                        <span id="kpiSeloDisco" class="selo-status">Aguardando</span>
+                        <h2>Disco</h2>
+                        <strong id="kpiDisco">--%</strong>
+                        <small>Margem até 100%</small>
+                    </article>
+
+                    <article class="card-metrica">
+                        <span id="kpiSeloRede" class="selo-status">Aguardando</span>
+                        <h2>Rede</h2>
+                        <strong id="kpiRede">--%</strong>
+                        <small>Margem até 100%</small>
+                    </article>
+                </section>
+                <div class="grade-analise">
+                    <section class="painel-analise painel-ram-servidores">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Uso por servidor</h2>
+                                <p>Top 10 por uso; pesquise para filtrar</p>
+                            </div>
+                        </header>
+                        <!-- No painel "Uso por servidor" -->
+                        <label for="filtroComponenteRanking">Componente</label>
+                        <select id="filtroComponenteRanking">
+                            <option value="ram">RAM</option>
+                            <option value="cpu">CPU</option>
+                            <option value="disco">Disco</option>
+                            <option value="rede">Rede</option>
+                        </select>
+
+                        <div class="filtros-grafico">
+                            <label for="filtroServidorRam">Buscar servidor</label>
+                            <input id="filtroServidorRam" type="search" placeholder="Ex.: stream-01">
+                        </div>
+
+                        <div class="grafico-container">
+                            <canvas id="graficoRamServidores" role="img"
+                                aria-label="Ranking dos servidores por uso de RAM">
+                            </canvas>
+                        </div>
+                    </section>
+
+                    <section class="painel-analise painel-ram-historico">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Histograma de uso </h2>
+                                <p>Distribuição das medições, com média e mediana</p>
+                            </div>
+                        </header>
+                        <!-- No painel "Histograma de uso" -->
+                        <label for="filtroComponenteHistograma">Componente</label>
+                        <select id="filtroComponenteHistograma">
+                            <option value="ram">RAM</option>
+                            <option value="cpu">CPU</option>
+                            <option value="disco">Disco</option>
+                            <option value="rede">Rede</option>
+                        </select>
+
+                        <div class="grafico-container">
+                            <canvas id="graficoHistogramaRam" role="img"
+                                aria-label="Histograma de uso de RAM com média e mediana">
+                            </canvas>
+                        </div>
+                    </section>
+                    <section class="painel-analise painel-historico">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Histórico de uso</h2>
+                                <p id="textoPeriodo">Últimos 30 minutos</p>
+
+                                <div id="filtroPeriodo">
+                                    <button type="button" class="botao-periodo ativo" data-periodo="30m">30 min</button>
+                                    <button type="button" class="botao-periodo" data-periodo="1h">1h</button>
+                                    <button type="button" class="botao-periodo" data-periodo="24h">24h</button>
+                                </div>
+                            </div>
+                        </header>
+
+                        <div class="grafico-container">
+                            <canvas id="graficoHistorico" role="img"
+                                aria-label="Gráfico de histórico de uso de CPU, RAM, disco e rede">
+                            </canvas>
+                        </div>
+
+                        <ul class="legenda-grafico" aria-label="Métricas do gráfico">
+                            <li>CPU</li>
+                            <li>RAM</li>
+                            <li>Disco</li>
+                            <li>Rede</li>
+                            <li>Acima de 80%</li>
+                        </ul>
+                    </section>
+
+                    <section class="painel-analise painel-disponibilidade">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Disponibilidade por componente</h2>
+                                <p>Capacidade livre agora</p>
+                            </div>
+                        </header>
+
+                        <div class="grade-disponibilidade">
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular" id="anelCpu" role="progressbar"
+                                    aria-label="CPU disponível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                    <span id="valorLivreCpu">--%</span>
+                                </div>
+                                <div>
+                                    <h3>CPU disponível</h3>
+                                    <p id="textoLivreCpu">Aguardando dados.</p>
+                                </div>
+                            </article>
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular" id="anelRam" role="progressbar"
+                                    aria-label="RAM disponível" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+                                    <span id="valorLivreRam">--%</span>
+                                </div>
+                                <div>
+                                    <h3>RAM disponível</h3>
+                                    <p id="textoLivreRam">Aguardando dados.</p>
+                                </div>
+                            </article>
+
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular" id="anelDisco" role="progressbar"
+                                    aria-label="Disco disponível" aria-valuemin="0" aria-valuemax="100"
+                                    aria-valuenow="0">
+                                    <span id="valorLivreDisco">--%</span>
+                                </div>
+                                <div>
+                                    <h3>Disco disponível</h3>
+                                    <p id="textoLivreDisco">Aguardando dados.</p>
+                                </div>
+                            </article>
+
+                            <article class="card-disponibilidade">
+                                <div class="indicador-circular" id="anelRede" role="progressbar"
+                                    aria-label="Rede disponível" aria-valuemin="0" aria-valuemax="100"
+                                    aria-valuenow="0">
+                                    <span id="valorLivreRede">--%</span>
+                                </div>
+                                <div>
+                                    <h3>Rede disponível</h3>
+                                    <p id="textoLivreRede">Aguardando dados.</p>
+                                </div>
+                            </article>
+                        </div>
+                    </section>
+
+                    <section class="painel-analise painel-correlacao">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Dispersão CPU × Rede</h2>
+                                <p>Uso de CPU em relação ao uso de rede</p>
+                            </div>
+                            <strong id="valorCorrelacao">Correlação: --</strong>
+                        </header>
+
+                        <div class="grafico-container">
+                            <canvas id="graficoCorrelacao" role="img"
+                                aria-label="Gráfico de dispersão da relação entre uso de CPU em relação ao uso de rede">
+                            </canvas>
+                        </div>
+
+                        <ul class="legenda-grafico" aria-label="Legenda da correlação">
+                            <li>Normal</li>
+                            <li>Atenção</li>
+                            <li>Alerta</li>
+                            <li>Tendência</li>
+                        </ul>
+                    </section>
+
+                    <section class="painel-analise painel-status">
+                        <header class="painel-analise-cabecalho">
+                            <div>
+                                <h2>Uso atual e status</h2>
+                                <p>Normal abaixo de 60% • Atenção de 60% a 79% • Alerta a partir de 80%</p>
+                            </div>
+                        </header>
+
+                        <ul class="lista-uso-status">
+                            <li class="item-uso-status">
+                                <span>CPU</span>
+                                <progress id="barraCpu" value="0" max="100"></progress>
+                                <strong id="usoCpu">--%</strong>
+                                <span id="seloCpu" class="selo-status status-normal">Aguardando</span>
+                            </li>
+
+                            <li class="item-uso-status">
+                                <span>RAM</span>
+                                <progress id="barraRam" value="0" max="100"></progress>
+                                <strong id="usoRam">--%</strong>
+                                <span id="seloRam" class="selo-status status-normal">Aguardando</span>
+                            </li>
+
+                            <li class="item-uso-status">
+                                <span>Disco</span>
+                                <progress id="barraDisco" value="0" max="100"></progress>
+                                <strong id="usoDisco">--%</strong>
+                                <span id="seloDisco" class="selo-status status-normal">Aguardando</span>
+                            </li>
+
+                            <li class="item-uso-status">
+                                <span>Rede</span>
+                                <progress id="barraRede" value="0" max="100"></progress>
+                                <strong id="usoRede">--%</strong>
+                                <span id="seloRede" class="selo-status status-normal">Aguardando</span>
+                            </li>
+                        </ul>
+                    </section>
+                </div>
+            </main>
+        </div>
+    </div>
+    <script src="./js/painel_shell.js"></script>
+    <script src="./js/painel_leonardo.js"></script>
+
+
+</body>
+
+</html>

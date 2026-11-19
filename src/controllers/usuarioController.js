@@ -1,92 +1,107 @@
 var usuarioModel = require("../models/usuarioModel");
+var perfilModel = require("../models/perfilModel");
 
 function autenticar(req, res) {
-  var email = req.body.emailServer;
-  var senha = req.body.senhaServer;
+    var email = req.body.emailServer;
+    var senha = req.body.senhaServer;
 
-  if (!email || email.trim() === "") {
-    res.status(400).send("Email é obrigatório!");
-  } else if (!senha || senha.trim() === "") {
-    res.status(400).send("Senha é obrigatória!");
-  } else if (!email.includes("@") || !email.includes(".")) {
-    res.status(400).send("Email inválido!");
-  } else {
-    usuarioModel
-      .autenticar(email, senha)
-      .then(function (resultadoAutenticar) {
-        console.log(`\nResultados encontrados: ${resultadoAutenticar.length}`);
-        console.log(`Resultados: ${JSON.stringify(resultadoAutenticar)}`); // transforma JSON em String
+    if (!email || email.trim() === "") {
+        return res.status(400).send("Email é obrigatório!");
 
-        if (resultadoAutenticar.length == 1) {
-          console.log(resultadoAutenticar);
+    } else if (!senha || senha.trim() === "") {
+        return res.status(400).send("Senha é obrigatória!");
 
-          if (resultadoAutenticar[0].email.includes("@streamguard.com")) {
-            res.json({
-              id: resultadoAutenticar[0].id,
-              email: resultadoAutenticar[0].email,
-              nome: resultadoAutenticar[0].nome,
-              cargo: resultadoAutenticar[0].cargo,
-              permissao: resultadoAutenticar[0].permissao,
+    } else if (!email.includes("@") || !email.includes(".")) {
+        return res.status(400).send("Email inválido!");
+
+    } else {
+        usuarioModel
+            .autenticar(email, senha)
+            .then(async function (resultadoAutenticar) {
+
+                console.log(`\nResultados encontrados: ${resultadoAutenticar.length}`);
+
+                if (resultadoAutenticar.length === 1) {
+
+                    var usuario = resultadoAutenticar[0];
+
+                    // Atualiza a data e hora do último acesso no banco
+                    await perfilModel.atualizarUltimoAcesso(usuario.id);
+
+                    if (usuario.email.includes("@streamguard.com")) {
+
+                        return res.json({
+                            id: usuario.id,
+                            email: usuario.email,
+                            nome: usuario.nome,
+                            cargo: usuario.cargo,
+                            permissao: usuario.permissao
+                        });
+
+                    } else {
+
+                        return res.json({
+                            id: usuario.id,
+                            email: usuario.email,
+                            nome: usuario.nome,
+                            cargo: usuario.cargo,
+                            permissao: usuario.permissao,
+                            empresa_id: usuario.empresa_id,
+                            nome_empresa: usuario.nome_empresa
+                        });
+                    }
+
+                } else if (resultadoAutenticar.length === 0) {
+
+                    return res.status(403).send("Email e/ou senha inválido(s)");
+
+                } else {
+
+                    return res.status(403).send("Mais de um usuário com o mesmo login e senha!");
+                }
+
+            })
+            .catch(function (erro) {
+
+                console.log("Erro ao realizar login:", erro);
+
+                res.status(500).send("Erro ao realizar login.");
             });
-          } else {
-            res.json({
-              id: resultadoAutenticar[0].id,
-              email: resultadoAutenticar[0].email,
-              nome: resultadoAutenticar[0].nome,
-              cargo: resultadoAutenticar[0].cargo,
-              permissao: resultadoAutenticar[0].permissao,
-              empresa_id: resultadoAutenticar[0].empresa_id,
-              nome_empresa: resultadoAutenticar[0].nome_empresa,
-            });
-          }
-        } else if (resultadoAutenticar.length == 0) {
-          res.status(403).send("Email e/ou senha inválido(s)");
-        } else {
-          res.status(403).send("Mais de um usuário com o mesmo login e senha!");
-        }
-      })
-      .catch(function (erro) {
-        console.log(erro);
-        console.log(
-          "\nHouve um erro ao realizar o login! Erro: ",
-          erro.sqlMessage,
-        );
-        res.status(500).json(erro.sqlMessage);
-      });
-  }
+    }
 }
 
-function cadastrar(req, res) {
-  var id_empresa = req.body.idEmpresaServer;
-  var nome = req.body.nomeServer;
-  var cargo = req.body.cargoServer;
-  var email = req.body.emailServer;
-  var senha = req.body.senhaServer;
 
-  if (id_empresa.trim() === "") {
-    res.status(400).send("Id de empresa é obrigatório!");
-  } else if (nome.trim() === "") {
-    res.status(400).send("Nome é obrigatório!");
-  } else if (cargo.trim() === "") {
-    res.status(400).send("Cargo é obrigatório!");
-  } else if (!email || email.trim() === "") {
-    res.status(400).send("Email é obrigatório!");
-  } else if (!senha || senha.trim() === "") {
-    res.status(400).send("Senha é obrigatória!");
-  } else if (!email.includes("@") || !email.includes(".")) {
-    res.status(400).send("Email inválido!");
-  } else {
-    usuarioModel
-      .cadastrar(id_empresa, nome, cargo, email, senha)
-      .then(function (resultadoCadastrar) {
-        console.log(`\nResultados encontrados: ${resultadoCadastrar.length}`);
-        console.log(`Resultados: ${JSON.stringify(resultadoCadastrar)}`);
-        res.status(201).send(resultadoCadastrar);
-      });
-  }
+function cadastrar(req, res) {
+    var id_empresa = req.body.idEmpresaServer;
+    var nome = req.body.nomeServer;
+    var cargo = req.body.cargoServer;
+    var email = req.body.emailServer;
+    var senha = req.body.senhaServer;
+
+    if (id_empresa.trim() === "") {
+        res.status(400).send("Id de empresa é obrigatório!");
+    } else if (nome.trim() === "") {
+        res.status(400).send("Nome é obrigatório!");
+    } else if (cargo.trim() === "") {
+        res.status(400).send("Cargo é obrigatório!");
+    } else if (!email || email.trim() === "") {
+        res.status(400).send("Email é obrigatório!");
+    } else if (!senha || senha.trim() === "") {
+        res.status(400).send("Senha é obrigatória!");
+    } else if (!email.includes("@") || !email.includes(".")) {
+        res.status(400).send("Email inválido!");
+    } else {
+        usuarioModel
+            .cadastrar(id_empresa, nome, cargo, email, senha)
+            .then(function (resultadoCadastrar) {
+                console.log(`\nResultados encontrados: ${resultadoCadastrar.length}`);
+                console.log(`Resultados: ${JSON.stringify(resultadoCadastrar)}`);
+                res.status(201).send(resultadoCadastrar);
+            });
+    }
 }
 
 module.exports = {
-  autenticar,
-  cadastrar,
+    autenticar,
+    cadastrar,
 };

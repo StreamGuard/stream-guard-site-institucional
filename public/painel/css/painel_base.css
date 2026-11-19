@@ -187,7 +187,7 @@ small {
     gap: 10px;
     margin-left: 3%;
     margin-top: 15%;
-    margin-bottom: 38%;
+    margin-bottom: 28%;
 }
 
 .logo-icone img {
@@ -251,9 +251,6 @@ small {
     align-items: center;
     justify-content: flex-start;
     padding-left: 2%;
-
-    margin-top: 12%;
-    margin-bottom: 12%;
 }
 
 .menu-div span{
@@ -604,5 +601,126 @@ small {
 
     .usuario>div:not(.avatar) {
         display: none;
+    }
+}
+
+.principal > *,
+.topo > * {
+    min-width: 0;
+}
+
+.painel-notif {
+    max-width: calc(100vw - var(--largura-sidebar) - 24px);
+    max-height: calc(100dvh - 140px);
+    overflow-y: auto;
+}
+
+@media (max-width: 1280px) {
+    .sidebar {
+        padding-inline: 5px;
+    }
+
+    .sidebar > * {
+        flex-shrink: 0;
+    }
+
+    .sidebar .logo {
+        margin-left: 0;
+    }
+
+    .sidebar .logo-icone img {
+        width: 44px;
+        height: 44px;
+    }
+
+    .sidebar .ambiente {
+        display: block;
+        width: 100%;
+        padding: 0;
+        margin-bottom: 16px;
+        border: 0;
+        background: transparent;
+    }
+
+    .sidebar .usuario,
+    .sidebar .usuario-div,
+    .sidebar .usuario-logout h6 {
+        display: none;
+    }
+
+    .sidebar .usuario-logout {
+        justify-content: center;
+    }
+
+    .sidebar .btn-sair {
+        width: 44px;
+        height: 44px;
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 767px) {
+    :root {
+        --espaco-pagina: 16px;
+        --espaco-entre: 16px;
+    }
+
+    .topo {
+        height: auto;
+        min-height: var(--altura-topo);
+        padding: 12px 16px;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .topo > div:not(.topo-direita) {
+        flex: 1 1 100%;
+    }
+
+    .topo-direita {
+        width: 100%;
+        gap: 8px;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+    }
+
+    .topo h1,
+    .topo p,
+    .selo-online,
+    .aviso-perfil {
+        overflow-wrap: anywhere;
+    }
+
+    .demo-perfil {
+        flex: 1 1 150px;
+        min-width: 0;
+    }
+
+    .demo-perfil select {
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .aviso-perfil {
+        align-items: flex-start;
+    }
+
+    .btn-sino {
+        width: 44px;
+        height: 44px;
+    }
+
+    .principal input:not([type="checkbox"]):not([type="radio"]),
+    .principal select,
+    .principal textarea {
+        max-width: 100%;
+        min-width: 0;
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 767px) and (max-height: 480px) {
+    .topo {
+        position: static;
     }
 }
