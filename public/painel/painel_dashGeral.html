@@ -1,151 +1,37 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard | Stream Guard</title>
-
+    <title>Panorama semanal | StreamGuard</title>
     <link rel="stylesheet" href="./css/painel_base.css">
     <link rel="stylesheet" href="./css/painel_dashGeral.css">
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-
-<body data-pagina="dashGeral">
+<body data-pagina="dashGeral" class="dash-semanal">
     <div class="layout">
-
         <aside class="sidebar" data-shell="sidebar"></aside>
-
         <div class="conteudo">
-            <header class="topo">
-                <div>
-                    <h1>Dashboard Geral</h1>
-                    <p>Visão geral, histórico e padrões de utilização da infraestrutura</p>
-                </div>
-                <div class="topo-direita" data-shell="topo-direita"></div>
-            </header>
-
+            <header class="topo"><div><h1>Dashboard Geral</h1><p>Infraestrutura · acompanhamento semanal</p></div><div class="topo-direita" data-shell="topo-direita"></div></header>
             <main class="principal">
-
-                <div class="filtros-topo">
-                    <div class="campo-select">
-                        <label for="selectEmpresa">EMPRESA</label>
-                        <select id="selectEmpresa">
-                            <option>StreamCo Brasil</option>
-                        </select>
-                    </div>
-                    <div class="campo-select">
-                        <label for="selectEquipamento">EQUIPAMENTO</label>
-                        <select id="selectEquipamento">
-                            <option value="todos">Todos os equipamentos</option>
-                            <option>srv-stream-01</option>
-                            <option>srv-stream-02</option>
-                            <option>srv-stream-03</option>
-                            <option>srv-stream-04</option>
-                        </select>
-                    </div>
-                    <a class="link-visao" href="./painel_dashEspecifica.html" data-perfis="gerente admin">Ver visão do gestor →</a>
-                    <span class="info-atualizacao">
-                        <i class="bolinha verde"></i> <span id="txtAtualizacao">Atualizado agora</span> • coleta a cada
-                        30s
-                    </span>
-                </div>
-
-                <!-- Visão geral da infraestrutura -->
-                <section class="visao-geral" id="visao-geral">
-                    <div class="contadores">
-                        <div class="contador c-ok"><strong id="cntOk">0</strong><small> Normal</small></div>
-                        <div class="contador c-alerta"><strong id="cntAlerta">0</strong><small>Em alerta</small></div>
-                        <div class="contador c-critico"><strong id="cntCritico">0</strong><small>Críticos</small></div>
-                    </div>
-                    <div class="ranking">
-                        <h2>Servidores mais críticos</h2>
-                        <ol id="listaRanking"></ol>
-                    </div>
+                <section class="cabecalho-semana"><div><span class="eyebrow">VISÃO DO GESTOR DE INFRAESTRUTURA</span><h2>Uma semana de decisões,<br>com contexto para antecipar.</h2><p>Acompanhe pressão persistente, recorrência e tendências do parque.</p></div><div class="periodo-semana"><span>SEMANA ILUSTRATIVA</span><strong>16 — 22 nov. 2026</strong><small>Segunda a domingo · horário de São Paulo</small></div></section>
+                <div class="aviso-mock" role="note"><span class="selo-mock">PROTÓTIPO</span><p>Dados fictícios para validar a proposta. Projeções calculadas sobre histórico simulado de quatro semanas; não representam a operação real.</p></div>
+                <section class="filtros-semana" aria-label="Filtros da simulação"><label>Equipamento<select id="servidor"><option value="todos">Visão do parque</option><option value="0">srv-stream-01</option><option value="1">srv-stream-02</option><option value="2">srv-edge-01</option><option value="3">srv-backup-01</option></select></label><label>Componente do gráfico de horários<select id="componente"><option>CPU</option><option>RAM</option><option>Disco</option><option>Rede</option></select></label><label>Avanço da semana simulada<select id="dia"><option value="0">Segunda-feira · 14h</option><option value="1" selected>Terça-feira · 14h</option><option value="2">Quarta-feira · 14h</option><option value="3">Quinta-feira · 14h</option><option value="4">Sexta-feira · 14h</option><option value="5">Sábado · 14h</option><option value="6">Domingo · 14h</option></select></label><span id="escopo" class="escopo" aria-live="polite"></span></section>
+                <section class="kpis" aria-label="Indicadores semanais">
+                    <article class="kpi"><div class="kpi-label"><span>01 · PRESSÃO PERSISTENTE</span><span class="ponto rosa"></span></div><h3>Maiores picos da semana</h3><div id="picosComponentes" class="picos-quadrantes" aria-live="polite"></div><small>Elegível: duas ou mais medições consecutivas acima do limite, em intervalos de 1 minuto.</small></article>
+                    <article class="kpi kpi-ranking"><div class="kpi-label"><span>02 · RECORRÊNCIA NO PARQUE</span><span class="janela">4 semanas anteriores</span></div><h3>Servidores com mais alertas</h3><div id="ranking" class="ranking"></div><div class="legenda"><span><i class="cpu"></i>CPU</span><span><i class="ram"></i>RAM</span><span><i class="disco"></i>Disco</span></div><small>Top 3 servidores · barras por episódios, segmentadas por componente. Ranking sempre do parque completo.</small></article>
+                    <article class="kpi"><div class="kpi-label"><span>03 · REDE NA ÚLTIMA HORA</span><span class="ponto ciano"></span></div><h3>Capacidade de saída utilizada</h3><div id="redeValor" class="numero-kpi"></div><p id="redeComparacao"></p><div id="redeBarra" class="rede-trilho"></div><small id="redeNota"></small></article>
                 </section>
-
-                <!-- Cards: último valor, média e pico do período -->
-                <section class="cards-metricas" id="cardsMetricas"></section>
-
-                <div class="banner-alerta" id="bannerAlerta"></div>
-
-                <div class="grade-dashboard">
-                    <section class="painel-grafico" id="painel-grafico">
-                        <div class="grafico-topo">
-                            <div>
-                                <h2>Histórico de uso</h2>
-                                <p id="subPeriodo">Últimos 30 minutos</p>
-                            </div>
-                            <div class="grupo-periodo" id="grupoPeriodo">
-                                <button class="btn-periodo ativo" data-p="30m">30 min</button>
-                                <button class="btn-periodo" data-p="1h">1h</button>
-                                <button class="btn-periodo" data-p="24h">24h</button>
-                                <button class="btn-periodo" data-p="7d">7 dias</button>
-                                <button class="btn-periodo" data-p="30d">30 dias</button>
-                            </div>
-                        </div>
-                        <div class="toggles" id="togglesMetricas"></div>
-                        <div class="container-chart"><canvas id="chartUsoTempoReal"></canvas></div>
-                        <p class="legenda-incidente">▲ Marca os momentos em que a métrica chegou perto ou passou do
-                            limite.</p>
-                    </section>
-
-                    <section class="painel-status">
-                        <h2>Status dos componentes</h2>
-                        <p class="sub">4 métricas + fonte de energia</p>
-                        <ul class="lista-status" id="listaStatus"></ul>
-                    </section>
+                <section class="grafico-card"><div class="titulo-grafico"><div><span class="eyebrow">01 / PERFIL DE UTILIZAÇÃO</span><h3>Em quais horários a carga se concentra?</h3><p id="horarioContexto"></p></div><span class="tag">Média da semana observada</span></div><div id="graficoHorarios" class="grafico" role="img" aria-label="Médias de utilização por faixa de horário"></div><p class="rodape-grafico">Faixas sem sobreposição: 00–06h, 06–12h, 12–18h e 18–24h. A média usa somente horas já observadas.</p></section>
+                <div class="grade-projecoes">
+                    <section class="grafico-card"><div class="titulo-grafico"><div><span class="eyebrow">02 / CAPACIDADE DE ARMAZENAMENTO</span><h3>O disco chega ao limite nesta semana?</h3><p id="discoContexto"></p></div></div><div class="legenda"><span><i class="disco"></i>Observado</span><span><i class="predicao tracejado"></i>Predição da semana</span><span><i class="limite"></i>Limite 85%</span></div><div id="graficoDisco" class="grafico" role="img" aria-label="Ocupação observada e projeção de disco até domingo"></div><div id="discoResumo" class="leitura-grafico"></div></section>
+                    <section class="grafico-card"><div class="titulo-grafico"><div><span class="eyebrow">03 / TENDÊNCIA DE ALERTAS</span><h3>Como os alertas podem evoluir até domingo?</h3><p id="alertaContexto"></p></div></div><div class="legenda"><span><i class="ram"></i>Acumulado observado</span><span><i class="predicao tracejado"></i>Predição acumulada</span></div><div id="graficoAlertas" class="grafico" role="img" aria-label="Alertas acumulados observados e estimados na semana"></div><div id="alertaResumo" class="leitura-grafico"></div></section>
                 </div>
-
-                <section class="painel-incidentes" id="painel-incidentes">
-                    <div class="incidentes-topo">
-                        <div>
-                            <h2>Histórico de incidentes e logs</h2>
-                            <p id="subIncidentes">Período selecionado no gráfico</p>
-                        </div>
-                        <div class="incidentes-filtros">
-                            <select id="filtroSeveridade" aria-label="Severidade">
-                                <option value="">Todas as severidades</option>
-                                <option value="Crítico">Crítico</option>
-                                <option value="Alerta">Alerta</option>
-                            </select>
-                            <select id="filtroComponente" aria-label="Componente">
-                                <option value="">Todos os componentes</option>
-                                <option>CPU</option>
-                                <option>RAM</option>
-                                <option>Disco</option>
-                                <option>Rede</option>
-                            </select>
-                            <button class="btn-exportar" id="btnExportar">Exportar CSV</button>
-                        </div>
-                    </div>
-                    <div class="tabela-wrap">
-                        <table class="tabela-incidentes">
-                            <thead>
-                                <tr>
-                                    <th>Data/hora</th>
-                                    <th>Equipamento</th>
-                                    <th>Componente</th>
-                                    <th>Severidade</th>
-                                    <th>Pico</th>
-                                    <th>Limite</th>
-                                    <th>Duração</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tbodyIncidentes"></tbody>
-                        </table>
-                    </div>
-                </section>
-
+                <details class="metodologia"><summary>Entenda os cálculos e os limites desta simulação</summary><div><p><b>Picos:</b> cada episódio exige medições consecutivas acima do limite. O maior valor do episódio pode ocorrer uma única vez. Limites ilustrativos: CPU 85%, RAM 90%, disco 85% e rede 80%.</p><p><b>Alertas:</b> contamos episódios de ultrapassagem, não cada amostra. O ranking considera CPU, RAM e disco nas quatro semanas completas anteriores. A projeção inclui esses mesmos componentes.</p><p><b>Rede:</b> saída média na janela de 13–14h ÷ capacidade do enlace. A comparação usa 12–13h do dia simulado. No parque, somamos tráfego e capacidades. Cada servidor tem um enlace hipotético de 1 Gbit/s. A mudança relativa e a diferença em pontos percentuais são distintas.</p><p><b>Disco:</b> regressão linear por mínimos quadrados sobre 28 médias diárias simuladas. A predição cobre toda a semana a partir da regressão histórica, independentemente dos valores observados. Na visão do parque, usamos a média simples das ocupações; ela não é ponderada pelo tamanho dos discos.</p><p><b>Previsão de alertas:</b> regressão sobre 28 contagens diárias; a predição acumulada cobre toda a semana e pode ser comparada à linha observada, que termina no horário simulado. O dia atual está parcial. Estimativas negativas são limitadas a zero. A reta não modela sazonalidade, transmissões ou intervenções.</p><p>São tendências ilustrativas, sem garantia de previsão. O protótipo não consulta API, não grava no banco e não altera configurações.</p></div></details>
             </main>
         </div>
     </div>
-
     <script src="./js/painel_shell.js"></script>
     <script src="./js/painel_dashGeral.js"></script>
 </body>
-
 </html>

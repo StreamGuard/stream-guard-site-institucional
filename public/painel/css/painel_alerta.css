@@ -359,13 +359,13 @@
   flex-direction: column;
   min-height: 0;
 }
-
 .painel-historico {
-  flex: 3;
+  height: 460px;
+  flex: 0 0 460px;
 }
 
 .painel-log {
-  flex: 2;
+  flex: 0 0 auto;
 }
 
 .painel-limites {
@@ -387,28 +387,32 @@
   display: flex;
   flex-direction: column;
 }
-
 .lista-alertas::-webkit-scrollbar {
-  width: 12px;
-  height: 10px;
+  width: 6px;
 }
 
 .lista-alertas::-webkit-scrollbar-track {
-  background: #f1f1f1;
-  border-radius: 6px;
+  background: transparent;
 }
 
 .lista-alertas::-webkit-scrollbar-thumb {
-  background: #888;
+  background: var(--borda);
   border-radius: 6px;
 }
 
 .lista-alertas::-webkit-scrollbar-thumb:hover {
-  background: #555;
+  background: var(--texto-suave);
 }
 
 .lista-alertas {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
   gap: 10px;
+  padding-right: 6px;
 }
 
 .limites {
@@ -421,9 +425,10 @@
 
 .alerta {
   margin-bottom: 0;
-  flex: 1 0 50px;
-  max-height: 84px;
-  padding: 0 16px;
+  flex: 0 0 auto;
+  min-height: 70px;
+  max-height: none;
+  padding: 10px 16px;
 }
 
 .alerta-icone {

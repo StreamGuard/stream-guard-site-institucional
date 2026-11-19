@@ -56,6 +56,9 @@ function entrar() {
 
         resposta.text().then((texto) => {
           console.error(texto);
+          let mensagem_erro = document.getElementById('mensagemErro');
+
+          mensagem_erro.innerHTML = `${texto}`;
         });
       }
     })

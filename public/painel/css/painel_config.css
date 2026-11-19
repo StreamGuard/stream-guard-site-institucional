@@ -305,7 +305,7 @@
 .grid-metricas .linha-cabecalho,
 .grid-metricas .linha {
     display: grid;
-    grid-template-columns: 2.2fr 1fr 1.6fr 1.3fr 1fr;
+    grid-template-columns: 2.2fr 1fr 1.6fr 1.3fr 1.5fr;
     align-items: center;
 }
 
@@ -358,6 +358,19 @@
     display: flex;
     align-items: center;
     gap: 0.6rem;
+}
+
+.col-acoes {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 8px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+}
+
+.col-acoes .btn-sg {
+    flex-shrink: 0;
 }
 
 .col-email {
@@ -663,16 +676,12 @@
 .box-tabela>.tabela .linha {
     flex: 1 1 auto;
     max-height: 90px;
-    min-height: 54px;
+    min-height: 90px;
     align-items: center;
 }
 
 .linhas {
     display: contents;
-}
-
-.col-acoes {
-    flex-wrap: wrap;
 }
 
 .grid-funcionarios .linha-cabecalho,
@@ -686,70 +695,111 @@
     outline-offset: 2px;
 }
 
-.box-tabela,
-.cards-resumo > * {
-    min-width: 0;
-}
-
 .box-tabela > .tabela {
-    overflow: auto;
-    max-width: 100%;
+    flex: 0 1 auto;
+    height: 490px;
+    max-height: 490px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--sg-navy-4) transparent;
 }
 
-.grid-metricas .linha,
-.grid-metricas .linha-cabecalho {
-    min-width: 760px;
+/* Linhas com altura fixa */
+.box-tabela > .tabela .linha {
+    flex: 0 0 90px;
+    height: 90px;
+    min-height: 90px;
+    max-height: 90px;
+    box-sizing: border-box;
+    padding-block: 0;
 }
 
-.grid-funcionarios .linha,
-.grid-funcionarios .linha-cabecalho {
-    min-width: 920px;
+.box-tabela > .tabela .linha[hidden] {
+    display: none;
 }
 
-@media (max-width: 767px) {
-    .cards-resumo {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
+/* Cabeçalho fixo */
+.box-tabela > .tabela .linha-cabecalho {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    flex: 0 0 44px;
+    height: 44px;
+    min-height: 44px;
+    box-sizing: border-box;
+    padding-block: 0;
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), var(--sg-navy-2);
+}
 
-    .card-resumo {
-        padding: 16px;
-    }
+.box-tabela > .tabela .linha-cabecalho,
+.box-tabela > .tabela .linha {
+    align-items: center;
+}
 
-    .box-tabela-acoes,
-    .box-tabela-rodape {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
+/* Rodapé no final */
+.box-tabela-rodape {
+    margin-top: auto;
+}
 
-    .campo-busca {
-        min-width: 0;
-        max-width: 100%;
-        flex: 1 1 200px;
-    }
+/* token da empresa (só o admin vê) */
+.token-empresa {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-left: auto;
+    margin-right: 1rem;
+    padding: 0.35rem 0.8rem;
+    background: var(--sg-navy-2);
+    border: 1px solid var(--sg-navy-4);
+    border-radius: 0.4rem;
+}
 
-    .box-tabela-topo,
-    .box-tabela-rodape {
-        padding: 16px;
-    }
+.token-empresa[hidden] {
+    display: none;
+}
 
-    .rodape-nota {
-        min-width: 0;
-        overflow-wrap: anywhere;
-    }
+.token-empresa span {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--sg-text-muted);
+}
 
-    .abas {
-        flex-wrap: wrap;
-        gap: 12px;
-    }
+.token-empresa code {
+    font-family: monospace;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+    color: var(--sg-accent);
+}
 
-    .btn-sg {
-        height: auto;
-        min-height: 44px;
-        padding: 10px 14px;
-        white-space: normal;
-    }
+.token-empresa button {
+    background: transparent;
+    border: none;
+    color: var(--sg-blue);
+    font-size: 0.75rem;
+    cursor: pointer;
+}
 
-    .box-tabela > .tabela .linha {
-        max-height: none;
-    }
+.token-empresa button:hover {
+    text-decoration: underline;
+}
+
+.grid-componentes .linha-cabecalho,
+.grid-componentes .linha {
+    display: grid;
+    grid-template-columns: 2.2fr 1.5fr 0.9fr 1fr 1.1fr 2.6fr;
+    align-items: center;
+}
+
+.col-comp {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.col-qtd,
+.col-data {
+    font-size: 0.85rem;
+    color: rgba(255, 255, 255, 0.7);
 }

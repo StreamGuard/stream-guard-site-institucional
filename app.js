@@ -1,5 +1,5 @@
 var ambiente_processo = 'producao';
-// var ambiente_processo = 'desenvolvimento';
+//var ambiente_processo = 'desenvolvimento';
 
 var caminho_env = ambiente_processo === 'desenvolvimento' ? '.env.dev' : '.env';
 require("dotenv").config({ path: caminho_env });
@@ -19,24 +19,32 @@ var HOST_APP = process.env.APP_HOST;
 
 var app = express();
 
+var dashboard_analista_geralRouter = require("./src/routes/analista_geral");
 var indexRouter = require("./src/routes/index");
+var clientesRouter = require("./src/routes/clientes");
+var adminRouter = require("./src/routes/admin");
+var alertaRouter = require("./src/routes/alerta");
+var configRouter = require("./src/routes/config");
+var perfilRouter = require("./src/routes/perfil");
 var usuariosRouter = require("./src/routes/usuarios");
 var servidoresRouter = require("./src/routes/servidores")
 var empresasRouter = require("./src/routes/empresas");
-var componentesRouter = require("./src/routes/componentes");
-var metricasRouter = require("./src/routes/metricas");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors());
 
 app.use(express.static(path.join(__dirname, "public")));
+app.use("/clientes", clientesRouter);
+app.use("/admin", adminRouter);
+app.use("/alerta", alertaRouter);
+app.use("/config", configRouter);
+app.use("/perfil", perfilRouter);
 app.use("/api", jiraRouter);
 app.use("/empresas", empresasRouter);
+app.use("/analista_geral",dashboard_analista_geralRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/servidores", servidoresRouter)
-app.use("/componentes", componentesRouter);
-app.use("/metricas", metricasRouter);
 app.use("/", indexRouter);
 
 app.listen(PORTA_APP, function () {

@@ -1,0 +1,787 @@
+
+// procuro o canvas no meu html
+const historico = document.getElementById("graficoHistorico");
+const correlacao = document.getElementById("graficoCorrelacao");
+const canvasRankingRam = document.getElementById("graficoRamServidores");
+const canvasHistogramaRam = document.getElementById("graficoHistogramaRam");
+const buscaRam = document.getElementById("filtroServidorRam");
+const filtroServidor = document.getElementById("filtroServidor");
+
+if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
+    const periodos = {
+        "30m": { minutos: 30, texto: "Últimos 30 minutos" },
+        "1h": { minutos: 60, texto: "Última hora" },
+        "24h": { minutos: 1440, texto: "Últimas 24 horas" }
+    };
+
+
+
+    const graficoHistorico = new Chart(historico, {
+        type: "line",
+        data: {
+            labels: [],
+            datasets: [
+                { label: "CPU (%)", data: [], borderColor: "#4f8cff", yAxisID: "y" },
+                { label: "RAM (%)", data: [], borderColor: "#8b5cf6", yAxisID: "y" },
+                { label: "Disco (%)", data: [], borderColor: "#2de2c0", yAxisID: "y" },
+                { label: "Rede (%)", data: [], borderColor: "#f5b700", yAxisID: "y" },
+                {
+                    label: "Limite 80%",
+                    data: [],
+                    borderColor: "#ff4d6d",
+                    borderDash: [4, 4],
+                    pointRadius: 0,
+                    yAxisID: "y"
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            //permito que a altura seja controlada pelo CSS.
+            maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        color: "rgba(204, 204, 204, 0.15)"
+                    }
+                },
+                y: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        callback: valor => `${valor}%`
+                    },
+                    grid: {
+                        color: "rgba(136, 136, 168, 0.15)"
+                    }
+                }
+            }
+        }
+    });
+
+    const botoesPeriodo = document.querySelectorAll(".botao-periodo");
+    const textoPeriodo = document.getElementById("textoPeriodo");
+
+    for (let i = 0; i < botoesPeriodo.length; i++) {
+        botoesPeriodo[i].addEventListener("click", function () {
+            const periodo = this.dataset.periodo;
+
+            if (periodos[periodo] === undefined) {
+                return;
+            }
+
+            for (let j = 0; j < botoesPeriodo.length; j++) {
+                botoesPeriodo[j].classList.remove("ativo");
+            }
+
+            this.classList.add("ativo");
+            periodoHistorico = periodo;
+            //    graficoHistorico.data.labels = criarHorarios(periodo);
+            textoPeriodo.textContent = periodos[periodo].texto;
+        });
+    }
+
+    const graficoCorrelacao = new Chart(correlacao, {
+        type: "scatter",
+        data: {
+            datasets: [
+                {
+                    label: "Medições",
+                    data: [],
+                    backgroundColor: "#2de2c0",
+                    pointRadius: 4
+                },
+                {
+                    type: "line",
+                    label: "Tendência",
+                    data: [],
+                    borderColor: "#f1f1f8",
+                    borderDash: [5, 5],
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: {
+                    min: 0,
+                    max: 100,
+                    title: { display: true, text: "Uso de CPU (%)" }
+                },
+                y: {
+                    min: 0,
+                    max: 100,
+                    title: { display: true, text: "Uso de rede (%)" },
+                    ticks: { callback: valor => `${valor}%` }
+                }
+            }
+        }
+    });
+
+    let metricasHistorico = [];
+    let servidorHistorico = null;
+    let periodoHistorico = "30m";
+
+    // busco os dados na minha rota
+    fetch("/analista_geral/dashboard")
+        .then(function (resposta) {
+            if (!resposta.ok) {
+                throw new Error("Não foi possível buscar os dados.");
+            }
+            return resposta.json();
+        })
+        .then(function (dados) {
+            if (dados.metricas.length === 0) {
+                throw new Error("O CSV não tem métricas.");
+            }
+
+
+            histogramaRam.options.scales.x.title.text =
+                "Uso de " + componenteHistograma.toUpperCase();
+            // guardo os dados do meu histograma :
+            metricasHistograma = dados.metricas;
+            // chamo a função que monta meu histograma
+            atualizarHistogramaRam();
+
+            //No meu grafico de dispersão escolho o servidor da minha primiera metrica
+            var servidorSelecionado = dados.metricas[0].servidor_id;
+            servidorHistorico = servidorSelecionado;
+            metricasHistorico = dados.metricas;
+
+            // Dados do gráfico de histórico
+            var horariosReais = [];
+            var valoresCpu = [];
+            var valoresRam = [];
+            var valoresDisco = [];
+            var valoresRede = [];
+
+            // Dados do gráfico de dispersão
+            var pontosCpuRede = {};
+
+            // Valores atuais dos indicadores do painel
+            var ultimoCpu = null;
+            var ultimaRam = null;
+            var ultimoDisco = null;
+            var ultimaRede = null;
+
+            // Capacidade da rede usada para calcular a porcentagem
+            var capacidadeRedeMbps = 1000;
+
+
+
+            for (var i = 0; i < dados.metricas.length; i++) {
+                var linha = dados.metricas[i];
+
+                // Converte o horário da linha para comparação
+                // O CSV tem formato: "2026-10-24 12:00:00"
+                var horaLinha = linha.inicio_periodo;
+                var minutosAgo = 0;
+                if (periodoHistorico === "30m") {
+                    minutosAgo = 30;
+                } else if (periodoHistorico === "1h") {
+                    minutosAgo = 60;
+                } else if (periodoHistorico === "24h") {
+                    minutosAgo = 1440; // 24 * 60
+                }
+
+                if (linha.servidor_id !== servidorSelecionado) {
+                    continue;
+                }
+
+                if (linha.tipo === "USO_CPU") {
+                    var valorCpu = Number(linha.media_amostral);
+                    valoresCpu.push(valorCpu);
+                    ultimoCpu = valorCpu;
+
+                    horariosReais.push(
+                        linha.inicio_periodo.substring(8, 10) + "/" +
+                        linha.inicio_periodo.substring(5, 7) + " " +
+                        linha.inicio_periodo.substring(11, 16)
+                    );
+
+                    var usoCpu = Math.round(ultimoCpu);
+                    var cpuLivre = 100 - usoCpu;
+                    document.getElementById("valorLivreCpu").textContent = cpuLivre + "%";
+                    document.getElementById("textoLivreCpu").textContent = cpuLivre + "% livres, com uso de " + usoCpu + "%.";
+                    var horario = linha.inicio_periodo;
+
+
+                    // para cada medição minha de cpu ela vira um x no meu grafico de dispersão
+                    pontosCpuRede[horario] = pontosCpuRede[horario] || {};
+                    pontosCpuRede[horario].x = valorCpu;
+
+
+                } else if (linha.tipo === "USO_RAM") {
+                    var valorRam = Number(linha.media_amostral);
+                    valoresRam.push(valorRam);
+                    ultimaRam = valorRam;
+                    var usoRam = Math.round(ultimaRam);
+                    var ramLivre = 100 - usoRam;
+                    document.getElementById("valorLivreRam").textContent = ramLivre + "%";
+                    document.getElementById("textoLivreRam").textContent = ramLivre + "% livres, com uso de " + usoRam + "%.";
+
+                } else if (linha.tipo === "USO_DISCO") {
+                    var valorDisco = Number(linha.media_amostral);
+                    valoresDisco.push(valorDisco);
+                    ultimoDisco = valorDisco;
+                    var usoDisco = Math.round(ultimoDisco);
+                    var discoLivre = 100 - usoDisco;
+                    document.getElementById("valorLivreDisco").textContent = discoLivre + "%";
+                    document.getElementById("textoLivreDisco").textContent = discoLivre + "% livres, com uso de " + usoDisco + "%.";
+
+                } else if (linha.tipo === "TAXA_RECEBIMENTO_REDE") {
+                    var bytesPorSegundo = Number(linha.media_amostral);
+                    var percentualRede =
+                        // como minha taxa vem em bytes eu converto para bits * 8, comparo com a capacid em Mbps *1.000.00 
+                        // e multiplico por 100 para obter a porcentagem.
+                        (bytesPorSegundo * 8 / (capacidadeRedeMbps * 1000000)) * 100;
+
+                    valoresRede.push(percentualRede);
+                    ultimaRede = percentualRede;
+                    var usoRede = Math.round(ultimaRede);
+                    var redeLivre = 100 - usoRede;
+                    document.getElementById("valorLivreRede").textContent = redeLivre + "%";
+                    document.getElementById("textoLivreRede").textContent = redeLivre + "% livres, com uso de " + usoRede + "%.";
+
+
+                    // horario é o inicio_periodo da minha medição uso como ponto de uniao entre meus dois valores ou seja 
+                    // se os horarios de ambos forem diferentes eles não são pareados.
+                    var horario = linha.inicio_periodo;
+                    //para cada medição minha de rede ela se torna um valor y no meu grafico de dispersão
+                    pontosCpuRede[horario] = pontosCpuRede[horario] || {};
+                    pontosCpuRede[horario].y = percentualRede;
+                }
+            }
+
+            //Grafico correlacao:
+            var pontos = [];
+            var somaX = 0, somaY = 0, somaXY = 0;
+            var somaX2 = 0, somaY2 = 0;
+            var menorX = Infinity, maiorX = -Infinity;
+
+            for (var horario in pontosCpuRede) {
+                var ponto = pontosCpuRede[horario];
+
+                if (ponto.x !== undefined && ponto.y !== undefined) {
+                    pontos.push(ponto);
+                    somaX += ponto.x;
+                    somaY += ponto.y;
+                    somaXY += ponto.x * ponto.y;
+                    somaX2 += ponto.x * ponto.x;
+                    somaY2 += ponto.y * ponto.y;
+
+                    // pego o maior e menor valor para entender aonde começa e termina meu grafico
+                    if (ponto.x < menorX) menorX = ponto.x;
+                    if (ponto.x > maiorX) maiorX = ponto.x;
+                }
+            }
+
+            // os pontos sao colocados no 1 dataset
+            graficoCorrelacao.data.datasets[0].data = pontos;
+
+            var n = pontos.length;
+            var divisor = Math.sqrt((n * somaX2 - somaX * somaX) * (n * somaY2 - somaY * somaY));
+
+            if (n >= 2 && divisor > 0) {
+                // inclinacao e intercepto sao usadas para eu conseguir calcular minha reta q resume a tendencia dos meus pontos
+                var inclinacao = (n * somaXY - somaX * somaY) / (n * somaX2 - somaX * somaX);
+                var intercepto = (somaY - inclinacao * somaX) / n;
+
+                graficoCorrelacao.data.datasets[1].data = [
+                    { x: menorX, y: inclinacao * menorX + intercepto },
+                    { x: maiorX, y: inclinacao * maiorX + intercepto }
+                ];
+
+                //a formula de correlação calclua entre um numero de -1 e 1 
+                document.getElementById("valorCorrelacao").textContent =
+                    "Correlação: " + ((n * somaXY - somaX * somaY) / divisor).toFixed(2).replace(".", ",");
+            }
+
+            graficoCorrelacao.update();
+
+            function atualizarStatus(nome, valor) {
+                var uso = Math.round(valor);
+
+                document.getElementById("barra" + nome).value = uso;
+                document.getElementById("uso" + nome).textContent = uso + "%";
+
+                var selo = document.getElementById("selo" + nome);
+                var classeStatus;
+                if (uso >= 80) {
+                    selo.textContent = "Alerta";
+                    selo.className = "selo-status status-alerta";
+                    classeStatus = "status-alerta";
+                } else if (uso >= 60) {
+                    selo.textContent = "Atenção";
+                    selo.className = "selo-status status-atencao";
+                    classeStatus = "status-atencao";
+                } else {
+                    selo.textContent = "Normal";
+                    selo.className = "selo-status status-normal";
+                    classeStatus = "status-normal";
+                }
+
+                // Atualizando Kpis
+                var cardKpi = document.getElementById("kpi" + nome)
+                    .closest(".card-metrica");
+                var seloKpi = document.getElementById("kpiSelo" + nome);
+
+                seloKpi.textContent = selo.textContent;
+                seloKpi.className = "selo-status " + classeStatus;
+
+                // removo do cartão qualquer clase de esatdo anterior
+                cardKpi.classList.remove(
+                    "status-alerta",
+                    "status-atencao",
+                    "status-normal"
+                );
+                cardKpi.classList.add(classeStatus);
+            }
+
+
+
+            if (ultimoCpu !== null) atualizarStatus("Cpu", ultimoCpu);
+            if (ultimaRam !== null) atualizarStatus("Ram", ultimaRam);
+            if (ultimoDisco !== null) atualizarStatus("Disco", ultimoDisco);
+            if (ultimaRede !== null) atualizarStatus("Rede", ultimaRede);
+
+
+
+            if (ultimoCpu !== null) {
+                document.getElementById("kpiCpu").textContent =
+                    Math.round(ultimoCpu) + "%";
+            }
+
+            if (ultimaRam !== null) {
+                document.getElementById("kpiRam").textContent =
+                    Math.round(ultimaRam) + "%";
+            }
+
+            if (ultimoDisco !== null) {
+                document.getElementById("kpiDisco").textContent =
+                    Math.round(ultimoDisco) + "%";
+            }
+
+            if (ultimaRede !== null) {
+                document.getElementById("kpiRede").textContent =
+                    Math.round(ultimaRede) + "%";
+            }
+
+
+            var limites = [];
+            for (var i = 0; i < valoresCpu.length; i++) {
+                limites.push(80);
+            }
+
+            graficoHistorico.data.labels = horariosReais;
+            graficoHistorico.data.datasets[0].data = valoresCpu;
+            graficoHistorico.data.datasets[1].data = valoresRam;
+            graficoHistorico.data.datasets[2].data = valoresDisco;
+            graficoHistorico.data.datasets[3].data = valoresRede;
+            graficoHistorico.data.datasets[4].data = limites;
+
+            graficoHistorico.update();
+
+
+        })
+        .catch(function (erro) {
+            console.error("Erro ao carregar métricas:", erro);
+        });
+
+
+    const filtroHistograma = document.getElementById("filtroComponenteHistograma");
+    let componenteHistograma = "ram";
+    let metricasHistograma = [];
+    const histogramaRam = new Chart(canvasHistogramaRam, {
+        type: "bar",
+        data: {
+            datasets: [
+                {
+                    type: "bar",
+                    label: "Medições",
+                    data: [],
+                    backgroundColor: "rgba(79, 140, 255, 0.65)",
+                    borderColor: "#4f8cff",
+                    borderWidth: 1,
+                    barThickness: 18
+                },
+                {
+                    type: "line",
+                    label: "Média",
+                    data: [],
+                    borderColor: "#ff4d6d",
+                    borderWidth: 2,
+                    borderDash: [6, 4],
+                    pointRadius: 0
+                },
+                {
+                    type: "line",
+                    label: "Mediana",
+                    data: [],
+                    // meu data vai começar vazia pois a minha função 
+                    // atualizarHistogramaRam() calcula e coloca os dados aqui
+                    borderColor: "#f5b700",
+                    borderWidth: 2,
+                    borderDash: [3, 3],
+                    pointRadius: 0
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: "bottom"
+                },
+                tooltip: {
+                    callbacks: {
+                        label(contexto) {
+                            if (contexto.dataset.type === "bar") {
+                                return "Medições: " + contexto.parsed.y;
+                            }
+
+                            return contexto.dataset.label + ": "
+                                + contexto.parsed.x.toFixed(1) + "%";
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    type: "linear",
+                    min: 0,
+                    max: 100,
+                    title: {
+                        display: true,
+                        text: "Uso de RAM"
+                    },
+                    ticks: {
+                        stepSize: 10,
+                        callback(valor) {
+                            return valor + "%";
+                        }
+                    }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        precision: 0
+                    },
+                    title: {
+                        display: true,
+                        text: "Quantidade de medições"
+                    }
+                }
+            }
+        }
+    });
+
+    function atualizarHistogramaRam() {
+        const valores = [];
+
+        const tipos = {
+            ram: "USO_RAM",
+            cpu: "USO_CPU",
+            disco: "USO_DISCO",
+            rede: "TAXA_RECEBIMENTO_REDE"
+        };
+
+        const tipoSelecionado = tipos[componenteHistograma];
+
+        for (let i = 0; i < metricasHistograma.length; i++) {
+            const linha = metricasHistograma[i];
+
+            if (linha.tipo === tipoSelecionado) {
+                let valor = Number(linha.media_amostral);
+
+                if (componenteHistograma === "rede") {
+                    valor = (valor * 8 / 1000000000) * 100;
+                }
+
+                if (Number.isFinite(valor)) {
+                    valores.push(valor);
+                }
+            }
+        }
+        const faixas = [];
+
+        // crio a lista com minhas dez barras do histograma
+        for (let i = 0; i < 10; i++) {
+            // repito o bloco dez vezes criando uma faixa para cada intervalo de 10%
+            let nomeFaixa = (i * 10) + "-" + (i * 10 + 9) + "%";
+
+            if (i === 9) {
+                nomeFaixa = "90-100%";
+            }
+
+            faixas.push({
+                x: i * 10 + 5,
+                y: 0,
+                faixa: nomeFaixa
+            });
+        }
+
+        // Conto quantas medições caem em cada faixa.
+        for (let i = 0; i < valores.length; i++) {
+            //depois cada medição vai sendo colocada na faixa correspondemte ex: 20-29%
+            let numeroFaixa = Math.floor(valores[i] / 10);
+
+            if (numeroFaixa > 9) {
+                numeroFaixa = 9;
+            }
+
+            faixas[numeroFaixa].y++;
+        }
+
+        // Calculo a média.
+        let soma = 0;
+
+        for (let i = 0; i < valores.length; i++) {
+            soma = soma + valores[i];
+        }
+
+        let media = 0;
+
+        if (valores.length > 0) {
+            media = soma / valores.length;
+        }
+
+        // Copia e ordena os valores para encontrar a mediana.
+        const ordenados = [];
+
+        for (let i = 0; i < valores.length; i++) {
+            ordenados.push(valores[i]);
+        }
+
+        // ordeno os numeros do menor para o maior, ou seja se um numero da direita for menor que o 
+        // da minha esquerda eles trocam de lugar
+        for (let i = 0; i < ordenados.length; i++) {
+            for (let j = i + 1; j < ordenados.length; j++) {
+                if (ordenados[j] < ordenados[i]) {
+                    const temporario = ordenados[i];
+                    ordenados[i] = ordenados[j];
+                    ordenados[j] = temporario;
+                }
+            }
+        }
+
+        let mediana = 0;
+
+        // aqui eu calculo minha mediana a partir dos meus ordenados que fiz acima
+        if (ordenados.length > 0) {
+            const meio = Math.floor(ordenados.length / 2);
+
+            //se minha qunatidade for par eu tiro minha mediana dos valores centrais
+            if (ordenados.length % 2 === 0) {
+                mediana = (ordenados[meio - 1] + ordenados[meio]) / 2;
+            } else {
+                mediana = ordenados[meio];
+            }
+        }
+
+        // ajusto a altura das linhas de média e mediana.
+        let topo = 1;
+
+        for (let i = 0; i < faixas.length; i++) {
+            if (faixas[i].y >= topo) {
+                topo = faixas[i].y + 1;
+            }
+        }
+
+        // envio os dados faça meu grafico la em data que iniciei vazio
+        histogramaRam.data.datasets[0].data = faixas;
+
+        histogramaRam.data.datasets[1].data = [
+            { x: media, y: 0 },
+            { x: media, y: topo }
+        ];
+
+        histogramaRam.data.datasets[2].data = [
+            { x: mediana, y: 0 },
+            { x: mediana, y: topo }
+        ];
+
+
+        histogramaRam.update();
+    }
+
+    const servidores = [
+        {
+            nome: "srv-stream-01",
+            usada: 12,
+            total: 16,
+            historico: [61, 64, 68, 66, 70, 72, 69, 73, 75, 74, 77, 75, 78, 76, 75],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        },
+        {
+            nome: "srv-stream-02",
+            usada: 10,
+            total: 16,
+            historico: [48, 50, 49, 52, 55, 53, 56, 58, 57, 60, 59, 61, 62, 60, 62],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        },
+        {
+            nome: "srv-stream-03",
+            usada: 13,
+            total: 16,
+            historico: [70, 72, 74, 73, 75, 78, 77, 80, 79, 82, 81, 83, 80, 82, 81],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        },
+        {
+            nome: "srv-encode-01",
+            usada: 23,
+            total: 32,
+            historico: [62, 65, 64, 66, 68, 67, 69, 71, 73, 72, 70, 71, 73, 72, 72],
+            usos: { cpu: 77, disco: 85, rede: 45 },
+            historicos: {
+                cpu: [78, 80, 77, 50, 40, 40, 80, 67, 45, 27, 87, 27, 88, 96, 68],
+                disco: [42, 52, 48, 57, 78, 76, 88, 95, 38, 75, 48, 74, 62, 42, 57],
+                rede: [50, 48, 39, 64, 89, 53, 58, 43, 27, 85, 35, 78, 89, 47, 79]
+            }
+        }
+
+    ];
+
+    filtroHistograma.addEventListener("change", function () {
+        componenteHistograma = this.value;
+        atualizarHistogramaRam();
+    });
+
+    // barras horizontais: mostro os 10 servidores com maior uso.
+    const filtroRanking = document.getElementById("filtroComponenteRanking");
+    let componenteRanking = "ram";
+    const ranking = new Chart(canvasRankingRam, {
+        type: "bar",
+        data: {
+            // começo sem os dados depois minha afunção atualizarRanking() preenche.
+            labels: [],
+            datasets: [{
+                label: "Uso de RAM",
+                data: [],
+                backgroundColor: []
+            }]
+        },
+        options: {
+            indexAxis: "y",
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label(context) {
+                            for (const servidor of servidores) {
+                                if (servidor.nome === context.label) {
+                                    const percentual = Math.round(
+                                        servidor.usada / servidor.total * 100
+                                    );
+                                    return `${percentual}% — ${servidor.usada} de ${servidor.total} GB`;
+                                }
+                            }
+
+                            return `${context.parsed.x}%`;
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    min: 0,
+                    max: 100,
+                    ticks: {
+                        callback: valor => `${valor}%`
+                    }
+                }
+            }
+        }
+    });
+
+
+
+
+
+
+
+    function atualizarRanking() {
+        const textoBusca = buscaRam.value.toLowerCase();
+        const resultados = [];
+
+        for (const servidor of servidores) {
+            if (servidor.nome.toLowerCase().includes(textoBusca)) {
+                let percentual;
+
+                if (componenteRanking === "ram") {
+                    percentual = Math.round(servidor.usada / servidor.total * 100);
+                } else {
+                    percentual = servidor.usos[componenteRanking];
+                }
+
+                resultados.push({
+                    nome: servidor.nome,
+                    percentual: percentual
+                });
+            }
+        }
+
+        resultados.sort((a, b) => b.percentual - a.percentual);
+
+        const nomes = [];
+        const percentuais = [];
+        const cores = [];
+
+        for (let i = 0; i < resultados.length && i < 10; i++) {
+            nomes.push(resultados[i].nome);
+            percentuais.push(resultados[i].percentual);
+
+            if (resultados[i].percentual >= 80) {
+                cores.push("#ff4d6d");
+            } else if (resultados[i].percentual >= 60) {
+                cores.push("#f5b700");
+            } else {
+                cores.push("#2de2c0");
+            }
+        }
+
+        ranking.data.labels = nomes;
+        ranking.data.datasets[0].label = "Uso de " + componenteRanking.toUpperCase();
+        ranking.data.datasets[0].data = percentuais;
+        ranking.data.datasets[0].backgroundColor = cores;
+        ranking.update();
+    }
+
+    filtroRanking.addEventListener("change", function () {
+        componenteRanking = this.value;
+        atualizarRanking();
+    });
+
+    buscaRam.addEventListener("input", atualizarRanking);
+
+    atualizarRanking();
+}
