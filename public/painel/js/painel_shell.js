@@ -137,7 +137,8 @@
 
       <p class="menu-titulo">Monitoramento</p>
       <nav class="menu">
-        ${item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard", "dashboard")}
+        ${item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard Gerente", "dashboard")}
+        ${item("./painel_leonardo.html", "sg-grid", "Dashboard Analista", "leo")}
         ${item("./painel_alerta.html", "sg-bell", "Alertas", "alerta")}
       </nav>
 
