@@ -1,13 +1,13 @@
 
 // procuro o canvas no meu html
 const historico = document.getElementById("graficoHistorico");
-const correlacao = document.getElementById("graficoCorrelacao");
+const canvasTrafegoRede = document.getElementById("graficoTrafegoRede");
 const canvasRankingRam = document.getElementById("graficoRamServidores");
 const canvasHistogramaRam = document.getElementById("graficoHistogramaRam");
 const buscaRam = document.getElementById("filtroServidorRam");
 const filtroServidor = document.getElementById("filtroServidor");
 
-if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
+if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
     const periodos = {
         "30m": { minutos: 30, texto: "Últimos 30 minutos" },
         "1h": { minutos: 60, texto: "Última hora" },
@@ -24,7 +24,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                 { label: "CPU (%)", data: [], borderColor: "#4f8cff", yAxisID: "y" },
                 { label: "RAM (%)", data: [], borderColor: "#8b5cf6", yAxisID: "y" },
                 { label: "Disco (%)", data: [], borderColor: "#2de2c0", yAxisID: "y" },
-                { label: "Rede (%)", data: [], borderColor: "#f5b700", yAxisID: "y" },
+
                 {
                     label: "Limite 80%",
                     data: [],
@@ -68,62 +68,111 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
         }
     });
 
-    const botoesPeriodo = document.querySelectorAll(".botao-periodo");
+    const botoesPeriodoHistorico = document.querySelectorAll("#filtroPeriodo .botao-periodo");
+    const botoesPeriodoRede = document.querySelectorAll("#filtroPeriodoRede .botao-periodo");
     const textoPeriodo = document.getElementById("textoPeriodo");
+    const textoPeriodoRede = document.getElementById("textoPeriodoRede");
 
-    for (let i = 0; i < botoesPeriodo.length; i++) {
-        botoesPeriodo[i].addEventListener("click", function () {
-            const periodo = this.dataset.periodo;
 
-            if (periodos[periodo] === undefined) {
-                return;
-            }
+    let periodoHistorico = "30m";
+let periodoTrafegoRede = "30m";
 
-            for (let j = 0; j < botoesPeriodo.length; j++) {
-                botoesPeriodo[j].classList.remove("ativo");
-            }
+    function configurarBotoesPeriodo(botoes, aoSelecionar) {
+        for (let i = 0; i < botoes.length; i++) {
+            botoes[i].addEventListener("click", function () {
+                const periodo = this.dataset.periodo;
 
-            this.classList.add("ativo");
-            periodoHistorico = periodo;
-            //    graficoHistorico.data.labels = criarHorarios(periodo);
-            textoPeriodo.textContent = periodos[periodo].texto;
-        });
+                if (periodos[periodo] === undefined) {
+                    return;
+                }
+
+                for (let j = 0; j < botoes.length; j++) {
+                    if (botoes[j].dataset.periodo === periodo) {
+                        botoes[j].classList.add("ativo");
+                    } else {
+                        botoes[j].classList.remove("ativo");
+                    }
+                }
+
+                aoSelecionar(periodo);
+            });
+        }
     }
 
-    const graficoCorrelacao = new Chart(correlacao, {
-        type: "scatter",
+    configurarBotoesPeriodo(botoesPeriodoHistorico, function (periodo) {
+        periodoHistorico = periodo;
+        textoPeriodo.textContent = periodos[periodo].texto;
+    });
+
+    configurarBotoesPeriodo(botoesPeriodoRede, function (periodo) {
+        periodoTrafegoRede = periodo;
+        textoPeriodoRede.textContent = periodos[periodo].texto;
+    });
+
+
+
+
+
+
+    const graficoTrafegoRede = new Chart(canvasTrafegoRede, {
+        type: "line",
         data: {
+            labels: [],
             datasets: [
                 {
-                    label: "Medições",
+                    label: "Envio",
                     data: [],
+                    borderColor: "#2de2c0",
                     backgroundColor: "#2de2c0",
-                    pointRadius: 4
+                    pointRadius: 2,
+                    tension: 0.2,
+                    spanGaps: false
                 },
                 {
-                    type: "line",
-                    label: "Tendência",
+                    label: "Recebimento",
                     data: [],
-                    borderColor: "#f1f1f8",
-                    borderDash: [5, 5],
-                    pointRadius: 0
+                    borderColor: "#4f8cff",
+                    backgroundColor: "#4f8cff",
+                    pointRadius: 2,
+                    tension: 0.2,
+                    spanGaps: false
                 }
             ]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+                intersect: false,
+                mode: "index"
+            },
+            plugins: {
+                legend: {
+                    position: "bottom"
+                }
+            },
             scales: {
                 x: {
-                    min: 0,
-                    max: 100,
-                    title: { display: true, text: "Uso de CPU (%)" }
+                    title: {
+                        display: true,
+                        text: "Horário"
+                    },
+                    grid: {
+                        color: "rgba(204, 204, 204, 0.15)"
+                    }
                 },
                 y: {
-                    min: 0,
-                    max: 100,
-                    title: { display: true, text: "Uso de rede (%)" },
-                    ticks: { callback: valor => `${valor}%` }
+                    beginAtZero: true,
+                    title: {
+                        display: true,
+                        text: "Tráfego (MB/s)"
+                    },
+                    ticks: {
+                        callback: valor => `${valor} MB/s`
+                    },
+                    grid: {
+                        color: "rgba(136, 136, 168, 0.15)"
+                    }
                 }
             }
         }
@@ -131,7 +180,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
 
     let metricasHistorico = [];
     let servidorHistorico = null;
-    let periodoHistorico = "30m";
+
 
     // busco os dados na minha rota
     fetch("/analista_geral/dashboard")
@@ -164,10 +213,9 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
             var valoresCpu = [];
             var valoresRam = [];
             var valoresDisco = [];
-            var valoresRede = [];
 
-            // Dados do gráfico de dispersão
-            var pontosCpuRede = {};
+
+
 
             // Valores atuais dos indicadores do painel
             var ultimoCpu = null;
@@ -214,12 +262,9 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                     var cpuLivre = 100 - usoCpu;
                     document.getElementById("valorLivreCpu").textContent = cpuLivre + "%";
                     document.getElementById("textoLivreCpu").textContent = cpuLivre + "% livres, com uso de " + usoCpu + "%.";
-                    var horario = linha.inicio_periodo;
 
 
-                    // para cada medição minha de cpu ela vira um x no meu grafico de dispersão
-                    pontosCpuRede[horario] = pontosCpuRede[horario] || {};
-                    pontosCpuRede[horario].x = valorCpu;
+
 
 
                 } else if (linha.tipo === "USO_RAM") {
@@ -247,7 +292,6 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                         // e multiplico por 100 para obter a porcentagem.
                         (bytesPorSegundo * 8 / (capacidadeRedeMbps * 1000000)) * 100;
 
-                    valoresRede.push(percentualRede);
                     ultimaRede = percentualRede;
                     var usoRede = Math.round(ultimaRede);
                     var redeLivre = 100 - usoRede;
@@ -258,57 +302,67 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                     // horario é o inicio_periodo da minha medição uso como ponto de uniao entre meus dois valores ou seja 
                     // se os horarios de ambos forem diferentes eles não são pareados.
                     var horario = linha.inicio_periodo;
-                    //para cada medição minha de rede ela se torna um valor y no meu grafico de dispersão
-                    pontosCpuRede[horario] = pontosCpuRede[horario] || {};
-                    pontosCpuRede[horario].y = percentualRede;
+
                 }
             }
 
-            //Grafico correlacao:
-            var pontos = [];
-            var somaX = 0, somaY = 0, somaXY = 0;
-            var somaX2 = 0, somaY2 = 0;
-            var menorX = Infinity, maiorX = -Infinity;
+            var pontosTrafegoRede = {};
 
-            for (var horario in pontosCpuRede) {
-                var ponto = pontosCpuRede[horario];
+            for (var i = 0; i < dados.metricas.length; i++) {
+                var linhaRede = dados.metricas[i];
 
-                if (ponto.x !== undefined && ponto.y !== undefined) {
-                    pontos.push(ponto);
-                    somaX += ponto.x;
-                    somaY += ponto.y;
-                    somaXY += ponto.x * ponto.y;
-                    somaX2 += ponto.x * ponto.x;
-                    somaY2 += ponto.y * ponto.y;
+                if (linhaRede.servidor_id !== servidorSelecionado) {
+                    continue;
+                }
 
-                    // pego o maior e menor valor para entender aonde começa e termina meu grafico
-                    if (ponto.x < menorX) menorX = ponto.x;
-                    if (ponto.x > maiorX) maiorX = ponto.x;
+                if (linhaRede.tipo !== "TAXA_ENVIO_REDE" &&
+                    linhaRede.tipo !== "TAXA_RECEBIMENTO_REDE") {
+                    continue;
+                }
+
+                var horarioRede = linhaRede.inicio_periodo;
+
+                if (!pontosTrafegoRede[horarioRede]) {
+                    pontosTrafegoRede[horarioRede] = {
+                        envio: null,
+                        recebimento: null
+                    };
+                }
+
+                var valorMBs = Number(linhaRede.media_amostral) / 1000000;
+
+                if (!Number.isFinite(valorMBs)) {
+                    continue;
+                }
+
+                if (linhaRede.tipo === "TAXA_ENVIO_REDE") {
+                    pontosTrafegoRede[horarioRede].envio = valorMBs;
+                } else if (linhaRede.tipo === "TAXA_RECEBIMENTO_REDE") {
+                    pontosTrafegoRede[horarioRede].recebimento = valorMBs;
                 }
             }
 
-            // os pontos sao colocados no 1 dataset
-            graficoCorrelacao.data.datasets[0].data = pontos;
+            var horariosRede = Object.keys(pontosTrafegoRede);
+            horariosRede.sort();
 
-            var n = pontos.length;
-            var divisor = Math.sqrt((n * somaX2 - somaX * somaX) * (n * somaY2 - somaY * somaY));
+            var labelsRede = [];
+            var valoresEnvioRede = [];
+            var valoresRecebimentoRede = [];
 
-            if (n >= 2 && divisor > 0) {
-                // inclinacao e intercepto sao usadas para eu conseguir calcular minha reta q resume a tendencia dos meus pontos
-                var inclinacao = (n * somaXY - somaX * somaY) / (n * somaX2 - somaX * somaX);
-                var intercepto = (somaY - inclinacao * somaX) / n;
+            for (var i = 0; i < horariosRede.length; i++) {
+                var horario = horariosRede[i];
+                var pontoRede = pontosTrafegoRede[horario];
 
-                graficoCorrelacao.data.datasets[1].data = [
-                    { x: menorX, y: inclinacao * menorX + intercepto },
-                    { x: maiorX, y: inclinacao * maiorX + intercepto }
-                ];
-
-                //a formula de correlação calclua entre um numero de -1 e 1 
-                document.getElementById("valorCorrelacao").textContent =
-                    "Correlação: " + ((n * somaXY - somaX * somaY) / divisor).toFixed(2).replace(".", ",");
+                labelsRede.push(horario);
+                valoresEnvioRede.push(pontoRede.envio);
+                valoresRecebimentoRede.push(pontoRede.recebimento);
             }
 
-            graficoCorrelacao.update();
+            graficoTrafegoRede.data.labels = labelsRede;
+            graficoTrafegoRede.data.datasets[0].data = valoresEnvioRede;
+            graficoTrafegoRede.data.datasets[1].data = valoresRecebimentoRede;
+            graficoTrafegoRede.update();
+
 
             function atualizarStatus(nome, valor) {
                 var uso = Math.round(valor);
@@ -340,7 +394,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
                 seloKpi.textContent = selo.textContent;
                 seloKpi.className = "selo-status " + classeStatus;
 
-                // removo do cartão qualquer clase de esatdo anterior
+                // removo do cartão qualquer classe de estado anterior
                 cardKpi.classList.remove(
                     "status-alerta",
                     "status-atencao",
@@ -388,8 +442,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam) {
             graficoHistorico.data.datasets[0].data = valoresCpu;
             graficoHistorico.data.datasets[1].data = valoresRam;
             graficoHistorico.data.datasets[2].data = valoresDisco;
-            graficoHistorico.data.datasets[3].data = valoresRede;
-            graficoHistorico.data.datasets[4].data = limites;
+            graficoHistorico.data.datasets[3].data = limites;
 
             graficoHistorico.update();
 
