@@ -18,14 +18,22 @@
     <div class="layout">
 
         <aside class="sidebar" data-shell="sidebar">
-            
+
         </aside>
 
         <div class="conteudo">
             <header class="topo">
                 <div>
                     <h1>Configurações</h1>
-                    <p>Gerencie métricas, funcionários e permissões.</p>
+                    <p>Gerencie métricas, componentes, funcionários e permissões.</p>
+                </div>
+                <div class="token-empresa" id="tokenEmpresa" data-perfis="admin" hidden>
+                    <span>Token da empresa</span>
+                    <code id="tokenValor">...</code>
+                    <button type="button" id="btnCopiarToken">
+                        <i class="fa-regular fa-copy"></i>
+                        Copiar
+                    </button>
                 </div>
                 <div class="topo-direita" data-shell="topo-direita"></div>
             </header>
@@ -37,6 +45,11 @@
                         <i class="fa-solid fa-arrow-trend-up"></i>
                         Métricas
                     </button>
+                    <button type="button" role="tab" id="aba-componentes" data-tab="componentes"
+                        aria-controls="painel-componentes" aria-selected="false" tabindex="-1">
+                        <i class="fa-solid fa-microchip"></i>
+                        Componentes
+                    </button>
                     <button type="button" role="tab" id="aba-funcionarios" data-tab="funcionarios"
                         aria-controls="painel-funcionarios" aria-selected="false" tabindex="-1">
                         <i class="fa-solid fa-user"></i>
@@ -46,161 +59,241 @@
 
 
 
-            <div class="content-metricas is-visible" id="painel-metricas" data-panel="metricas" role="tabpanel"
-                aria-labelledby="aba-metricas">
+                <div class="content-metricas is-visible" id="painel-metricas" data-panel="metricas" role="tabpanel"
+                    aria-labelledby="aba-metricas">
 
-                <div class="cards-resumo">
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <span class="card-icone"><i class="fa-solid fa-database"></i></span>
-                            <strong data-resumo="total">6</strong>
+                    <div class="cards-resumo">
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <span class="card-icone"><i class="fa-solid fa-database"></i></span>
+                                <strong data-resumo="total">6</strong>
+                            </div>
+                            <p>Métricas cadastradas</p>
                         </div>
-                        <p>Métricas cadastradas</p>
-                    </div>
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <span class="card-icone"><i class="fa-regular fa-circle-check"></i></span>
-                            <strong data-resumo="ativas">4</strong>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <span class="card-icone"><i class="fa-regular fa-circle-check"></i></span>
+                                <strong data-resumo="ativas">4</strong>
+                            </div>
+                            <p>Métricas ativas</p>
                         </div>
-                        <p>Métricas ativas</p>
-                    </div>
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <span class="card-icone card-icone-roxo"><i class="fa-solid fa-circle-pause"></i></span>
-                            <strong data-resumo="inativas">2</strong>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <span class="card-icone card-icone-roxo"><i class="fa-solid fa-circle-pause"></i></span>
+                                <strong data-resumo="inativas">2</strong>
+                            </div>
+                            <p>Métricas inativas</p>
                         </div>
-                        <p>Métricas inativas</p>
-                    </div>
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <span class="card-icone"><i class="fa-solid fa-bolt"></i></span>
-                            <strong data-resumo="menor">15s</strong>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <span class="card-icone"><i class="fa-solid fa-bolt"></i></span>
+                                <strong data-resumo="menor">15s</strong>
+                            </div>
+                            <p>Menor intervalo</p>
                         </div>
-                        <p>Menor intervalo</p>
                     </div>
-                </div>
 
-                <div class="box-tabela">
-                    <div class="box-tabela-topo">
-                        <div class="box-tabela-titulo">
-                            <h3>Métricas configuradas</h3>
-                            <p>Defina frequência, unidade de coleta e status das métricas.</p>
+                    <div class="box-tabela">
+                        <div class="box-tabela-topo">
+                            <div class="box-tabela-titulo">
+                                <h3>Métricas configuradas</h3>
+                                <p>Defina frequência, unidade de coleta e status das métricas.</p>
+                            </div>
+                            <div class="box-tabela-acoes">
+                                <label class="campo-busca">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="search" id="busca-metrica" placeholder="Buscar métrica..."
+                                        autocomplete="off">
+                                </label>
+                                <button type="button" class="btn-sg btn-primary" data-modal="adicionar-metrica">
+                                    <i class="fa-solid fa-plus"></i>
+                                    Adicionar métrica
+                                </button>
+                            </div>
                         </div>
-                        <div class="box-tabela-acoes">
-                            <label class="campo-busca">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                                <input type="search" id="busca-metrica" placeholder="Buscar métrica..."
-                                    autocomplete="off">
-                            </label>
-                            <button type="button" class="btn-sg btn-primary" data-modal="adicionar-metrica">
-                                <i class="fa-solid fa-plus"></i>
-                                Adicionar métrica
+
+                        <div class="tabela grid-metricas">
+                            <div class="linha-cabecalho">
+                                <span>MÉTRICA</span>
+                                <span>UNIDADE</span>
+                                <span>INTERVALO DE COLETA</span>
+                                <span>ESTADO</span>
+                                <span>AÇÃO</span>
+                            </div>
+
+                            <div id="lista-metricas" class="linhas"></div>
+
+                            <p class="sem-resultados" hidden>Nenhuma métrica encontrada.</p>
+                        </div>
+
+                        <div class="box-tabela-rodape">
+                            <span class="rodape-nota" data-resumo="nota">Alterações entram em vigor no próximo ciclo de
+                                coleta.</span>
+                            <button type="button" class="btn-sg btn-primary" id="salvar-metricas">
+                                <i class="fa-regular fa-floppy-disk"></i>
+                                Salvar alterações
                             </button>
                         </div>
                     </div>
-
-                    <div class="tabela grid-metricas">
-                        <div class="linha-cabecalho">
-                            <span>MÉTRICA</span>
-                            <span>UNIDADE</span>
-                            <span>INTERVALO DE COLETA</span>
-                            <span>ESTADO</span>
-                            <span>AÇÃO</span>
-                        </div>
-
-                        <div id="lista-metricas" class="linhas"></div>
-
-                        <p class="sem-resultados" hidden>Nenhuma métrica encontrada.</p>
-                    </div>
-
-                    <div class="box-tabela-rodape">
-                        <span class="rodape-nota" data-resumo="nota">Alterações entram em vigor no próximo ciclo de
-                            coleta.</span>
-                        <button type="button" class="btn-sg btn-primary" id="salvar-metricas">
-                            <i class="fa-regular fa-floppy-disk"></i>
-                            Salvar alterações
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="content-configuracoes" id="painel-funcionarios" data-panel="funcionarios" role="tabpanel"
-                aria-labelledby="aba-funcionarios" hidden>
-
-                <div class="cards-resumo">
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <strong class="num-azul" data-resumo="total">4</strong>
-                        </div>
-                        <p>Total de funcionários</p>
-                    </div>
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <strong class="num-mint" data-resumo="ativos">3</strong>
-                        </div>
-                        <p>Acessos ativos</p>
-                    </div>
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <strong class="num-cinza" data-resumo="inativos">1</strong>
-                        </div>
-                        <p>Acesso inativo</p>
-                    </div>
-                    <div class="card-resumo">
-                        <div class="card-resumo-top">
-                            <strong class="num-roxo" data-resumo="niveis">3</strong>
-                        </div>
-                        <p>Níveis de perfil</p>
-                    </div>
                 </div>
 
-                <div class="box-tabela">
-                    <div class="box-tabela-topo">
-                        <div class="box-tabela-acoes box-tabela-filtros">
-                            <label class="campo-busca">
-                                <i class="fa-solid fa-magnifying-glass"></i>
-                                <input type="search" id="busca-funcionario" placeholder="Buscar por nome ou e-mail"
-                                    autocomplete="off">
-                            </label>
-                            <div class="campo-filtro">
-                                <span>PERFIL</span>
-                                <select class="select-sg" id="filtro-perfil" aria-label="Filtrar por perfil">
-                                    <option value="todos">Todos os perfis</option>
-                                    <option value="administrador">Administrador</option>
-                                    <option value="gerente">Gerente</option>
-                                    <option value="comum">Usuário comum</option>
-                                </select>
+                <div class="content-configuracoes" id="painel-componentes" data-panel="componentes" role="tabpanel"
+                    aria-labelledby="aba-componentes" hidden>
+
+                    <div class="cards-resumo">
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-azul" data-resumo="total">0</strong>
                             </div>
+                            <p>Componentes cadastrados</p>
                         </div>
-                        <button type="button" class="btn-sg btn-primary" data-modal="adicionar-funcionario">
-                            <i class="fa-solid fa-user-plus"></i>
-                            Adicionar funcionário
-                        </button>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-mint" data-resumo="ativos">0</strong>
+                            </div>
+                            <p>Componentes ativos</p>
+                        </div>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-cinza" data-resumo="inativos">0</strong>
+                            </div>
+                            <p>Componentes inativos</p>
+                        </div>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-roxo" data-resumo="tipos">0</strong>
+                            </div>
+                            <p>Tipos de componente</p>
+                        </div>
                     </div>
 
-                    <div class="tabela grid-funcionarios">
-                        <div class="linha-cabecalho">
-                            <span>FUNCIONÁRIO</span>
-                            <span>E-MAIL</span>
-                            <span>PERFIL</span>
-                            <span>STATUS</span>
-                            <span>AÇÕES</span>
+                    <div class="box-tabela">
+                        <div class="box-tabela-topo">
+                            <div class="box-tabela-acoes box-tabela-filtros">
+                                <label class="campo-busca">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="search" id="busca-componente" placeholder="Buscar componente..."
+                                        autocomplete="off">
+                                </label>
+                                <div class="campo-filtro">
+                                    <span>TIPO</span>
+                                    <select class="select-sg" id="filtro-tipo-componente" aria-label="Filtrar por tipo">
+                                        <option value="todos">Todos os tipos</option>
+                                        <option value="CPU">CPU</option>
+                                        <option value="RAM">Memória RAM</option>
+                                        <option value="Armazenamento">Armazenamento</option>
+                                        <option value="Rede">Rede</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-sg btn-primary" data-modal="adicionar-componente">
+                                <i class="fa-solid fa-plus"></i>
+                                Adicionar componente
+                            </button>
                         </div>
 
-                        <div id="lista-funcionarios" class="linhas"></div>
+                        <div class="tabela grid-componentes">
+                            <div class="linha-cabecalho">
+                                <span>COMPONENTE</span>
+                                <span>TIPO</span>
+                                <span>MÉTRICAS</span>
+                                <span>STATUS</span>
+                                <span>INSTALAÇÃO</span>
+                                <span>AÇÕES</span>
+                            </div>
 
-                        <p class="sem-resultados" hidden>Nenhum funcionário encontrado.</p>
-                    </div>
+                            <div id="lista-componentes" class="linhas"></div>
 
-                    <div class="box-tabela-rodape">
-                        <span class="rodape-nota" data-resumo="rodape">4 funcionários • 3 com acesso ativo</span>
-                        <span class="rodape-nota">
-                            <i class="fa-regular fa-circle-question"></i>
-                            Perfis definem as ações disponíveis no StreamGuard.
-                        </span>
+                            <p class="sem-resultados" hidden>Nenhum componente encontrado.</p>
+                        </div>
+
+                        <div class="box-tabela-rodape">
+                            <span class="rodape-nota" data-resumo="rodape">0 componentes • 0 ativos</span>
+                            <span class="rodape-nota">
+                                <i class="fa-regular fa-circle-question"></i>
+                                Remover um componente também remove as métricas ligadas a ele.
+                            </span>
+                        </div>
                     </div>
                 </div>
-            </div>
+
+                <div class="content-configuracoes" id="painel-funcionarios" data-panel="funcionarios" role="tabpanel"
+                    aria-labelledby="aba-funcionarios" hidden>
+
+                    <div class="cards-resumo">
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-azul" data-resumo="total">4</strong>
+                            </div>
+                            <p>Total de funcionários</p>
+                        </div>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-mint" data-resumo="ativos">3</strong>
+                            </div>
+                            <p>Acessos ativos</p>
+                        </div>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-cinza" data-resumo="inativos">1</strong>
+                            </div>
+                            <p>Acesso inativo</p>
+                        </div>
+                        <div class="card-resumo">
+                            <div class="card-resumo-top">
+                                <strong class="num-roxo" data-resumo="niveis">3</strong>
+                            </div>
+                            <p>Níveis de perfil</p>
+                        </div>
+                    </div>
+
+                    <div class="box-tabela">
+                        <div class="box-tabela-topo">
+                            <div class="box-tabela-acoes box-tabela-filtros">
+                                <label class="campo-busca">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                    <input type="search" id="busca-funcionario" placeholder="Buscar por nome ou e-mail"
+                                        autocomplete="off">
+                                </label>
+                                <div class="campo-filtro">
+                                    <span>PERFIL</span>
+                                    <select class="select-sg" id="filtro-perfil" aria-label="Filtrar por perfil">
+                                        <option value="todos">Todos os perfis</option>
+                                        <option value="administrador">Administrador</option>
+                                        <option value="gerente">Gerente</option>
+                                        <option value="comum">Usuário comum</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <button type="button" class="btn-sg btn-primary" data-modal="adicionar-funcionario">
+                                <i class="fa-solid fa-user-plus"></i>
+                                Adicionar funcionário
+                            </button>
+                        </div>
+
+                        <div class="tabela grid-funcionarios">
+                            <div class="linha-cabecalho">
+                                <span>FUNCIONÁRIO</span>
+                                <span>E-MAIL</span>
+                                <span>PERFIL</span>
+                                <span>STATUS</span>
+                                <span>AÇÕES</span>
+                            </div>
+
+                            <div id="lista-funcionarios" class="linhas"></div>
+
+                            <p class="sem-resultados" hidden>Nenhum funcionário encontrado.</p>
+                        </div>
+
+                        <div class="box-tabela-rodape">
+                            <span class="rodape-nota" data-resumo="rodape">4 funcionários • 3 com acesso ativo</span>
+                            <span class="rodape-nota">
+                                <i class="fa-regular fa-circle-question"></i>
+                                Perfis definem as ações disponíveis no StreamGuard.
+                            </span>
+                        </div>
+                    </div>
+                </div>
 
             </main>
         </div>
