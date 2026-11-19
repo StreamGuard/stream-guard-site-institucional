@@ -1,3 +1,4 @@
+
 DROP DATABASE IF EXISTS StreamGuard;
 CREATE DATABASE StreamGuard;
 USE StreamGuard;
