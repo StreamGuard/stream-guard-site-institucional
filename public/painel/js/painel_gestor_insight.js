@@ -811,6 +811,160 @@
         };
     }
 
+    // ==========================================
+    // ORÇAMENTO E PREVISÃO FINANCEIRA
+    // ==========================================
+
+    function atualizarPlanejamento(
+        simulacao,
+        quantidadeServidores,
+        armazenamento,
+        trafego
+    ) {
+
+        let orcamento = valorCampo('orcamentoMensal');
+
+        let crescimento = valorCampo('crescimentoMensal');
+
+        // Limita o crescimento a 100%.
+        crescimento = Math.min(crescimento, 100);
+
+        let taxa = crescimento / 100;
+
+        // ======================================
+        // AVALIAÇÃO DO ORÇAMENTO
+        // ======================================
+
+        let percentual = 0;
+
+        if (orcamento > 0) {
+            percentual = simulacao.brl / orcamento * 100;
+        }
+
+        let saldo = orcamento - simulacao.brl;
+
+        let situacao = '';
+        let cor = 'var(--mint)';
+
+        if (orcamento <= 0) {
+
+            situacao = 'Defina um orçamento mensal.';
+
+            cor = 'var(--muted)';
+
+        } else if (percentual >= 100) {
+
+            situacao = 'Atenção: orçamento excedido.';
+
+            cor = 'var(--pink)';
+
+        } else if (percentual >= 80) {
+
+            situacao = 'Atenção: orçamento próximo do limite.';
+
+            cor = 'var(--orange)';
+
+        } else {
+
+            situacao = 'Infraestrutura dentro do orçamento.';
+
+        }
+
+        $('orcamentoPercentual').textContent =
+            orcamento > 0
+                ? numeroFormatado(percentual) + '%'
+                : '—';
+
+        if (orcamento <= 0) {
+
+            $('orcamentoSaldo').textContent = '—';
+
+        } else if (saldo >= 0) {
+
+            $('orcamentoSaldo').textContent =
+                moedaReal(saldo) + ' disponíveis';
+
+        } else {
+
+            $('orcamentoSaldo').textContent =
+                moedaReal(Math.abs(saldo)) + ' acima do limite';
+        }
+
+        $('orcamentoSituacao').textContent = situacao;
+
+        $('orcamentoSituacao').style.color = cor;
+
+        $('orcamentoProgresso').value =
+            orcamento > 0
+                ? Math.min(percentual, 100)
+                : 0;
+
+        // ======================================
+        // PREVISÃO PARA TRÊS MESES
+        // ======================================
+
+        let previsoes = [];
+
+        let armazenamentoPrevisto = armazenamento;
+
+        let trafegoPrevisto = trafego;
+
+        let html = '';
+
+        for (let mes = 1; mes <= 3; mes++) {
+
+            let custo = calcularCustos(
+                quantidadeServidores,
+                armazenamentoPrevisto,
+                trafegoPrevisto
+            );
+
+            previsoes.push({
+                mes: mes,
+                custo: custo.brl
+            });
+
+            let aviso = '';
+
+            if (orcamento > 0 && custo.brl > orcamento) {
+                aviso = 'Acima do orçamento';
+            }
+
+            html += `
+            <div class="mes-projetado">
+
+                <span>Mês ${mes}</span>
+
+                <strong>${moedaReal(custo.brl)}</strong>
+
+                <small>${aviso}</small>
+
+            </div>
+        `;
+
+            // Aplica o crescimento ao próximo mês.
+            armazenamentoPrevisto =
+                armazenamentoPrevisto * (1 + taxa);
+
+            trafegoPrevisto =
+                trafegoPrevisto * (1 + taxa);
+        }
+
+        $('previsaoMensal').innerHTML = html;
+
+        // Mantém os resultados disponíveis
+        // para exportações e futuras integrações.
+
+        ESTADO.custos.planejamento = {
+            orcamento: orcamento,
+            crescimento: crescimento,
+            percentual: percentual,
+            saldo: saldo,
+            situacao: situacao,
+            previsoes: previsoes
+        };
+    }
+
     function atualizarBilling() {
 
         let extra = valorCampo('extraNodes');
@@ -1111,6 +1265,15 @@
         }
 
         $('forecastBars').innerHTML = grafico;
+
+        // Atualiza o orçamento e a previsão mensal.
+        atualizarPlanejamento(
+            simulacao,
+            BASE_CUSTOS.servidores + extra,
+            armazenamento,
+            trafego
+        );
+
     }
 
     // ==========================================
@@ -1372,7 +1535,7 @@
 
     };
 
-        function mostrarAba(nome, rolar) {
+    function mostrarAba(nome, rolar) {
 
         if (!ABAS[nome]) {
             return;
@@ -1605,6 +1768,38 @@
             );
         }
 
+
+        // ==========================================
+        // EVENTOS DO PLANEJAMENTO FINANCEIRO
+        // ==========================================
+
+        let camposPlanejamento = [
+            'orcamentoMensal',
+            'crescimentoMensal'
+        ];
+
+        for (let i = 0; i < camposPlanejamento.length; i++) {
+
+            $(camposPlanejamento[i]).addEventListener(
+                'input',
+                function () {
+
+                    // Guarda as configurações no navegador.
+                    localStorage.setItem(
+                        'streamguard_orcamento',
+                        $('orcamentoMensal').value
+                    );
+
+                    localStorage.setItem(
+                        'streamguard_crescimento',
+                        $('crescimentoMensal').value
+                    );
+
+                    atualizarBilling();
+                }
+            );
+        }
+
         // ======================================
         // EXPORTAÇÃO DE RELATÓRIOS
         // ======================================
@@ -1688,29 +1883,49 @@
         });
     }
 
+    function carregarPlanejamento() {
+
+        let orcamento = localStorage.getItem(
+            'streamguard_orcamento'
+        );
+
+        let crescimento = localStorage.getItem(
+            'streamguard_crescimento'
+        );
+
+        if (
+            orcamento !== null &&
+            Number.isFinite(Number(orcamento)) &&
+            Number(orcamento) >= 0
+        ) {
+
+            $('orcamentoMensal').value = orcamento;
+        }
+
+        if (
+            crescimento !== null &&
+            Number.isFinite(Number(crescimento)) &&
+            Number(crescimento) >= 0 &&
+            Number(crescimento) <= 100
+        ) {
+
+            $('crescimentoMensal').value = crescimento;
+        }
+    }
+
     // ==========================================
     // 21. INICIALIZAÇÃO
     // ==========================================
 
-    // Primeiro prepara os filtros.
-
-    // Recupera o plano de ação salvo.
-
     carregarPlano();
 
-    // Atualiza todos os elementos da dashboard.
+    carregarPlanejamento();
 
     atualizarDashboard();
 
-    // Configura os eventos dos botões e filtros.
-
     configurarEventos();
 
-    // Integra a página ao menu do StreamGuard.
-
     integrarMenu();
-
-    // Configura a navegação por abas.
 
     prepararNavegacao();
 
