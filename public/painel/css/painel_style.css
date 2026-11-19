@@ -458,3 +458,34 @@ body.admin-body {
         padding: 1.1rem;
     }
 }
+
+.admin-nav {
+    min-height: 0;
+}
+
+.admin-sidebar > :not(.admin-nav) {
+    flex-shrink: 0;
+}
+
+@media (max-width: 700px) {
+    .admin-sidebar {
+        max-width: calc(100% - 64px);
+    }
+
+    .admin-sidebar-toggle {
+        position: relative;
+        z-index: 1031;
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    .admin-sidebar.show ~ .admin-main .admin-sidebar-toggle {
+        position: fixed;
+        top: 16px;
+        left: min(276px, calc(100% - 56px));
+    }
+
+    .admin-empty-state {
+        padding: 24px 16px;
+    }
+}
