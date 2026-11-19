@@ -135,7 +135,7 @@
 
                         <div class="grafico-container">
                             <canvas id="graficoHistorico" role="img"
-                                aria-label="Gráfico de histórico de uso de CPU, RAM, disco e rede">
+                                aria-label="Gráfico de histórico de uso de CPU, RAM e disco">
                             </canvas>
                         </div>
 
@@ -143,7 +143,6 @@
                             <li>CPU</li>
                             <li>RAM</li>
                             <li>Disco</li>
-                            <li>Rede</li>
                             <li>Acima de 80%</li>
                         </ul>
                     </section>
@@ -207,24 +206,24 @@
                     <section class="painel-analise painel-correlacao">
                         <header class="painel-analise-cabecalho">
                             <div>
-                                <h2>Dispersão CPU × Rede</h2>
-                                <p>Uso de CPU em relação ao uso de rede</p>
+                                <h2>Tráfego de Rede</h2>
+                                <p>Envio e recebimento ao longo do tempo</p>
+                                <p id="textoPeriodoRede">Últimos 30 minutos</p>
+
+                                <div id="filtroPeriodoRede">
+                                    <button type="button" class="botao-periodo ativo" data-periodo="30m">30 min</button>
+                                    <button type="button" class="botao-periodo" data-periodo="1h">1h</button>
+                                    <button type="button" class="botao-periodo" data-periodo="24h">24h</button>
+                                </div>
                             </div>
-                            <strong id="valorCorrelacao">Correlação: --</strong>
+
                         </header>
 
                         <div class="grafico-container">
-                            <canvas id="graficoCorrelacao" role="img"
-                                aria-label="Gráfico de dispersão da relação entre uso de CPU em relação ao uso de rede">
+                            <canvas id="graficoTrafegoRede" role="img"
+                                aria-label="Gráfico de linhas do tráfego de envio e recebimento da rede em MB por segundo">
                             </canvas>
                         </div>
-
-                        <ul class="legenda-grafico" aria-label="Legenda da correlação">
-                            <li>Normal</li>
-                            <li>Atenção</li>
-                            <li>Alerta</li>
-                            <li>Tendência</li>
-                        </ul>
                     </section>
 
                     <section class="painel-analise painel-status">
