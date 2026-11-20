@@ -68,6 +68,154 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
         }
     });
 
+
+    function atualizarGraficoHistorico(metricas, idSelecionado) {
+        // Define quais tipos de métricas entram neste gráfico.
+        var tipos = [
+            { tipo: "USO_CPU", nome: "CPU", cor: "#4f8cff" },
+            { tipo: "USO_RAM", nome: "RAM", cor: "#8b5cf6" },
+            { tipo: "USO_DISCO", nome: "Disco", cor: "#2de2c0" }
+        ];
+
+        // Guardam os servidores, horários e valores que serão usados no gráfico.
+        var servidoresDoGrafico = [];
+        var horarios = [];
+        var valoresPorChave = {};
+
+        // Percorre as métricas recebidas do CSV.
+        for (var i = 0; i < metricas.length; i++) {
+            var linha = metricas[i];
+
+            // Se há servidor selecionado, ignora as métricas dos outros.
+            // ID vazio significa “Todos”.
+            if (
+                idSelecionado !== "" &&
+                String(linha.servidor_id) !== idSelecionado
+            ) {
+                continue;
+            }
+
+            // Confere se a métrica é CPU, RAM ou disco.
+            var tipoValido = false;
+
+            for (var j = 0; j < tipos.length; j++) {
+                if (linha.tipo === tipos[j].tipo) {
+                    tipoValido = true;
+                    break;
+                }
+            }
+
+            // Ignora métricas que não são exibidas neste gráfico.
+            if (!tipoValido) {
+                continue;
+            }
+
+            var id = String(linha.servidor_id);
+            var servidorEncontrado = false;
+
+            // Guarda cada servidor uma única vez, junto com seu nome.
+            for (var j = 0; j < servidoresDoGrafico.length; j++) {
+                if (servidoresDoGrafico[j].id === id) {
+                    servidorEncontrado = true;
+                    break;
+                }
+            }
+
+            if (!servidorEncontrado) {
+                servidoresDoGrafico.push({
+                    id: id,
+                    nome: linha.nome_servidor || "Servidor " + id
+                });
+            }
+
+            // Guarda cada horário uma única vez.
+            if (horarios.indexOf(linha.inicio_periodo) === -1) {
+                horarios.push(linha.inicio_periodo);
+            }
+
+            // Indexa o valor pelo servidor, tipo de métrica e horário.
+            var chave = id + "|" + linha.tipo + "|" + linha.inicio_periodo;
+            var valor = Number(linha.media_amostral);
+
+            if (Number.isFinite(valor)) {
+                valoresPorChave[chave] = valor;
+            }
+        }
+
+        // Organiza os horários do mais antigo para o mais recente.
+        horarios.sort();
+
+        // Formata os horários para aparecerem no eixo horizontal.
+        var labels = [];
+
+        for (var i = 0; i < horarios.length; i++) {
+            var horario = horarios[i];
+
+            labels.push(
+                horario.substring(8, 10) + "/" +
+                horario.substring(5, 7) + " " +
+                horario.substring(11, 16)
+            );
+        }
+
+        var datasets = [];
+
+        // Cria três linhas para cada servidor: CPU, RAM e disco.
+        for (var i = 0; i < servidoresDoGrafico.length; i++) {
+            var servidor = servidoresDoGrafico[i];
+
+            for (var j = 0; j < tipos.length; j++) {
+                var tipo = tipos[j];
+                var valores = [];
+
+                // Busca o valor daquele servidor e tipo em cada horário.
+                for (var h = 0; h < horarios.length; h++) {
+                    var chave =
+                        servidor.id + "|" + tipo.tipo + "|" + horarios[h];
+
+                    if (Object.prototype.hasOwnProperty.call(valoresPorChave, chave)) {
+                        valores.push(valoresPorChave[chave]);
+                    } else {
+                        // null deixa o ponto vazio se não houver medição naquele horário.
+                        valores.push(null);
+                    }
+                }
+
+                // Cada dataset vira uma linha identificada pelo nome do servidor.
+                datasets.push({
+                    label: servidor.nome + " - " + tipo.nome,
+                    data: valores,
+                    borderColor: tipo.cor,
+                    borderDash: i % 2 === 0 ? [] : [6, 4],
+                    pointRadius: 0,
+                    spanGaps: false,
+                    yAxisID: "y"
+                });
+            }
+        }
+
+        // Cria a linha de referência de 80%.
+        var valoresLimite = [];
+
+        for (var i = 0; i < labels.length; i++) {
+            valoresLimite.push(80);
+        }
+
+        datasets.push({
+            label: "Limite 80%",
+            data: valoresLimite,
+            borderColor: "#ff4d6d",
+            borderDash: [4, 4],
+            pointRadius: 0,
+            yAxisID: "y"
+        });
+
+        // Substitui os dados do gráfico e pede ao Chart.js para redesenhá-lo.
+        graficoHistorico.data.labels = labels;
+        graficoHistorico.data.datasets = datasets;
+        graficoHistorico.update();
+    }
+
     const botoesPeriodoHistorico = document.querySelectorAll("#filtroPeriodo .botao-periodo");
     const botoesPeriodoRede = document.querySelectorAll("#filtroPeriodoRede .botao-periodo");
     const textoPeriodo = document.getElementById("textoPeriodo");
@@ -75,7 +223,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
 
 
     let periodoHistorico = "30m";
-let periodoTrafegoRede = "30m";
+    let periodoTrafegoRede = "30m";
 
     function configurarBotoesPeriodo(botoes, aoSelecionar) {
         for (let i = 0; i < botoes.length; i++) {
@@ -178,6 +326,121 @@ let periodoTrafegoRede = "30m";
         }
     });
 
+    function atualizarGraficoTrafego(metricas, idSelecionado) {
+        // Tipos de rede e cores usados no gráfico.
+        var tipos = [
+            { tipo: "TAXA_ENVIO_REDE", nome: "Envio", cor: "#2de2c0" },
+            { tipo: "TAXA_RECEBIMENTO_REDE", nome: "Recebimento", cor: "#4f8cff" }
+        ];
+
+        var servidores = [];
+        var horarios = [];
+        var valoresPorChave = {};
+
+        // Coleta os servidores e horários das métricas de rede.
+        for (var i = 0; i < metricas.length; i++) {
+            var linha = metricas[i];
+
+            // Com um ID selecionado, ignora os outros servidores.
+            // ID vazio significa “Todos”.
+            if (
+                idSelecionado !== "" &&
+                String(linha.servidor_id) !== idSelecionado
+            ) {
+                continue;
+            }
+
+            // Ignora métricas que não sejam envio ou recebimento.
+            var tipoValido = false;
+
+            for (var j = 0; j < tipos.length; j++) {
+                if (linha.tipo === tipos[j].tipo) {
+                    tipoValido = true;
+                    break;
+                }
+            }
+
+            if (!tipoValido) {
+                continue;
+            }
+
+            var id = String(linha.servidor_id);
+            var servidorEncontrado = false;
+
+            // Guarda o servidor uma única vez.
+            for (var j = 0; j < servidores.length; j++) {
+                if (servidores[j].id === id) {
+                    servidorEncontrado = true;
+                    break;
+                }
+            }
+
+            if (!servidorEncontrado) {
+                servidores.push({
+                    id: id,
+                    nome: linha.nome_servidor || "Servidor " + id
+                });
+            }
+
+            // Guarda cada horário uma única vez.
+            if (horarios.indexOf(linha.inicio_periodo) === -1) {
+                horarios.push(linha.inicio_periodo);
+            }
+
+            // Converte bytes/s para MB/s e associa o valor à chave servidor/tipo/horário.
+            var chave = id + "|" + linha.tipo + "|" + linha.inicio_periodo;
+            var valorMBs = Number(linha.media_amostral) / 1000000;
+
+            if (Number.isFinite(valorMBs)) {
+                valoresPorChave[chave] = valorMBs;
+            }
+        }
+
+        // Organiza os horários do mais antigo para o mais recente.
+        horarios.sort();
+
+        var datasets = [];
+
+        // Cria duas linhas de rede para cada servidor encontrado.
+        for (var i = 0; i < servidores.length; i++) {
+            var servidor = servidores[i];
+
+            for (var j = 0; j < tipos.length; j++) {
+                var tipo = tipos[j];
+                var valores = [];
+
+                // Procura o valor correspondente em cada horário.
+                for (var h = 0; h < horarios.length; h++) {
+                    var chave =
+                        servidor.id + "|" + tipo.tipo + "|" + horarios[h];
+
+                    if (Object.prototype.hasOwnProperty.call(valoresPorChave, chave)) {
+                        valores.push(valoresPorChave[chave]);
+                    } else {
+                        valores.push(null);
+                    }
+                }
+
+                // Cada dataset representa envio ou recebimento de um servidor.
+                datasets.push({
+                    label: servidor.nome + " - " + tipo.nome,
+                    data: valores,
+                    borderColor: tipo.cor,
+                    backgroundColor: tipo.cor,
+                    borderDash: i % 2 === 0 ? [] : [6, 4],
+                    pointRadius: 2,
+                    tension: 0.2,
+                    spanGaps: false
+                });
+            }
+        }
+
+        // Substitui os dados e redesenha o gráfico.
+        graficoTrafegoRede.data.labels = horarios;
+        graficoTrafegoRede.data.datasets = datasets;
+        graficoTrafegoRede.update();
+    }
+let metricasParaRanking = [];
     let metricasHistorico = [];
     let servidorHistorico = null;
 
@@ -195,259 +458,248 @@ let periodoTrafegoRede = "30m";
                 throw new Error("O CSV não tem métricas.");
             }
 
+            metricasParaRanking = dados.metricas;
 
-            histogramaRam.options.scales.x.title.text =
-                "Uso de " + componenteHistograma.toUpperCase();
-            // guardo os dados do meu histograma :
-            metricasHistograma = dados.metricas;
-            // chamo a função que monta meu histograma
-            atualizarHistogramaRam();
+            // Limpa o seletor e mantém a opção para mostrar todos os servidores.
+            filtroServidor.replaceChildren(
+                new Option("Todos os servidores", "")
+            );
 
-            //No meu grafico de dispersão escolho o servidor da minha primiera metrica
-            var servidorSelecionado = dados.metricas[0].servidor_id;
-            servidorHistorico = servidorSelecionado;
-            metricasHistorico = dados.metricas;
-
-            // Dados do gráfico de histórico
-            var horariosReais = [];
-            var valoresCpu = [];
-            var valoresRam = [];
-            var valoresDisco = [];
-
-
-
-
-            // Valores atuais dos indicadores do painel
-            var ultimoCpu = null;
-            var ultimaRam = null;
-            var ultimoDisco = null;
-            var ultimaRede = null;
-
-            // Capacidade da rede usada para calcular a porcentagem
-            var capacidadeRedeMbps = 1000;
-
-
+            // Evita repetir servidores, já que o CSV tem várias métricas por servidor.
+            var idsServidores = [];
 
             for (var i = 0; i < dados.metricas.length; i++) {
                 var linha = dados.metricas[i];
+                var id = String(linha.servidor_id);
 
-                // Converte o horário da linha para comparação
-                // O CSV tem formato: "2026-10-24 12:00:00"
-                var horaLinha = linha.inicio_periodo;
-                var minutosAgo = 0;
-                if (periodoHistorico === "30m") {
-                    minutosAgo = 30;
-                } else if (periodoHistorico === "1h") {
-                    minutosAgo = 60;
-                } else if (periodoHistorico === "24h") {
-                    minutosAgo = 1440; // 24 * 60
-                }
+                if (idsServidores.indexOf(id) === -1) {
+                    idsServidores.push(id);
 
-                if (linha.servidor_id !== servidorSelecionado) {
-                    continue;
-                }
-
-                if (linha.tipo === "USO_CPU") {
-                    var valorCpu = Number(linha.media_amostral);
-                    valoresCpu.push(valorCpu);
-                    ultimoCpu = valorCpu;
-
-                    horariosReais.push(
-                        linha.inicio_periodo.substring(8, 10) + "/" +
-                        linha.inicio_periodo.substring(5, 7) + " " +
-                        linha.inicio_periodo.substring(11, 16)
+                    // Mostra o hostname, mas mantém o ID como valor da opção.
+                    filtroServidor.add(
+                        new Option(
+                            linha.nome_servidor || "Servidor " + id,
+                            id
+                        )
                     );
-
-                    var usoCpu = Math.round(ultimoCpu);
-                    var cpuLivre = 100 - usoCpu;
-                    document.getElementById("valorLivreCpu").textContent = cpuLivre + "%";
-                    document.getElementById("textoLivreCpu").textContent = cpuLivre + "% livres, com uso de " + usoCpu + "%.";
-
-
-
-
-
-                } else if (linha.tipo === "USO_RAM") {
-                    var valorRam = Number(linha.media_amostral);
-                    valoresRam.push(valorRam);
-                    ultimaRam = valorRam;
-                    var usoRam = Math.round(ultimaRam);
-                    var ramLivre = 100 - usoRam;
-                    document.getElementById("valorLivreRam").textContent = ramLivre + "%";
-                    document.getElementById("textoLivreRam").textContent = ramLivre + "% livres, com uso de " + usoRam + "%.";
-
-                } else if (linha.tipo === "USO_DISCO") {
-                    var valorDisco = Number(linha.media_amostral);
-                    valoresDisco.push(valorDisco);
-                    ultimoDisco = valorDisco;
-                    var usoDisco = Math.round(ultimoDisco);
-                    var discoLivre = 100 - usoDisco;
-                    document.getElementById("valorLivreDisco").textContent = discoLivre + "%";
-                    document.getElementById("textoLivreDisco").textContent = discoLivre + "% livres, com uso de " + usoDisco + "%.";
-
-                } else if (linha.tipo === "TAXA_RECEBIMENTO_REDE") {
-                    var bytesPorSegundo = Number(linha.media_amostral);
-                    var percentualRede =
-                        // como minha taxa vem em bytes eu converto para bits * 8, comparo com a capacid em Mbps *1.000.00 
-                        // e multiplico por 100 para obter a porcentagem.
-                        (bytesPorSegundo * 8 / (capacidadeRedeMbps * 1000000)) * 100;
-
-                    ultimaRede = percentualRede;
-                    var usoRede = Math.round(ultimaRede);
-                    var redeLivre = 100 - usoRede;
-                    document.getElementById("valorLivreRede").textContent = redeLivre + "%";
-                    document.getElementById("textoLivreRede").textContent = redeLivre + "% livres, com uso de " + usoRede + "%.";
-
-
-                    // horario é o inicio_periodo da minha medição uso como ponto de uniao entre meus dois valores ou seja 
-                    // se os horarios de ambos forem diferentes eles não são pareados.
-                    var horario = linha.inicio_periodo;
-
                 }
             }
 
-            var pontosTrafegoRede = {};
+            function atualizarHistogramaPorServidor() {
+                var idSelecionado = filtroServidor.value;
+                metricasHistograma = [];
 
-            for (var i = 0; i < dados.metricas.length; i++) {
-                var linhaRede = dados.metricas[i];
+                // Mantém todas as métricas se “Todos os servidores” estiver selecionado.
+                for (var i = 0; i < dados.metricas.length; i++) {
+                    var linha = dados.metricas[i];
 
-                if (linhaRede.servidor_id !== servidorSelecionado) {
-                    continue;
+                    if (
+                        idSelecionado === "" ||
+                        String(linha.servidor_id) === idSelecionado
+                    ) {
+                        metricasHistograma.push(linha);
+                    }
                 }
 
-                if (linhaRede.tipo !== "TAXA_ENVIO_REDE" &&
-                    linhaRede.tipo !== "TAXA_RECEBIMENTO_REDE") {
-                    continue;
+                histogramaRam.options.scales.x.title.text =
+                    "Uso de " + componenteHistograma.toUpperCase();
+
+                atualizarHistogramaRam();
+            }
+
+            // Recalcula o histograma quando a seleção de servidor mudar.
+            filtroServidor.addEventListener("change", function () {
+                atualizarHistogramaPorServidor();
+                atualizarGraficosPorServidor();
+            });
+
+            // Desenha o histograma inicial com a opção selecionada.
+            atualizarHistogramaPorServidor();
+            function atualizarGraficosPorServidor() {
+                var servidorSelecionado = filtroServidor.value;
+                if (servidorSelecionado === "") {
+                    servidorSelecionado = String(dados.metricas[0].servidor_id);
+                }
+                servidorHistorico = servidorSelecionado;
+                metricasHistorico = dados.metricas;
+
+                // Dados do gráfico de histórico
+                var horariosReais = [];
+                var valoresCpu = [];
+                var valoresRam = [];
+                var valoresDisco = [];
+
+
+
+
+                // Valores atuais dos indicadores do painel
+                var ultimoCpu = null;
+                var ultimaRam = null;
+                var ultimoDisco = null;
+                var ultimaRede = null;
+
+                // Capacidade da rede usada para calcular a porcentagem
+                var capacidadeRedeMbps = 1000;
+
+
+
+                for (var i = 0; i < dados.metricas.length; i++) {
+                    var linha = dados.metricas[i];
+
+                    // Converte o horário da linha para comparação
+                    // O CSV tem formato: "2026-10-24 12:00:00"
+                    var horaLinha = linha.inicio_periodo;
+                    var minutosAgo = 0;
+                    if (periodoHistorico === "30m") {
+                        minutosAgo = 30;
+                    } else if (periodoHistorico === "1h") {
+                        minutosAgo = 60;
+                    } else if (periodoHistorico === "24h") {
+                        minutosAgo = 1440; // 24 * 60
+                    }
+
+                    if (linha.servidor_id !== servidorSelecionado) {
+                        continue;
+                    }
+
+                    if (linha.tipo === "USO_CPU") {
+                        var valorCpu = Number(linha.media_amostral);
+                        valoresCpu.push(valorCpu);
+                        ultimoCpu = valorCpu;
+
+                        horariosReais.push(
+                            linha.inicio_periodo.substring(8, 10) + "/" +
+                            linha.inicio_periodo.substring(5, 7) + " " +
+                            linha.inicio_periodo.substring(11, 16)
+                        );
+
+                        var usoCpu = Math.round(ultimoCpu);
+                        var cpuLivre = 100 - usoCpu;
+                        document.getElementById("valorLivreCpu").textContent = cpuLivre + "%";
+                        document.getElementById("textoLivreCpu").textContent = cpuLivre + "% livres, com uso de " + usoCpu + "%.";
+
+
+
+
+
+                    } else if (linha.tipo === "USO_RAM") {
+                        var valorRam = Number(linha.media_amostral);
+                        valoresRam.push(valorRam);
+                        ultimaRam = valorRam;
+                        var usoRam = Math.round(ultimaRam);
+                        var ramLivre = 100 - usoRam;
+                        document.getElementById("valorLivreRam").textContent = ramLivre + "%";
+                        document.getElementById("textoLivreRam").textContent = ramLivre + "% livres, com uso de " + usoRam + "%.";
+
+                    } else if (linha.tipo === "USO_DISCO") {
+                        var valorDisco = Number(linha.media_amostral);
+                        valoresDisco.push(valorDisco);
+                        ultimoDisco = valorDisco;
+                        var usoDisco = Math.round(ultimoDisco);
+                        var discoLivre = 100 - usoDisco;
+                        document.getElementById("valorLivreDisco").textContent = discoLivre + "%";
+                        document.getElementById("textoLivreDisco").textContent = discoLivre + "% livres, com uso de " + usoDisco + "%.";
+
+                    } else if (linha.tipo === "TAXA_RECEBIMENTO_REDE") {
+                        var bytesPorSegundo = Number(linha.media_amostral);
+                        var percentualRede =
+                            // como minha taxa vem em bytes eu converto para bits * 8, comparo com a capacid em Mbps *1.000.00 
+                            // e multiplico por 100 para obter a porcentagem.
+                            (bytesPorSegundo * 8 / (capacidadeRedeMbps * 1000000)) * 100;
+
+                        ultimaRede = percentualRede;
+                        var usoRede = Math.round(ultimaRede);
+                        var redeLivre = 100 - usoRede;
+                        document.getElementById("valorLivreRede").textContent = redeLivre + "%";
+                        document.getElementById("textoLivreRede").textContent = redeLivre + "% livres, com uso de " + usoRede + "%.";
+
+
+                        // horario é o inicio_periodo da minha medição uso como ponto de uniao entre meus dois valores ou seja 
+                        // se os horarios de ambos forem diferentes eles não são pareados.
+                        var horario = linha.inicio_periodo;
+
+                    }
                 }
 
-                var horarioRede = linhaRede.inicio_periodo;
+                atualizarGraficoTrafego(dados.metricas, filtroServidor.value);
 
-                if (!pontosTrafegoRede[horarioRede]) {
-                    pontosTrafegoRede[horarioRede] = {
-                        envio: null,
-                        recebimento: null
-                    };
+
+                function atualizarStatus(nome, valor) {
+                    var uso = Math.round(valor);
+
+                    document.getElementById("barra" + nome).value = uso;
+                    document.getElementById("uso" + nome).textContent = uso + "%";
+
+                    var selo = document.getElementById("selo" + nome);
+                    var classeStatus;
+                    if (uso >= 80) {
+                        selo.textContent = "Alerta";
+                        selo.className = "selo-status status-alerta";
+                        classeStatus = "status-alerta";
+                    } else if (uso >= 60) {
+                        selo.textContent = "Atenção";
+                        selo.className = "selo-status status-atencao";
+                        classeStatus = "status-atencao";
+                    } else {
+                        selo.textContent = "Normal";
+                        selo.className = "selo-status status-normal";
+                        classeStatus = "status-normal";
+                    }
+
+                    // Atualizando Kpis
+                    var cardKpi = document.getElementById("kpi" + nome)
+                        .closest(".card-metrica");
+                    var seloKpi = document.getElementById("kpiSelo" + nome);
+
+                    seloKpi.textContent = selo.textContent;
+                    seloKpi.className = "selo-status " + classeStatus;
+
+                    // removo do cartão qualquer classe de estado anterior
+                    cardKpi.classList.remove(
+                        "status-alerta",
+                        "status-atencao",
+                        "status-normal"
+                    );
+                    cardKpi.classList.add(classeStatus);
                 }
 
-                var valorMBs = Number(linhaRede.media_amostral) / 1000000;
 
-                if (!Number.isFinite(valorMBs)) {
-                    continue;
+
+                if (ultimoCpu !== null) atualizarStatus("Cpu", ultimoCpu);
+                if (ultimaRam !== null) atualizarStatus("Ram", ultimaRam);
+                if (ultimoDisco !== null) atualizarStatus("Disco", ultimoDisco);
+                if (ultimaRede !== null) atualizarStatus("Rede", ultimaRede);
+
+
+
+                if (ultimoCpu !== null) {
+                    document.getElementById("kpiCpu").textContent =
+                        Math.round(ultimoCpu) + "%";
                 }
 
-                if (linhaRede.tipo === "TAXA_ENVIO_REDE") {
-                    pontosTrafegoRede[horarioRede].envio = valorMBs;
-                } else if (linhaRede.tipo === "TAXA_RECEBIMENTO_REDE") {
-                    pontosTrafegoRede[horarioRede].recebimento = valorMBs;
-                }
-            }
-
-            var horariosRede = Object.keys(pontosTrafegoRede);
-            horariosRede.sort();
-
-            var labelsRede = [];
-            var valoresEnvioRede = [];
-            var valoresRecebimentoRede = [];
-
-            for (var i = 0; i < horariosRede.length; i++) {
-                var horario = horariosRede[i];
-                var pontoRede = pontosTrafegoRede[horario];
-
-                labelsRede.push(horario);
-                valoresEnvioRede.push(pontoRede.envio);
-                valoresRecebimentoRede.push(pontoRede.recebimento);
-            }
-
-            graficoTrafegoRede.data.labels = labelsRede;
-            graficoTrafegoRede.data.datasets[0].data = valoresEnvioRede;
-            graficoTrafegoRede.data.datasets[1].data = valoresRecebimentoRede;
-            graficoTrafegoRede.update();
-
-
-            function atualizarStatus(nome, valor) {
-                var uso = Math.round(valor);
-
-                document.getElementById("barra" + nome).value = uso;
-                document.getElementById("uso" + nome).textContent = uso + "%";
-
-                var selo = document.getElementById("selo" + nome);
-                var classeStatus;
-                if (uso >= 80) {
-                    selo.textContent = "Alerta";
-                    selo.className = "selo-status status-alerta";
-                    classeStatus = "status-alerta";
-                } else if (uso >= 60) {
-                    selo.textContent = "Atenção";
-                    selo.className = "selo-status status-atencao";
-                    classeStatus = "status-atencao";
-                } else {
-                    selo.textContent = "Normal";
-                    selo.className = "selo-status status-normal";
-                    classeStatus = "status-normal";
+                if (ultimaRam !== null) {
+                    document.getElementById("kpiRam").textContent =
+                        Math.round(ultimaRam) + "%";
                 }
 
-                // Atualizando Kpis
-                var cardKpi = document.getElementById("kpi" + nome)
-                    .closest(".card-metrica");
-                var seloKpi = document.getElementById("kpiSelo" + nome);
+                if (ultimoDisco !== null) {
+                    document.getElementById("kpiDisco").textContent =
+                        Math.round(ultimoDisco) + "%";
+                }
 
-                seloKpi.textContent = selo.textContent;
-                seloKpi.className = "selo-status " + classeStatus;
+                if (ultimaRede !== null) {
+                    document.getElementById("kpiRede").textContent =
+                        Math.round(ultimaRede) + "%";
+                }
 
-                // removo do cartão qualquer classe de estado anterior
-                cardKpi.classList.remove(
-                    "status-alerta",
-                    "status-atencao",
-                    "status-normal"
-                );
-                cardKpi.classList.add(classeStatus);
+
+                atualizarGraficoHistorico(dados.metricas, filtroServidor.value);
+
             }
-
-
-
-            if (ultimoCpu !== null) atualizarStatus("Cpu", ultimoCpu);
-            if (ultimaRam !== null) atualizarStatus("Ram", ultimaRam);
-            if (ultimoDisco !== null) atualizarStatus("Disco", ultimoDisco);
-            if (ultimaRede !== null) atualizarStatus("Rede", ultimaRede);
-
-
-
-            if (ultimoCpu !== null) {
-                document.getElementById("kpiCpu").textContent =
-                    Math.round(ultimoCpu) + "%";
-            }
-
-            if (ultimaRam !== null) {
-                document.getElementById("kpiRam").textContent =
-                    Math.round(ultimaRam) + "%";
-            }
-
-            if (ultimoDisco !== null) {
-                document.getElementById("kpiDisco").textContent =
-                    Math.round(ultimoDisco) + "%";
-            }
-
-            if (ultimaRede !== null) {
-                document.getElementById("kpiRede").textContent =
-                    Math.round(ultimaRede) + "%";
-            }
-
-
-            var limites = [];
-            for (var i = 0; i < valoresCpu.length; i++) {
-                limites.push(80);
-            }
-
-            graficoHistorico.data.labels = horariosReais;
-            graficoHistorico.data.datasets[0].data = valoresCpu;
-            graficoHistorico.data.datasets[1].data = valoresRam;
-            graficoHistorico.data.datasets[2].data = valoresDisco;
-            graficoHistorico.data.datasets[3].data = limites;
-
-            graficoHistorico.update();
-
-
+            atualizarGraficosPorServidor();
+            atualizarRanking();
         })
+
         .catch(function (erro) {
             console.error("Erro ao carregar métricas:", erro);
         });
@@ -777,38 +1029,79 @@ let periodoTrafegoRede = "30m";
     });
 
 
-
-
-
-
-
     function atualizarRanking() {
         const textoBusca = buscaRam.value.toLowerCase();
+
+        // Relaciona cada opção do filtro ao tipo de métrica do CSV.
+        const tipos = {
+            ram: "USO_RAM",
+            cpu: "USO_CPU",
+            disco: "USO_DISCO",
+            rede: "TAXA_RECEBIMENTO_REDE"
+        };
+
+        const tipoSelecionado = tipos[componenteRanking];
         const resultados = [];
 
-        for (const servidor of servidores) {
-            if (servidor.nome.toLowerCase().includes(textoBusca)) {
-                let percentual;
+        // Procura as medições mais recentes que correspondem à busca e ao componente.
+        for (let i = 0; i < metricasParaRanking.length; i++) {
+            const linha = metricasParaRanking[i];
 
-                if (componenteRanking === "ram") {
-                    percentual = Math.round(servidor.usada / servidor.total * 100);
-                } else {
-                    percentual = servidor.usos[componenteRanking];
+            if (linha.tipo !== tipoSelecionado) {
+                continue;
+            }
+
+            const id = String(linha.servidor_id);
+            const nome = linha.nome_servidor || "Servidor " + id;
+
+            if (!nome.toLowerCase().includes(textoBusca)) {
+                continue;
+            }
+
+            let percentual = Number(linha.media_amostral);
+
+            // Converte a taxa de recebimento para percentual de uma capacidade de 1 Gbit/s.
+            if (componenteRanking === "rede") {
+                percentual = (percentual * 8 / 1000000000) * 100;
+            }
+
+            if (!Number.isFinite(percentual)) {
+                continue;
+            }
+
+            let indiceServidor = -1;
+
+            // Localiza se o servidor já foi adicionado à lista do ranking.
+            for (let j = 0; j < resultados.length; j++) {
+                if (resultados[j].id === id) {
+                    indiceServidor = j;
+                    break;
                 }
+            }
 
+            if (indiceServidor === -1) {
                 resultados.push({
-                    nome: servidor.nome,
-                    percentual: percentual
+                    id: id,
+                    nome: nome,
+                    percentual: percentual,
+                    horario: linha.inicio_periodo
                 });
+            } else if (linha.inicio_periodo > resultados[indiceServidor].horario) {
+                // Mantém somente a medição mais recente desse servidor.
+                resultados[indiceServidor].percentual = percentual;
+                resultados[indiceServidor].horario = linha.inicio_periodo;
             }
         }
 
-        resultados.sort((a, b) => b.percentual - a.percentual);
+        resultados.sort(function (a, b) {
+            return b.percentual - a.percentual;
+        });
 
         const nomes = [];
         const percentuais = [];
         const cores = [];
 
+        // Mostra no máximo dez servidores, do maior uso para o menor.
         for (let i = 0; i < resultados.length && i < 10; i++) {
             nomes.push(resultados[i].nome);
             percentuais.push(resultados[i].percentual);
@@ -823,7 +1116,8 @@ let periodoTrafegoRede = "30m";
         }
 
         ranking.data.labels = nomes;
-        ranking.data.datasets[0].label = "Uso de " + componenteRanking.toUpperCase();
+        ranking.data.datasets[0].label =
+            "Uso de " + componenteRanking.toUpperCase();
         ranking.data.datasets[0].data = percentuais;
         ranking.data.datasets[0].backgroundColor = cores;
         ranking.update();
