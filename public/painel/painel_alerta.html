@@ -21,73 +21,78 @@
       <header class="topo">
         <div>
           <h1>Alertas</h1>
-          <p>Histórico, limites e canais de notificação</p>
+          <p>Visão geral da saúde do ambiente</p>
         </div>
+
+        <!-- Filtros da tela: período e servidor -->
+        <div class="topo-filtros">
+          <div class="grupo-periodo" id="filtroPeriodo">
+            <button class="btn-filtro ativo" data-periodo="24h">24 h</button>
+            <button class="btn-filtro" data-periodo="7d">7 dias</button>
+            <button class="btn-filtro" data-periodo="30d">30 dias</button>
+          </div>
+
+          <select class="select-servidor" id="filtroServidor" aria-label="Filtrar por servidor">
+            <option value="">Servidor: Todos os servidores</option>
+          </select>
+        </div>
+
         <div class="topo-direita" data-shell="topo-direita"></div>
       </header>
 
       <main class="principal">
 
-        <section class="resumo" id="resumo"></section>
+        <!-- Indicadores (KPIs) -->
+        <section class="kpis" id="resumo"></section>
 
-        <div class="grade">
+        <!-- Frase de destaque (só aparece quando há alertas no período) -->
+        <aside class="insight" id="insight" hidden></aside>
 
-          <div class="coluna">
-
-            <section class="painel painel-historico">
-              <div class="painel-topo">
-                <div>
-                  <h2>Histórico de alertas</h2>
-                  <p>Ocorrências recentes do ambiente</p>
-                </div>
-                <button class="btn-filtro" id="btnFiltro">Filtrar histórico</button>
+        <!-- Gráfico por faixa de tempo + chamados no Jira -->
+        <div class="grade-graficos">
+          <section class="painel">
+            <div class="painel-topo">
+              <div>
+                <h2 id="tituloGrafico">Alertas ao longo do dia</h2>
+                <p id="subGrafico">Quantos alertas por faixa de 2 horas</p>
               </div>
-
-              <ul class="lista-alertas" id="listaAlertas"></ul>
-              <p class="vazio" id="mensagemVazia" hidden>Nenhum alerta com esse filtro.</p>
-            </section>
-
-            <section class="painel painel-log">
-              <h2>Log de envio</h2>
-              <p class="sub">Últimas notificações processadas</p>
-              <ul class="log" id="log"></ul>
-            </section>
-          </div>
-
-          <div class="coluna">
-            <section class="painel painel-limites">
-              <h2>Limites de alerta</h2>
-              <p class="sub">Dispare alertas ao atingir estes valores</p>
-              <ul class="limites" id="limites"></ul>
-            </section>
-
-            <!-- Adicionei style="display: none;" na tag principal <section>, os elementos vão continuar existindo de forma oculta no código, ou seja o 
-              java script vai conseguir localiza-los e a tela não vai quebra-->
-
-            <section class="painel painel-integracoes" style="display: none;">
-              <div class="painel-topo">
-                <div>
-                  <h2>Integrações</h2>
-                  <p>Canais conectados ao ambiente</p>
-                </div>
-                <button class="btn-filtro" id="btnNovaIntegracao" data-perm="criar">+ Nova integração</button>
+              <div class="legenda-barras">
+                <span><i style="background: var(--laranja)"></i>Atenção</span>
+                <span><i style="background: var(--vermelho)"></i>Crítico</span>
               </div>
+            </div>
+            <div id="grafico"></div>
+          </section>
 
-              <div class="lista-integracoes" id="integracoes"></div>
-
-              <div class="agrupar">
-                <div></div>
-                <label class="switch">
-                  <input type="checkbox" id="agrupar" checked data-perm-lock="editar">
-                </label>
-              </div>
-
-              <button class="btn-salvar" id="btnSalvar" data-perm="editar">Salvar configurações</button>
-            </section>
-
-
-          </div>
+          <section class="painel">
+            <h2>Chamados no Jira</h2>
+            <p class="sub" id="subChamados">Em que etapa estão os alertas</p>
+            <div id="chamados"></div>
+          </section>
         </div>
+
+        <!-- Servidores com mais alertas -->
+        <section class="painel">
+          <h2>Servidores com mais alertas</h2>
+          <p class="sub" id="subServidores">Quem precisa de atenção primeiro</p>
+          <div class="tabela-rolagem" id="servidores"></div>
+        </section>
+
+        <!-- Histórico -->
+        <section class="painel">
+          <div class="painel-topo">
+            <div>
+              <h2>Histórico de alertas</h2>
+              <p id="subHistorico">Ocorrências mais recentes</p>
+            </div>
+            <button class="btn-filtro" id="btnFiltro">Filtrar histórico</button>
+          </div>
+
+          <div class="tabela-rolagem" id="historico"></div>
+          <p class="vazio" id="mensagemVazia" hidden>Nenhum alerta com esse filtro.</p>
+          <button class="btn-filtro btn-mais" id="btnMais" hidden>Mostrar mais</button>
+        </section>
+
       </main>
     </div>
   </div>

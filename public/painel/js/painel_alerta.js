@@ -1,35 +1,18 @@
 
 const ic = (nome) => `<svg class="sg-ic" aria-hidden="true"><use href="#sg-${nome}"/></svg>`;
+const esc = (texto) => SGModal.escapar(texto);
 
-let alertas = [];
+let dashboard = null;
+let periodoAtual = "24h";
+let servidorAtual = "";
+let filtroAtual = 0;
+let limiteHistorico = 6;
 
 const statusInfo = {
     critico: { cor: "vermelho", texto: "Crítico", icone: "alert" },
     alerta: { cor: "laranja", texto: "Alerta", icone: "bell" },
     resolvido: { cor: "verde", texto: "Resolvido", icone: "check" }
 };
-
-const limites = [
-    { nome: "CPU", cor: "verde", valor: 88 },
-    { nome: "RAM", cor: "roxo", valor: 85 },
-    { nome: "RAM crítico", cor: "vermelho", valor: 98 },
-    { nome: "Disco", cor: "laranja", valor: 98 },
-    { nome: "Rede", cor: "azul", valor: 75 }
-];
-
-const CANAIS = {
-    Slack: { icone: "hash", cor: "roxo", dica: "Ex.: #streamguard-alertas" },
-    Jira: { icone: "layers", cor: "azul", dica: "Ex.: STREAM • SG" },
-    "E-mail": { icone: "send", cor: "laranja", dica: "Ex.: plantao@streamco.com.br" },
-    "Microsoft Teams": { icone: "bell", cor: "verde", dica: "Ex.: Canal NOC" }
-};
-
-const integracoes = [
-    { canal: "Slack", destino: "#streamguard-alertas", ativa: true },
-    { canal: "Jira", destino: "STREAM • SG", ativa: true }
-];
-
-const agruparRepetidos = true;
 
 const filtros = [
     { valor: "todos", texto: "Filtrar histórico" },
@@ -38,378 +21,574 @@ const filtros = [
     { valor: "resolvido", texto: "Só resolvidos" }
 ];
 
-let filtroAtual = 0;
+// Textos que mudam conforme o período escolhido
+const TEXTO_PERIODO = {
+    "24h": {
+        titulo: "nas últimas 24 h",
+        anterior: "ontem",
+        tituloGrafico: "Alertas ao longo do dia",
+        subGrafico: "Quantos alertas por faixa de 2 horas, últimas 24 h"
+    },
+    "7d": {
+        titulo: "nos últimos 7 dias",
+        anterior: "7 dias anteriores",
+        tituloGrafico: "Alertas ao longo da semana",
+        subGrafico: "Quantos alertas por dia, últimos 7 dias"
+    },
+    "30d": {
+        titulo: "nos últimos 30 dias",
+        anterior: "30 dias anteriores",
+        tituloGrafico: "Alertas ao longo do mês",
+        subGrafico: "Quantos alertas por dia, últimos 30 dias"
+    }
+};
 
-const botaoFiltro = document.getElementById("btnFiltro");
+function obterEmpresaDoUsuario() {
+    return sessionStorage.getItem("EMPRESA_JIRA") || null;
+}
 
-// Busca os alertas no backend
-async function carregarAlertas() {
-    const lista = document.getElementById("listaAlertas");
+
+// 90 -> "1 h 30 min" | 18 -> "18 min" | 3000 -> "2 d 2 h" | null -> "–"
+function formatarMinutos(minutos) {
+    if (minutos === null || minutos === undefined) return "–";
+
+    minutos = Math.round(minutos);
+
+    if (minutos < 60) return minutos + " min";
+
+    const horas = Math.floor(minutos / 60);
+    const resto = minutos % 60;
+
+    if (horas < 24) {
+        return resto === 0 ? horas + " h" : horas + " h " + resto + " min";
+    }
+
+    const dias = Math.floor(horas / 24);
+    const horasRestantes = horas % 24;
+
+    return horasRestantes === 0 ? dias + " d" : dias + " d " + horasRestantes + " h";
+}
+
+function minutosDesde(iso) {
+    return Math.max(0, (Date.now() - new Date(iso).getTime()) / 60000);
+}
+
+function haQuanto(iso) {
+    return iso ? "há " + formatarMinutos(minutosDesde(iso)) : "–";
+}
+
+function formatarDataHora(iso) {
+    if (!iso) return "–";
+
+    const data = new Date(iso);
+    const dois = (numero) => String(numero).padStart(2, "0");
+
+    return `${dois(data.getDate())}/${dois(data.getMonth() + 1)} ${dois(data.getHours())}:${dois(data.getMinutes())}`;
+}
+
+function numeroBR(numero) {
+    return numero.toLocaleString("pt-BR", { maximumFractionDigits: 1 });
+}
+
+// Mostra "▼ 2 vs. ontem" (verde se diminuiu, laranja se aumentou)
+function notaVariacao(diferenca, unidade, comparado) {
+    if (diferenca === 0) {
+        return { texto: "= igual a " + comparado, classe: "nota-neutro" };
+    }
+
+    const seta = diferenca > 0 ? "▲" : "▼";
+
+    return {
+        texto: `${seta} ${Math.abs(diferenca)}${unidade} vs. ${comparado}`,
+        classe: diferenca > 0 ? "nota-ruim" : "nota-bom"
+    };
+}
+
+async function carregarDashboard() {
+    const parametros = new URLSearchParams({ periodo: periodoAtual });
+    const empresa = obterEmpresaDoUsuario();
+
+    if (empresa) parametros.set("empresa", empresa);
+    if (servidorAtual) parametros.set("servidor", servidorAtual);
 
     try {
-        lista.innerHTML = "<li>Carregando alertas...</li>";
-
-        const resposta = await fetch("/alerta");
+        const resposta = await fetch("/alerta/dashboard?" + parametros.toString());
+        const dados = await resposta.json();
 
         if (!resposta.ok) {
-            const erro = await resposta.json();
-            throw new Error(erro.mensagem || "Erro ao consultar o Jira.");
+            throw new Error(dados.mensagem || "Erro ao montar o dashboard.");
         }
 
-        alertas = await resposta.json();
+        dashboard = dados;
 
+        desenharSeletorServidor();
         desenharResumo();
-        desenharAlertas(filtros[filtroAtual].valor);
+        desenharInsight();
+        desenharGrafico();
+        desenharChamados();
+        desenharServidores();
+        desenharHistorico();
         atualizarSino();
 
     } catch (erro) {
-        console.error("Erro ao carregar alertas:", erro);
+        console.error("Erro ao carregar o dashboard:", erro);
 
-        lista.innerHTML = "";
-
-        document.getElementById("mensagemVazia").hidden = false;
-        document.getElementById("mensagemVazia").textContent =
-            "Não foi possível carregar os alertas do Jira.";
+        document.getElementById("resumo").innerHTML =
+            `<p class="vazio">Não foi possível carregar o dashboard do Jira.</p>`;
     }
 }
 
-// Desenha os indicadores do resumo
 function desenharResumo() {
-    const hoje = new Date().toLocaleDateString("pt-BR");
+    const d = dashboard;
+    const periodo = TEXTO_PERIODO[periodoAtual];
 
-    const alertasHoje = alertas.filter(function (alerta) {
-        if (!alerta.hora) return false;
+    // 1) Em aberto
+    const notaAbertos = d.variacaoAbertos === 0 && d.abertos === 0
+        ? { texto: "Nenhum chamado aberto", classe: "nota-bom" }
+        : notaVariacao(d.variacaoAbertos, "", "ontem");
 
-        return new Date(alerta.hora).toLocaleDateString("pt-BR") === hoje;
-    });
+    // 3) Tempo médio
+    let notaTempo = { texto: "Sem chamados resolvidos", classe: "nota-neutro" };
 
-    const criticos = alertas.filter(function (alerta) {
-        return alerta.status === "critico";
-    });
+    if (d.tempoMedioMinutos !== null && d.tempoMedioAnteriorMinutos !== null) {
+        notaTempo = notaVariacao(
+            d.tempoMedioMinutos - d.tempoMedioAnteriorMinutos, " min", periodo.anterior
+        );
+    } else if (d.tempoMedioMinutos !== null) {
+        notaTempo = { texto: "Sem período anterior para comparar", classe: "nota-neutro" };
+    }
 
-    const resolvidos = alertas.filter(function (alerta) {
-        return alerta.status === "resolvido";
-    });
+    // 5) Total no período
+    let notaTotal = { texto: "Sem alertas no período anterior", classe: "nota-neutro" };
 
-    const resumo = [
+    if (d.criadosAnterior > 0) {
+        const percentual = Math.round((d.criados - d.criadosAnterior) / d.criadosAnterior * 100);
+
+        notaTotal = notaVariacao(percentual, "%", periodo.anterior);
+    }
+
+    const cards = [
         {
-            cor: "laranja",
-            icone: "bell",
-            numero: alertasHoje.length,
-            titulo: "Alertas hoje",
-            detalhe: "Chamados criados hoje"
+            titulo: "Alertas em aberto",
+            valor: d.abertos,
+            nota: notaAbertos
         },
         {
-            cor: "vermelho",
-            icone: "alert",
-            numero: criticos.length,
-            titulo: "Críticos",
-            detalhe: "Requerem atenção"
+            titulo: "Críticos em aberto",
+            valor: d.criticosAbertos,
+            critico: d.criticosAbertos > 0,
+            nota: d.criticosAbertos > 0
+                ? { texto: "Precisa de ação agora", classe: "nota-critico" }
+                : { texto: "Nenhum crítico aberto", classe: "nota-bom" }
         },
         {
-            cor: "verde",
-            icone: "check",
-            numero: resolvidos.length,
-            titulo: "Resolvidos",
-            detalhe: "Chamados concluídos no Jira"
+            titulo: "Tempo médio p/ resolver",
+            valor: formatarMinutos(d.tempoMedioMinutos),
+            nota: notaTempo
         },
         {
-            cor: "azul",
-            icone: "send",
-            numero: integracoes.filter((item) => item.ativa).length,
-            titulo: "Canais ativos",
-            detalhe: integracoes.filter((item) => item.ativa)
-                .map((item) => item.canal).join(" e ") || "Nenhum"
+            titulo: "Taxa de resolução",
+            valor: d.taxaResolucao === null ? "–" : d.taxaResolucao + "%",
+            nota: { texto: `${d.resolvidosCriados} de ${d.criados} chamados`, classe: "nota-neutro" }
+        },
+        {
+            titulo: "Alertas " + periodo.titulo,
+            valor: d.criados,
+            nota: notaTotal
+        },
+        {
+            titulo: "Alertas recorrentes",
+            valor: d.recorrentes,
+            nota: { texto: "Mesmo item em < 24 h", classe: d.recorrentes > 0 ? "nota-ruim" : "nota-neutro" }
         }
     ];
 
-    document.getElementById("resumo").innerHTML = resumo.map((item) => `
-        <article class="card-resumo">
-            <div class="icone-resumo ${item.cor}">
-                ${ic(item.icone)}
-            </div>
-
-            <div>
-                <strong class="numero ${item.cor}">${item.numero}</strong>
-                <p>${item.titulo}</p>
-                <small>${item.detalhe}</small>
-            </div>
+    document.getElementById("resumo").innerHTML = cards.map((card) => `
+        <article class="kpi">
+            <span class="kpi-titulo">${card.titulo}</span>
+            <strong class="kpi-valor ${card.critico ? "critico" : ""}">${card.valor}</strong>
+            <span class="kpi-nota ${card.nota.classe}">${card.nota.texto}</span>
         </article>
     `).join("");
 }
 
-// Desenha os alertas recebidos do Jira
-function desenharAlertas(filtro = "todos") {
-    const lista = document.getElementById("listaAlertas");
-    const mensagemVazia = document.getElementById("mensagemVazia");
 
-    const filtrados = alertas.filter(function (alerta) {
+function desenharInsight() {
+    const caixa = document.getElementById("insight");
+    const i = dashboard.insight;
+
+    // Com só um servidor (ou com filtro de servidor) a frase não ajuda
+    if (!i || dashboard.servidores.length < 2) {
+        caixa.hidden = true;
+        return;
+    }
+
+    let texto = `O <strong>${esc(i.servidor)}</strong> concentra ${i.percentual}% dos alertas (${i.total} de ${i.totalGeral})`;
+
+    if (i.componentes[0] !== "Outros") {
+        texto += `, ${i.quaseTodos ? "quase todos de" : "principalmente de"} ${i.componentes.join(" e ")}`;
+    }
+
+    if (i.janela) {
+        const de = new Date(dashboard.baldes[i.janela[0]].inicio).getHours();
+        const ate = new Date(dashboard.baldes[i.janela[1]].inicio).getHours() + 2;
+
+        texto += `, entre ${de} h e ${ate} h`;
+    }
+
+    texto += i.percentual >= 40 ? ". Vale revisar a capacidade desse servidor." : ".";
+
+    caixa.innerHTML = `<span class="tag">INSIGHT</span><span>${texto}</span>`;
+    caixa.hidden = false;
+}
+
+// Escolhe de quanto em quanto o eixo vertical sobe (0, 2, 4, 6, 8...)
+function escalaEixo(maximo) {
+    const passos = [1, 2, 5, 10, 20, 50, 100, 200, 500, 1000];
+    const passo = passos.find((p) => maximo / p <= 4) || 1000;
+
+    return { passo: passo, topo: passo * Math.ceil(maximo / passo) };
+}
+
+function desenharGrafico() {
+    const textos = TEXTO_PERIODO[periodoAtual];
+    const baldes = dashboard.baldes;
+    const caixa = document.getElementById("grafico");
+
+    document.getElementById("tituloGrafico").textContent = textos.tituloGrafico;
+    document.getElementById("subGrafico").textContent = textos.subGrafico;
+
+    if (dashboard.criados === 0) {
+        caixa.innerHTML = `<p class="vazio">Nenhum alerta neste período.</p>`;
+        return;
+    }
+
+    const maximo = Math.max(...baldes.map((b) => b.alerta + b.critico));
+    const escala = escalaEixo(maximo);
+    const porHora = periodoAtual === "24h";
+    const intervaloRotulo = baldes.length > 12 ? 5 : 1;
+
+    const marcas = [];
+
+    for (let valor = 0; valor <= escala.topo; valor += escala.passo) {
+        marcas.push(valor);
+    }
+
+    const rotulo = (balde) => {
+        const data = new Date(balde.inicio);
+
+        return porHora
+            ? String(data.getHours()).padStart(2, "0") + "h"
+            : data.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+    };
+
+    caixa.innerHTML = `
+        <div class="grafico">
+
+            <div class="eixo-y">
+                ${marcas.map((valor) => `<span style="bottom: ${valor / escala.topo * 100}%">${valor}</span>`).join("")}
+            </div>
+
+            <div class="plot">
+                ${marcas.map((valor) => `<i class="linha-grade" style="bottom: ${valor / escala.topo * 100}%"></i>`).join("")}
+
+                <div class="barras">
+                    ${baldes.map((balde) => {
+                        const total = balde.alerta + balde.critico;
+                        const altura = total / escala.topo * 100;
+
+                        return `
+                            <div class="col-barra"
+                                title="${rotulo(balde)}: ${balde.critico} crítico(s), ${balde.alerta} atenção">
+                                ${total === 0 ? "" : `
+                                    <span class="valor-barra" style="bottom: ${altura}%">${total}</span>
+                                    <div class="pilha" style="height: ${altura}%">
+                                        <i class="seg-critico" style="flex: ${balde.critico}"></i>
+                                        <i class="seg-alerta" style="flex: ${balde.alerta}"></i>
+                                    </div>
+                                `}
+                            </div>
+                        `;
+                    }).join("")}
+                </div>
+            </div>
+
+            <div class="eixo-x">
+                ${baldes.map((balde, indice) => `<span>${indice % intervaloRotulo === 0 ? rotulo(balde) : ""}</span>`).join("")}
+            </div>
+
+        </div>
+    `;
+}
+
+function desenharChamados() {
+    const e = dashboard.etapas;
+    const total = e.abertos + e.emAndamento + e.resolvidos;
+    const caixa = document.getElementById("chamados");
+
+    document.getElementById("subChamados").textContent =
+        `Em que etapa estão os alertas · ${dashboard.criados} chamados criados ${TEXTO_PERIODO[periodoAtual].titulo}`;
+
+    if (total === 0) {
+        caixa.innerHTML = `<p class="vazio">Nenhum chamado neste período.</p>`;
+        return;
+    }
+
+    const itens = [
+        { nome: "Abertos", cor: "vermelho", quantidade: e.abertos },
+        { nome: "Em andamento", cor: "laranja", quantidade: e.emAndamento },
+        { nome: "Resolvidos", cor: "verde", quantidade: e.resolvidos }
+    ];
+
+    caixa.innerHTML = `
+        <div class="pilha-etapas">
+            ${itens.map((item) => `
+                <i style="width: ${item.quantidade / total * 100}%; background: var(--${item.cor})"></i>
+            `).join("")}
+        </div>
+
+        ${itens.map((item) => `
+            <div class="linha-info">
+                <span class="nome">
+                    <i class="ponto" style="background: var(--${item.cor})"></i>${item.nome}
+                </span>
+                <strong>${item.quantidade}</strong>
+            </div>
+        `).join("")}
+
+        ${dashboard.dentroDoSla === null ? "" : `
+            <div class="linha-info suave">
+                <span>Resolvidos dentro do prazo (SLA)</span>
+                <strong class="nota-bom">${dashboard.dentroDoSla}%</strong>
+            </div>
+        `}
+
+        ${dashboard.maisAntigo === null ? "" : `
+            <div class="linha-info suave">
+                <span>Chamado aberto mais antigo</span>
+                <strong class="nota-neutro">${esc(dashboard.maisAntigo.chave)} · ${formatarMinutos(dashboard.maisAntigo.minutos)}</strong>
+            </div>
+        `}
+    `;
+}
+
+function desenharServidores() {
+    const lista = dashboard.servidores;
+    const caixa = document.getElementById("servidores");
+
+    document.getElementById("subServidores").textContent =
+        "Quem precisa de atenção primeiro · " + TEXTO_PERIODO[periodoAtual].titulo;
+
+    if (lista.length === 0) {
+        caixa.innerHTML = `<p class="vazio">Nenhum alerta neste período.</p>`;
+        return;
+    }
+
+    const maximo = lista[0].total;
+
+    caixa.innerHTML = `
+        <table class="tabela">
+            <thead>
+                <tr>
+                    <th>Servidor</th>
+                    <th>Empresa</th>
+                    <th>Função · sistema</th>
+                    <th>Volume</th>
+                    <th class="centro">Alertas</th>
+                    <th>Componentes</th>
+                    <th class="centro">Críticos</th>
+                    <th class="centro">Chamados abertos</th>
+                    <th>Último alerta</th>
+                    <th>Última coleta</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${lista.map((servidor) => {
+                    const proporcao = servidor.total / maximo;
+                    const cor = proporcao >= 0.7 ? "vermelho" : proporcao >= 0.2 ? "laranja" : "verde";
+
+                    const coleta = servidor.ultimaColeta
+                        ? `<span class="coleta">
+                               <i class="ponto" style="background: var(--${minutosDesde(servidor.ultimaColeta) > 5 ? "laranja" : "verde"})"></i>${haQuanto(servidor.ultimaColeta)}
+                           </span>`
+                        : "–";
+
+                    return `
+                        <tr>
+                            <td><strong>${esc(servidor.nome)}</strong></td>
+                            <td>${servidor.empresa ? esc(servidor.empresa) : "–"}</td>
+                            <td>
+                                ${servidor.funcao ? esc(servidor.funcao) : "–"}
+                                ${servidor.sistema ? `<small>${esc(servidor.sistema)}</small>` : ""}
+                            </td>
+                            <td>
+                                <div class="trilho">
+                                    <i style="width: ${proporcao * 100}%; background: var(--${cor})"></i>
+                                </div>
+                            </td>
+                            <td class="centro"><strong>${servidor.total}</strong></td>
+                            <td>${servidor.componentes.slice(0, 2).map((c) => `${esc(c.nome)} ${c.total}`).join(" · ")}</td>
+                            <td class="centro ${servidor.criticos > 0 ? "perigo" : ""}">${servidor.criticos}</td>
+                            <td class="centro">${servidor.abertos}</td>
+                            <td>${haQuanto(servidor.ultimoAlerta)}</td>
+                            <td>${coleta}</td>
+                        </tr>
+                    `;
+                }).join("")}
+            </tbody>
+        </table>
+    `;
+}
+
+function desenharHistorico() {
+    const filtro = filtros[filtroAtual].valor;
+    const caixa = document.getElementById("historico");
+    const mensagemVazia = document.getElementById("mensagemVazia");
+    const botaoMais = document.getElementById("btnMais");
+
+    const filtrados = dashboard.historico.filter((alerta) => {
         return filtro === "todos" || alerta.status === filtro;
     });
 
-    lista.innerHTML = filtrados.map(function (alerta) {
-        const info = statusInfo[alerta.status] || statusInfo.alerta;
+    const visiveis = filtrados.slice(0, limiteHistorico);
+    const totalGeral = filtro === "todos" ? dashboard.criados : filtrados.length;
 
-        const data = alerta.hora
-            ? new Date(alerta.hora).toLocaleString("pt-BR")
-            : "Data não informada";
-
-        return `
-            <li class="alerta">
-
-                <div class="alerta-icone ${info.cor}">
-                    ${ic(info.icone)}
-                </div>
-
-                <div class="alerta-info">
-                    <strong>${SGModal.escapar(alerta.titulo)}</strong>
-
-                    <small>
-                        ${SGModal.escapar(alerta.chave)}
-                        •
-                        ${SGModal.escapar(alerta.tipo)}
-                    </small>
-                </div>
-
-                <div class="alerta-acoes">
-
-                    <button class="btn-mini"
-                        data-acao="ver"
-                        data-chave="${SGModal.escapar(alerta.chave)}">
-
-                        ${ic("eye")} Ver
-
-                    </button>
-
-                    ${alerta.status !== "resolvido" ? `
-                        <button class="btn-mini"
-                            data-acao="reconhecer"
-                            data-chave="${SGModal.escapar(alerta.chave)}"
-                            data-perm="editar">
-
-                            ${ic("check")} Reconhecer
-
-                        </button>
-                    ` : ""}
-
-                </div>
-
-                <div class="alerta-lado">
-
-                    <span class="tag ${info.cor}">
-                        ● ${info.texto}
-                    </span>
-
-                    <small>${data}</small>
-
-                </div>
-
-            </li>
-        `;
-    }).join("");
+    document.getElementById("subHistorico").textContent =
+        `Ocorrências mais recentes · mostrando ${visiveis.length} de ${totalGeral}`;
 
     mensagemVazia.hidden = filtrados.length > 0;
+    botaoMais.hidden = filtrados.length <= 6;
+    botaoMais.textContent = limiteHistorico > 6 ? "Mostrar menos" : "Mostrar mais";
 
     if (filtrados.length === 0) {
-        mensagemVazia.textContent = "Nenhum alerta com esse filtro.";
+        caixa.innerHTML = "";
+        return;
     }
 
-    SG.reaplicarPermissoes();
+    caixa.innerHTML = `
+        <table class="tabela" style="min-width: 1100px">
+            <thead>
+                <tr>
+                    <th>Gravidade</th>
+                    <th>Chamado</th>
+                    <th>Servidor · empresa</th>
+                    <th>Componente</th>
+                    <th>Medido / limite</th>
+                    <th>Disparo</th>
+                    <th>Duração</th>
+                    <th>Status</th>
+                    <th>Responsável</th>
+                    <th>Slack</th>
+                </tr>
+            </thead>
+            <tbody>
+                ${visiveis.map(linhaDoHistorico).join("")}
+            </tbody>
+        </table>
+    `;
 }
 
-// Log de envio ainda não conectado à API de logs
-function desenharLog() {
-    const log = document.getElementById("log");
+function linhaDoHistorico(alerta) {
+    const gravidade = alerta.severidade === "critico"
+        ? { cor: "vermelho", texto: "Crítico" }
+        : { cor: "laranja", texto: "Atenção" };
 
-    if (log) {
-        log.innerHTML =
-            "<li>O histórico de envios ainda não está conectado à API de logs.</li>";
-    }
+    const etapa = alerta.categoriaStatus === "done"
+        ? { cor: "verde", texto: "Resolvido" }
+        : alerta.categoriaStatus === "indeterminate"
+            ? { cor: "laranja", texto: "Em andamento" }
+            : { cor: "vermelho", texto: "Aberto" };
+
+    const slack = {
+        enviado: { cor: "verde", texto: "enviado" },
+        falhou: { cor: "vermelho", texto: "falhou" },
+        pendente: { cor: "laranja", texto: "pendente" }
+    }[alerta.slack];
+
+    const medido = alerta.medido === null
+        ? "–"
+        : `<strong>${numeroBR(alerta.medido)}%</strong>` +
+          (alerta.limite !== null ? ` <span class="suave">/ limite ${numeroBR(alerta.limite)}%</span>` : "");
+
+    const duracao = alerta.resolvidoEm
+        ? "resolvido em " + formatarMinutos((new Date(alerta.resolvidoEm) - new Date(alerta.hora)) / 60000)
+        : "aberto há " + formatarMinutos(minutosDesde(alerta.hora));
+
+    return `
+        <tr>
+            <td><span class="tag ${gravidade.cor}">${gravidade.texto}</span></td>
+            <td>
+                <button class="link-chamado" data-chave="${esc(alerta.chave)}">${esc(alerta.chave)}</button>
+            </td>
+            <td>
+                <strong>${alerta.servidor ? esc(alerta.servidor) : "–"}</strong>
+                ${alerta.empresa ? `<small>${esc(alerta.empresa)}</small>` : ""}
+            </td>
+            <td>${alerta.componente ? esc(alerta.componente) : "–"}</td>
+            <td>${medido}</td>
+            <td>${formatarDataHora(alerta.hora)}</td>
+            <td>${duracao}</td>
+            <td><span class="tag ${etapa.cor}">${etapa.texto}</span></td>
+            <td>${esc(alerta.responsavel)}</td>
+            <td>${slack ? `<span class="tag ${slack.cor}">${slack.texto}</span>` : "–"}</td>
+        </tr>
+    `;
 }
 
-// Desenha os limites de monitoramento
-function desenharLimites() {
-    document.getElementById("limites").innerHTML = limites.map((limite, indice) => `
-        <li>
-            <i class="bolinha ${limite.cor}"></i>
+function desenharSeletorServidor() {
+    const seletor = document.getElementById("filtroServidor");
 
-            ${limite.nome}
+    seletor.innerHTML =
+        `<option value="">Servidor: Todos os servidores</option>` +
+        dashboard.servidoresDisponiveis.map((servidor) => `
+            <option value="${esc(servidor.chave)}">${esc(servidor.nome)}</option>
+        `).join("");
 
-            <input
-                type="number"
-                min="0"
-                max="100"
-                value="${limite.valor}"
-                data-cor="${limite.cor}"
-                data-indice="${indice}"
-                data-perm-lock="editar"
-            >%
-        </li>
-    `).join("");
-
-    document.querySelectorAll("#limites input").forEach((campo) => {
-        campo.addEventListener("input", () => {
-            if (campo.value > 100) campo.value = 100;
-            if (campo.value < 0) campo.value = 0;
-
-            limites[campo.dataset.indice].valor = Number(campo.value);
-        });
-    });
+    seletor.value = servidorAtual;
 }
 
-// Desenha as integrações
-function desenharIntegracoes() {
-    document.getElementById("integracoes").innerHTML = integracoes.length === 0
-        ? `<p class="vazio">Nenhuma integração conectada.</p>`
-        : integracoes.map((integracao, indice) => {
-            const info = CANAIS[integracao.canal];
-
-            return `
-                <div class="integracao">
-
-                    <span class="integracao-icone ${info.cor}">
-                        ${ic(info.icone)}
-                    </span>
-
-                    <div>
-                        <strong>${integracao.canal}</strong>
-
-                        <small>
-                            ${SGModal.escapar(integracao.destino)}
-                        </small>
-                    </div>
-
-                    <span class="tag ${integracao.ativa ? "verde" : "laranja"}">
-                        ${integracao.ativa ? "Conectado" : "Desativado"}
-                    </span>
-
-                    <button class="btn-mini"
-                        data-acao="editar-integracao"
-                        data-indice="${indice}"
-                        data-perm="editar">
-
-                        ${ic("edit")} Editar
-
-                    </button>
-
-                    <button class="btn-mini btn-mini-perigo"
-                        data-acao="remover-integracao"
-                        data-indice="${indice}"
-                        data-perm="excluir">
-
-                        ${ic("trash")} Remover
-
-                    </button>
-
-                </div>
-            `;
-        }).join("");
-
-    desenharResumo();
-    SG.reaplicarPermissoes();
-}
-
-// Atualiza as notificações da tela
 function atualizarSino() {
-    const ativos = alertas.filter(function (alerta) {
-        return alerta.status !== "resolvido";
-    });
-
     SG.definirNotificacoes(
-        ativos.map(function (alerta) {
-            return {
-                nome: alerta.chave,
-                texto: alerta.titulo,
-                status: alerta.status
-            };
-        })
+        dashboard.notificacoes.map((alerta) => ({
+            nome: alerta.chave,
+            texto: alerta.titulo,
+            status: alerta.status
+        }))
     );
 }
 
-// Alterna os filtros
-botaoFiltro.addEventListener("click", () => {
-    filtroAtual = (filtroAtual + 1) % filtros.length;
-
-    botaoFiltro.textContent = filtros[filtroAtual].texto;
-
-    desenharAlertas(filtros[filtroAtual].valor);
-});
-
-// Abre os detalhes de um alerta
 function abrirVerAlerta(chave, origem) {
-    const alerta = alertas.find(function (item) {
-        return item.chave === chave;
-    });
+    const alerta = dashboard.historico.find((item) => item.chave === chave);
 
     if (!alerta) return;
 
     const info = statusInfo[alerta.status] || statusInfo.alerta;
-
     const aberto = alerta.status !== "resolvido";
+    const formatar = (data) => data ? new Date(data).toLocaleString("pt-BR") : "Não informado";
 
     const itens = [
-        {
-            rotulo: "Situação no Jira",
-            valor: alerta.statusJira
-        },
-        {
-            rotulo: "Prioridade",
-            valor: alerta.prioridade
-        },
-        {
-            rotulo: "Tipo",
-            valor: alerta.tipo
-        },
-        {
-            rotulo: "Responsável",
-            valor: alerta.responsavel
-        },
-        {
-            rotulo: "Relator",
-            valor: alerta.relator
-        },
-        {
-            rotulo: "Criado em",
-            valor: alerta.hora
-                ? new Date(alerta.hora).toLocaleString("pt-BR")
-                : "Não informado"
-        },
-        {
-            rotulo: "Atualizado em",
-            valor: alerta.atualizado
-                ? new Date(alerta.atualizado).toLocaleString("pt-BR")
-                : "Não informado"
-        },
-        {
-            rotulo: "Descrição",
-            valor: alerta.descricao || "Sem descrição cadastrada.",
-            inteira: true
-        },
-        {
-            rotulo: "Etiquetas",
-            valor: (alerta.etiquetas || []).join(", ") || "Nenhuma",
-            inteira: true
-        }
+        { rotulo: "Situação no Jira", valor: alerta.statusJira },
+        { rotulo: "Prioridade", valor: alerta.prioridade },
+        { rotulo: "Tipo", valor: alerta.tipo },
+        { rotulo: "Responsável", valor: alerta.responsavel },
+        { rotulo: "Relator", valor: alerta.relator },
+        { rotulo: "Criado em", valor: formatar(alerta.hora) },
+        { rotulo: "Atualizado em", valor: formatar(alerta.atualizado) },
+        { rotulo: "Descrição", valor: alerta.descricao || "Sem descrição cadastrada.", inteira: true },
+        { rotulo: "Etiquetas", valor: (alerta.etiquetas || []).join(", ") || "Nenhuma", inteira: true }
     ];
 
     SGModal.ver({
         titulo: "Detalhes do alerta",
-
         subtitulo: alerta.chave + " • " + alerta.tipo,
-
         gatilho: origem,
-
         destaque: {
             icone: ic(info.icone),
             cor: info.cor,
             titulo: alerta.titulo,
-            texto: alerta.hora
-                ? new Date(alerta.hora).toLocaleString("pt-BR")
-                : ""
+            texto: alerta.hora ? new Date(alerta.hora).toLocaleString("pt-BR") : ""
         },
-
         itens: itens,
-
         ...(aberto ? {
             textoEditar: "Reconhecer",
             iconeEditar: "check",
@@ -427,9 +606,7 @@ async function reconhecer(chave) {
             "/alerta/" + encodeURIComponent(chave) + "/reconhecer",
             {
                 method: "PUT",
-                headers: {
-                    "Content-Type": "application/json"
-                }
+                headers: { "Content-Type": "application/json" }
             }
         );
 
@@ -437,17 +614,13 @@ async function reconhecer(chave) {
 
         if (!resposta.ok) {
             throw new Error(
-                dados.erro ||
-                dados.mensagem ||
-                "Não foi possível atualizar o chamado."
+                dados.erro || dados.mensagem || "Não foi possível atualizar o chamado."
             );
         }
 
-        SGModal.aviso(
-            dados.mensagem || "Chamado atualizado no Jira."
-        );
+        SGModal.aviso(dados.mensagem || "Chamado atualizado no Jira.");
 
-        await carregarAlertas();
+        await carregarDashboard();
 
     } catch (erro) {
         console.error("Erro ao reconhecer alerta:", erro);
@@ -455,188 +628,56 @@ async function reconhecer(chave) {
     }
 }
 
-// Abre o formulário de integração
-function abrirIntegracao(indice, origem) {
-    const editando = indice != null;
-
-    if (editando ? !SG.pode("editar") : !SG.pode("criar")) {
-        return;
-    }
-
-    const atual = editando
-        ? integracoes[indice]
-        : {
-            canal: "Slack",
-            destino: "",
-            ativa: true
-        };
-
-    SGModal.formulario({
-        titulo: editando
-            ? `Editar integração com ${atual.canal}`
-            : "Nova integração",
-
-        subtitulo: editando
-            ? "Altere o destino ou desative o envio."
-            : "Conecte um canal para receber os alertas.",
-
-        confirmar: editando
-            ? "Salvar alterações"
-            : "Conectar canal",
-
-        icone: editando ? "save" : "plus",
-
-        aviso: editando
-            ? "Integração atualizada."
-            : "Integração conectada.",
-
-        gatilho: origem,
-
-        valores: atual,
-
-        campos: [
-            editando
-                ? {
-                    tipo: "texto",
-                    nome: "canal",
-                    rotulo: "Canal",
-                    somenteLeitura: true
-                }
-                : {
-                    tipo: "select",
-                    nome: "canal",
-                    rotulo: "Canal",
-                    opcoes: Object.keys(CANAIS).map((canal) => ({
-                        valor: canal,
-                        texto: canal
-                    }))
-                },
-            {
-                tipo: "texto",
-                nome: "destino",
-                rotulo: "Destino",
-                placeholder: CANAIS[atual.canal].dica,
-                max: 60,
-                erro: "Informe o canal, projeto ou e-mail de destino."
-            },
-            {
-                tipo: "switch",
-                nome: "ativa",
-                rotulo: "Envio ativo",
-                descricao: "Quando desligado, nenhum alerta é enviado para este canal."
-            }
-        ],
-
-        onSalvar(valores) {
-            if (editando) {
-                atual.destino = valores.destino;
-                atual.ativa = valores.ativa;
-
-            } else {
-                if (integracoes.some((item) => item.canal === valores.canal)) {
-                    return `Já existe uma integração com ${valores.canal}. Edite a existente.`;
-                }
-
-                integracoes.push({
-                    canal: valores.canal,
-                    destino: valores.destino,
-                    ativa: valores.ativa
-                });
-            }
-
-            desenharIntegracoes();
-        }
-    });
-}
-
-// Remove uma integração da configuração visual
-function removerIntegracao(indice, origem) {
-    if (!SG.pode("excluir")) return;
-
-    SGModal.confirmar({
-        titulo: "Remover integração?",
-
-        texto: `Os alertas deixarão de ser enviados para <strong>${integracoes[indice].canal}</strong>. Essa ação não pode ser desfeita.`,
-
-        botao: "Remover",
-
-        aviso: "Integração removida.",
-
-        gatilho: origem,
-
-        onConfirmar() {
-            integracoes.splice(indice, 1);
-            desenharIntegracoes();
-        }
-    });
-}
-
-// Eventos da lista de alertas
-document.getElementById("listaAlertas").addEventListener("click", (evento) => {
-    const botao = evento.target.closest("[data-acao]");
+// Troca de período
+document.getElementById("filtroPeriodo").addEventListener("click", (evento) => {
+    const botao = evento.target.closest("[data-periodo]");
 
     if (!botao) return;
 
-    const chave = botao.dataset.chave;
+    periodoAtual = botao.dataset.periodo;
+    limiteHistorico = 6;
 
-    if (botao.dataset.acao === "ver") {
-        abrirVerAlerta(chave, botao);
-    }
+    document.querySelectorAll("#filtroPeriodo button").forEach((item) => {
+        item.classList.toggle("ativo", item === botao);
+    });
 
-    if (botao.dataset.acao === "reconhecer") {
-        reconhecer(chave);
+    carregarDashboard();
+});
+
+// Troca de servidor
+document.getElementById("filtroServidor").addEventListener("change", (evento) => {
+    servidorAtual = evento.target.value;
+    limiteHistorico = 6;
+
+    carregarDashboard();
+});
+
+// Filtro do histórico (todos / críticos / alertas / resolvidos)
+document.getElementById("btnFiltro").addEventListener("click", (evento) => {
+    filtroAtual = (filtroAtual + 1) % filtros.length;
+    limiteHistorico = 6;
+
+    evento.currentTarget.textContent = filtros[filtroAtual].texto;
+
+    desenharHistorico();
+});
+
+// Mostrar mais / menos
+document.getElementById("btnMais").addEventListener("click", () => {
+    limiteHistorico = limiteHistorico > 6 ? 6 : 20;
+
+    desenharHistorico();
+});
+
+// Clique na chave do chamado
+document.getElementById("historico").addEventListener("click", (evento) => {
+    const botao = evento.target.closest("[data-chave]");
+
+    if (botao) {
+        abrirVerAlerta(botao.dataset.chave, botao);
     }
 });
 
-// Eventos das integrações
-document.getElementById("integracoes").addEventListener("click", (evento) => {
-    const botao = evento.target.closest("[data-acao]");
+document.getElementById("resumo").innerHTML = `<p class="vazio">Carregando...</p>`;
 
-    if (!botao) return;
-
-    const indice = Number(botao.dataset.indice);
-
-    if (botao.dataset.acao === "editar-integracao") {
-        abrirIntegracao(indice, botao);
-    }
-
-    if (botao.dataset.acao === "remover-integracao") {
-        removerIntegracao(indice, botao);
-    }
-});
-
-// Botão de nova integração
-document.getElementById("btnNovaIntegracao").addEventListener("click", (evento) => {
-    abrirIntegracao(null, evento.currentTarget);
-});
-
-// Botão de salvar configurações
-const botaoSalvar = document.getElementById("btnSalvar");
-const checkAgrupar = document.getElementById("agrupar");
-
-botaoSalvar.addEventListener("click", () => {
-    if (!SG.pode("editar")) return;
-
-    const config = {
-        limites: limites,
-        agruparRepetidos: checkAgrupar.checked
-    };
-
-    console.log("Configurações salvas:", config);
-
-    botaoSalvar.textContent = "✔ Configurações salvas";
-
-    setTimeout(() => {
-        botaoSalvar.textContent = "Salvar configurações";
-    }, 2000);
-});
-
-checkAgrupar.checked = agruparRepetidos;
-
-// Inicialização da tela
-desenharLog();
-desenharLimites();
-desenharIntegracoes();
-carregarAlertas();
-
-SG.reaplicarPermissoes();
+carregarDashboard();
