@@ -1,11 +1,31 @@
-var JANELA_MS = 5 * 60 * 1000;
-var HORAS_COBERTURA = 24;
+// Cada período usa um arquivo diferente do Gold e uma janela de agregação própria.
+var PERIODO_PADRAO = "24h";
 
-var cache = {
-    chave: null,
-    valor: null,
-    expiraEm: 0
+var PERIODOS = {
+    "24h": { arquivo: "resumo_metricas.json", janelaMinutos: 5, horizonteHoras: 24 },
+    "7d": { arquivo: "resumo_metricas_1h.json", janelaMinutos: 60, horizonteHoras: 24 * 7 },
+    "30d": { arquivo: "resumo_metricas_6h.json", janelaMinutos: 6 * 60, horizonteHoras: 24 * 30 }
 };
+
+function configPeriodo(periodo) {
+    var chave = String(periodo || "").toLowerCase();
+
+    if (!PERIODOS[chave]) {
+        chave = PERIODO_PADRAO;
+    }
+
+    var config = PERIODOS[chave];
+
+    return {
+        chave: chave,
+        arquivo: config.arquivo,
+        janelaMs: config.janelaMinutos * 60 * 1000,
+        horizonteMs: config.horizonteHoras * 60 * 60 * 1000
+    };
+}
+
+// Uma entrada por período + conjunto de empresas: trocar de aba não refaz o S3.
+var cache = new Map();
 
 var avisouSemBucket = false;
 
@@ -46,15 +66,15 @@ function paraData(texto) {
 }
 
 // O gold é organizado por empresa; os servidores são agrupados pelo servidor_id do JSON.
-function chaveS3(idEmpresa) {
-    return prefixoGold() + idEmpresa + "/atual/resumo_metricas.json";
+function chaveS3(idEmpresa, arquivo) {
+    return prefixoGold() + idEmpresa + "/atual/" + arquivo;
 }
 
-async function lerDoBucket(idEmpresa, cliente, bucket) {
+async function lerDoBucket(idEmpresa, cliente, bucket, arquivo) {
     var aws = require("@aws-sdk/client-s3");
     var comando = new aws.GetObjectCommand({
         Bucket: bucket,
-        Key: chaveS3(idEmpresa)
+        Key: chaveS3(idEmpresa, arquivo)
     });
 
     var resposta = await cliente.send(comando);
@@ -62,7 +82,9 @@ async function lerDoBucket(idEmpresa, cliente, bucket) {
 }
 
 // Agrupa as linhas de todas as empresas por servidor_id.
-function calcularResumo(linhas) {
+function calcularResumo(linhas, config) {
+    var janelaMs = config.janelaMs;
+    var horizonteMs = config.horizonteMs;
     var porServidor = new Map();
     var ultimoGold = null;
     var menorJanela = null;
@@ -106,9 +128,9 @@ function calcularResumo(linhas) {
 
     if (!maiorJanela || !ultimoGold) return null;
 
-    var fimExclusivo = maiorJanela.getTime() + JANELA_MS;
+    var fimExclusivo = maiorJanela.getTime() + janelaMs;
     var inicioGlobal = Math.max(
-        fimExclusivo - HORAS_COBERTURA * 60 * 60 * 1000,
+        fimExclusivo - horizonteMs,
         menorJanela.getTime()
     );
 
@@ -116,7 +138,7 @@ function calcularResumo(linhas) {
 
     porServidor.forEach(function (dados, id) {
         var inicioServidor = Math.max(inicioGlobal, dados.primeiraJanela.getTime());
-        var esperadas = Math.max(1, Math.floor((fimExclusivo - inicioServidor) / JANELA_MS));
+        var esperadas = Math.max(1, Math.floor((fimExclusivo - inicioServidor) / janelaMs));
         var recebidas = 0;
 
         dados.janelas.forEach(function (janela) {
@@ -137,18 +159,21 @@ function calcularResumo(linhas) {
     };
 }
 
-async function buscarResumoGold(idsEmpresas) {
+async function buscarResumoGold(idsEmpresas, periodo) {
     var empresas = Array.from(new Set((idsEmpresas || []).map(function (id) {
         return String(id);
     }))).sort();
 
     if (empresas.length === 0) return null;
 
-    var chaveCache = empresas.join(",");
+    var config = configPeriodo(periodo);
+    var chaveCache = config.chave + "|" + empresas.join(",");
     var agora = Date.now();
 
-    if (cache.chave === chaveCache && cache.expiraEm > agora) {
-        return cache.valor;
+    var entradaCache = cache.get(chaveCache);
+
+    if (entradaCache && entradaCache.expiraEm > agora) {
+        return entradaCache.valor;
     }
 
     var bucket = valorEnv("DATA_LAKE_BUCKET", valorEnv("BUCKET_GOLD", ""));
@@ -176,63 +201,97 @@ async function buscarResumoGold(idsEmpresas) {
     var leuAlgum = false;
     var ausentes = 0;
 
-    for (var i = 0; i < empresas.length; i++) {
-        var idEmpresa = empresas[i];
-
+    // Lê as empresas em paralelo: com várias empresas, uma chamada por vez
+    // deixava a troca de período lenta.
+    var leituras = empresas.map(function (idEmpresa) {
         // Evita ids estranhos na chave S3.
         if (!/^[A-Za-z0-9._-]+$/.test(idEmpresa)) {
             console.log("Data Lake: id de empresa ignorado:", idEmpresa);
-            continue;
+            return Promise.resolve(null);
         }
 
-        try {
-            var dados = await lerDoBucket(idEmpresa, cliente, bucket);
+        return lerDoBucket(idEmpresa, cliente, bucket, config.arquivo)
+            .then(function (dados) {
+                if (Array.isArray(dados)) {
+                    return { linhas: dados };
+                }
 
-            if (Array.isArray(dados)) {
-                linhas = linhas.concat(dados);
-                leuAlgum = true;
-            } else {
                 console.log("Data Lake: formato inesperado no resumo da empresa", idEmpresa);
-            }
-        } catch (erro) {
-            var nomeErro = erro && (erro.name || erro.Code);
-            var mensagem = erro && erro.message ? erro.message : String(erro);
+                return null;
+            })
+            .catch(function (erro) {
+                var nomeErro = erro && (erro.name || erro.Code);
+                var mensagem = erro && erro.message ? erro.message : String(erro);
 
-            if (nomeErro === "NoSuchKey") {
-                ausentes++;
-                continue;
-            }
+                // Sem s3:ListBucket, uma chave inexistente volta como AccessDenied
+                // citando ListBucket. Nesse caso é ausência de dado, não falha geral.
+                var chaveAusente = nomeErro === "NoSuchKey" ||
+                    (nomeErro === "AccessDenied" && /ListBucket/i.test(mensagem));
 
-            if (nomeErro === "NoSuchBucket" || nomeErro === "AccessDenied") {
-                console.log("Data Lake: falha de acesso ao bucket -", mensagem);
-                break;
-            }
+                if (chaveAusente) {
+                    return { ausente: true };
+                }
 
-            console.log("Data Lake: falha ao ler o resumo da empresa", idEmpresa, "-", mensagem);
+                if (nomeErro === "NoSuchBucket" || nomeErro === "AccessDenied") {
+                    return { falhaGlobal: mensagem };
+                }
+
+                console.log("Data Lake: falha ao ler o resumo da empresa", idEmpresa, "-", mensagem);
+                return null;
+            });
+    });
+
+    var resultados = await Promise.all(leituras);
+    var falhaGlobal = null;
+
+    resultados.forEach(function (resultado) {
+        if (!resultado) return;
+
+        if (resultado.linhas) {
+            linhas = linhas.concat(resultado.linhas);
+            leuAlgum = true;
+        } else if (resultado.ausente) {
+            ausentes++;
+        } else if (resultado.falhaGlobal && !falhaGlobal) {
+            falhaGlobal = resultado.falhaGlobal;
         }
+    });
+
+    if (falhaGlobal) {
+        console.log("Data Lake: falha de acesso ao bucket -", falhaGlobal);
+    }
+
+    function guardarCache(valor) {
+        var ttlSegundos = Number(valorEnv("DATA_LAKE_CACHE_SEGUNDOS", "60"));
+        if (!Number.isFinite(ttlSegundos) || ttlSegundos < 0) {
+            ttlSegundos = 60;
+        }
+
+        cache.set(chaveCache, {
+            valor: valor,
+            expiraEm: Date.now() + ttlSegundos * 1000
+        });
     }
 
     if (!leuAlgum) {
         if (ausentes > 0 && ausentes === empresas.length) {
             console.log(
                 "Data Lake: nenhum resumo encontrado. Verifique se existe",
-                bucket + "/" + prefixoGold() + "<id_empresa>/atual/resumo_metricas.json"
+                bucket + "/" + prefixoGold() + "<id_empresa>/atual/" + config.arquivo
             );
         }
+        // Também guarda a ausência: evita repetir todas as leituras no mesmo minuto.
+        guardarCache(null);
         return null;
     }
 
-    var resumo = calcularResumo(linhas);
-    if (!resumo) return null;
-
-    var ttlSegundos = Number(valorEnv("DATA_LAKE_CACHE_SEGUNDOS", "60"));
-    if (!Number.isFinite(ttlSegundos) || ttlSegundos < 0) {
-        ttlSegundos = 60;
+    var resumo = calcularResumo(linhas, config);
+    if (!resumo) {
+        guardarCache(null);
+        return null;
     }
 
-    cache.chave = chaveCache;
-    cache.valor = resumo;
-    cache.expiraEm = Date.now() + ttlSegundos * 1000;
+    guardarCache(resumo);
 
     return resumo;
 }

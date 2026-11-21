@@ -29,11 +29,22 @@
 
             <main class="principal">
 
-                <p class="legenda-fontes">
-                    Fonte de cada painel:
-                    <span class="fonte fonte-banco">Banco</span>
-                    <span class="fonte fonte-lake">Data Lake</span>
-                </p>
+                <div class="filtros-topo">
+                    <div class="campo-select">
+                        <span class="rotulo" id="rotuloPeriodo">PERÍODO</span>
+                        <div class="grupo-periodo" id="filtroPeriodo" role="group" aria-labelledby="rotuloPeriodo">
+                            <button type="button" class="btn-periodo" data-periodo="24h">24h</button>
+                            <button type="button" class="btn-periodo ativo" data-periodo="7d">7 dias</button>
+                            <button type="button" class="btn-periodo" data-periodo="30d">30 dias</button>
+                        </div>
+                    </div>
+                    <p class="legenda-fontes">
+                        Fonte de cada painel:
+                        <span class="fonte fonte-banco">Banco</span>
+                        <span class="fonte fonte-lake">Data Lake</span>
+                    </p>
+                </div>
+                <p class="nota" id="avisoLake" hidden></p>
 
                 <!-- Indicadores principais -->
                 <section class="cards-kpi" id="cardsKpi" aria-label="Indicadores principais"></section>
@@ -89,7 +100,7 @@
                         <div class="painel-topo">
                             <div>
                                 <h2>Pedem atenção</h2>
-                                <p>Agente parado, dados faltando ou empresa dormente</p>
+                                <p>Sem dados, agente parado, dados faltando ou empresa dormente</p>
                             </div>
                             <span class="fonte fonte-lake">Data Lake</span>
                         </div>
@@ -116,7 +127,7 @@
                                 <select id="selectOrdem">
                                     <option value="usuarios">Usuários</option>
                                     <option value="servidores">Servidores</option>
-                                    <option value="alertas">Alertas (7 dias)</option>
+                                    <option value="alertas" id="optAlertas">Alertas (7 dias)</option>
                                     <option value="cobertura">Cobertura (menor primeiro)</option>
                                     <option value="cadastro">Cadastro (mais recentes)</option>
                                 </select>
@@ -134,7 +145,7 @@
                                     <th scope="col">Cadastro</th>
                                     <th scope="col" class="num">Reportando</th>
                                     <th scope="col" class="num">Cobertura</th>
-                                    <th scope="col" class="num">Alertas 7d</th>
+                                    <th scope="col" class="num" id="thAlertas">Alertas 7d</th>
                                     <th scope="col">Último dado</th>
                                     <th scope="col">Situação</th>
                                 </tr>
@@ -142,7 +153,7 @@
                             <tbody id="tabelaEmpresas"></tbody>
                         </table>
                     </div>
-                    <p class="nota">Cobertura = % das janelas de 5 min esperadas que chegaram ao Gold. Servidor silencioso = sem dado há mais de 15 min.</p>
+                    <p class="nota" id="notaCobertura">Cobertura = % das janelas de 5 min esperadas que chegaram ao Gold. Servidor silencioso = sem dado há mais de 15 min em relação ao último lote do Gold ou sem dados no Gold.</p>
                 </section>
 
             </main>

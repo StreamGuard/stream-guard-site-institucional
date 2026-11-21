@@ -1,7 +1,20 @@
 var database = require("../database/config");
 
-function buscarDadosBanco(){
-    var instrucaoSql = 
+// O período chega validado do controller (1, 7 ou 30 dias).
+function normalizarDias(diasPeriodo) {
+    var dias = Number(diasPeriodo);
+
+    if (dias !== 1 && dias !== 7 && dias !== 30) {
+        dias = 1;
+    }
+
+    return dias;
+}
+
+function buscarDadosBanco(diasPeriodo) {
+    var dias = normalizarDias(diasPeriodo);
+
+    var instrucaoSql =
     `
         SELECT
             e.id_empresa,
@@ -12,10 +25,12 @@ function buscarDadosBanco(){
             COALESCE(u.qtd_gerente, 0) AS qtd_gerente,
             COALESCE(u.qtd_admin, 0) AS qtd_admin,
             COALESCE(u.qtd_usuarios, 0) AS qtd_usuarios,
+            COALESCE(u.qtd_usuarios_ativos, 0) AS qtd_usuarios_ativos,
 
             eq.id_equipamentos AS id_equipamento,
             eq.hostname AS nome_equipamento,
-            eq.tipo AS tipo_equipamento
+            eq.tipo AS tipo_equipamento,
+            eq.dt_atualizacao AS dt_atualizacao_equipamento
 
         FROM empresa e
 
@@ -27,7 +42,12 @@ function buscarDadosBanco(){
 
                 SUM(CASE WHEN p.nome = 'Gerente' THEN 1 ELSE 0 END) AS qtd_gerente,
                 SUM(CASE WHEN p.nome = 'Admin' THEN 1 ELSE 0 END) AS qtd_admin,
-                SUM(CASE WHEN p.nome = 'User' THEN 1 ELSE 0 END) AS qtd_usuarios
+                SUM(CASE WHEN p.nome = 'User' THEN 1 ELSE 0 END) AS qtd_usuarios,
+                SUM(CASE
+                    WHEN p.nome <> 'Root'
+                     AND u.dt_ultimo_acesso >= DATE_SUB(NOW(), INTERVAL ${dias} DAY)
+                    THEN 1 ELSE 0
+                END) AS qtd_usuarios_ativos
 
             FROM usuario u
 

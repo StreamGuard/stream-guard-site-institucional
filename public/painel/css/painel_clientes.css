@@ -448,6 +448,10 @@ tbody tr:last-child :is(th, td) {
     border-left-color: var(--vermelho);
 }
 
+.aviso-neutro {
+    border-left-color: var(--borda);
+}
+
 .aviso strong {
     display: block;
     font-size: 0.82rem;
