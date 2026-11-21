@@ -1,8 +1,8 @@
-// limite = referência de alerta (pode editar)
+// Limites da configuração atual da base de teste; ainda não são carregados por servidor.
 const COMPONENTES = {
     cpu: { nome: "CPU", tipo: "USO_CPU", limite: 90, cor: "#4f8cff" },
-    ram: { nome: "RAM", tipo: "USO_RAM", limite: 90, cor: "#8b5cf6" },
-    disco: { nome: "Disco", tipo: "USO_DISCO", limite: 95, cor: "#2de2c0" },
+    ram: { nome: "RAM", tipo: "USO_RAM", limite: 85, cor: "#8b5cf6" },
+    disco: { nome: "Disco", tipo: "USO_DISCO", limite: 90, cor: "#2de2c0" },
     rede: { nome: "Rede", tipo: "TAXA_ENVIO_REDE", limite: 80, cor: "#f59a3d" }
 };
 const NOMES_COMPONENTES = ["cpu", "ram", "disco", "rede"];
@@ -60,8 +60,8 @@ function horaMinuto(texto) {
     return texto.slice(11, 16);
 }
 
-function diaHoraMinuto(texto) {
-    return texto.slice(8, 10) + "/" + texto.slice(5, 7) + " " + texto.slice(11, 16);
+function formatarInicioJanela(texto) {
+    return texto.slice(8, 10) + "/" + texto.slice(5, 7) + " " + horaMinuto(texto);
 }
 
 function somarMinutos(texto, minutos) {
@@ -88,22 +88,8 @@ function estadoDaJanela(janela, limite) {
     return "ok";
 }
 
-function acharEpisodios(serie, limite) {
-    const episodios = [];
-    let atual = null;
-    serie.forEach(function (janela) {
-        if (janela.maximo > limite) {
-            if (atual === null) atual = { inicio: janela.inicio, fim: janela.inicio, janelas: 0, pico: 0 };
-            atual.fim = janela.inicio;
-            atual.janelas++;
-            if (janela.maximo > atual.pico) atual.pico = janela.maximo;
-        } else if (atual !== null) {
-            episodios.push(atual);
-            atual = null;
-        }
-    });
-    if (atual !== null) episodios.push(atual);
-    return episodios;
+function janelasAcimaDoLimite(serie, limite) {
+    return serie.filter(function (janela) { return janela.maximo > limite; });
 }
 
 function criarGrafico(id, configuracao) {
@@ -116,21 +102,18 @@ function desenharNumeros(serie, c) {
     const noLimite = serie.filter(function (j) { return j.maximo > c.limite; }).length;
     const emRisco = serie.filter(function (j) { return estadoDaJanela(j, c.limite) !== "ok"; }).length;
 
-    let maiorEpisodio = 0;
-    acharEpisodios(serie, c.limite).forEach(function (e) { if (e.janelas > maiorEpisodio) maiorEpisodio = e.janelas; });
-
     let pior = serie[0];
     serie.forEach(function (j) { if (j.maximo > pior.maximo) pior = j; });
 
     const percentualNoLimite = noLimite / total * 100;
-    const percentualEmRisco = emRisco / total * 100;
     const piorHorario = horaMinuto(pior.inicio);
+    const totalAmostras = serie.reduce(function (soma, janela) { return soma + janela.amostras; }, 0);
 
     const cartoes = [
-        { titulo: "Tempo acima do limite", valor: noLimite * MINUTOS_JANELA + " min", texto: Math.round(percentualNoLimite) + "% do período • limite de " + c.limite + "%", cor: "var(--vermelho)" },
-        { titulo: "Tempo em risco", valor: emRisco * MINUTOS_JANELA + " min", texto: "alerta + crítico (" + Math.round(percentualEmRisco) + "% do período)", cor: "var(--laranja)" },
-        { titulo: "Maior episódio contínuo", valor: maiorEpisodio > 0 ? maiorEpisodio * MINUTOS_JANELA + " min" : "Nenhum", texto: maiorEpisodio > 0 ? "tempo seguido acima do limite" : "nunca passou do limite", cor: "var(--roxo)" },
-        { titulo: "Pior momento", valor: piorHorario, texto: "maior valor: " + Math.round(pior.maximo) + "%", cor: c.cor }
+        { titulo: "Janelas com pico acima do limite", valor: noLimite, texto: "máximo por janela Gold de 5 min • limite de " + c.limite + "%", cor: "var(--vermelho)" },
+        { titulo: "Janelas em atenção ou críticas", valor: emRisco, texto: "classificação pelo máximo observado em cada janela", cor: "var(--laranja)" },
+        { titulo: "Amostras agregadas", valor: totalAmostras, texto: "medições resumidas nas janelas recebidas", cor: "var(--roxo)" },
+        { titulo: "Maior pico observado", valor: Math.round(pior.maximo) + "%", texto: "na janela iniciada às " + piorHorario, cor: c.cor }
     ];
 
     let html = "";
@@ -143,11 +126,11 @@ function desenharNumeros(serie, c) {
     const quem = c.nome + " do Servidor " + servidorAtual;
     if (noLimite === 0) {
         caixa.style.setProperty("--cor", "var(--verde)");
-        caixa.innerHTML = "<b>" + quem + " está sob controle.</b> Ficou abaixo do limite de " + c.limite + "% em todo o período. O maior valor foi " + Math.round(pior.maximo) + "% às " + piorHorario + ".";
+        caixa.innerHTML = "<b>" + quem + ": nenhum pico acima do limite nas janelas recebidas.</b> O maior máximo observado foi " + Math.round(pior.maximo) + "% às " + piorHorario + ".";
     } else {
         const critico = percentualNoLimite >= 15;
         caixa.style.setProperty("--cor", critico ? "var(--vermelho)" : "var(--laranja)");
-        caixa.innerHTML = "<b>" + quem + (critico ? " precisa de ação." : " pede atenção.") + "</b> Passou do limite de " + c.limite + "% por " + noLimite * MINUTOS_JANELA + " min (" + Math.round(percentualNoLimite) + "% do período). No pior momento chegou a " + Math.round(pior.maximo) + "% às " + piorHorario + ". Veja os episódios no fim da página para ligar com incidentes.";
+        caixa.innerHTML = "<b>" + quem + (critico ? " precisa de ação." : " pede atenção.") + "</b> " + noLimite + " de " + total + " janelas recebidas tiveram máximo acima de " + c.limite + "% (" + Math.round(percentualNoLimite) + "% das janelas). O maior pico observado foi " + Math.round(pior.maximo) + "% às " + piorHorario + ".";
     }
 }
 
@@ -282,13 +265,13 @@ function desenharEstados(serie, c) {
             cutout: "68%",
             plugins: {
                 legend: { position: "bottom", labels: { boxWidth: 10, usePointStyle: true } },
-                tooltip: { callbacks: { label: function (item) { return item.label + ": " + item.parsed * MINUTOS_JANELA + " minutos"; } } }
+                tooltip: { callbacks: { label: function (item) { return item.label + ": " + item.parsed + " janela(s) Gold de 5 min"; } } }
             }
         }
     });
 
-    pegar("tituloEstados").textContent = "Quanto tempo " + c.nome + " fica em cada estado?";
-    pegar("leituraEstados").textContent = ok * MINUTOS_JANELA + " min em OK, " + alerta * MINUTOS_JANELA + " min em alerta e " + critico * MINUTOS_JANELA + " min crítico.";
+    pegar("tituloEstados").textContent = "Como as janelas de " + c.nome + " se distribuem por estado?";
+    pegar("leituraEstados").textContent = ok + " janelas em OK, " + alerta + " em atenção e " + critico + " com pico acima do limite. Cada ponto é um resumo Gold de 5 minutos; não indica duração contínua acima do limite.";
 }
 
 function desenharProcessos(c) {
@@ -343,24 +326,24 @@ function desenharProcessos(c) {
 }
 
 function desenharEpisodios(serie, c) {
-    const episodios = acharEpisodios(serie, c.limite);
-    episodios.sort(function (a, b) { return b.janelas - a.janelas; });
+    const janelas = janelasAcimaDoLimite(serie, c.limite);
+    janelas.sort(function (a, b) { return b.maximo - a.maximo; });
 
-    pegar("tituloEpisodios").textContent = "Quando " + c.nome + " passou de " + c.limite + "%?";
+    pegar("tituloEpisodios").textContent = "Maiores picos de " + c.nome + " acima de " + c.limite + "%";
 
-    if (episodios.length === 0) {
-        pegar("tabelaEpisodios").innerHTML = '<p class="vazio">Nenhum episódio: ' + c.nome + ' não passou do limite neste período.</p>';
-        pegar("leituraEpisodios").textContent = "Bom sinal: este componente ficou dentro do limite o tempo todo.";
+    if (janelas.length === 0) {
+        pegar("tabelaEpisodios").innerHTML = '<p class="vazio">Nenhuma janela recebida teve pico acima do limite de ' + c.limite + '%.</p>';
+        pegar("leituraEpisodios").textContent = "A ausência de picos nas janelas recebidas não descreve períodos sem dados.";
         return;
     }
 
     let linhas = "";
-    episodios.slice(0, 5).forEach(function (e) {
-        linhas += "<tr><td>" + diaHoraMinuto(e.inicio) + "</td><td>" + somarMinutos(e.fim, MINUTOS_JANELA) + "</td><td><b>" + e.janelas * MINUTOS_JANELA + " min</b></td><td><b>" + Math.round(e.pico) + "%</b></td></tr>";
+    janelas.slice(0, 5).forEach(function (janela) {
+        linhas += "<tr><td>" + formatarInicioJanela(janela.inicio) + "</td><td>" + janela.amostras + "</td><td><b>" + Math.round(janela.maximo) + "%</b></td></tr>";
     });
-    pegar("tabelaEpisodios").innerHTML = "<table><thead><tr><th>Começou</th><th>Terminou</th><th>Duração</th><th>Maior valor</th></tr></thead><tbody>" + linhas + "</tbody></table>";
+    pegar("tabelaEpisodios").innerHTML = "<table><thead><tr><th>Início da janela</th><th>Amostras resumidas</th><th>Máximo observado</th></tr></thead><tbody>" + linhas + "</tbody></table>";
 
-    pegar("leituraEpisodios").textContent = episodios.length + " episódio(s) acima do limite. O mais longo durou " + episodios[0].janelas * MINUTOS_JANELA + " min, começando em " + diaHoraMinuto(episodios[0].inicio) + ".";
+    pegar("leituraEpisodios").textContent = janelas.length + " janela(s) Gold tiveram pico acima do limite. O maior pico foi " + Math.round(janelas[0].maximo) + "% em " + formatarInicioJanela(janelas[0].inicio) + ". O resumo não comprova permanência contínua acima do limite.";
 }
 
 function desenharTela() {
@@ -386,7 +369,7 @@ function atualizarPeriodo() {
     inicioDoPeriodo = todosInicios[posicao];
 
     const ultimo = todosInicios[todosInicios.length - 1];
-    pegar("subtitulo").textContent = servidores.length + " servidores • período de " + diaHoraMinuto(inicioDoPeriodo) + " até " + somarMinutos(ultimo, MINUTOS_JANELA);
+    pegar("subtitulo").textContent = servidores.length + " servidores • período de " + formatarInicioJanela(inicioDoPeriodo) + " até " + somarMinutos(ultimo, MINUTOS_JANELA);
 }
 
 async function iniciar() {

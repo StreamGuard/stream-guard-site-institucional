@@ -127,6 +127,10 @@
 
     let metricas = [];
 
+    // Rótulo de apresentação: preserva o nome armazenado no banco.
+    const nomeExibicaoMetrica = (nome) =>
+        nome === 'Uso da Memória' ? 'Uso Memoria RAM' : nome;
+
     const painelM = document.getElementById('painel-metricas');
     const listaM = document.getElementById('lista-metricas');
     const buscaM = document.getElementById('busca-metrica');
@@ -142,7 +146,7 @@
             metricas = linhas.map((l) => ({
                 id: l.id,
                 idEquipamentoComponente: l.id_equipamento_componente,
-                nome: l.nome,
+                nome: nomeExibicaoMetrica(l.nome),
                 unidade: l.unidade,
                 tipoComponente: l.tipo_componente || 'CPU',
                 intervalo: Number(l.intervalo),

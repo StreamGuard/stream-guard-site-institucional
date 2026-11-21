@@ -17,8 +17,47 @@ function idValido(valor) {
 }
 
 function intervaloValido(valor) {
-    var numero = Number(valor);
-    return Number.isInteger(numero) && numero > 0;
+    if (typeof valor !== "number" && typeof valor !== "string") return false;
+    var texto = String(valor).trim();
+    if (!/^\d+$/.test(texto)) return false;
+    var numero = Number(texto);
+    return Number.isSafeInteger(numero) && numero > 0;
+}
+
+function lerLimite(valor) {
+    if (valor === undefined || valor === null || (typeof valor === "string" && valor.trim() === "")) {
+        return { valido: true, valor: null };
+    }
+    if (typeof valor !== "number" && typeof valor !== "string") {
+        return { valido: false };
+    }
+
+    var texto = String(valor).trim();
+    if (!/^(?:\d+(?:\.\d{1,2})?|\.\d{1,2})$/.test(texto)) {
+        return { valido: false };
+    }
+
+    var numero = Number(texto);
+    if (!Number.isFinite(numero) || numero > 99999999.99) {
+        return { valido: false };
+    }
+    return { valido: true, valor: numero };
+}
+
+function validarLimites(limiteMaximo, limiteMinimo, unidade) {
+    var maximo = lerLimite(limiteMaximo);
+    var minimo = lerLimite(limiteMinimo);
+    if (!maximo.valido || !minimo.valido) {
+        return { mensagem: "Os limites devem ser números válidos e não negativos." };
+    }
+    if (minimo.valor !== null && maximo.valor !== null && minimo.valor > maximo.valor) {
+        return { mensagem: "O limite mínimo não pode ser maior que o limite máximo." };
+    }
+    if (String(unidade).trim() === "%" &&
+        ((maximo.valor !== null && maximo.valor > 100) || (minimo.valor !== null && minimo.valor > 100))) {
+        return { mensagem: "Limites percentuais devem estar entre 0 e 100." };
+    }
+    return { maximo: maximo.valor, minimo: minimo.valor };
 }
 
 // Componentes
@@ -232,7 +271,7 @@ async function cadastrarMetrica(req, res) {
     var idEmpresa = Number(req.body.idEmpresa);
     var nome = String(req.body.nome || "").trim();
     var unidade = String(req.body.unidade || "").trim();
-    var intervalo = Number(req.body.intervalo || 15);
+    var intervalo = req.body.intervalo === undefined || req.body.intervalo === null ? 15 : req.body.intervalo;
     var ativa = req.body.ativa ? 1 : 0;
     var tipoComponente = String(req.body.tipoComponente || "CPU").trim();
     var limiteMaximo = req.body.limiteMaximo;
@@ -244,12 +283,16 @@ async function cadastrarMetrica(req, res) {
     if (!intervaloValido(intervalo)) {
         return res.status(400).json({ mensagem: "Intervalo de coleta inválido." });
     }
+    intervalo = Number(intervalo);
     if (TIPOS_COMPONENTE.indexOf(tipoComponente) === -1) {
         return res.status(400).json({ mensagem: "Tipo de componente inválido." });
     }
 
+    var limites = validarLimites(limiteMaximo, limiteMinimo, unidade);
+    if (limites.mensagem) return res.status(400).json({ mensagem: limites.mensagem });
+
     try {
-        await configModel.cadastrarMetrica(idEmpresa, nome, unidade, intervalo, ativa, tipoComponente, limiteMaximo, limiteMinimo);
+        await configModel.cadastrarMetrica(idEmpresa, nome, unidade, intervalo, ativa, tipoComponente, limites.maximo, limites.minimo);
         res.status(201).json({ mensagem: "Métrica cadastrada com sucesso." });
     } catch (erro) {
         console.error("Erro ao cadastrar métrica:", erro);
@@ -262,7 +305,7 @@ async function editarMetrica(req, res) {
     var idEquipamentoComponente = req.body.idEquipamentoComponente ? Number(req.body.idEquipamentoComponente) : null;
     var nome = String(req.body.nome || "").trim();
     var unidade = String(req.body.unidade || "").trim();
-    var intervalo = Number(req.body.intervalo || 15);
+    var intervalo = req.body.intervalo === undefined || req.body.intervalo === null ? 15 : req.body.intervalo;
     var ativa = req.body.ativa ? 1 : 0;
     var tipoComponente = String(req.body.tipoComponente || "").trim();
 
@@ -272,6 +315,7 @@ async function editarMetrica(req, res) {
     if (!intervaloValido(intervalo)) {
         return res.status(400).json({ mensagem: "Intervalo de coleta inválido." });
     }
+    intervalo = Number(intervalo);
     if (tipoComponente && TIPOS_COMPONENTE.indexOf(tipoComponente) === -1) {
         return res.status(400).json({ mensagem: "Tipo de componente inválido." });
     }

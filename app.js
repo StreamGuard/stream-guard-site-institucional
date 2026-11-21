@@ -75,3 +75,4 @@ app.listen(PORTA_APP, function () {
         as linhas 1 ou 2 no arquivo 'app.js'
     `);
 });
+app.use("/", require("./src/routes/captura"));

@@ -8,8 +8,13 @@ function txt(valor) {
 }
 
 function numeroOuNull(valor) {
-    if (valor === undefined || valor === null || valor === "" || isNaN(Number(valor))) return "NULL";
-    return Number(valor);
+    if (valor === undefined || valor === null || (typeof valor === "string" && valor.trim() === "")) return "NULL";
+    if (typeof valor !== "number" && typeof valor !== "string") {
+        throw new TypeError("Limite numérico inválido.");
+    }
+    var numero = Number(valor);
+    if (!Number.isFinite(numero)) throw new TypeError("Limite numérico inválido.");
+    return numero;
 }
 
 var NOME_COMPONENTE = {

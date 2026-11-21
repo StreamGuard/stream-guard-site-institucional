@@ -90,8 +90,8 @@
 
                 <section class="card destaque c12">
                     <h2 id="tituloPrincipal">Como está o uso?</h2>
-                    <p class="como">Como ler: a linha é a média do uso. A faixa azul vai do menor ao maior valor de cada
-                        intervalo de 5 minutos de coleta. Ponto vermelho = o maior valor passou do limite.</p>
+                    <p class="como">Como ler: a linha mostra a média e a faixa azul vai do menor ao maior valor de cada
+                        janela Gold de 5 minutos. Ponto vermelho = o pico observado na janela passou do limite.</p>
                     <div class="grafico"><canvas id="graficoPrincipal"></canvas></div>
                     <div class="legenda">
                         <span><i style="background:#4f8cff"></i>Média do uso</span>
@@ -112,7 +112,7 @@
                 </section>
 
                 <section class="card c4">
-                    <h2 id="tituloEstados">Quanto tempo em cada estado?</h2>
+                    <h2 id="tituloEstados">Como as janelas se distribuem por estado?</h2>
                     <p class="como">Como ler: OK = longe do limite. Alerta = a menos de 10 pontos do limite. Crítico =
                         passou do limite.</p>
                     <div class="grafico pequeno"><canvas id="graficoEstados"></canvas></div>
@@ -120,9 +120,9 @@
                 </section>
 
                 <section class="card c8">
-                    <h2 id="tituloEpisodios">Quando passou do limite?</h2>
-                    <p class="como">Como ler: cada linha é uma vez que o componente ficou acima do limite sem parar. Os
-                        mais longos aparecem primeiro, ótimo para ligar com incidentes.</p>
+                    <h2 id="tituloEpisodios">Quais janelas tiveram pico acima do limite?</h2>
+                    <p class="como">Como ler: cada linha é uma janela Gold de 5 minutos cujo valor máximo ultrapassou o limite.
+                        O resumo mostra picos observados; não comprova que o limite permaneceu excedido durante a janela.</p>
                     <div id="tabelaEpisodios"></div>
                     <p class="leitura" id="leituraEpisodios"></p>
                 </section>

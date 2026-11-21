@@ -1,6 +1,8 @@
 
 DROP DATABASE IF EXISTS StreamGuard;
-CREATE DATABASE StreamGuard;
+CREATE DATABASE StreamGuard
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
 USE StreamGuard;
 
 CREATE TABLE empresa (
@@ -103,6 +105,15 @@ CREATE TABLE config_metrica (
 
     FOREIGN KEY (fk_metrica)
         REFERENCES metrica(id_metrica),
+
+    CONSTRAINT chk_config_intervalo_positivo
+        CHECK (intervalo_coleta > 0),
+    CONSTRAINT chk_config_limite_maximo_nao_negativo
+        CHECK (limite_maximo IS NULL OR limite_maximo >= 0),
+    CONSTRAINT chk_config_limite_minimo_nao_negativo
+        CHECK (limite_minimo IS NULL OR limite_minimo >= 0),
+    CONSTRAINT chk_config_limites_ordenados
+        CHECK (limite_minimo IS NULL OR limite_maximo IS NULL OR limite_minimo <= limite_maximo),
 
     UNIQUE (fk_equipamento_componente, fk_metrica)
 );
