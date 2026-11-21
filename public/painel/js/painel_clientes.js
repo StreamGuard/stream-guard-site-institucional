@@ -31,6 +31,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         cadastro: (a, b) => new Date(b.criada_em || 0) - new Date(a.criada_em || 0)
     };
 
+    // Na lista "Todas", as empresas ativas vêm primeiro e depois as demais situações.
+    const ORDEM_SITUACAO = { ativa: 0, dormente: 1, agente: 2, semlake: 3 };
+
+    // Ranking de servidores: mais servidores reportando primeiro; empate: mais servidores no total.
+    const porServidoresMonitorados = (a, b) =>
+        ((b.reportando ?? 0) - (a.reportando ?? 0)) || (b.servidores.length - a.servidores.length);
+
     const el = (id) => document.getElementById(id);
     let empresas = [];
     let lake = {};
@@ -69,7 +76,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Soma e classifica o que a tela precisa de cada empresa.
     function prepararEmpresa(empresa) {
         const servidores = (empresa.servidores || []).map((s) => {
-            const minutosSemLote = s.ultimo_lote_em ? minutosDesde(s.ultimo_lote_em) : null;
+            // Último dado conhecido: o do período ou, se não houver, o da janela de 30 dias.
+            const ultimoLoteConhecido = s.ultimo_lote_em || s.ultimo_lote_30d_em || null;
+            const minutosSemLote = ultimoLoteConhecido ? minutosDesde(ultimoLoteConhecido) : null;
 
             // O status é relativo ao último lote do Gold: assim o filtro de 7d/30d
             // mostra quem parou de enviar dentro do período, e não a defasagem do ETL.
@@ -77,7 +86,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 ? (new Date(lake.ultimo_gold_em).getTime() - new Date(s.ultimo_lote_em).getTime()) / 60000
                 : null;
 
-            return { ...s, minutosSemLote, minutosSemLoteNoGold };
+            return { ...s, ultimoLoteConhecido, minutosSemLote, minutosSemLoteNoGold };
         });
         const { usuario = 0, gerente = 0, admin = 0, ativos_periodo = 0 } = empresa.usuarios || {};
         const base = {
@@ -94,17 +103,19 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
         if (!temLake) return base;
 
-        const comGold = servidores.some((s) => s.ultimo_lote_em !== null && s.ultimo_lote_em !== undefined);
         // A tolerância acompanha a janela do Gold: 1 h em 7d e 6 h em 30d.
         const limiteSilencio = PERIODOS[periodo].janelaMin + SILENCIO_MIN;
         const silenciosos = servidores.filter((s) => s.minutosSemLoteNoGold === null || s.minutosSemLoteNoGold > limiteSilencio).length;
         const reportando = servidores.length - silenciosos;
         const comCobertura = servidores.filter((s) => s.cobertura_pct !== undefined && s.cobertura_pct !== null);
 
-        let situacao = "ativa";
-        if (!comGold) situacao = "semlake";
-        else if (servidores.length === 0 || reportando === 0) situacao = "dormente";
-        else if (silenciosos > 0) situacao = "agente";
+        // Ativa: ao menos um servidor com dado no período.
+        // Dormente: já enviou dado, mas nenhum servidor envia agora.
+        // Agente parado: nenhum servidor enviou dado (nem na janela de 30 dias).
+        const jaRecebeu = servidores.some((s) => s.ultimoLoteConhecido);
+        let situacao = "agente";
+        if (reportando > 0) situacao = "ativa";
+        else if (jaRecebeu) situacao = "dormente";
 
         return {
             ...base,
@@ -157,14 +168,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         const novas = empresas.filter((e) => e.criada_em && minutosDesde(e.criada_em) < cfg.dias * 1440).length;
         const usuarios = empresas.reduce((total, e) => total + e.totalUsuarios, 0);
         const ativos = empresas.reduce((total, e) => total + (e.ativosPeriodo || 0), 0);
-        const admins = empresas.reduce((total, e) => total + (e.usuarios?.admin || 0), 0);
-        const gerentes = empresas.reduce((total, e) => total + (e.usuarios?.gerente || 0), 0);
         const todosServidores = empresas.flatMap((e) => e.servidores);
         const atualizados = todosServidores.filter((s) =>
             s.atualizado_em && minutosDesde(s.atualizado_em) < cfg.dias * 1440
         ).length;
-        const plural = (quantidade, singular, maiorQueUm) =>
-            `${quantidade} ${quantidade === 1 ? singular : maiorQueUm}`;
         const textoNovas = `${novas} nova${novas === 1 ? "" : "s"} ${cfg.emTexto}`;
 
         const cardsBanco = [
@@ -173,7 +180,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     `de ${empresas.length}`, textoNovas)
                 : card("", "Empresas", "banco", empresas.length, "", textoNovas),
             card("card-roxo", "Usuários", "banco", usuarios, "",
-                `${plural(admins, "admin", "admins")} · ${plural(gerentes, "gerente", "gerentes")} · ${ativos} ativo${ativos === 1 ? "" : "s"} ${cfg.emTexto}`)
+                `${ativos} ativo${ativos === 1 ? "" : "s"} ${cfg.emTexto}`)
         ];
 
         if (!temLake) {
@@ -190,9 +197,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        // O card de monitorados usa só quem aparece no Gold; o de silenciosos
-        // inclui também os servidores que nunca tiveram dado no Gold.
-        const servidoresComGold = todosServidores.filter((s) => s.ultimo_lote_em !== null && s.ultimo_lote_em !== undefined);
         const reportando = empresas.reduce((total, e) => total + e.reportando, 0);
         const silenciosos = todosServidores.length - reportando;
         const comDado = todosServidores.filter((s) => s.cobertura_pct > 0);
@@ -201,7 +205,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         el("cardsKpi").innerHTML = [
             ...cardsBanco,
-            card("card-verde", "Servidores monitorados", "lake", servidoresComGold.length, "", `${reportando} reportando no período`),
+            card("card-verde", "Servidores reportando", "lake", reportando, "com dados", `${silenciosos} sem dados ${cfg.emTexto}`),
             card(silenciosos ? "card-alerta" : "card-verde", "Servidores silenciosos", "lake", silenciosos, "",
                 "Sem dado no fim do período ou sem dados no Gold"),
             card("card-verde", "Cobertura média", "lake", comDado.length ? numero(media(comDado.map((s) => s.cobertura_pct)), 1) : "—", "%",
@@ -230,11 +234,12 @@ document.addEventListener("DOMContentLoaded", async () => {
             .map((e) => linhaRanking(e.nome, `${e.totalUsuarios} usuários`, e.totalUsuarios, maisUsuarios[0].totalUsuarios))
             .join("");
 
-        const maisServidores = [...empresas].sort(ORDENACOES.servidores).slice(0, 5);
+        const maisServidores = [...empresas].sort(porServidoresMonitorados).slice(0, 5);
+        const maiorTotal = Math.max(1, ...maisServidores.map((e) => e.servidores.length));
         el("rankServidores").innerHTML = maisServidores
             .map((e) => linhaRanking(e.nome,
                 temLake ? `${e.reportando}/${e.servidores.length} reportando` : `${e.servidores.length} servidores`,
-                e.servidores.length, maisServidores[0].servidores.length))
+                temLake ? e.reportando : e.servidores.length, maiorTotal))
             .join("");
     }
 
@@ -247,18 +252,21 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
         empresas.forEach((e) => {
             if (e.situacao === "semlake") {
-                avisos.push({ ordem: 3, classe: "neutro", nome: e.nome, tag: "Sem dados",
+                avisos.push({ ordem: 4, classe: "neutro", nome: e.nome, tag: "Sem dados",
                     texto: `Nenhum dado do Gold ${PERIODOS[periodo].emTexto}` });
             } else if (e.situacao === "dormente") {
                 avisos.push({ ordem: 0, classe: "critico", nome: e.nome, tag: "Dormente",
-                    texto: e.minutosSemLote === null
-                        ? "Nenhum servidor com dado no período"
-                        : `Nenhum servidor envia dado há ${idade(e.minutosSemLote)}` });
+                    texto: `Já enviou dado, mas nenhum servidor envia há ${idade(e.minutosSemLote)}` });
             } else if (e.situacao === "agente") {
                 avisos.push({ ordem: 1, classe: "alerta", nome: e.nome, tag: "Agente parado",
-                    texto: `${e.silenciosos} de ${e.servidores.length} servidores silenciosos` });
+                    texto: e.servidores.length
+                        ? "Nenhum servidor enviou dado ainda"
+                        : "Nenhum servidor cadastrado" });
+            } else if (e.silenciosos > 0) {
+                avisos.push({ ordem: 2, classe: "alerta", nome: e.nome, tag: "Servidor silencioso",
+                    texto: `${e.silenciosos} de ${e.servidores.length} servidores sem dado` });
             } else if (e.cobertura < COBERTURA_BAIXA) {
-                avisos.push({ ordem: 2, classe: "alerta", nome: e.nome, tag: "Dados faltando",
+                avisos.push({ ordem: 3, classe: "alerta", nome: e.nome, tag: "Dados faltando",
                     texto: `Cobertura de ${numero(e.cobertura, 1)}% no período` });
             }
         });
@@ -284,7 +292,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     function desenharTabela() {
         const lista = empresas
             .filter((e) => filtroSituacao === "todas" || e.situacao === filtroSituacao)
-            .sort(ORDENACOES[ordenacao]);
+            .sort((a, b) =>
+                (filtroSituacao === "todas" ? ORDEM_SITUACAO[a.situacao] - ORDEM_SITUACAO[b.situacao] : 0) ||
+                ORDENACOES[ordenacao](a, b));
 
         el("subTabela").textContent = `${lista.length} de ${empresas.length} empresas`;
         el("tabelaEmpresas").innerHTML = lista.length
@@ -375,7 +385,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         el("optAlertas").textContent = `Alertas (${cfg.rotulo})`;
         el("notaCobertura").textContent =
             `Cobertura = % das janelas de ${cfg.janela} esperadas que chegaram ao Gold. ` +
-            `Servidor silencioso = sem dado há mais de ${cfg.janelaMin + SILENCIO_MIN} min em relação ao último lote do Gold ou sem dados no Gold.`;
+            `Servidor silencioso = sem dado há mais de ${cfg.janelaMin + SILENCIO_MIN} min em relação ao último lote do Gold ou sem dados no Gold. ` +
+            "Ativa = ao menos um servidor com dado no período. Dormente = já enviou dado, mas nenhum servidor envia agora. " +
+            "Agente parado = nenhum servidor enviou dado nos últimos 30 dias (maior janela do Gold).";
     }
 
     function atualizarAviso() {

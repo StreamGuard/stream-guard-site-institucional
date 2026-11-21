@@ -64,7 +64,7 @@
                     <section class="painel">
                         <div class="painel-topo">
                             <div>
-                                <h2>Empresas com mais servidores</h2>
+                                <h2>Empresas com mais servidores reportando</h2>
                                 <p>Top 5, reportando × total</p>
                             </div>
                             <span class="fonte fonte-banco">Banco</span>
@@ -84,7 +84,7 @@
                     </section>
                 </div>
 
-                <div class="grade grade-2">
+                <div class="grade grade-2 grade-fixa">
                     <section class="painel">
                         <div class="painel-topo">
                             <div>
@@ -100,7 +100,7 @@
                         <div class="painel-topo">
                             <div>
                                 <h2>Pedem atenção</h2>
-                                <p>Sem dados, agente parado, dados faltando ou empresa dormente</p>
+                                <p>Empresa dormente, agente parado, servidores silenciosos ou dados faltando</p>
                             </div>
                             <span class="fonte fonte-lake">Data Lake</span>
                         </div>
@@ -118,9 +118,9 @@
                         <div class="filtros-tabela">
                             <div class="grupo-periodo" id="filtroSituacao" role="group" aria-label="Filtrar por situação">
                                 <button type="button" class="btn-periodo ativo" data-situacao="todas">Todas</button>
-                                <button type="button" class="btn-periodo" data-situacao="ativa">Ativas</button>
-                                <button type="button" class="btn-periodo" data-situacao="agente">Agente parado</button>
-                                <button type="button" class="btn-periodo" data-situacao="dormente">Dormentes</button>
+                                <button type="button" class="btn-periodo" data-situacao="ativa" title="Ao menos um servidor com dado no período">Ativas</button>
+                                <button type="button" class="btn-periodo" data-situacao="dormente" title="Já enviou dado, mas nenhum servidor envia agora">Dormentes</button>
+                                <button type="button" class="btn-periodo" data-situacao="agente" title="Nenhum servidor enviou dado nos últimos 30 dias">Agente parado</button>
                             </div>
                             <div class="campo-select">
                                 <label for="selectOrdem">ORDENAR POR</label>

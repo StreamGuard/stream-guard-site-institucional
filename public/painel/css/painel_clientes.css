@@ -458,6 +458,31 @@ tbody tr:last-child :is(th, td) {
     color: #fff;
 }
 
+.grade-fixa .painel {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    height: 400px;
+}
+
+.grade-fixa .container-chart {
+    flex: 1;
+    min-height: 0;
+    height: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.grade-fixa .lista-avisos {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--borda) transparent;
+}
+
 @media (max-width: 1280px) {
     .grade-3 {
         grid-template-columns: 1fr 1fr;

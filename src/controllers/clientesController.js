@@ -65,6 +65,7 @@ async function buscarDadosBanco(req, res) {
         });
 
         let lake = null;
+        let lakeHistorico = null;
 
         try {
             lake = await dataLakeModel.buscarResumoGold(Array.from(idsEmpresas), periodo.chave);
@@ -72,13 +73,30 @@ async function buscarDadosBanco(req, res) {
             console.log("Falha ao consultar o Data Lake:", erroLake.message);
         }
 
-        if (lake) {
+        // Para separar "dormente" (já enviou dado) de "agente parado" (nunca enviou),
+        // olha também a maior janela do Gold (30 dias). Em 30d é o próprio resumo.
+        try {
+            lakeHistorico = periodo.chave === "30d"
+                ? lake
+                : await dataLakeModel.buscarResumoGold(Array.from(idsEmpresas), "30d");
+        } catch (erroHistorico) {
+            console.log("Falha ao consultar o histórico do Data Lake:", erroHistorico.message);
+        }
+
+        if (lake || lakeHistorico) {
             Object.values(empresas).forEach(empresa => {
                 empresa.servidores.forEach(servidor => {
-                    const resumo = lake.servidores[String(servidor.id)];
+                    const id = String(servidor.id);
+                    const resumo = lake ? lake.servidores[id] : null;
+                    const historico = lakeHistorico ? lakeHistorico.servidores[id] : null;
+
                     if (resumo) {
                         servidor.ultimo_lote_em = resumo.ultimo_lote_em;
                         servidor.cobertura_pct = resumo.cobertura_pct;
+                    }
+
+                    if (historico) {
+                        servidor.ultimo_lote_30d_em = historico.ultimo_lote_em;
                     }
                 });
             });
