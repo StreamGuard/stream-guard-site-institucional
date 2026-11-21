@@ -33,9 +33,6 @@ async function lerCsv(nomeArquivo, chaveS3) {
         });
         var resposta = await cliente.send(comando);
         texto = await resposta.Body.transformToString();
-    } else {
-        var caminho = path.join(__dirname, "../../public/painel/dados", nomeArquivo);
-        texto = await fs.promises.readFile(caminho, "utf8");
     }
 
     return transformarCsv(texto);
