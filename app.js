@@ -45,6 +45,7 @@ app.use("/empresas", empresasRouter);
 app.use("/analista_geral",dashboard_analista_geralRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/servidores", servidoresRouter)
+app.use("/", require("./src/routes/captura"));
 app.use("/", indexRouter);
 
 app.listen(PORTA_APP, function () {

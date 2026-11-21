@@ -33,6 +33,24 @@ function executar(instrucao) {
     });
 }
 
-module.exports = {
-    executar
-};
+// Uma conexão por transação mantém cadastro e vínculos consistentes.
+async function transacao(operacao) {
+    const conexao = await require("mysql2/promise").createConnection(mySqlConfig);
+    try {
+        await conexao.beginTransaction();
+        const consultar = async (sql, parametros = []) => {
+            const [resultado] = await conexao.execute(sql, parametros);
+            return resultado;
+        };
+        const resultado = await operacao(consultar);
+        await conexao.commit();
+        return resultado;
+    } catch (erro) {
+        await conexao.rollback();
+        throw erro;
+    } finally {
+        await conexao.end();
+    }
+}
+
+module.exports = { executar, transacao };
