@@ -432,8 +432,8 @@
                 <div class="col-status"><span class="badge-status ${f.ativo ? 'badge-ativo' : 'badge-inativo'}">${f.ativo ? 'Ativo' : 'Inativo'}</span></div>
                 <div class="col-acoes">
                     <button type="button" class="btn-sg btn-ghost" data-acao="ver-funcionario"><i class="fa-regular fa-eye"></i> Ver</button>
-                    <button type="button" class="btn-sg btn-ghost" data-acao="editar-funcionario" data-perm="editar"><i class="fa-solid fa-pen"></i> Editar</button>
-                    <button type="button" class="btn-sg btn-danger" data-acao="remover-funcionario" data-perm="excluir"><i class="fa-regular fa-trash-can"></i> Remover</button>
+                    <button type="button" class="btn-sg btn-ghost" data-acao="editar-funcionario" data-perm="editar" data-perfil-alvo="${f.perfil}"><i class="fa-solid fa-pen"></i> Editar</button>
+                    <button type="button" class="btn-sg btn-danger" data-acao="remover-funcionario" data-perm="excluir" data-perfil-alvo="${f.perfil}"><i class="fa-regular fa-trash-can"></i> Remover</button>
                 </div>
             </div>`).join('');
 
@@ -497,19 +497,18 @@
                 { rotulo: 'Acesso', tag: f.ativo ? 'Ativo' : 'Inativo', cor: f.ativo ? 'verde' : 'laranja' },
                 { rotulo: 'O que pode fazer', valor: PERFIS[f.perfil].descricao, inteira: true }
             ],
-            onEditar: (gatilho) => abrirFuncionario(id, gatilho),
-            onExcluir: (gatilho) => removerFuncionario(id, gatilho)
+            onEditar: SG.pode('editar', f.perfil) ? (gatilho) => abrirFuncionario(id, gatilho) : null,
+            onExcluir: SG.pode('excluir', f.perfil) ? (gatilho) => removerFuncionario(id, gatilho) : null
         });
     }
 
     function abrirFuncionario(id, origem) {
         const editando = id != null;
-        if (editando ? !SG.pode('editar') : !SG.pode('criar')) return;
 
         const atual = editando
             ? funcionarios.find((f) => f.id === id)
             : { perfil: 'comum', ativo: true, cargo: '' };
-        if (!atual) return;
+        if (!atual || !SG.pode(editando ? 'editar' : 'criar', atual.perfil)) return;
 
         const campos = [
             { tipo: 'texto', nome: 'nome', rotulo: 'Nome completo', placeholder: 'Ex.: Maria Oliveira', max: 60, erro: 'Informe o nome do funcionário.' },
@@ -563,7 +562,7 @@
 
     function removerFuncionario(id, origem) {
         const f = funcionarios.find((x) => x.id === id);
-        if (!f || !SG.pode('excluir')) return;
+        if (!f || !SG.pode('excluir', f.perfil)) return;
         if (id === ID_USUARIO) return SGModal.aviso('Você não pode remover o seu próprio usuário.');
 
         SGModal.confirmar({
