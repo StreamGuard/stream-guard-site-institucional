@@ -144,6 +144,12 @@ function atualizarEmpresaUsuario() {
 
     SG.usuario.id_empresa = selecionada;
 
+    if (Number.isInteger(Number(selecionada)) && Number(selecionada) > 0) {
+        sessionStorage.setItem("ID_EMPRESA", String(selecionada));
+    } else {
+        sessionStorage.removeItem("ID_EMPRESA");
+    }
+
     console.log(
         "Empresa atual do usuário:",
         SG.usuario.id_empresa
