@@ -8,14 +8,14 @@
     <link rel="stylesheet" href="./css/painel_dashGeral.css">
     <link rel="icon" type="image/png" href="../assets/streamGuard_logo.png">
 </head>
-<body data-pagina="dashGeral" data-fonte="mock" class="dash-semanal">
+<body data-pagina="dashGeral" class="dash-semanal">
     <div class="layout">
         <aside class="sidebar" data-shell="sidebar"></aside>
         <div class="conteudo">
             <header class="topo">
                 <div>
                     <h1>Dashboard Geral</h1>
-                    <p>Monitoramento da infraestrutura</p>
+                    <p><span id="empresaAtual">Empresa da conta</span> · Monitoramento da infraestrutura</p>
                 </div>
                 <div class="topo-direita" data-shell="topo-direita"></div>
             </header>
@@ -23,172 +23,81 @@
                 <div class="barra-visoes">
                     <nav class="troca-visao" aria-label="Visões da dashboard">
                         <button id="abrirMonitoramento" type="button" aria-pressed="true" aria-controls="monitoramentoAtual">Monitoramento</button>
-                        <button id="abrirPerfil" type="button" aria-pressed="false" aria-controls="perfilUtilizacao">Utilização</button>
-                        <button id="abrirRede" type="button" aria-pressed="false" aria-controls="qualidadeRede">Qualidade da Rede</button>
-                        <button id="abrirSemanal" type="button" aria-pressed="false" aria-controls="analiseSemanal">Capacidade</button>
+                        <button id="abrirPerfil" type="button" aria-pressed="false" aria-controls="perfilUtilizacao">Desempenho</button>
                     </nav>
                     <div class="contexto-compacto">
-                        <span class="selo-mock">DADOS MOCKADOS</span>
                         <span id="escopo" aria-live="polite"></span>
                         <button id="expandirPainel" type="button" aria-pressed="false">Modo telão</button>
                     </div>
                 </div>
                 <div id="resumoOperacional" class="resumo-operacional" aria-live="polite"></div>
 
-                <section id="monitoramentoAtual" class="monitoramento-atual" aria-label="Monitoramento simulado dos servidores" hidden>
+                <section id="monitoramentoAtual" class="monitoramento-atual" aria-label="Monitoramento dos servidores cadastrados" hidden>
                     <div class="titulo-grafico">
                         <div>
-                            <h3>Estado dos servidores</h3>
+                            <span class="eyebrow">SAÚDE DOS SERVIDORES</span>
+                            <h3>Uso dos componentes por servidor</h3>
+                            <p>Valores, limites e horário da última medição de cada componente.</p>
                         </div>
-                        <span class="tag">Últimos dados simulados · 14h</span>
+                        <span id="tagPeriodo" class="tag">Últimas medições disponíveis</span>
                     </div>
-                    <div id="servidoresAtuais" class="servidores-atuais" aria-label="Selecionar servidor"></div>
-                    <section class="grafico-card grafico-monitoramento" aria-labelledby="tituloMonitoramento">
-                        <div class="titulo-grafico">
-                            <div>
-                                <span class="eyebrow">ÚLTIMOS 30 MINUTOS · CENÁRIO SIMULADO</span>
-                                <h3 id="tituloMonitoramento"></h3>
-                                <p id="contextoMonitoramento"></p>
-                            </div>
-                            <label class="filtro-monitoramento" for="serieMonitoramento">Visualizar
-                                <select id="serieMonitoramento">
-                                    <option value="todos">CPU, RAM e disco</option>
-                                    <option value="CPU">CPU</option>
-                                    <option value="RAM">Memória RAM</option>
-                                    <option value="Disco">Disco</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="legenda">
-                            <span><i class="cpu"></i>CPU</span>
-                            <span><i class="ram"></i>Memória RAM</span>
-                            <span><i class="disco"></i>Disco</span>
-                            <span><i class="limite"></i>Referência RAM · 88%</span>
-                        </div>
-                        <div id="graficoMonitoramento" class="grafico grafico-grande" role="img"></div>
-                        <div id="alertaMonitoramento" class="alerta-monitoramento" aria-live="polite"></div>
-
-                    </section>
+                    <div id="servidoresAtuais" class="servidores-atuais" aria-label="Saúde dos servidores por componente"></div>
                 </section>
 
-                <section id="perfilUtilizacao" class="perfil-utilizacao" aria-label="Perfil de utilização" hidden>
+                <section id="perfilUtilizacao" class="perfil-utilizacao" aria-label="Desempenho: utilização e capacidade" hidden>
                     <div class="filtros-semana" aria-label="Filtros do perfil de utilização">
-                        <label for="servidorPerfil">Servidor
-                            <select id="servidorPerfil"><option value="todos">Todos os servidores</option></select>
+                        <label for="servidor">Servidor
+                            <select id="servidor"><option value="todos">Todos os servidores</option></select>
                         </label>
                         <label for="componente">Componente por faixa de horário
                             <select id="componente">
                                 <option>CPU</option>
                                 <option>RAM</option>
-                                <option>Disco</option>
                             </select>
                         </label>
                     </div>
-                    <section class="grafico-card">
-                        <div class="titulo-grafico">
-                            <div>
-                                <span class="eyebrow">01 / PERFIL DE UTILIZAÇÃO</span>
-                                <h3>Em quais horários a carga se concentra?</h3>
-                                <p id="horarioContexto"></p>
+                    <div class="graficos-utilizacao">
+                        <section id="cartaoUtilizacao" class="grafico-card">
+                            <div class="titulo-grafico">
+                                <div>
+                                    <span class="eyebrow">ANÁLISE DE UTILIZAÇÃO</span>
+                                    <h3 id="tituloHorarios">Utilização média por faixa horária</h3>
+                                    <p id="escopoHorarios" class="escopo-grafico"></p>
+                                </div>
+                                <span class="tag">Média por faixa</span>
                             </div>
-                            <span class="tag">Médias por faixa de horário</span>
-                        </div>
-                        <div id="graficoHorarios" class="grafico" role="img" aria-label="Médias fictícias de utilização por faixa de horário"></div>
-                        <p class="rodape-grafico">00–06h, 06–12h, 12–18h e 18–24h · selecione um componente para comparar sua utilização.</p>
-                    </section>
-                </section>
-
-                <section id="qualidadeRede" class="qualidade-rede" aria-labelledby="tituloQualidadeRede" hidden>
-                    <div class="titulo-grafico">
-                        <div>
-                            <span class="eyebrow">ESTABILIDADE DA CONEXÃO · SIMULADO</span>
-                            <h2 id="tituloQualidadeRede">A rede está estável para a transmissão?</h2>
-                            <p id="trechoRede">Equipamento monitorado → destino de verificação fictício.</p>
-                        </div>
-                        <label class="filtro-monitoramento" for="equipamentoRede">Equipamento / transmissão
-                            <select id="equipamentoRede"></select>
-                        </label>
+                            <div class="grafico-container">
+                                <canvas id="graficoHorarios" class="grafico" role="img" aria-label="Médias de utilização por faixa de horário em barras horizontais"></canvas>
+                            </div>
+                            <p id="horariosVazio" class="grafico-vazio" hidden></p>
+                        </section>
+                        <section id="cartaoCapacidade" class="grafico-card">
+                            <div class="titulo-grafico">
+                                <div>
+                                    <span class="eyebrow">CAPACIDADE DE ARMAZENAMENTO</span>
+                                    <h3>Projeção de ocupação do disco até o fim da semana</h3>
+                                    <p id="escopoDisco" class="escopo-grafico"></p>
+                                    <p id="semanaPeriodo">Período da semana em curso</p>
+                                </div>
+                                <span id="estadoAtualizacao" class="tag" role="status" aria-live="polite">Consultando dados…</span>
+                            </div>
+                            <div class="legenda">
+                                <span><i class="disco"></i>Observado</span>
+                                <span><i class="predicao tracejado"></i>Predição</span>
+                                <span><i class="limite"></i>Limite configurado</span>
+                            </div>
+                            <div class="grafico-container">
+                                <canvas id="graficoDisco" class="grafico" role="img" aria-label="Uso de disco observado e previsão linear com limite configurado"></canvas>
+                            </div>
+                            <p id="discoVazio" class="grafico-vazio" hidden></p>
+                        </section>
                     </div>
-                    <div id="estadoQualidadeRede" class="estado-qualidade-rede" role="status"></div>
-                    <div id="indicadoresRede" class="indicadores-rede" aria-label="Indicadores de qualidade da conexão"></div>
-                    <section class="grafico-card">
-                        <div class="titulo-grafico">
-                            <div>
-                                <span class="eyebrow">ÚLTIMOS 30 MINUTOS</span>
-                                <h3 id="tituloGraficoRede">Perda de pacotes ao longo do tempo</h3>
-                                <p id="contextoGraficoRede"></p>
-                            </div>
-                            <label class="filtro-monitoramento" for="metricaQualidadeRede">Indicador
-                                <select id="metricaQualidadeRede">
-                                    <option value="perda">Perda de pacotes (%)</option>
-                                    <option value="latencia">Latência de ida e volta (ms)</option>
-                                    <option value="jitter">Variação da latência (ms)</option>
-                                </select>
-                            </label>
-                        </div>
-                        <div class="legenda">
-                            <span><i class="rede-observada"></i>Observado simulado</span>
-                            <span><i class="limite"></i>Referência ilustrativa</span>
-                        </div>
-                        <div id="graficoQualidadeRede" class="grafico" role="img"></div>
-                        <p id="resumoGraficoRede" class="leitura-grafico"></p>
-                    </section>
-                    <section class="grafico-card trafego-rede" aria-labelledby="tituloTrafegoRede">
-                        <div>
-                            <h3 id="tituloTrafegoRede">Utilização do enlace no cenário</h3>
-                            <p id="trafegoRedeContexto"></p>
-                        </div>
-                        <div class="trafego-rede-valor"><strong id="trafegoRedeValor"></strong><div id="trafegoRedeBarra" class="rede-trilho"></div></div>
-                        <p class="rodape-grafico">Utilização e qualidade são medidas diferentes: há cenários com perda de pacotes mesmo sem saturação do enlace.</p>
-                    </section>
-                    <details class="metodologia">
-                        <summary>Como interpretar as medições de rede</summary>
-                        <p>Todos os valores são fictícios. O trecho representado é o equipamento monitorado até um destino de verificação; ele não comprova falha na conexão doméstica do streamer nem em toda a plataforma.</p>
-                        <p>Perda: verificações sem resposta ÷ verificações enviadas. Latência: média do tempo de ida e volta das respostas. Variação: média das diferenças absolutas entre latências consecutivas. Uma ausência de resposta pode ter outras explicações e requer investigação.</p>
-                        <p>Referências visuais propostas: atenção/crítico em 1%/5% de perda, 80/150 ms de latência e 15/30 ms de variação. Não são limites universais nem garantias de qualidade de vídeo.</p>
-                    </details>
                 </section>
 
-                <section id="analiseSemanal" class="analise-semanal" aria-label="Capacidade de armazenamento" hidden>
-                    <section class="grafico-card">
-                        <div class="titulo-grafico">
-                            <div>
-                                <span class="eyebrow">02 / CAPACIDADE DE ARMAZENAMENTO</span>
-                                <h3>O disco chega ao limite nesta semana?</h3>
-                                <p id="discoContexto"></p>
-                                <p id="semanaPeriodo">16/11/2026 — 22/11/2026</p>
-                            </div>
-                            <div class="controles-capacidade">
-                                <label class="filtro-monitoramento" for="servidor">Servidor
-                                    <select id="servidor"><option value="todos">Todos os servidores</option></select>
-                                </label>
-                                <button id="atualizarDados" class="btn-atualizar" type="button">Recarregar prévia</button>
-                            </div>
-                        </div>
-                        <div class="legenda">
-                            <span><i class="disco"></i>Observado</span>
-                            <span><i class="predicao tracejado"></i>Predição</span>
-                            <span><i class="limite"></i>Limite</span>
-                        </div>
-                        <div id="graficoDisco" class="grafico" role="img" aria-label="Linhas fictícias de disco observado e previsto, com limite de referência"></div>
-                        <div id="discoResumo" class="leitura-grafico"></div>
-                    </section>
-                </section>
-
-                <details class="contexto-previa">
-                    <summary>Sobre os dados e as regras desta prévia</summary>
-                    <p id="estadoDados" role="status">Prévia visual com valores fictícios.</p>
-                    <p>Cenários fictícios associados às transmissões, sem vínculo com plataformas ou criadores. Regra proposta: RAM ≥ 88% por 5 minutos contínuos no mesmo servidor. Disponibilidade e saúde são avaliações separadas.</p>
-                </details>
-                <details class="metodologia">
-                    <summary>Como interpretar esta prévia</summary>
-                    <p><b>Dados mockados:</b> os números são exemplos locais para revisar aparência, filtros e organização da dashboard.</p>
-                    <p><b>Predições:</b> a linha tracejada usa um ajuste linear de 28 valores de exemplo. A linha contínua representa o observado ilustrativo até quarta-feira, às 14h.</p>
-                    <ul id="avisosDados"></ul>
-                </details>
             </main>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="./js/painel_shell.js"></script>
     <script src="./js/painel_dashGeral.js"></script>
 </body>

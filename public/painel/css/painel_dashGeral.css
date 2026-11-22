@@ -3,7 +3,7 @@
     --cpu: #2de2c0;
     --ram: #b095fc;
     --disco: #66a8ff;
-    --rede: #f5b45f;
+    --predicao: #f5b45f;
     --sg-secundario: #a8adc7;
 }
 
@@ -127,27 +127,6 @@
     font: inherit;
 }
 
-.dash-semanal .btn-atualizar {
-    min-height: 42px;
-    padding: 10px 16px;
-    border: 1px solid #31534e;
-    border-radius: 6px;
-    background: #17342f;
-    color: var(--verde);
-    font: inherit;
-    font-size: 12px;
-    cursor: pointer;
-}
-
-.dash-semanal .btn-atualizar:hover {
-    background: #20453e;
-}
-
-.dash-semanal .btn-atualizar:disabled {
-    opacity: 0.5;
-    cursor: wait;
-}
-
 .dash-semanal .escopo {
     margin: 0 0 12px auto;
     color: var(--sg-secundario);
@@ -226,64 +205,6 @@
     line-height: 1.7;
 }
 
-.dash-semanal .picos-quadrantes {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    margin-top: 18px;
-}
-
-.dash-semanal .pico-quadrante {
-    min-width: 0;
-    padding: 12px;
-}
-
-.dash-semanal .pico-quadrante:nth-child(odd) {
-    padding-left: 0;
-    border-right: 1px solid var(--borda);
-}
-
-.dash-semanal .pico-quadrante:nth-child(-n+2) {
-    border-bottom: 1px solid var(--borda);
-}
-
-.dash-semanal .pico-quadrante h4 {
-    color: #c6cbe0;
-    font-size: 12px;
-    font-weight: 500;
-}
-
-.dash-semanal .pico-quadrante > strong {
-    display: block;
-    margin: 7px 0;
-    color: var(--cor-componente);
-    font-size: 32px;
-    font-weight: 600;
-    line-height: 1.2;
-    letter-spacing: -1px;
-    font-variant-numeric: tabular-nums;
-}
-
-.dash-semanal .pico-quadrante > strong span {
-    margin-left: 2px;
-    font-size: 15px;
-    font-weight: 400;
-    letter-spacing: 0;
-}
-
-.dash-semanal .pico-quadrante p {
-    color: #d1d5e6;
-    font-size: 11px;
-    line-height: 1.5;
-    overflow-wrap: anywhere;
-}
-
-.dash-semanal .pico-quadrante small {
-    margin-top: 6px;
-    color: var(--sg-secundario);
-    font-size: 11px;
-    line-height: 1.7;
-}
-
 .dash-semanal .ranking {
     display: grid;
     gap: 22px;
@@ -307,8 +228,7 @@
     font-weight: 500;
 }
 
-.dash-semanal .rank-trilho,
-.dash-semanal .rede-trilho {
+.dash-semanal .rank-trilho {
     overflow: hidden;
     height: 16px;
     border-radius: 5px;
@@ -364,7 +284,7 @@
 .dash-semanal .legenda .limite {
     width: 16px;
     height: 0;
-    border-top: 2px dashed var(--rede);
+    border-top: 2px dashed var(--predicao);
     border-radius: 0;
     background: transparent;
 }
@@ -390,23 +310,6 @@
     letter-spacing: 0;
 }
 
-.dash-semanal .rede-comparacao {
-    color: #d7dced;
-    font-size: 12px;
-    line-height: 1.75;
-}
-
-.dash-semanal .rede-trilho {
-    height: 9px;
-    margin: 22px 0;
-}
-
-.dash-semanal .rede-trilho span {
-    display: block;
-    height: 100%;
-    background: var(--verde);
-}
-
 .dash-semanal .titulo-grafico {
     display: flex;
     align-items: center;
@@ -430,9 +333,26 @@
     font-size: 11px;
 }
 
-.dash-semanal .grafico {
+.dash-semanal .grafico-container {
+    position: relative;
+    display: block;
     width: 100%;
+    height: 320px;
     margin-top: 22px;
+}
+
+.dash-semanal .escopo-grafico {
+    margin-top: 5px;
+    color: var(--sg-secundario);
+    font-size: 11px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.dash-semanal canvas.grafico {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .dash-semanal .grafico svg {
@@ -447,17 +367,20 @@
     font-size: 11px;
 }
 
+.dash-semanal .grafico-vazio {
+    margin-top: 18px;
+    padding: 24px 18px;
+    border: 1px dashed #3a3a54;
+    border-radius: 7px;
+    color: var(--sg-secundario);
+    font-size: 12px;
+    line-height: 1.7;
+}
+
 .dash-semanal .grafico .valor-barra {
     fill: var(--texto);
     font-size: 13px;
     font-weight: 600;
-}
-
-.dash-semanal .rodape-grafico {
-    margin-top: 12px;
-    color: var(--sg-secundario);
-    font-size: 11px;
-    line-height: 1.7;
 }
 
 .dash-semanal .grade-projecoes {
@@ -466,33 +389,6 @@
     gap: 18px;
 }
 
-.dash-semanal .leitura-grafico {
-    min-height: 72px;
-    margin-top: 18px;
-    padding: 12px 14px;
-    border-left: 2px solid #454569;
-    border-radius: 0 6px 6px 0;
-    background: var(--painel-2);
-    color: #c2c8df;
-    font-size: 12px;
-    line-height: 1.75;
-}
-
-.dash-semanal .metodologia {
-    padding: 16px 18px;
-    border: 1px solid var(--borda);
-    border-radius: 9px;
-    color: var(--sg-secundario);
-    font-size: 12px;
-    line-height: 1.8;
-}
-
-.dash-semanal .metodologia summary {
-    color: #ccd1e4;
-    cursor: pointer;
-}
-
-.dash-semanal .metodologia p,
 .dash-semanal #avisosDados li {
     margin-top: 10px;
 }
@@ -573,11 +469,6 @@
         flex-basis: 100%;
     }
 
-    .dash-semanal .btn-atualizar {
-        width: 100%;
-        min-height: 44px;
-    }
-
     .dash-semanal .escopo {
         margin: 0;
         line-height: 1.6;
@@ -587,17 +478,6 @@
         font-size: 18px;
     }
 
-    .dash-semanal .pico-quadrante {
-        padding: 12px 8px;
-    }
-
-    .dash-semanal .pico-quadrante > strong {
-        font-size: 28px;
-    }
-
-    .dash-semanal .pico-quadrante small {
-        font-size: 10px;
-    }
 }
 
 /* Panorama atual: disponibilidade separada da saúde dos componentes. */
@@ -612,7 +492,7 @@
 
 .dash-semanal .servidores-atuais {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 430px), 1fr));
     gap: 16px;
 }
 
@@ -630,25 +510,19 @@
     color: var(--texto);
     text-align: left;
     font: inherit;
-    cursor: pointer;
 }
 
-.dash-semanal .critico {
+.dash-semanal .servidor-atual.critico {
     --estado: #ff8799;
 }
 
-.dash-semanal .atencao {
+.dash-semanal .servidor-atual.incompleto,
+.dash-semanal .servidor-atual.sem-dados {
     --estado: #f5c365;
 }
 
-.dash-semanal .normal {
+.dash-semanal .servidor-atual.normal {
     --estado: #45d6ad;
-}
-
-.dash-semanal .servidor-atual[aria-pressed="true"] {
-    border-color: var(--estado);
-    background: #232238;
-    box-shadow: 0 0 0 1px var(--estado);
 }
 
 .dash-semanal .servidor-plataforma {
@@ -665,6 +539,7 @@
 }
 
 .dash-semanal .servidor-identidade strong {
+    display: block;
     font-size: 17px;
     overflow-wrap: anywhere;
 }
@@ -701,22 +576,37 @@
 
 .dash-semanal .componentes-atuais {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
-    padding: 14px 0;
-    border-top: 1px solid var(--borda);
-    border-bottom: 1px solid var(--borda);
-    font-size: 11px;
-    color: var(--sg-secundario);
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
 }
 
-.dash-semanal .componentes-atuais b {
-    display: block;
-    margin-top: 7px;
+.dash-semanal .indicador-componente {
+    display: grid;
+    align-content: start;
+    gap: 6px;
+    min-width: 0;
+    padding: 12px 10px;
+    border: 1px solid var(--borda);
+    border-top: 2px solid #69708c;
+    border-radius: 7px;
+    background: var(--painel-2);
+    color: var(--sg-secundario);
+    font-size: 10px;
+}
+
+.dash-semanal .indicador-componente:nth-child(1) { border-top-color: var(--cpu); }
+.dash-semanal .indicador-componente:nth-child(2) { border-top-color: var(--ram); }
+.dash-semanal .indicador-componente:nth-child(3) { border-top-color: var(--disco); }
+.dash-semanal .indicador-componente strong {
     color: var(--texto);
-    font-size: 22px;
+    font-size: 23px;
     font-variant-numeric: tabular-nums;
 }
+
+.dash-semanal .indicador-componente.critico { border-color: #713d4b; border-top-color: #ff8799; }
+.dash-semanal .indicador-componente.critico strong { color: #ff8799; }
+.dash-semanal .indicador-componente.sem-dados,
+.dash-semanal .indicador-componente.sem-limite { border-top-color: #f5c365; }
 
 .dash-semanal .resumo-servidor {
     color: var(--estado);
@@ -724,18 +614,9 @@
     line-height: 1.6;
 }
 
-.dash-semanal .ver-servidor {
-    margin-top: auto;
+.dash-semanal .resumo-servidor {
     color: #bdc2d9;
     font-size: 11px;
-}
-
-.dash-semanal .grafico-monitoramento {
-    padding: 26px;
-}
-
-.dash-semanal .grafico-monitoramento h3 {
-    font-size: clamp(18px, 2vw, 24px);
 }
 
 .dash-semanal .filtro-monitoramento {
@@ -755,43 +636,13 @@
     font: inherit;
 }
 
-.dash-semanal .grafico-grande {
-    margin-top: 20px;
-}
-
-.dash-semanal .alerta-monitoramento {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 18px;
-    border-left: 3px solid var(--estado);
-    border-radius: 6px;
-    background: var(--painel-2);
-    font-size: 13px;
-    line-height: 1.7;
-}
-
-.dash-semanal .alerta-monitoramento p,
-.dash-semanal .alerta-monitoramento small {
-    display: block;
-    margin-top: 5px;
-    color: var(--sg-secundario);
-}
-
-@media (max-width: 1000px) {
-    .dash-semanal .servidores-atuais {
-        grid-template-columns: 1fr;
-    }
-}
-
 @media (max-width: 600px) {
-    .dash-semanal .grafico-monitoramento {
-        padding: 18px 12px;
+    .dash-semanal .grafico-container {
+        height: 300px;
     }
 
-    .dash-semanal .alerta-monitoramento {
-        flex-direction: column;
-        padding: 14px;
+    .dash-semanal .componentes-atuais {
+        grid-template-columns: 1fr;
     }
 
     .dash-semanal .filtro-monitoramento {
@@ -851,29 +702,43 @@
 }
 
 .dash-semanal .resumo-operacional {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.dash-semanal .kpi-saude {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 12px;
     align-items: center;
-    gap: 12px 28px;
-    padding: 12px 18px;
+    padding: 14px 18px;
     border: 1px solid var(--borda);
-    border-radius: 8px;
+    border-left: 3px solid #69708c;
+    border-radius: 9px;
     background: var(--painel);
 }
 
-.dash-semanal .resumo-operacional > span {
-    color: var(--estado);
-    font-size: 15px;
-}
-
-.dash-semanal .resumo-operacional b {
-    margin-right: 5px;
-    font-size: 24px;
+.dash-semanal .kpi-saude > span { color: var(--sg-secundario); font-size: 11px; }
+.dash-semanal .kpi-saude > strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    color: var(--texto);
+    font-size: 30px;
     font-variant-numeric: tabular-nums;
 }
 
-.dash-semanal .resumo-operacional small {
-    margin-left: auto;
+.dash-semanal .kpi-saude > small,
+.dash-semanal .resumo-atualizacao { color: var(--sg-secundario); font-size: 10px; }
+.dash-semanal .kpi-saude.estado-critico { border-left-color: #ff6b7f; }
+.dash-semanal .kpi-saude.estado-critico > strong { color: #ff8799; }
+.dash-semanal .kpi-saude.estado-normal { border-left-color: var(--verde); }
+.dash-semanal .kpi-saude.estado-normal > strong { color: var(--verde); }
+.dash-semanal .resumo-atualizacao { grid-column: 1 / -1; margin: 0; text-align: right; }
+
+@media (max-width: 900px) {
+    .dash-semanal .resumo-operacional { grid-template-columns: 1fr; }
+    .dash-semanal .resumo-atualizacao { text-align: left; }
 }
 
 .dash-semanal .monitoramento-atual {
@@ -886,34 +751,8 @@
 }
 
 .dash-semanal .servidor-atual {
-    gap: 10px;
-    padding: 14px 16px;
-}
-
-.dash-semanal .componentes-atuais {
-    padding: 9px 0;
-}
-
-.dash-semanal .componentes-atuais b {
-    margin-top: 3px;
-}
-
-.dash-semanal .grafico-monitoramento {
-    padding: 18px 22px;
-}
-
-.dash-semanal .grafico-monitoramento h3 {
-    margin: 5px 0 3px;
-    font-size: 20px;
-}
-
-.dash-semanal .grafico-monitoramento .legenda,
-.dash-semanal .grafico-grande {
-    margin-top: 12px;
-}
-
-.dash-semanal .alerta-monitoramento {
-    padding: 12px 14px;
+    gap: 12px;
+    padding: 18px;
 }
 
 .dash-semanal .analise-semanal {
@@ -954,16 +793,6 @@
     padding: 16px 24px;
 }
 
-@media (min-width: 801px) and (max-width: 1000px) {
-    .dash-semanal .servidores-atuais {
-        grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-
-    .dash-semanal .servidor-atual {
-        padding: 12px;
-    }
-}
-
 @media (max-width: 600px) {
     .dash-semanal .contexto-compacto {
         width: 100%;
@@ -971,20 +800,7 @@
     }
 
     .dash-semanal .resumo-operacional {
-        gap: 8px 14px;
-        padding: 12px;
-    }
-
-    .dash-semanal .resumo-operacional > span {
-        font-size: 12px;
-    }
-
-    .dash-semanal .resumo-operacional small {
-        margin-left: 0;
-    }
-
-    .dash-semanal .grafico-monitoramento {
-        padding: 16px 12px;
+        gap: 8px;
     }
 
     .dash-semanal.modo-telao .principal {
@@ -993,18 +809,8 @@
 }
 
 @media (min-width: 801px) {
-    .dash-semanal.modo-telao .servidor-atual {
-        gap: 6px;
-        padding: 12px 16px;
-    }
-
-    .dash-semanal.modo-telao .ver-servidor,
-    .dash-semanal.modo-telao .grafico-monitoramento .titulo-grafico p {
-        display: none;
-    }
-
     .dash-semanal.modo-telao .componentes-atuais {
-        padding: 6px 0;
+        gap: 8px;
     }
 }
 
@@ -1018,118 +824,25 @@
     gap: 18px;
 }
 
-@media (max-width: 800px) {
-    .dash-semanal .troca-visao {
-        flex-wrap: wrap;
-    }
-}
-
-/* Qualidade do trecho de rede, separada do perfil de CPU, RAM e disco. */
-.dash-semanal .qualidade-rede {
+.dash-semanal .graficos-utilizacao {
     display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: stretch;
     gap: 18px;
 }
 
-.dash-semanal .qualidade-rede h2 {
-    margin: 7px 0;
-    font-size: clamp(20px, 2vw, 26px);
+.dash-semanal .graficos-utilizacao .grafico-card {
+    min-width: 0;
 }
 
-.dash-semanal .estado-qualidade-rede {
-    display: flex;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    padding: 12px 16px;
-    border-left: 3px solid var(--estado);
-    border-radius: 6px;
-    background: var(--painel);
-    font-size: 13px;
-}
-
-.dash-semanal .estado-qualidade-rede > span:last-child {
-    margin-left: auto;
-    color: var(--sg-secundario);
-    font-size: 11px;
-}
-
-.dash-semanal .indicadores-rede {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 16px;
-}
-
-.dash-semanal .indicador-qualidade > strong {
-    color: var(--estado);
-    font-size: 40px;
-    line-height: 1.25;
-    font-variant-numeric: tabular-nums;
-}
-
-.dash-semanal .indicador-qualidade > strong span {
-    margin-left: 6px;
-    font-size: 20px;
-}
-
-.dash-semanal .indicador-qualidade p,
-.dash-semanal .trafego-rede p {
-    margin-top: 8px;
-    color: var(--sg-secundario);
-    font-size: 12px;
-    line-height: 1.7;
-}
-
-.dash-semanal .indicador-qualidade small {
-    margin-top: 12px;
-    line-height: 1.7;
-}
-
-.dash-semanal .rede-observada {
-    background: var(--verde);
-}
-
-.dash-semanal .trafego-rede {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(120px, 240px);
-    gap: 10px 24px;
-    align-items: center;
-}
-
-.dash-semanal .trafego-rede-valor strong {
-    font-size: 30px;
-    color: var(--verde);
-}
-
-.dash-semanal .trafego-rede-valor .rede-trilho {
-    margin: 10px 0;
-}
-
-.dash-semanal .trafego-rede > .rodape-grafico {
-    grid-column: 1 / -1;
+@media (max-width: 1000px) {
+    .dash-semanal .graficos-utilizacao {
+        grid-template-columns: 1fr;
+    }
 }
 
 @media (max-width: 800px) {
-    .dash-semanal .indicadores-rede,
-    .dash-semanal .trafego-rede {
-        grid-template-columns: 1fr;
-    }
-
-    .dash-semanal .estado-qualidade-rede > span:last-child {
-        width: 100%;
-        margin-left: 0;
-    }
-}
-
-.dash-semanal .controles-capacidade {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    gap: 12px;
-}
-
-@media (max-width: 600px) {
-    .dash-semanal .controles-capacidade,
-    .dash-semanal .controles-capacidade label {
-        width: 100%;
+    .dash-semanal .troca-visao {
+        flex-wrap: wrap;
     }
 }

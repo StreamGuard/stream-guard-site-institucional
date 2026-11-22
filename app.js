@@ -29,6 +29,7 @@ var perfilRouter = require("./src/routes/perfil");
 var usuariosRouter = require("./src/routes/usuarios");
 var servidoresRouter = require("./src/routes/servidores")
 var empresasRouter = require("./src/routes/empresas");
+var dashboardGeralRouter = require("./src/routes/dashboardGeral");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -42,9 +43,11 @@ app.use("/config", configRouter);
 app.use("/perfil", perfilRouter);
 app.use("/api", jiraRouter);
 app.use("/empresas", empresasRouter);
+app.use("/dashboard-geral", dashboardGeralRouter);
 app.use("/analista_geral",dashboard_analista_geralRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/servidores", servidoresRouter)
+app.use("/", require("./src/routes/captura"));
 app.use("/", indexRouter);
 
 app.listen(PORTA_APP, function () {
@@ -75,4 +78,3 @@ app.listen(PORTA_APP, function () {
         as linhas 1 ou 2 no arquivo 'app.js'
     `);
 });
-app.use("/", require("./src/routes/captura"));
