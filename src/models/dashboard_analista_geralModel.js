@@ -83,10 +83,51 @@ async function incluirNomeDosServidores(registros) {
 }
 // Lê as métricas e acrescenta o hostname de cada servidor.
 async function buscarMetricas() {
-    var registros = await lerCsv(
-        "resumo_metricas.csv",
-        process.env.GOLD_RESUMO_METRICAS
-    );
+    var arquivos = [
+        {
+            nome: "resumo_metricas.csv",
+            chave: process.env.GOLD_RESUMO_METRICAS
+        },
+        {
+            nome: "resumo_metricas_1h.csv",
+            chave: process.env.GOLD_RESUMO_METRICAS_1H
+        },
+        {
+            nome: "resumo_metricas_6h.csv",
+            chave: process.env.GOLD_RESUMO_METRICAS_6H
+        }
+    ];
+
+    var conjuntos = [];
+
+    for (var i = 0; i < arquivos.length; i++) {
+        if (!arquivos[i].chave) {
+            throw new Error("Falta configurar a chave S3 de " + arquivos[i].nome);
+        }
+
+        conjuntos.push(
+            await lerCsv(arquivos[i].nome, arquivos[i].chave)
+        );
+    }
+
+    var registros = [];
+    var chavesAdicionadas = [];
+
+    // Priorizo o CSV principal; depois 1h e 6h se houver linhas duplicadas.
+    for (var i = 0; i < conjuntos.length; i++) {
+        for (var j = 0; j < conjuntos[i].length; j++) {
+            var linha = conjuntos[i][j];
+            var chaveRegistro =
+                linha.servidor_id + "|" +
+                linha.tipo + "|" +
+                linha.inicio_periodo;
+
+            if (chavesAdicionadas.indexOf(chaveRegistro) === -1) {
+                chavesAdicionadas.push(chaveRegistro);
+                registros.push(linha);
+            }
+        }
+    }
 
     return incluirNomeDosServidores(registros);
 }

@@ -41,42 +41,58 @@ function atualizarHorarioUltimaMedicao(metricas) {
 
 if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
     const periodos = {
-        "30m": { minutos: 30, texto: "Últimos 30 minutos" },
-        "1h": { minutos: 60, texto: "Última hora" },
-        "24h": { minutos: 1440, texto: "Últimas 24 horas" }
+        "24h": { minutos: 1440, texto: "Últimas 24 horas" },
+        "7d": { minutos: 10080, texto: "Últimos 7 dias" },
+        "30d": { minutos: 43200, texto: "Últimos 30 dias" }
     };
 
-    function filtrarMetricasPorPeriodo(metricas, periodo) {
+    function filtrarMetricasPorPeriodo(metricas, periodo, idSelecionado) {
         var minutos = periodos[periodo].minutos;
-        var ultimoHorario = 0;
+        var ultimoHorarioPorServidor = {};
 
-        // Uso a data mais recente dos próprios dados como referência.
-        // Assim o teste funciona mesmo com CSVs históricos.
+        // Encontro a última medição de cada servidor selecionado.
         for (var i = 0; i < metricas.length; i++) {
-            var horario = new Date(
-                String(metricas[i].inicio_periodo).replace(" ", "T")
-            ).getTime();
+            var linha = metricas[i];
+            var id = String(linha.servidor_id);
 
-            if (Number.isFinite(horario) && horario > ultimoHorario) {
-                ultimoHorario = horario;
+            if (idSelecionado !== "" && id !== String(idSelecionado)) {
+                continue;
             }
-        }
 
-        if (ultimoHorario === 0) {
-            return [];
-        }
-
-        var primeiroHorario = ultimoHorario - minutos * 60 * 1000;
-
-        return metricas.filter(function (linha) {
             var horario = new Date(
                 String(linha.inicio_periodo).replace(" ", "T")
             ).getTime();
 
-            return horario >= primeiroHorario && horario <= ultimoHorario;
+            if (
+                Number.isFinite(horario) &&
+                (ultimoHorarioPorServidor[id] === undefined ||
+                    horario > ultimoHorarioPorServidor[id])
+            ) {
+                ultimoHorarioPorServidor[id] = horario;
+            }
+        }
+
+        var duracaoMs = minutos * 60 * 1000;
+
+        // Mantém cada servidor dentro da janela contada desde a própria última medição.
+        return metricas.filter(function (linha) {
+            var id = String(linha.servidor_id);
+
+            if (idSelecionado !== "" && id !== String(idSelecionado)) {
+                return false;
+            }
+
+            var ultimoHorario = ultimoHorarioPorServidor[id];
+            var horario = new Date(
+                String(linha.inicio_periodo).replace(" ", "T")
+            ).getTime();
+
+            return Number.isFinite(horario) &&
+                ultimoHorario !== undefined &&
+                horario >= ultimoHorario - duracaoMs &&
+                horario <= ultimoHorario;
         });
     }
-
 
 
     const graficoHistorico = new Chart(historico, {
@@ -130,6 +146,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
             }
         }
     });
+
 
 
     function atualizarGraficoHistorico(metricas, idSelecionado) {
@@ -289,12 +306,27 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
         textoPeriodo.textContent = periodos[periodo].texto;
 
         if (metricasParaRanking.length > 0) {
+            var pontosDoPeriodo = filtrarMetricasPorPeriodo(
+                metricasParaRanking,
+                periodo,
+                filtroServidor.value
+            ).filter(function (linha) {
+                return ["USO_CPU", "USO_RAM", "USO_DISCO"].includes(linha.tipo);
+            });
+
+            console.log("Pontos do histórico:", {
+                servidor: filtroServidor.value || "Todos",
+                periodo: periodo,
+                quantidade: pontosDoPeriodo.length
+            });
+
             atualizarGraficoHistorico(
-                filtrarMetricasPorPeriodo(metricasParaRanking, periodo),
+                pontosDoPeriodo,
                 filtroServidor.value
             );
         }
     });
+
 
     configurarBotoesPeriodo(botoesPeriodoRede, function (periodo) {
         periodoTrafegoRede = periodo;
@@ -302,14 +334,17 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
 
         if (metricasParaRanking.length > 0) {
             atualizarGraficoTrafego(
-                filtrarMetricasPorPeriodo(metricasParaRanking, periodo),
+                filtrarMetricasPorPeriodo(
+                    metricasParaRanking,
+                    periodo,
+                    filtroServidor.value
+                ),
                 filtroServidor.value
             );
         }
     });
-
-    let periodoHistorico = "30m";
-    let periodoTrafegoRede = "30m";
+    let periodoHistorico = "24h";
+    let periodoTrafegoRede = "24h";
 
     function configurarBotoesPeriodo(botoes, aoSelecionar) {
         for (let i = 0; i < botoes.length; i++) {
@@ -577,14 +612,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
             console.log("IDs de servidor recebidos:", idsRecebidos);
 
 
-
-            console.log("Pontos por período:", {
-                "30 min": filtrarMetricasPorPeriodo(dados.metricas, "30m").length,
-                "1 hora": filtrarMetricasPorPeriodo(dados.metricas, "1h").length,
-                "24 horas": filtrarMetricasPorPeriodo(dados.metricas, "24h").length
-            });
-
-         atualizarOpcoesServidores(dados.metricas);
+            atualizarOpcoesServidores(dados.metricas);
 
             function atualizarHistogramaPorServidor() {
                 var idSelecionado = filtroServidor.value;
@@ -664,6 +692,44 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
             function atualizarGraficosPorServidor() {
                 var servidorSelecionado = filtroServidor.value;
 
+                var historicoJanela =
+                    filtrarMetricasPorPeriodo(
+                        dados.metricas,
+                        periodoHistorico,
+                        servidorSelecionado
+                    );
+
+                var redeJanela =
+                    filtrarMetricasPorPeriodo(
+                        dados.metricas,
+                        periodoTrafegoRede,
+                        servidorSelecionado
+                    );
+                function pertenceAoServidorSelecionado(linha) {
+                    return servidorSelecionado === "" ||
+                        String(linha.servidor_id) === servidorSelecionado;
+                }
+
+                console.log("Diagnóstico dos gráficos:", {
+                    servidor: servidorSelecionado || "Todos",
+                    periodo: periodoHistorico,
+                    totalMetricasNaJanela: historicoJanela.length,
+
+                    historicoCPU_RAM_Disco: historicoJanela.filter(function (linha) {
+                        return pertenceAoServidorSelecionado(linha) &&
+                            ["USO_CPU", "USO_RAM", "USO_DISCO"].includes(linha.tipo);
+                    }).length,
+
+                    trafegoRede: redeJanela.filter(function (linha) {
+                        return pertenceAoServidorSelecionado(linha) &&
+                            ["TAXA_ENVIO_REDE", "TAXA_RECEBIMENTO_REDE"].includes(linha.tipo);
+                    }).length,
+
+                    exemploDeHorario: dados.metricas.length
+                        ? dados.metricas[0].inicio_periodo
+                        : "sem métricas"
+                });
+
                 servidorHistorico = servidorSelecionado;
                 metricasHistorico = dados.metricas;
 
@@ -679,6 +745,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
                 // Valores atuais dos indicadores do painel
                 var ultimoCpu = null;
                 var ultimaRam = null;
+                var ultimoHorarioRam = null;
                 var ultimoDisco = null;
                 var ultimaRede = null;
 
@@ -689,18 +756,6 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
 
                 for (var i = 0; i < dados.metricas.length; i++) {
                     var linha = dados.metricas[i];
-
-                    // Converte o horário da linha para comparação
-                    // O CSV tem formato: "2026-10-24 12:00:00"
-                    var horaLinha = linha.inicio_periodo;
-                    var minutosAgo = 0;
-                    if (periodoHistorico === "30m") {
-                        minutosAgo = 30;
-                    } else if (periodoHistorico === "1h") {
-                        minutosAgo = 60;
-                    } else if (periodoHistorico === "24h") {
-                        minutosAgo = 1440; // 24 * 60
-                    }
 
                     // exibo todas as metricas quando o valor for "" e filtro o servidor 
                     // qunado existir o id
@@ -730,12 +785,20 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
                     } else if (linha.tipo === "USO_RAM") {
                         var valorRam = Number(linha.media_amostral);
                         valoresRam.push(valorRam);
-                        ultimaRam = valorRam;
-                        var usoRam = Math.round(ultimaRam);
-                        var ramLivre = 100 - usoRam;
-                        document.getElementById("valorLivreRam").textContent = ramLivre + "%";
-                        document.getElementById("textoLivreRam").textContent = ramLivre + "% livres, com uso de " + usoRam + "%.";
 
+                        if (
+                            ultimoHorarioRam === null ||
+                            linha.inicio_periodo > ultimoHorarioRam
+                        ) {
+                            ultimoHorarioRam = linha.inicio_periodo;
+                            ultimaRam = valorRam;
+
+                            var usoRam = Math.round(ultimaRam);
+                            var ramLivre = 100 - usoRam;
+                            document.getElementById("valorLivreRam").textContent = ramLivre + "%";
+                            document.getElementById("textoLivreRam").textContent =
+                                ramLivre + "% livres, com uso de " + usoRam + "%.";
+                        }
                     } else if (linha.tipo === "USO_DISCO") {
                         var valorDisco = Number(linha.media_amostral);
                         valoresDisco.push(valorDisco);
@@ -808,8 +871,12 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
                     }
                 }
                 atualizarGraficoTrafego(
-                    filtrarMetricasPorPeriodo(dados.metricas, periodoTrafegoRede),
-                    filtroServidor.value
+                    filtrarMetricasPorPeriodo(
+                        dados.metricas,
+                        periodoTrafegoRede,
+                        servidorSelecionado
+                    ),
+                    servidorSelecionado
                 );
 
 
@@ -883,10 +950,13 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
 
 
                 atualizarGraficoHistorico(
-                    filtrarMetricasPorPeriodo(dados.metricas, periodoHistorico),
-                    filtroServidor.value
+                    filtrarMetricasPorPeriodo(
+                        dados.metricas,
+                        periodoHistorico,
+                        servidorSelecionado
+                    ),
+                    servidorSelecionado
                 );
-
             }
             atualizarGraficosPorServidor();
             atualizarRanking();
