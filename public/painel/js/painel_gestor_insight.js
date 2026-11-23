@@ -2,9 +2,8 @@
 // STREAMGUARD - DASHBOARD INDIVIDUAL
 // ==========================================
 
-// Versão demonstrativa.
-// Futuramente, os dados serão recebidos da ETL
-// por meio do backend Node.js.
+// Indicadores operacionais e recomendações permanecem demonstrativos.
+// O histórico Gold e os cálculos financeiros são consultados pelo backend.
 
 (function () {
 
@@ -2290,7 +2289,8 @@
 
         try {
             let resposta = await fetch(
-                '/gestor/resumo?periodo=' + encodeURIComponent(periodoGestor)
+                '/gestor/resumo?periodo=' + encodeURIComponent(periodoGestor) +
+                '&idUsuario=' + encodeURIComponent(sessionStorage.getItem('ID_USUARIO') || '')
             );
 
             let dados = {};
@@ -2307,7 +2307,7 @@
 
             if (resposta.status === 401 || resposta.status === 403) {
                 $('statusPeriodoGestor').textContent =
-                    'Histórico Gold exige autenticação da empresa no backend. ' +
+                    'Entre com um usuário ativo para consultar o histórico Gold. ' +
                     'Os indicadores operacionais continuam demonstrativos.';
                 return;
             }
@@ -2335,8 +2335,8 @@
                 : total + ' registros Gold encontrados em ' + periodoGestor +
                   '. Os indicadores acima ainda são demonstrativos.';
 
-            // O histórico será associado aos indicadores após definir o formato
-            // dos dados e habilitar a autenticação da empresa no backend.
+            // O Gold é exibido como histórico consultado; os indicadores
+            // operacionais seguem demonstrativos até validar limites e regras.
 
         } catch (erro) {
             if (requisicao !== requisicaoPeriodo) {

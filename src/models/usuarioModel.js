@@ -15,6 +15,17 @@ function autenticar(email, senha) {
   return database.executar(instrucaoSql);
 }
 
+function buscarEmpresaPorId(idUsuario) {
+  var instrucaoSql = `
+    SELECT fk_empresa AS empresa_id
+    FROM usuario
+    WHERE id_usuario = ${idUsuario}
+      AND ativo = 1;
+  `;
+
+  return database.executar(instrucaoSql);
+}
+
 function cadastrar(codigo_empresa, nome, cargo, email, senha) {
   var instrucaoSql = `
         INSERT INTO usuario (
@@ -44,4 +55,5 @@ function cadastrar(codigo_empresa, nome, cargo, email, senha) {
 module.exports = {
   autenticar,
   cadastrar,
+  buscarEmpresaPorId,
 };

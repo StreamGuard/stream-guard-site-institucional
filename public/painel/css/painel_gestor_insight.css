@@ -1646,6 +1646,11 @@
 }
 
 @media (max-width:600px) {
+    body[data-pagina="dashIndividual"] .topo-direita .demo-perfil {
+        flex: 0 0 auto;
+        white-space: nowrap
+    }
+
     .painel-gerencial {
         padding: 15px 13px 38px
     }

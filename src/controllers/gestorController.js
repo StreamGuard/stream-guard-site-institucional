@@ -1,4 +1,5 @@
 const gestorModel = require("../models/gestorModel");
+const usuarioModel = require("../models/usuarioModel");
 
 const precoService = require(
     "../services/precoNuvemService"
@@ -36,16 +37,14 @@ function buscarPrecos(req, res) {
 
 async function buscarResumo(req, res) {
 
-    // A identidade deve ser validada pelo backend.
-    // O sessionStorage do navegador não é autenticação.
-    let empresaId = Number(
-        req.session?.empresa_id
-    );
+    // O projeto ainda não possui sessão no servidor: resolve a empresa
+    // pelo usuário informado pelo painel, conforme o contrato atual do login.
+    let usuarioId = Number(req.query.idUsuario);
 
-    if (!Number.isSafeInteger(empresaId) || empresaId <= 0) {
+    if (!Number.isSafeInteger(usuarioId) || usuarioId <= 0) {
 
         return res.status(401).json({
-            mensagem: "Autenticação necessária."
+            mensagem: "Faça login para consultar o histórico."
         });
     }
 
@@ -59,6 +58,16 @@ async function buscarResumo(req, res) {
     }
 
     try {
+
+        let usuario = await usuarioModel.buscarEmpresaPorId(usuarioId);
+
+        if (!usuario || usuario.length === 0) {
+            return res.status(401).json({
+                mensagem: "Usuário não encontrado ou inativo."
+            });
+        }
+
+        let empresaId = Number(usuario[0].empresa_id);
 
         let resultado = await gestorModel.buscarMetricasPeriodo(
             empresaId,
