@@ -414,6 +414,22 @@ tbody tr:last-child :is(th, td) {
     color: var(--texto-suave);
 }
 
+.ranking li.vazio {
+    display: block;
+}
+
+.aviso-dados {
+    margin-bottom: 16px;
+    text-align: left;
+}
+
+.vazio-tabela {
+    padding: 18px;
+    text-align: center;
+    font-size: 0.82rem;
+    color: var(--texto-suave);
+}
+
 /* ---------- Específico da tela Data Lake ---------- */
 .barra-empilhada {
     display: flex;

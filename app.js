@@ -22,6 +22,7 @@ var app = express();
 var dashboard_analista_geralRouter = require("./src/routes/analista_geral");
 var indexRouter = require("./src/routes/index");
 var clientesRouter = require("./src/routes/clientes");
+var dataLakeRouter = require("./src/routes/dataLake");
 var adminRouter = require("./src/routes/admin");
 var alertaRouter = require("./src/routes/alerta");
 var configRouter = require("./src/routes/config");
@@ -36,6 +37,7 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "public")));
 app.use("/clientes", clientesRouter);
+app.use("/dataLake", dataLakeRouter);
 app.use("/admin", adminRouter);
 app.use("/alerta", alertaRouter);
 app.use("/config", configRouter);

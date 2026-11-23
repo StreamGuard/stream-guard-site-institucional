@@ -81,6 +81,36 @@ async function lerDoBucket(idEmpresa, cliente, bucket, arquivo) {
     return JSON.parse(await resposta.Body.transformToString());
 }
 
+// Prefixo dos dois JSONs que a ETL grava para a tela Data Lake.
+function prefixoDatalake() {
+    var prefixo = valorEnv("DATALAKE_PREFIX", "datalake/");
+    return prefixo.charAt(prefixo.length - 1) === "/" ? prefixo : prefixo + "/";
+}
+
+function chaveDatalake(arquivo) {
+    return prefixoDatalake() + arquivo;
+}
+
+async function lerDoDatalake(cliente, bucket, arquivo) {
+    var aws = require("@aws-sdk/client-s3");
+    var comando = new aws.GetObjectCommand({
+        Bucket: bucket,
+        Key: chaveDatalake(arquivo)
+    });
+
+    var resposta = await cliente.send(comando);
+    return JSON.parse(await resposta.Body.transformToString());
+}
+
+// Sem s3:ListBucket, uma chave inexistente volta como AccessDenied citando ListBucket.
+function erroIndicaAusencia(erro) {
+    var nome = erro && (erro.name || erro.Code);
+    var mensagem = erro && erro.message ? erro.message : String(erro);
+
+    return nome === "NoSuchKey" ||
+        (nome === "AccessDenied" && /ListBucket/i.test(mensagem));
+}
+
 // Agrupa as linhas de todas as empresas por servidor_id.
 function calcularResumo(linhas, config) {
     var janelaMs = config.janelaMs;
@@ -296,6 +326,105 @@ async function buscarResumoGold(idsEmpresas, periodo) {
     return resumo;
 }
 
+// Lê os dois JSONs novos da tela Data Lake. Um arquivo ausente não impede a leitura do outro.
+async function buscarPainel() {
+    var bucket = valorEnv("DATA_LAKE_BUCKET", valorEnv("BUCKET_GOLD", ""));
+
+    if (!bucket) {
+        if (!avisouSemBucket) {
+            console.log("Data Lake: bucket não configurado. Defina DATA_LAKE_BUCKET ou BUCKET_GOLD.");
+            avisouSemBucket = true;
+        }
+
+        return {
+            qualidade: null,
+            inventario: null,
+            faltando: ["qualidade.json", "inventario.json"],
+            falhas: []
+        };
+    }
+
+    var chaveCache = "painel";
+    var agora = Date.now();
+    var entradaCache = cache.get(chaveCache);
+
+    if (entradaCache && entradaCache.expiraEm > agora) {
+        return entradaCache.valor;
+    }
+
+    var aws = require("@aws-sdk/client-s3");
+    var cliente;
+    var regiao = valorEnv("AWS_REGION", "");
+
+    try {
+        cliente = new aws.S3Client(regiao ? { region: regiao } : {});
+    } catch (erroCliente) {
+        console.log("Data Lake: falha ao criar o cliente S3 -", erroCliente.message);
+        return {
+            qualidade: null,
+            inventario: null,
+            faltando: ["qualidade.json", "inventario.json"],
+            falhas: []
+        };
+    }
+
+    var arquivos = ["qualidade.json", "inventario.json"];
+
+    var leituras = arquivos.map(function (arquivo) {
+        return lerDoDatalake(cliente, bucket, arquivo)
+            .then(function (dados) {
+                return { arquivo: arquivo, dados: dados };
+            })
+            .catch(function (erro) {
+                if (erroIndicaAusencia(erro)) {
+                    return { arquivo: arquivo, ausente: true };
+                }
+
+                console.log("Data Lake: falha ao ler", arquivo, "-", erro.message);
+                return { arquivo: arquivo, falha: erro.message };
+            });
+    });
+
+    var resultados = await Promise.all(leituras);
+    var painel = {
+        qualidade: null,
+        inventario: null,
+        faltando: [],
+        falhas: []
+    };
+
+    resultados.forEach(function (resultado) {
+        if (resultado.falha) {
+            painel.falhas.push(resultado.arquivo);
+            return;
+        }
+
+        if (resultado.ausente) {
+            painel.faltando.push(resultado.arquivo);
+            return;
+        }
+
+        if (resultado.arquivo === "qualidade.json") {
+            painel.qualidade = resultado.dados;
+        } else {
+            painel.inventario = resultado.dados;
+        }
+    });
+
+    var ttlSegundos = Number(valorEnv("DATA_LAKE_CACHE_SEGUNDOS", "60"));
+    if (!Number.isFinite(ttlSegundos) || ttlSegundos < 0) {
+        ttlSegundos = 60;
+    }
+
+    cache.set(chaveCache, {
+        valor: painel,
+        expiraEm: Date.now() + ttlSegundos * 1000
+    });
+
+    return painel;
+}
+
 module.exports = {
-    buscarResumoGold
+    buscarResumoGold,
+    buscarPainel
 };

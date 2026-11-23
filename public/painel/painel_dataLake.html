@@ -40,11 +40,13 @@
                     </div>
                     <p class="legenda-fontes">
                         Fonte:
-                        <span class="fonte fonte-lake">Listagem do S3</span>
-                        <span class="fonte fonte-rejeitados">rejeitados.csv</span>
+                        <span class="fonte fonte-lake">inventario.json</span>
+                        <span class="fonte fonte-rejeitados">qualidade.json</span>
                         <span class="fonte fonte-banco">Banco (empresa)</span>
                     </p>
                 </div>
+
+                <p class="vazio aviso-dados" id="avisoDados" hidden></p>
 
                 <!-- Indicadores principais -->
                 <section class="cards-kpi" id="cardsKpi" aria-label="Indicadores principais"></section>
@@ -56,7 +58,7 @@
                                 <h2>Crescimento do Bronze</h2>
                                 <p id="subCrescimento"></p>
                             </div>
-                            <span class="fonte fonte-lake">Listagem do S3</span>
+                            <span class="fonte fonte-lake">inventario.json</span>
                         </div>
                         <div class="container-chart alto"><canvas id="chartCrescimento" aria-label="Crescimento do Bronze"></canvas></div>
                         <p class="nota">O histórico só existe no Bronze, onde os arquivos não são alterados e a data de cada um mostra quando chegou. Silver e Gold são sobrescritos a cada execução.</p>
@@ -66,9 +68,9 @@
                         <div class="painel-topo">
                             <div>
                                 <h2>Volume e custo por camada</h2>
-                                <p>Situação atual</p>
+                                <p id="subCamadas">Situação atual</p>
                             </div>
-                            <span class="fonte fonte-lake">Listagem do S3</span>
+                            <span class="fonte fonte-lake">inventario.json</span>
                         </div>
                         <ul class="ranking" id="listaCamadas"></ul>
                         <p class="nota">O Bronze concentra a maior parte do volume e é o único que cresce acumulando histórico.</p>
@@ -102,7 +104,7 @@
                                 <h2>Taxa de rejeição por dia</h2>
                                 <p>% das linhas recebidas que não passaram na validação</p>
                             </div>
-                            <span class="fonte fonte-rejeitados">rejeitados.csv</span>
+                            <span class="fonte fonte-rejeitados">qualidade.json</span>
                         </div>
                         <div class="container-chart"><canvas id="chartRejeicao" aria-label="Taxa de rejeição por dia"></canvas></div>
                     </section>
@@ -115,7 +117,7 @@
                                 <h2>Servidores com mais rejeições</h2>
                                 <p>Onde investigar o agente ou a configuração</p>
                             </div>
-                            <span class="fonte fonte-rejeitados">rejeitados.csv</span>
+                            <span class="fonte fonte-rejeitados">qualidade.json</span>
                         </div>
                         <div class="tabela-wrap">
                             <table>
@@ -131,7 +133,7 @@
                                 <tbody id="tabelaRejeicoes"></tbody>
                             </table>
                         </div>
-                        <p class="nota">Motivos de exemplo: o formato do rejeitados.csv ainda não foi definido pelo grupo.</p>
+                        <p class="nota">Motivos e contadores vêm do datalake/qualidade.json, gerado pela ETL a partir dos arquivos rejeitados.csv.</p>
                     </section>
 
                     <section class="painel">
@@ -140,7 +142,7 @@
                                 <h2>Servidores sem enviar há mais tempo</h2>
                                 <p>Idade do último lote concluído</p>
                             </div>
-                            <span class="fonte fonte-lake">Listagem do S3</span>
+                            <span class="fonte fonte-lake">Gold</span>
                         </div>
                         <div class="tabela-wrap">
                             <table>
@@ -165,7 +167,7 @@
                             <h2>Últimas execuções do ETL</h2>
                             <p>Cada execução processa os lotes novos e gera Silver e Gold</p>
                         </div>
-                        <span class="fonte fonte-lake">Log do ETL</span>
+                        <span class="fonte fonte-rejeitados">qualidade.json</span>
                     </div>
                     <div class="tabela-wrap">
                         <table class="tabela-execucoes">
@@ -184,7 +186,7 @@
                             <tbody id="tabelaExecucoes"></tbody>
                         </table>
                     </div>
-                    <p class="nota">A fonte desta tabela (log da função Lambda) ainda será definida. Custos usam preço de referência de armazenamento (US$ 0,023 por GB-mês), sem contar requisições nem transferência.</p>
+                    <p class="nota">Execuções vêm do datalake/qualidade.json, atualizado pela ETL a cada execução. Custos usam preço de referência de armazenamento (US$ 0,023 por GB-mês), sem contar requisições nem transferência.</p>
                 </section>
 
             </main>
