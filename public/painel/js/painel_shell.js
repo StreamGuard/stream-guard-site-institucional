@@ -143,6 +143,7 @@
         ${item(DASHBOARD_POR_PERFIL[perfil], "sg-grid", "Dashboard Gerente", "dashboard")}
         ${item("./painel_leonardo.html", "sg-grid", "Dashboard Analista", "leo")}
         ${item("./painel_alerta.html", "sg-bell", "Alertas", "alerta")}
+        ${item("./painel_gestor_insight.html", "sg-grid", "Dashboard Gerenciamento", "kaue")}
       </nav>
 
       <div class="menu-div">

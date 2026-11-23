@@ -1768,56 +1768,56 @@
 
     function integrarMenu() {
 
-        let sidebar = document.querySelector(
-            '[data-shell="sidebar"]'
-        );
+        // let sidebar = document.querySelector(
+        //     '[data-shell="sidebar"]'
+        // );
 
-        if (!sidebar) {
-            return;
-        }
+        // if (!sidebar) {
+        //     return;
+        // }
 
-        let dashboard = sidebar.querySelector(
-            '[data-menu="dashboard"]'
-        );
+        // let dashboard = sidebar.querySelector(
+        //     '[data-menu="dashboard"]'
+        // );
 
-        if (!dashboard) {
-            return;
-        }
+        // if (!dashboard) {
+        //     return;
+        // }
 
-        if (sidebar.querySelector('[data-menu="dashIndividual"]')) {
-            return;
-        }
+        // if (sidebar.querySelector('[data-menu="dashIndividual"]')) {
+        //     return;
+        // }
 
-        dashboard.classList.remove('ativo');
+        // dashboard.classList.remove('ativo');
 
-        dashboard.removeAttribute('aria-current');
+        // dashboard.removeAttribute('aria-current');
 
-        let link = document.createElement('a');
+        // let link = document.createElement('a');
 
-        link.href = './painel_gestor_insight.html';
+        // link.href = './painel_gestor_insight.html';
 
-        link.className = 'menu-item ativo';
+        // link.className = 'menu-item ativo';
 
-        link.dataset.menu = 'dashIndividual';
+        // link.dataset.menu = 'dashIndividual';
 
-        link.setAttribute('aria-current', 'page');
+        // link.setAttribute('aria-current', 'page');
 
-        link.innerHTML = `
-            <svg class="sg-ic" aria-hidden="true">
-                <use href="#sg-grid"/>
-            </svg>
+        // link.innerHTML = `
+        //     <svg class="sg-ic" aria-hidden="true">
+        //         <use href="#sg-grid"/>
+        //     </svg>
 
-            <span>Inteligência Gerencial</span>
-        `;
+        //     <span>Inteligência Gerencial</span>
+        // `;
 
-        dashboard.insertAdjacentElement('afterend', link);
+        // dashboard.insertAdjacentElement('afterend', link);
 
-        let selo = document.querySelector('.selo-online');
+        // let selo = document.querySelector('.selo-online');
 
-        if (selo) {
+        // if (selo) {
 
-            selo.textContent = '● Dados demonstrativos';
-        }
+        //     selo.textContent = '● Dados demonstrativos';
+        // }
     }
 
     // ==========================================
