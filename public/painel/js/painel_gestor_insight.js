@@ -505,6 +505,309 @@
     }
 
     // ==========================================
+    // 7. INTEGRAÇÃO FINANCEIRA COM O BACKEND
+    // ==========================================
+
+    let temporizadorFinanceiro;
+    let versaoFinanceira = 0;
+    let tarifasAwsCarregadas = false;
+
+    // Lê o orçamento e os percentuais preenchidos pelo gestor.
+    function obterConfiguracaoFinanceira() {
+
+        return {
+            orcamentoMensal: valorCampo('orcamentoMensal'),
+            crescimentoMensal: valorCampo('crescimentoMensal'),
+            rateioCpu: valorCampo('rateioCpu'),
+            distribuicaoOrcamento: {
+                CPU: valorCampo('pctCpu'),
+                RAM: valorCampo('pctRam'),
+                Disco: valorCampo('pctDisco'),
+                Rede: valorCampo('pctRede')
+            }
+        };
+    }
+
+    // Guarda a configuração separadamente para cada empresa neste navegador.
+    function chaveOrcamentoGerencial() {
+
+        let empresaId = sessionStorage.getItem('ID_EMPRESA') || 'local';
+
+        return 'streamguard_orcamento_gerencial_' + empresaId;
+    }
+
+    function salvarOrcamentoLocal() {
+
+        try {
+            localStorage.setItem(
+                chaveOrcamentoGerencial(),
+                JSON.stringify(obterConfiguracaoFinanceira())
+            );
+        } catch (erro) {
+            console.error('Não foi possível salvar o orçamento:', erro);
+        }
+    }
+
+    // Evita fazer uma requisição a cada tecla digitada.
+    function agendarSimulacaoFinanceira() {
+
+        versaoFinanceira++;
+        let versaoAtual = versaoFinanceira;
+        clearTimeout(temporizadorFinanceiro);
+
+        let configuracao = obterConfiguracaoFinanceira();
+        let distribuicao = configuracao.distribuicaoOrcamento;
+        let soma = distribuicao.CPU + distribuicao.RAM +
+                   distribuicao.Disco + distribuicao.Rede;
+
+        if (Math.abs(soma - 100) > 0.001) {
+            $('statusFinanceiro').textContent =
+                'A distribuição precisa somar 100%. Soma atual: ' +
+                numeroFormatado(soma) + '%.';
+            $('custosComponentes').innerHTML = '';
+            $('insightsFinanceiros').innerHTML = '';
+            return;
+        }
+
+        if (configuracao.crescimentoMensal > 100 ||
+            configuracao.rateioCpu > 100) {
+            $('statusFinanceiro').textContent =
+                'O crescimento mensal e o rateio da CPU devem estar entre 0% e 100%.';
+            $('custosComponentes').innerHTML = '';
+            $('insightsFinanceiros').innerHTML = '';
+            return;
+        }
+
+        temporizadorFinanceiro = setTimeout(function () {
+            enviarSimulacaoFinanceira(versaoAtual);
+        }, 350);
+    }
+
+    async function enviarSimulacaoFinanceira(versaoAtual) {
+
+        let dados = obterConfiguracaoFinanceira();
+
+        dados.servidores = BASE_CUSTOS.servidores + valorCampo('extraNodes');
+        dados.horasMes = valorCampo('hours');
+        dados.armazenamentoGb = valorCampo('storage');
+
+        // O controle egress está em TB, enquanto a API recebe GB.
+        dados.trafegoSaidaGb = valorCampo('egress') * 1024;
+        dados.cambio = valorCampo('fx');
+
+        // Rede e câmbio continuam sendo premissas configuradas pelo gestor.
+        dados.precoRedeUsdGb = valorCampo('priceTraffic');
+
+        $('statusFinanceiro').textContent = 'Calculando custos...';
+
+        try {
+            let resposta = await fetch('/gestor/simular', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            let resultado = await resposta.json();
+
+            // Descarta respostas antigas quando o usuário altera os campos.
+            if (versaoAtual !== versaoFinanceira) {
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw new Error(
+                    resultado.mensagem || resultado.erro ||
+                    'Não foi possível calcular a simulação.'
+                );
+            }
+
+            exibirResultadoFinanceiro(resultado);
+            ESTADO.custos.api = resultado;
+
+            let mensagem = 'Estimativa atualizada pela API financeira.';
+
+            if (tarifasAwsCarregadas) {
+                mensagem += ' EC2 e EBS usam as tarifas AWS consultadas; ' +
+                            'rede e câmbio são premissas informadas.';
+            }
+
+            $('statusFinanceiro').textContent = mensagem;
+
+        } catch (erro) {
+            if (versaoAtual !== versaoFinanceira) {
+                return;
+            }
+
+            $('custosComponentes').innerHTML = '';
+            $('insightsFinanceiros').innerHTML = '';
+            $('statusFinanceiro').textContent =
+                'Não foi possível atualizar os custos: ' + erro.message;
+        }
+    }
+
+    // Mostra os valores calculados pelo Node.js, sem usar dados sintéticos.
+    function exibirResultadoFinanceiro(resultado) {
+
+        if (!resultado.componentes) {
+            throw new Error('A API não retornou os custos por componente.');
+        }
+
+        let nomes = ['CPU', 'RAM', 'Disco', 'Rede'];
+        let formatador = new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        });
+        let html = '';
+
+        for (let i = 0; i < nomes.length; i++) {
+            let nome = nomes[i];
+            let componente = resultado.componentes[nome];
+
+            if (!componente) {
+                throw new Error('A API não retornou o custo de ' + nome + '.');
+            }
+
+            let custo = Number(componente.custo);
+            let orcamento = Number(componente.orcamento);
+
+            if (!Number.isFinite(custo) || !Number.isFinite(orcamento)) {
+                throw new Error('A API retornou valores financeiros inválidos.');
+            }
+
+            let situacao = componente.situacao ||
+                (custo > orcamento ? 'Acima do orçamento' : 'Dentro do orçamento');
+
+            html += `
+                <div class="item-financeiro">
+                    <strong>${nome}</strong>
+                    <p>Custo estimado: ${formatador.format(custo)}</p>
+                    <p>Orçamento: ${formatador.format(orcamento)}</p>
+                    <small>${escaparHtml(situacao)}</small>
+                </div>
+            `;
+        }
+
+        $('custosComponentes').innerHTML = html;
+
+        let insights = Array.isArray(resultado.insights) ? resultado.insights : [];
+        let insightsHtml = '';
+
+        for (let i = 0; i < insights.length; i++) {
+            let insight = insights[i];
+            let texto = typeof insight === 'string'
+                ? insight
+                : (insight.mensagem || insight.descricao || 'Revisar custo estimado.');
+
+            insightsHtml += `
+                <div class="insight-financeiro">${escaparHtml(texto)}</div>
+            `;
+        }
+
+        if (insights.length === 0) {
+            insightsHtml = `
+                <div class="insight-financeiro">
+                    Nenhum componente ultrapassou o limite financeiro informado.
+                </div>
+            `;
+        }
+
+        $('insightsFinanceiros').innerHTML = insightsHtml;
+
+        // Usa o cálculo do backend também no custo principal do painel.
+        let custoTotal = Number(resultado.custoTotal);
+
+        if (Number.isFinite(custoTotal)) {
+            $('billingTotal').textContent = moedaReal(custoTotal);
+            $('kpiCost').textContent = moedaReal(custoTotal);
+            $('kpiCostNote').textContent =
+                'Estimativa calculada pelo serviço financeiro Node.js';
+        }
+
+        // Mantém os indicadores do orçamento alinhados ao backend.
+        let orcamentoTotal = Number(resultado.orcamentoTotal);
+        let saldo = Number(resultado.saldo);
+
+        if (Number.isFinite(orcamentoTotal) &&
+            Number.isFinite(saldo) && orcamentoTotal > 0) {
+
+            let percentual = custoTotal / orcamentoTotal * 100;
+            $('orcamentoPercentual').textContent =
+                numeroFormatado(percentual) + '%';
+            $('orcamentoProgresso').value = Math.min(percentual, 100);
+            $('orcamentoSaldo').textContent = saldo >= 0
+                ? moedaReal(saldo) + ' disponíveis'
+                : moedaReal(Math.abs(saldo)) + ' acima do limite';
+
+            let situacao = 'Infraestrutura dentro do orçamento.';
+            let cor = 'var(--mint)';
+
+            if (percentual >= 100) {
+                situacao = 'Atenção: orçamento excedido.';
+                cor = 'var(--pink)';
+            } else if (percentual >= 80) {
+                situacao = 'Atenção: orçamento próximo do limite.';
+                cor = 'var(--orange)';
+            }
+
+            $('orcamentoSituacao').textContent = situacao;
+            $('orcamentoSituacao').style.color = cor;
+        }
+    }
+
+    // Atualiza as tarifas da simulação visual com o JSON gerado pela AWS.
+    async function carregarPrecosAws() {
+
+        try {
+            let resposta = await fetch('/gestor/precos');
+            let precos = await resposta.json();
+
+            if (!resposta.ok) {
+                throw new Error(precos.mensagem || 'API de preços indisponível.');
+            }
+
+            let precoEc2 = Number(precos.instancia.usdPorHora);
+            let precoEbs = Number(precos.armazenamento.usdPorGbMes);
+
+            if (!Number.isFinite(precoEc2) || precoEc2 <= 0 ||
+                !Number.isFinite(precoEbs) || precoEbs <= 0) {
+                throw new Error('A API retornou tarifas inválidas.');
+            }
+
+            $('priceNode').value = precoEc2;
+            $('priceNode').step = '0.0001';
+            $('priceStorage').value = precoEbs;
+
+            // As tarifas de EC2 e EBS vêm do catálogo, não do formulário.
+            $('priceNode').readOnly = true;
+            $('priceStorage').readOnly = true;
+            tarifasAwsCarregadas = true;
+
+            let texto = document.querySelector('.premissas p');
+            if (texto) {
+                texto.textContent =
+                    'Tarifas EC2 (' + precos.instancia.tipo + ') e EBS (' +
+                    precos.armazenamento.tipo + ') consultadas no catálogo AWS ' +
+                    'para ' + precos.regiao + '. Rede e câmbio continuam como premissas. ' +
+                    'A simulação não representa uma fatura.';
+            }
+
+            atualizarBilling();
+
+        } catch (erro) {
+            tarifasAwsCarregadas = false;
+            console.warn('Não foi possível carregar tarifas AWS:', erro.message);
+
+            let texto = document.querySelector('.premissas p');
+            if (texto) {
+                texto.textContent =
+                    'Consulta às tarifas AWS indisponível. Os valores do ' +
+                    'formulário são referências demonstrativas. ' +
+                    'Rede e câmbio continuam sendo premissas.';
+            }
+        }
+    }
+
+    // ==========================================
     // 8. INSIGHTS GERENCIAIS
     // ==========================================
 
@@ -753,8 +1056,8 @@
         return valor;
     }
 
-    // Calcula os custos utilizando valores hipotéticos.
-    // FUTURO: o backend consultará preços da AWS.
+    // Calcula a simulação visual com as premissas atuais.
+    // A conferência por componente acontece no backend.
 
     function calcularCustos(
         quantidadeServidores,
@@ -1273,6 +1576,7 @@
             armazenamento,
             trafego
         );
+        agendarSimulacaoFinanceira();
 
     }
 
@@ -1678,6 +1982,33 @@
             atualizarDashboard
         );
 
+        $('filtroPeriodoGestor').addEventListener('click', function (evento) {
+
+            let botao = evento.target.closest('[data-periodo]');
+
+            if (!botao || !$('filtroPeriodoGestor').contains(botao)) {
+                return;
+            }
+
+            let periodo = botao.dataset.periodo;
+
+            if (periodo !== '24h' && periodo !== '7d' && periodo !== '30d') {
+                return;
+            }
+
+            periodoGestor = periodo;
+
+            let botoes = $('filtroPeriodoGestor').querySelectorAll('[data-periodo]');
+
+            for (let i = 0; i < botoes.length; i++) {
+                let ativo = botoes[i].dataset.periodo === periodoGestor;
+                botoes[i].classList.toggle('ativo', ativo);
+                botoes[i].setAttribute('aria-pressed', String(ativo));
+            }
+
+            carregarPeriodoGestor();
+        });
+
         // ======================================
         // PLANO DE AÇÃO
         // ======================================
@@ -1772,32 +2103,34 @@
         // ==========================================
         // EVENTOS DO PLANEJAMENTO FINANCEIRO
         // ==========================================
-
         let camposPlanejamento = [
             'orcamentoMensal',
-            'crescimentoMensal'
+            'crescimentoMensal',
+            'pctCpu',
+            'pctRam',
+            'pctDisco',
+            'pctRede',
+            'rateioCpu'
         ];
 
         for (let i = 0; i < camposPlanejamento.length; i++) {
+            $(camposPlanejamento[i]).addEventListener('input', function () {
 
-            $(camposPlanejamento[i]).addEventListener(
-                'input',
-                function () {
-
-                    // Guarda as configurações no navegador.
+                // Mantém compatibilidade com as configurações já salvas.
+                try {
                     localStorage.setItem(
-                        'streamguard_orcamento',
-                        $('orcamentoMensal').value
+                        'streamguard_orcamento', $('orcamentoMensal').value
                     );
-
                     localStorage.setItem(
-                        'streamguard_crescimento',
-                        $('crescimentoMensal').value
+                        'streamguard_crescimento', $('crescimentoMensal').value
                     );
-
-                    atualizarBilling();
+                } catch (erro) {
+                    console.error('Não foi possível salvar o planejamento:', erro);
                 }
-            );
+
+                salvarOrcamentoLocal();
+                atualizarBilling();
+            });
         }
 
         // ======================================
@@ -1847,7 +2180,7 @@
 
                 'Rede considera um enlace hipotético de 1 Gbit/s.\n' +
 
-                'Billing usa premissas editáveis, não preços AWS consultados.\n' +
+                'EC2 e EBS usam o catálogo AWS quando disponível; rede e câmbio são premissas.\n' +
 
                 'CPU e RAM não determinam sozinhas a fatura de nuvem.';
 
@@ -1885,31 +2218,133 @@
 
     function carregarPlanejamento() {
 
-        let orcamento = localStorage.getItem(
-            'streamguard_orcamento'
-        );
+        // Valores antigos do simulador continuam sendo aceitos.
+        try {
+            let orcamento = localStorage.getItem('streamguard_orcamento');
+            let crescimento = localStorage.getItem('streamguard_crescimento');
 
-        let crescimento = localStorage.getItem(
-            'streamguard_crescimento'
-        );
+            if (orcamento !== null && Number.isFinite(Number(orcamento)) &&
+                Number(orcamento) >= 0) {
+                $('orcamentoMensal').value = orcamento;
+            }
 
-        if (
-            orcamento !== null &&
-            Number.isFinite(Number(orcamento)) &&
-            Number(orcamento) >= 0
-        ) {
+            if (crescimento !== null && Number.isFinite(Number(crescimento)) &&
+                Number(crescimento) >= 0 && Number(crescimento) <= 100) {
+                $('crescimentoMensal').value = crescimento;
+            }
 
-            $('orcamentoMensal').value = orcamento;
+            // Configuração financeira separada por empresa no navegador.
+            let texto = localStorage.getItem(chaveOrcamentoGerencial());
+
+            if (!texto) {
+                return;
+            }
+
+            let configuracao = JSON.parse(texto);
+            let distribuicao = configuracao.distribuicaoOrcamento || {};
+
+            let campos = [
+                ['orcamentoMensal', configuracao.orcamentoMensal],
+                ['crescimentoMensal', configuracao.crescimentoMensal],
+                ['rateioCpu', configuracao.rateioCpu],
+                ['pctCpu', distribuicao.CPU],
+                ['pctRam', distribuicao.RAM],
+                ['pctDisco', distribuicao.Disco],
+                ['pctRede', distribuicao.Rede]
+            ];
+
+            for (let i = 0; i < campos.length; i++) {
+                let id = campos[i][0];
+                let valor = campos[i][1];
+
+                if (valor === undefined || valor === null || valor === '') {
+                    continue;
+                }
+
+                let numero = Number(valor);
+
+                if (Number.isFinite(numero) && numero >= 0 &&
+                    (id === 'orcamentoMensal' || numero <= 100)) {
+                    $(id).value = numero;
+                }
+            }
+
+        } catch (erro) {
+            console.error('Não foi possível recuperar o planejamento:', erro);
         }
+    }
 
-        if (
-            crescimento !== null &&
-            Number.isFinite(Number(crescimento)) &&
-            Number(crescimento) >= 0 &&
-            Number(crescimento) <= 100
-        ) {
+    // ==========================================
+    // CONSULTA DE HISTÓRICO GOLD POR PERÍODO
+    // ==========================================
 
-            $('crescimentoMensal').value = crescimento;
+    let periodoGestor = '24h';
+    let requisicaoPeriodo = 0;
+
+    async function carregarPeriodoGestor() {
+
+        let requisicao = ++requisicaoPeriodo;
+
+        $('statusPeriodoGestor').textContent =
+            'Consultando histórico Gold de ' + periodoGestor + '...';
+
+        try {
+            let resposta = await fetch(
+                '/gestor/resumo?periodo=' + encodeURIComponent(periodoGestor)
+            );
+
+            let dados = {};
+
+            try {
+                dados = await resposta.json();
+            } catch (erro) {
+                // A resposta pode ser HTML caso a rota não esteja registrada.
+            }
+
+            if (requisicao !== requisicaoPeriodo) {
+                return;
+            }
+
+            if (resposta.status === 401 || resposta.status === 403) {
+                $('statusPeriodoGestor').textContent =
+                    'Histórico Gold exige autenticação da empresa no backend. ' +
+                    'Os indicadores operacionais continuam demonstrativos.';
+                return;
+            }
+
+            if (resposta.status === 404) {
+                $('statusPeriodoGestor').textContent =
+                    'A rota de histórico Gold ainda não está disponível no backend.';
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw new Error(
+                    dados.mensagem || dados.erro || 'Falha ao consultar o histórico.'
+                );
+            }
+
+            let total = Number(dados.totalRegistros);
+
+            if (!Number.isFinite(total)) {
+                throw new Error('O retorno do histórico não contém totalRegistros.');
+            }
+
+            $('statusPeriodoGestor').textContent = total === 0
+                ? 'Nenhum registro Gold encontrado em ' + periodoGestor + '.'
+                : total + ' registros Gold encontrados em ' + periodoGestor +
+                  '. Os indicadores acima ainda são demonstrativos.';
+
+            // O histórico será associado aos indicadores após definir o formato
+            // dos dados e habilitar a autenticação da empresa no backend.
+
+        } catch (erro) {
+            if (requisicao !== requisicaoPeriodo) {
+                return;
+            }
+
+            $('statusPeriodoGestor').textContent =
+                'Histórico indisponível: ' + erro.message;
         }
     }
 
@@ -1924,6 +2359,10 @@
     atualizarDashboard();
 
     configurarEventos();
+
+    carregarPrecosAws();
+
+    carregarPeriodoGestor();
 
     integrarMenu();
 

@@ -1,5 +1,5 @@
-var ambiente_processo = 'producao';
-//var ambiente_processo = 'desenvolvimento';
+//var ambiente_processo = 'producao';
+var ambiente_processo = 'desenvolvimento';
 
 var caminho_env = ambiente_processo === 'desenvolvimento' ? '.env.dev' : '.env';
 require("dotenv").config({ path: caminho_env });
@@ -29,6 +29,7 @@ var perfilRouter = require("./src/routes/perfil");
 var usuariosRouter = require("./src/routes/usuarios");
 var servidoresRouter = require("./src/routes/servidores")
 var empresasRouter = require("./src/routes/empresas");
+var gestorRouter = require("./src/routes/gestor");
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -45,7 +46,9 @@ app.use("/empresas", empresasRouter);
 app.use("/analista_geral",dashboard_analista_geralRouter);
 app.use("/usuarios", usuariosRouter);
 app.use("/servidores", servidoresRouter)
+app.use("/gestor", gestorRouter);
 app.use("/", indexRouter);
+
 
 app.listen(PORTA_APP, function () {
     console.log(`

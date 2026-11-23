@@ -1528,6 +1528,71 @@
     }
 }
 
+/* ==========================================
+   CUSTOS E INSIGHTS FINANCEIROS
+   ========================================== */
+
+.painel-gerencial #custosComponentes,
+.painel-gerencial #financeiroComponentes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.painel-gerencial .item-financeiro {
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 9px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.painel-gerencial .item-financeiro strong {
+    color: var(--mint);
+    font-size: 15px;
+}
+
+.painel-gerencial .item-financeiro span {
+    color: var(--text);
+    font-size: 12px;
+}
+
+.painel-gerencial .item-financeiro small {
+    color: var(--orange);
+    font-size: 11px;
+}
+
+.painel-gerencial #insightsFinanceiros,
+.painel-gerencial #financeiroInsights {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.painel-gerencial .insight-financeiro {
+    background: #21213c;
+    border: 1px solid #363657;
+    border-left: 3px solid var(--mint);
+    border-radius: 8px;
+    padding: 14px;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+@media (max-width: 768px) {
+
+    .painel-gerencial #custosComponentes,
+.painel-gerencial #financeiroComponentes {
+        grid-template-columns: 1fr;
+    }
+}
+
 
 @media print {
 
@@ -1766,5 +1831,183 @@
     .painel-gerencial h2,
     .painel-gerencial h3 {
         color: #111 !important
+    }
+}
+
+/* ==========================================
+   FILTRO DE PERÍODOS DO DATA LAKE
+   ========================================== */
+
+.painel-gerencial #rotuloPeriodoGestor {
+    font-size: 9.6px;
+    color: var(--faint);
+    letter-spacing: 1px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.painel-gerencial .grupo-periodo-gerencial {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 5px;
+    margin-top: 3px;
+}
+
+.painel-gerencial .botao-periodo {
+    border: 1px solid #383855;
+    border-radius: 7px;
+    background: #20203d;
+    color: var(--muted);
+    font-size: 11px;
+    font-weight: 750;
+    padding: 8px 11px;
+    min-height: 34px;
+    transition: background .15s, color .15s, border-color .15s;
+}
+
+.painel-gerencial .botao-periodo:hover {
+    border-color: var(--mint);
+    color: var(--text);
+}
+
+.painel-gerencial .botao-periodo.ativo,
+.painel-gerencial .botao-periodo[aria-pressed="true"] {
+    color: #072b26;
+    background: var(--mint);
+    border-color: var(--mint);
+}
+
+.painel-gerencial #statusPeriodoGestor {
+    max-width: 340px;
+    font-size: 10px;
+    line-height: 1.45;
+    color: var(--muted);
+    margin: 6px 0 0;
+    overflow-wrap: anywhere;
+}
+
+/* ==========================================
+   CONFIGURAÇÃO E RETORNO DA API FINANCEIRA
+   ========================================== */
+
+.painel-gerencial .painel-orcamento {
+    min-width: 0;
+}
+
+.painel-gerencial .painel-orcamento > .titulo-previsao {
+    padding-top: 4px;
+    border-top: 1px solid var(--border);
+}
+
+.painel-gerencial .campos-orcamento {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.painel-gerencial .campos-orcamento input:focus {
+    border-color: var(--mint);
+}
+
+.painel-gerencial .campos-orcamento input:read-only,
+.painel-gerencial .grade-premissas input:read-only {
+    opacity: .78;
+    cursor: not-allowed;
+}
+
+.painel-gerencial #custosComponentes,
+.painel-gerencial #financeiroComponentes {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 15px;
+}
+
+.painel-gerencial .item-financeiro {
+    border-left: 3px solid var(--mint);
+}
+
+.painel-gerencial .item-financeiro:nth-child(2) {
+    border-left-color: var(--purple);
+}
+
+.painel-gerencial .item-financeiro:nth-child(3) {
+    border-left-color: var(--blue);
+}
+
+.painel-gerencial .item-financeiro:nth-child(4) {
+    border-left-color: var(--orange);
+}
+
+.painel-gerencial #insightsFinanceiros,
+.painel-gerencial #financeiroInsights {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 15px;
+}
+
+.painel-gerencial .insight-financeiro {
+    border-left-color: var(--orange);
+    overflow-wrap: anywhere;
+}
+
+.painel-gerencial #statusFinanceiro {
+    padding: 9px 11px;
+    margin-top: 12px;
+    border-radius: 7px;
+    border: 1px solid var(--border);
+    background: var(--panel2);
+    color: var(--muted);
+    font-size: 11px;
+    overflow-wrap: anywhere;
+}
+
+@media (max-width: 768px) {
+    .painel-gerencial #custosComponentes,
+    .painel-gerencial #financeiroComponentes {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 600px) {
+    .painel-gerencial .grupo-periodo-gerencial {
+        gap: 6px;
+    }
+
+    .painel-gerencial .botao-periodo {
+        flex: 1 1 auto;
+    }
+
+    .painel-gerencial .campos-orcamento {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media print {
+    .painel-gerencial .item-financeiro,
+    .painel-gerencial .insight-financeiro,
+    .painel-gerencial .mes-projetado,
+    .painel-gerencial #statusFinanceiro {
+        color: #111 !important;
+        background: #fff !important;
+        border-color: #aaa !important;
+        break-inside: avoid;
+    }
+
+    .painel-gerencial .item-financeiro strong,
+    .painel-gerencial .item-financeiro span,
+    .painel-gerencial .item-financeiro small,
+    .painel-gerencial .mes-projetado strong,
+    .painel-gerencial .mes-projetado span {
+        color: #111 !important;
+    }
+
+    .painel-gerencial #statusFinanceiro {
+        display: none !important;
+    }
+
+    .painel-gerencial .painel-orcamento,
+    .painel-gerencial .painel-projecoes {
+        break-inside: auto;
     }
 }

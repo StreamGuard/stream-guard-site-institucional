@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="theme-color" content="#0c0c18">
     <meta name="description"
-        content="Dashboard de inteligência gerencial do StreamGuard com indicadores, decisões e previsão demonstrativa de custos.">
+        content="Dashboard gerencial do StreamGuard: orçamento por componente, estimativas financeiras AWS, decisões e análise por período.">
     <title>Inteligência Gerencial | StreamGuard</title>
     <!-- Folha compartilhada: estrutura do painel, menu lateral, cabeçalho e perfil -->
     <link rel="stylesheet" href="./css/painel_base.css">
@@ -65,13 +65,33 @@
                                 Gerar relatório</button></div>
                     </div>
                     <div class="barra-filtros">
-                        <div class="campo largo"><label for="cenario">Cenário operacional demonstrativo</label><select id="cenario">
+                        <div class="campo">
+                            <span id="rotuloPeriodoGestor">Período de análise operacional</span>
+                            <div id="filtroPeriodoGestor" class="grupo-periodo-gerencial"
+                                role="group" aria-labelledby="rotuloPeriodoGestor">
+                                <button type="button" class="botao-periodo ativo" data-periodo="24h"
+                                    aria-pressed="true">24 horas</button>
+                                <button type="button" class="botao-periodo" data-periodo="7d"
+                                    aria-pressed="false">7 dias</button>
+                                <button type="button" class="botao-periodo" data-periodo="30d"
+                                    aria-pressed="false">30 dias</button>
+                            </div>
+                            <p id="statusPeriodoGestor" role="status" aria-live="polite">
+                                O histórico será consultado no Data Lake quando a API estiver autorizada.
+                            </p>
+                        </div>
+                        <div class="campo largo">
+                            <label for="cenario">Cenário operacional demonstrativo</label>
+                            <select id="cenario">
                                 <option value="normal">Operação regular</option>
-                                <option selected="" value="pico">Pico de audiência</option>
+                                <option value="pico" selected>Pico de audiência</option>
                                 <option value="recuperacao">Pós-pico / recuperação</option>
-                            </select></div>
-                        <div class="informacao-filtro"><span class="etiqueta-demo">DADOS DEMONSTRATIVOS</span><span>Atualização
-                                pelo filtro</span></div>
+                            </select>
+                        </div>
+                        <div class="informacao-filtro">
+                            <span class="etiqueta-demo">INDICADORES OPERACIONAIS DEMONSTRATIVOS</span>
+                            <span>O período seleciona a janela de consulta do histórico Gold.</span>
+                        </div>
                     </div>
                     <div class="visao-geral">
                         <article class="cartao cartao-indicador">
@@ -126,10 +146,11 @@
                             </div>
                             <div aria-label="Composição estimada dos custos" class="barra-custos" id="billingStack"></div>
                             <div class="linhas-custos" id="billingRows"></div>
-                            <p class="observacao-calculo">O consumo de CPU/RAM/disco/rede não gera automaticamente um valor de
-                                cobrança. A projeção usa <b>quantidade e horas de instâncias</b>, capacidade de
-                                armazenamento e volume de saída de dados. Tarifas e câmbio abaixo são <b>hipóteses
-                                    editáveis</b>.</p>
+                            <p class="observacao-calculo">CPU e RAM recebem parcelas do custo EC2 conforme o rateio
+                                definido pelo gestor; não são tarifas separadas da AWS. A projeção considera horas de
+                                instância, armazenamento e transferência. EC2 e EBS podem utilizar o catálogo público
+                                da AWS; preço de rede e câmbio continuam sendo premissas informadas pelo gestor.
+                                <strong>Não representa fatura real.</strong></p>
                         </div>
                         <div class="cartao formulario-custos">
                             <h3>Simulador de decisão financeira</h3>
@@ -156,10 +177,11 @@
                             <div class="avaliacao-cenario" id="billingEvaluation">—</div>
                             <details class="premissas">
                                 <summary>Ver e editar as premissas do modelo ↘</summary>
-                                <p>Valores didáticos, não consultados na tabela atual da AWS. Troque-os pelos preços
-                                    reais e classe de instância quando o projeto definir a infraestrutura.</p>
+                                <p>As tarifas de EC2 e EBS serão atualizadas pela API
+                                    <code>/gestor/precos</code>. Até a confirmação da consulta, os valores exibidos são
+                                    referências de simulação. Tráfego e câmbio permanecem editáveis.</p>
                                 <div class="grade-premissas"><label>USD por nó/hora <input id="priceNode" max="10" min="0"
-                                            step="0.001" type="number" value="0.096" /></label><label>Horas por mês
+                                            step="0.0001" type="number" value="0.0104" /></label><label>Horas por mês
                                         <input id="hours" max="744" min="1" step="1" type="number"
                                             value="730" /></label><label>USD/GB-mês (disco) <input id="priceStorage"
                                             max="5" min="0" step="0.01" type="number"
@@ -172,83 +194,89 @@
                     </div>
 
                     <div class="cartao painel-orcamento">
+                        <h3>Planejamento financeiro</h3>
+                        <p class="descricao-orcamento">
+                            Defina o orçamento mensal, distribua seus limites por componente e acompanhe
+                            os custos estimados da infraestrutura. As configurações são salvas neste navegador.
+                        </p>
 
-    <h3>Planejamento financeiro</h3>
+                        <div class="campos-orcamento">
+                            <label for="orcamentoMensal">
+                                Orçamento mensal (R$)
+                                <input type="number" id="orcamentoMensal" min="0" step="100" value="7000">
+                            </label>
+                            <label for="crescimentoMensal">
+                                Crescimento mensal estimado (%)
+                                <input type="number" id="crescimentoMensal" min="0" max="100" step="1" value="5">
+                            </label>
+                        </div>
 
-    <p class="descricao-orcamento">
-        Defina o orçamento disponível e estime a evolução
-        dos custos da infraestrutura nos próximos meses.
-    </p>
+                        <h3 class="titulo-previsao">Distribuição do orçamento por componente</h3>
+                        <p class="descricao-orcamento">
+                            Escolha o percentual do orçamento destinado a cada componente. Os quatro percentuais
+                            devem somar 100%.
+                        </p>
+                        <div class="campos-orcamento">
+                            <label for="pctCpu">
+                                CPU (%)
+                                <input type="number" id="pctCpu" min="0" max="100" step="1" value="35">
+                            </label>
+                            <label for="pctRam">
+                                RAM (%)
+                                <input type="number" id="pctRam" min="0" max="100" step="1" value="25">
+                            </label>
+                            <label for="pctDisco">
+                                Disco (%)
+                                <input type="number" id="pctDisco" min="0" max="100" step="1" value="20">
+                            </label>
+                            <label for="pctRede">
+                                Rede (%)
+                                <input type="number" id="pctRede" min="0" max="100" step="1" value="20">
+                            </label>
+                        </div>
 
-    <div class="campos-orcamento">
+                        <div class="campos-orcamento">
+                            <label for="rateioCpu">
+                                Participação da CPU no custo EC2 (%)
+                                <input type="number" id="rateioCpu" min="0" max="100" step="1" value="60">
+                            </label>
+                        </div>
+                        <p class="descricao-orcamento">
+                            CPU e RAM dividem o custo total das instâncias EC2. O percentual restante do rateio
+                            é atribuído à RAM; isso não representa cobrança separada da AWS.
+                        </p>
 
-        <label for="orcamentoMensal">
-            Orçamento mensal (R$)
+                        <div class="indicadores-orcamento">
+                            <div>
+                                <small>Orçamento comprometido</small>
+                                <strong id="orcamentoPercentual">—</strong>
+                            </div>
+                            <div>
+                                <small>Saldo do orçamento</small>
+                                <strong id="orcamentoSaldo">—</strong>
+                            </div>
+                        </div>
+                        <progress id="orcamentoProgresso" value="0" max="100"
+                            aria-label="Percentual do orçamento utilizado"></progress>
+                        <p id="orcamentoSituacao"></p>
 
-            <input
-                type="number"
-                id="orcamentoMensal"
-                min="0"
-                step="100"
-                value="7000"
-            >
-        </label>
+                        <h3 class="titulo-previsao">Custos estimados por componente</h3>
+                        <div id="custosComponentes" aria-live="polite"></div>
 
-        <label for="crescimentoMensal">
-            Crescimento mensal estimado (%)
+                        <h3 class="titulo-previsao">Insights financeiros</h3>
+                        <div id="insightsFinanceiros" aria-live="polite"></div>
+                        <p id="statusFinanceiro" class="descricao-orcamento" role="status" aria-live="polite">
+                            Aguardando atualização da simulação financeira.
+                        </p>
 
-            <input
-                type="number"
-                id="crescimentoMensal"
-                min="0"
-                max="100"
-                step="1"
-                value="5"
-            >
-        </label>
-
-    </div>
-
-    <div class="indicadores-orcamento">
-
-        <div>
-            <small>Orçamento comprometido</small>
-            <strong id="orcamentoPercentual">—</strong>
-        </div>
-
-        <div>
-            <small>Saldo do orçamento</small>
-            <strong id="orcamentoSaldo">—</strong>
-        </div>
-
-    </div>
-
-    <progress
-        id="orcamentoProgresso"
-        value="0"
-        max="100"
-        aria-label="Percentual do orçamento utilizado"
-    ></progress>
-
-    <p id="orcamentoSituacao"></p>
-
-    <h3 class="titulo-previsao">
-        Previsão financeira — próximos 3 meses
-    </h3>
-
-    <div
-        id="previsaoMensal"
-        class="previsao-mensal"
-    ></div>
-
-    <p class="descricao-orcamento">
-        Projeção baseada no crescimento informado para
-        armazenamento e tráfego. A quantidade de servidores,
-        as tarifas e o câmbio permanecem constantes.
-        Não representa uma fatura da AWS.
-    </p>
-
-</div>
+                        <h3 class="titulo-previsao">Previsão financeira — próximos 3 meses</h3>
+                        <div id="previsaoMensal" class="previsao-mensal"></div>
+                        <p class="descricao-orcamento">
+                            Projeção baseada no crescimento informado para armazenamento e tráfego.
+                            Quantidade de servidores, tarifas e câmbio são mantidos constantes no cenário.
+                            Os custos são estimativas gerenciais, não uma fatura da AWS.
+                        </p>
+                    </div>
                     <div class="cartao painel-projecoes">
                         <div class="titulo-painel">
                             <div>
@@ -301,12 +329,11 @@
                                 PDF</button></div>
                     </div>
                 </section>
-                <p class="nota-rodape"><strong>Sobre este protótipo:</strong> todos os registros de infraestrutura e
-                    insights são <strong>sintéticos e demonstrativos</strong>. Os limiares usados são exemplos (CPU 85%,
-                    RAM 90%, disco 85%, rede 80% da capacidade hipotética). Os custos representam apenas uma conta
-                    matemática com preços ajustáveis; não são dados AWS nem permitem inferir uma fatura. Na versão
-                    integrada, as métricas deverão vir da captura/ETL do StreamGuard e as premissas financeiras devem
-                    ser verificadas e documentadas.</p>
+                <p class="nota-rodape"><strong>Fontes e limites:</strong> os indicadores de infraestrutura e as
+                    recomendações operacionais desta versão ainda utilizam dados demonstrativos. O filtro por período
+                    ficará conectado aos históricos da ETL após a integração autorizada com o S3. Na área financeira,
+                    tarifas EC2/EBS podem vir do catálogo público da AWS, enquanto tráfego, câmbio, capacidade e rateio
+                    são premissas da simulação. Os custos são estimativas gerenciais, não valores de uma fatura AWS.</p>
 
                 <div class="mensagem-flutuante" hidden="" id="toast" role="status"></div>
                 <div class="fundo-modal" hidden="" id="overlay" role="presentation">
@@ -327,5 +354,3 @@
     <!-- Script da dashboard: dados DEMO, análise, gráfico SVG, simulador e relatórios -->
     <script src="./js/painel_gestor_insight.js"></script>
 </body>
-
-</html>
