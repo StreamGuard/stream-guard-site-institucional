@@ -51,8 +51,7 @@
                                 financeiro das decisões sobre a infraestrutura de streaming.</p>
                         </div>
                         <div class="acoes"><button class="botao" id="buttonMethod" type="button">ⓘ   Entenda os
-                                indicadores</button><button class="botao primario" id="buttonPrintTop" type="button">▤  
-                                Gerar relatório</button></div>
+                                indicadores</button></div>
                     </div>
                     <div class="barra-filtros">
                         <div class="campo">
@@ -85,63 +84,63 @@
                     </div>
                     <div class="visao-geral">
 
-    <!-- Custo mensal -->
-    <article class="cartao cartao-indicador destaque">
-        <div class="titulo-indicador">
-            Custo mensal estimado
-            <span class="icone-indicador">$</span>
-        </div>
+                        <!-- Custo mensal -->
+                        <article class="cartao cartao-indicador destaque">
+                            <div class="titulo-indicador">
+                                Custo mensal estimado
+                                <span class="icone-indicador">$</span>
+                            </div>
 
-        <strong id="kpiCost">—</strong>
+                            <strong id="kpiCost">—</strong>
 
-        <p class="observacao-indicador" id="kpiCostNote">
-            Aguardando simulação financeira
-        </p>
-    </article>
+                            <p class="observacao-indicador" id="kpiCostNote">
+                                Aguardando simulação financeira
+                            </p>
+                        </article>
 
-    <!-- Saldo financeiro -->
-    <article class="cartao cartao-indicador">
-        <div class="titulo-indicador">
-            Saldo do orçamento
-            <span class="icone-indicador">↗</span>
-        </div>
+                        <!-- Saldo financeiro -->
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">
+                                Saldo do orçamento
+                                <span class="icone-indicador">↗</span>
+                            </div>
 
-        <strong id="kpiMain">—</strong>
+                            <strong id="kpiMain">—</strong>
 
-        <p class="observacao-indicador" id="kpiMainNote">
-            Aguardando cálculo financeiro
-        </p>
-    </article>
+                            <p class="observacao-indicador" id="kpiMainNote">
+                                Aguardando cálculo financeiro
+                            </p>
+                        </article>
 
-    <!-- Riscos históricos -->
-    <article class="cartao cartao-indicador">
-        <div class="titulo-indicador">
-            Servidores com alertas
-            <span class="icone-indicador">⚠</span>
-        </div>
+                        <!-- Riscos históricos -->
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">
+                                Servidores com alertas
+                                <span class="icone-indicador">⚠</span>
+                            </div>
 
-        <strong id="kpiRisk">—</strong>
+                            <strong id="kpiRisk">—</strong>
 
-        <p class="observacao-indicador" id="kpiRiskNote">
-            Aguardando histórico Gold
-        </p>
-    </article>
+                            <p class="observacao-indicador" id="kpiRiskNote">
+                                Aguardando histórico Gold
+                            </p>
+                        </article>
 
-    <!-- Alternativas gerenciais -->
-    <article class="cartao cartao-indicador">
-        <div class="titulo-indicador">
-            Alternativas para análise
-            <span class="icone-indicador">▣</span>
-        </div>
+                        <!-- Alternativas gerenciais -->
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">
+                                Alternativas para análise
+                                <span class="icone-indicador">▣</span>
+                            </div>
 
-        <strong id="kpiComp">—</strong>
+                            <strong id="kpiComp">—</strong>
 
-        <p class="observacao-indicador" id="kpiCompNote">
-            Decisões sugeridas a partir dos riscos
-        </p>
-    </article>
+                            <p class="observacao-indicador" id="kpiCompNote">
+                                Decisões sugeridas a partir dos riscos
+                            </p>
+                        </article>
 
-</div>
+                    </div>
                     <div class="aviso"><span class="icone-aviso">!</span>
                         <div><b id="noticeTitle">Riscos e oportunidades identificados</b>
                             <p id="noticeDesc">Veja as recomendações organizadas por prioridade e evidência.</p>
@@ -189,7 +188,11 @@
                                 <div class="cabecalho-controle"><label for="extraNodes">Nós computacionais
                                         adicionais</label><output id="extraNodesText">0 nó(s)</output></div><input
                                     id="extraNodes" max="6" min="0" step="1" type="range" value="2" />
-                                <p>Referência: 8 nós já existentes. Cada nó extra aumenta custo por hora contratada.</p>
+                                <p>
+                                    Modelo financeiro com referência de 8 instâncias.
+                                    Cada instância adicional aumenta o custo mensal estimado.
+                                    Essa quantidade é uma premissa de simulação.
+                                </p>
                             </div>
                             <div class="controle">
                                 <div class="cabecalho-controle"><label for="storage">Armazenamento
@@ -242,40 +245,55 @@
                             </label>
                         </div>
 
-                        <h3 class="titulo-previsao">Distribuição do orçamento por componente</h3>
-                        <p class="descricao-orcamento">
-                            Escolha o percentual do orçamento destinado a cada componente. Os quatro percentuais
-                            devem somar 100%.
-                        </p>
-                        <div class="campos-orcamento">
-                            <label for="pctCpu">
-                                CPU (%)
-                                <input type="number" id="pctCpu" min="0" max="100" step="1" value="35">
-                            </label>
-                            <label for="pctRam">
-                                RAM (%)
-                                <input type="number" id="pctRam" min="0" max="100" step="1" value="25">
-                            </label>
-                            <label for="pctDisco">
-                                Disco (%)
-                                <input type="number" id="pctDisco" min="0" max="100" step="1" value="20">
-                            </label>
-                            <label for="pctRede">
-                                Rede (%)
-                                <input type="number" id="pctRede" min="0" max="100" step="1" value="20">
-                            </label>
-                        </div>
+                        <!-- Configurações financeiras avançadas -->
+                        <details class="configuracoes-avancadas">
 
-                        <div class="campos-orcamento">
-                            <label for="rateioCpu">
-                                Participação da CPU no custo EC2 (%)
-                                <input type="number" id="rateioCpu" min="0" max="100" step="1" value="60">
-                            </label>
-                        </div>
-                        <p class="descricao-orcamento">
-                            CPU e RAM dividem o custo total das instâncias EC2. O percentual restante do rateio
-                            é atribuído à RAM; isso não representa cobrança separada da AWS.
-                        </p>
+                            <summary>
+                                ⚙ Configurações avançadas do orçamento
+                            </summary>
+
+                            <p class="descricao-orcamento">
+                                Ajuste a distribuição do orçamento e o rateio
+                                dos custos computacionais. Essas configurações
+                                são utilizadas pelo modelo financeiro.
+                            </p>
+
+                            <h3 class="titulo-previsao">Distribuição do orçamento por componente</h3>
+                            <p class="descricao-orcamento">
+                                Escolha o percentual do orçamento destinado a cada componente. Os quatro percentuais
+                                devem somar 100%.
+                            </p>
+                            <div class="campos-orcamento">
+                                <label for="pctCpu">
+                                    CPU (%)
+                                    <input type="number" id="pctCpu" min="0" max="100" step="1" value="35">
+                                </label>
+                                <label for="pctRam">
+                                    RAM (%)
+                                    <input type="number" id="pctRam" min="0" max="100" step="1" value="25">
+                                </label>
+                                <label for="pctDisco">
+                                    Disco (%)
+                                    <input type="number" id="pctDisco" min="0" max="100" step="1" value="20">
+                                </label>
+                                <label for="pctRede">
+                                    Rede (%)
+                                    <input type="number" id="pctRede" min="0" max="100" step="1" value="20">
+                                </label>
+                            </div>
+
+                            <div class="campos-orcamento">
+                                <label for="rateioCpu">
+                                    Participação da CPU no custo EC2 (%)
+                                    <input type="number" id="rateioCpu" min="0" max="100" step="1" value="60">
+                                </label>
+                            </div>
+                            <p class="descricao-orcamento">
+                                CPU e RAM dividem o custo total das instâncias EC2. O percentual restante do rateio
+                                é atribuído à RAM; isso não representa cobrança separada da AWS.
+                            </p>
+                        </details>
+                        <!-- Fim das configurações avançadas -->
 
                         <div class="indicadores-orcamento">
                             <div>
@@ -291,8 +309,23 @@
                             aria-label="Percentual do orçamento utilizado"></progress>
                         <p id="orcamentoSituacao"></p>
 
-                        <h3 class="titulo-previsao">Custos estimados por componente</h3>
-                        <div id="custosComponentes" aria-live="polite"></div>
+                        <details class="detalhamento-financeiro">
+
+                            <summary>
+                                Ver detalhamento financeiro por componente
+                            </summary>
+
+                            <p class="descricao-orcamento">
+                                Consulte como o custo estimado está distribuído
+                                entre CPU, RAM, armazenamento e rede.
+
+                                Os valores de CPU e RAM representam um rateio
+                                do custo computacional, não cobranças separadas da AWS.
+                            </p>
+
+                            <div id="custosComponentes" aria-live="polite"></div>
+
+                        </details>
 
                         <h3 class="titulo-previsao">Insights financeiros</h3>
                         <div id="insightsFinanceiros" aria-live="polite"></div>
@@ -308,19 +341,27 @@
                             Os custos são estimativas gerenciais, não uma fatura da AWS.
                         </p>
                     </div>
-                    <div class="cartao painel-projecoes">
-                        <div class="titulo-painel">
-                            <div>
-                                <h3>Impacto de decisões de expansão</h3>
-                                <p>Projeção comparativa com as mesmas premissas e volumes de armazenamento/tráfego
-                                    configurados acima.</p>
-                            </div><span class="texto-pequeno">R$/mês • valores ilustrativos</span>
+
+                    <details class="detalhamento-financeiro">
+
+                        <summary>
+                            Comparar outros cenários de expansão
+                        </summary>
+                        <div class="cartao painel-projecoes">
+                            <div class="titulo-painel">
+                                <div>
+                                    <h3>Impacto de decisões de expansão</h3>
+                                    <p>Projeção comparativa com as mesmas premissas e volumes de armazenamento/tráfego
+                                        configurados acima.</p>
+                                </div><span class="texto-pequeno">R$/mês • valores ilustrativos</span>
+                            </div>
+                            <div class="colunas-projecao" id="forecastBars"></div>
+                            <p class="descricao-projecao">Aumentar servidores pode melhorar a capacidade disponível, mas
+                                não
+                                garante redução de incidentes. O dimensionamento deve considerar métricas históricas e
+                                requisitos do serviço.</p>
                         </div>
-                        <div class="colunas-projecao" id="forecastBars"></div>
-                        <p class="descricao-projecao">Aumentar servidores pode melhorar a capacidade disponível, mas não
-                            garante redução de incidentes. O dimensionamento deve considerar métricas históricas e
-                            requisitos do serviço.</p>
-                    </div>
+                    </details>
                 </section>
                 <section class="secao" id="decisoes">
                     <div class="titulo-secao">
@@ -351,22 +392,53 @@
                     </div>
                 </section>
                 <section class="secao" id="relatorios">
+
                     <div class="cartao painel-relatorio">
+
                         <div>
                             <h3>Relatório executivo</h3>
-                            <p>Exporte os indicadores, as evidências e as decisões selecionadas em
-                                CSV, ou use o layout de impressão para criar um PDF resumido da dashboard.</p>
+
+                            <p>
+                                Consulte as informações gerenciais do período
+                                selecionado e salve uma cópia da dashboard em PDF.
+                            </p>
+
+                            <p class="descricao-orcamento">
+                                O relatório executivo consolidado será integrado
+                                ao serviço Java, utilizando os indicadores Gold
+                                e os resultados financeiros.
+                            </p>
                         </div>
-                        <div class="acoes-relatorio"><button class="botao" id="buttonCsv" type="button">↓ Exportar
-                                CSV</button><button class="botao primario" id="buttonPrint" type="button">▤ Salvar como
-                                PDF</button></div>
+
+                        <div class="acoes-relatorio">
+
+                            <button class="botao primario" id="buttonPrint" type="button">
+                                ▤ Imprimir / salvar como PDF
+                            </button>
+
+                        </div>
+
                     </div>
+
                 </section>
-                <p class="nota-rodape"><strong>Fontes e limites:</strong> o histórico do período é consultado no Gold;
-                    os indicadores operacionais e as recomendações desta versão ainda usam dados demonstrativos. Na área
-                    financeira,
-                    tarifas EC2/EBS podem vir do catálogo público da AWS, enquanto tráfego, câmbio, capacidade e rateio
-                    são premissas da simulação. Os custos são estimativas gerenciais, não valores de uma fatura AWS.</p>
+                <p class="nota-rodape">
+
+    <strong>Fontes e limitações:</strong>
+
+    Os indicadores operacionais utilizam métricas históricas
+    consultadas no Data Lake Gold.
+
+    As médias e os picos representam o período selecionado,
+    não necessariamente a condição atual dos servidores.
+
+    Os custos são estimativas gerenciais calculadas com
+    tarifas AWS e premissas configuradas no simulador.
+
+    As alternativas de investimento são hipóteses para
+    avaliação e não representam recomendações automáticas
+    de contratação.
+
+</p>
 
                 <div class="mensagem-flutuante" hidden="" id="toast" role="status"></div>
                 <div class="fundo-modal" hidden="" id="overlay" role="presentation">

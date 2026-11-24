@@ -703,6 +703,7 @@
     let temporizadorFinanceiro;
     let versaoFinanceira = 0;
     let tarifasAwsCarregadas = false;
+    let comparacoesFinanceiras = null;
 
     // Lê o orçamento e os percentuais preenchidos pelo gestor.
     function obterConfiguracaoFinanceira() {
@@ -744,7 +745,14 @@
     function agendarSimulacaoFinanceira() {
 
         versaoFinanceira++;
+
+        // Invalida as comparações anteriores.
+        comparacoesFinanceiras = null;
+
+        atualizarDecisoes();
+
         let versaoAtual = versaoFinanceira;
+
         clearTimeout(temporizadorFinanceiro);
 
         let configuracao = obterConfiguracaoFinanceira();
@@ -813,10 +821,134 @@
                 );
             }
 
+            // ==========================================
+            // COMPARAÇÃO FINANCEIRA DAS DECISÕES
+            // ==========================================
+
+            async function compararCustosDasDecisoes(dadosBase, resultadoBase, versaoAtual) {
+
+                let alternativas = [
+                    {
+                        chave: 'CPU',
+                        descricao: 'Adicionar 1 instância computacional'
+                    },
+                    {
+                        chave: 'Disco',
+                        descricao: 'Adicionar 100 GB de armazenamento'
+                    }
+                ];
+
+                let resultados = {};
+
+                try {
+
+                    for (let alternativa of alternativas) {
+
+                        // Copia os dados da simulação atual.
+                        let dados = {
+                            ...dadosBase,
+                            distribuicaoOrcamento: {
+                                ...dadosBase.distribuicaoOrcamento
+                            }
+                        };
+
+                        // Modifica somente o recurso da alternativa.
+                        if (alternativa.chave === 'CPU') {
+
+                            dados.servidores += 1;
+
+                        } else if (alternativa.chave === 'Disco') {
+
+                            dados.armazenamentoGb += 100;
+                        }
+
+                        // Reutiliza o serviço financeiro Node.js.
+                        let resposta = await fetch('/gestor/simular', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify(dados)
+                        });
+
+                        let resultado = await resposta.json();
+
+                        // Evita utilizar respostas de simulações antigas.
+                        if (versaoAtual !== versaoFinanceira) {
+                            return;
+                        }
+
+                        if (!resposta.ok) {
+                            throw new Error(
+                                resultado.mensagem ||
+                                'Não foi possível calcular a alternativa.'
+                            );
+                        }
+
+                        let custoAtual = Number(resultadoBase.custoTotal);
+
+                        let custoNovo = Number(resultado.custoTotal);
+
+                        let saldo = Number(resultado.saldo);
+
+                        let orcamento = Number(resultado.orcamentoTotal);
+
+                        if (
+                            !Number.isFinite(custoAtual) ||
+                            !Number.isFinite(custoNovo) ||
+                            !Number.isFinite(saldo) ||
+                            !Number.isFinite(orcamento)
+                        ) {
+                            throw new Error('A API retornou valores financeiros inválidos.');
+                        }
+
+                        resultados[alternativa.chave] = {
+                            descricao: alternativa.descricao,
+                            custoAtual: custoAtual,
+                            custoNovo: custoNovo,
+                            diferenca: custoNovo - custoAtual,
+                            saldo: saldo,
+                            orcamento: orcamento
+                        };
+                    }
+
+                    // Confirma que os resultados ainda são atuais.
+                    if (versaoAtual !== versaoFinanceira) {
+                        return;
+                    }
+
+                    // Guarda os resultados.
+                    comparacoesFinanceiras = resultados;
+
+                    // Atualiza os cartões gerenciais.
+                    atualizarDecisoes();
+
+                } catch (erro) {
+
+                    if (versaoAtual !== versaoFinanceira) {
+                        return;
+                    }
+
+                    comparacoesFinanceiras = null;
+
+                    atualizarDecisoes();
+
+                    console.error('Erro nas comparações financeiras:', erro.message);
+                }
+            }
+
             exibirResultadoFinanceiro(resultado);
+
             ESTADO.custos.api = resultado;
 
+            // Remove comparações antigas.
+            comparacoesFinanceiras = null;
+
+            // Atualiza os cartões enquanto calcula as alternativas.
             atualizarDecisoes();
+
+            // Compara os investimentos utilizando o backend.
+            compararCustosDasDecisoes(dados, resultado, versaoAtual);
             let mensagem = 'Estimativa atualizada pela API financeira.';
 
             if (tarifasAwsCarregadas) {
@@ -1067,10 +1199,6 @@
             }
         ];
 
-        let financeiro = ESTADO.custos && ESTADO.custos.api
-            ? ESTADO.custos.api.componentes
-            : null;
-
         let html = '';
         let quantidadeDecisoes = 0;
 
@@ -1116,36 +1244,51 @@
 
             quantidadeDecisoes++;
 
-            // Consulta os valores já calculados pelo backend.
-            let custo = 0;
-            let orcamento = 0;
-            let calculoDisponivel = financeiro !== null;
 
-            for (let componente of grupo.componentes) {
+            // ==========================================
+            // IMPACTO FINANCEIRO DA DECISÃO
+            // ==========================================
 
-                let valores = financeiro && financeiro[componente];
+            let comparacao = comparacoesFinanceiras
+                ? comparacoesFinanceiras[grupo.chavePlano]
+                : null;
 
-                if (!valores) {
-                    calculoDisponivel = false;
-                    break;
-                }
+            let textoFinanceiro = 'Calculando impacto financeiro da alternativa...';
 
-                custo += Number(valores.custo);
-                orcamento += Number(valores.orcamento);
-            }
-
-            let textoFinanceiro = 'Aguardando simulação financeira.';
-
-            if (calculoDisponivel &&
-                Number.isFinite(custo) &&
-                Number.isFinite(orcamento)) {
+            if (comparacao) {
 
                 textoFinanceiro =
-                    'Custo atribuído no cenário atual: ' +
-                    moedaReal(custo) +
-                    '/mês. Parcela do orçamento: ' +
-                    moedaReal(orcamento) + '.';
+                    'Alternativa: ' + comparacao.descricao + '. ' +
+
+                    'Custo da configuração atual: ' +
+                    moedaReal(comparacao.custoAtual) + '/mês. ' +
+
+                    'Custo com a alternativa: ' +
+                    moedaReal(comparacao.custoNovo) + '/mês. ' +
+
+                    'Impacto mensal: +' +
+                    moedaReal(comparacao.diferenca) + '. ';
+
+                if (comparacao.orcamento <= 0) {
+
+                    textoFinanceiro +=
+                        'Defina um orçamento para avaliar a viabilidade financeira.';
+
+                } else if (comparacao.saldo >= 0) {
+
+                    textoFinanceiro +=
+                        'A alternativa permanece dentro do orçamento. ' +
+                        'Saldo estimado: ' +
+                        moedaReal(comparacao.saldo) + '.';
+
+                } else {
+
+                    textoFinanceiro +=
+                        'A alternativa ultrapassa o orçamento em ' +
+                        moedaReal(Math.abs(comparacao.saldo)) + '.';
+                }
             }
+
 
             let noPlano = ESTADO.acoes.some(function (acao) {
                 return acao.key === grupo.chavePlano;
@@ -1192,9 +1335,10 @@
 
                     <p>
                         <small>
-                            O valor exibido corresponde ao cenário
-                            financeiro configurado, não ao custo
-                            adicional de resolver o problema.
+                            O impacto financeiro é uma estimativa baseada
+                            na configuração atual e nas tarifas utilizadas
+                            pelo simulador. A expansão não garante que
+                            os problemas operacionais sejam resolvidos.
                         </small>
                     </p>
 
@@ -2267,9 +2411,8 @@
 
     function atualizarDashboard() {
 
-        ESTADO.cenario = $('cenario').value;
-
-        ESTADO.servidores = prepararServidores();
+        // Inicia o painel sem dados operacionais fictícios.
+        ESTADO.servidores = [];
 
         atualizarResumo();
 
@@ -2286,12 +2429,6 @@
 
     function configurarEventos() {
 
-        // Filtros gerais.
-
-        $('cenario').addEventListener(
-            'change',
-            atualizarDashboard
-        );
 
         $('filtroPeriodoGestor').addEventListener('click', function (evento) {
 
@@ -2445,34 +2582,20 @@
         }
 
         // ======================================
-        // EXPORTAÇÃO DE RELATÓRIOS
+        // IMPRESSÃO DA DASHBOARD
         // ======================================
 
-        $('buttonCsv').addEventListener(
-            'click',
-            exportarCsv
-        );
+        $('buttonPrint').addEventListener('click', function () {
 
-        let botoesPdf = [
-            'buttonPrintTop',
-            'buttonPrint'
-        ];
+            mostrarToast(
+                'Na janela de impressão, escolha "Salvar como PDF".'
+            );
 
-        for (let i = 0; i < botoesPdf.length; i++) {
+            setTimeout(function () {
+                window.print();
+            }, 200);
 
-            $(botoesPdf[i]).addEventListener('click', function () {
-
-                mostrarToast(
-                    'Na janela de impressão, escolha “Salvar como PDF”.'
-                );
-
-                setTimeout(function () {
-
-                    window.print();
-
-                }, 200);
-            });
-        }
+        });
 
         // ======================================
         // EXPLICAÇÃO DOS INDICADORES
@@ -2481,19 +2604,17 @@
         $('buttonMethod').addEventListener('click', function () {
 
             let mensagem =
-                'Este é um PROTÓTIPO com dados simulados.\n\n' +
+                'Os indicadores operacionais utilizam dados históricos do Data Lake Gold.\n\n' +
 
-                'Os indicadores destacam riscos e decisões prioritárias.\n' +
+                'As médias representam a utilização dos recursos durante o período selecionado.\n\n' +
 
-                'O cenário é demonstrativo, não um histórico real da ETL.\n' +
+                'Os picos indicam os maiores valores registrados nas janelas analisadas.\n\n' +
 
-                'A classificação compara utilização e limites definidos na demonstração.\n' +
+                'As janelas com limites ultrapassados não representam necessariamente incidentes individuais.\n\n' +
 
-                'Rede considera um enlace hipotético de 1 Gbit/s.\n' +
+                'Os custos são estimativas calculadas pelo serviço financeiro Node.js, utilizando tarifas AWS e premissas configuradas.\n\n' +
 
-                'EC2 e EBS usam o catálogo AWS quando disponível; rede e câmbio são premissas.\n' +
-
-                'CPU e RAM não determinam sozinhas a fatura de nuvem.';
+                'As alternativas de investimento são simulações. Uma expansão não garante a resolução dos problemas identificados.';
 
             abrirModal(
                 'Como interpretar este painel',
@@ -2595,6 +2716,22 @@
     async function carregarPeriodoGestor() {
 
         let requisicao = ++requisicaoPeriodo;
+
+        // Limpa os dados operacionais do período anterior.
+        ESTADO.servidores = [];
+
+        atualizarResumo();
+
+        atualizarDecisoes();
+
+        // Oculta os controles demonstrativos.
+        $('cenario').disabled = true;
+
+        $('cenario').closest('.campo').style.display = 'none';
+
+        // Informa que os dados reais estão sendo consultados.
+        document.querySelector('#resumo .etiqueta-demo').textContent =
+            'CONSULTANDO HISTÓRICO GOLD';
 
         $('statusPeriodoGestor').textContent =
             'Consultando histórico Gold de ' + periodoGestor + '...';

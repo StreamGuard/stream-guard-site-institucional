@@ -1310,7 +1310,7 @@
 }
 
 
-/*NAVEGAÇÃO GERENCIAL*/   
+/*NAVEGAÇÃO GERENCIAL*/
 
 
 .painel-gerencial .navegacao-gerencial {
@@ -1371,7 +1371,7 @@
 
 
 
-.painel-gerencial > .barra-filtros {
+.painel-gerencial>.barra-filtros {
     margin-top: 10px;
     margin-bottom: 22px;
 }
@@ -1588,7 +1588,7 @@
 @media (max-width: 768px) {
 
     .painel-gerencial #custosComponentes,
-.painel-gerencial #financeiroComponentes {
+    .painel-gerencial #financeiroComponentes {
         grid-template-columns: 1fr;
     }
 }
@@ -1900,7 +1900,7 @@
     min-width: 0;
 }
 
-.painel-gerencial .painel-orcamento > .titulo-previsao {
+.painel-gerencial .painel-orcamento>.titulo-previsao {
     padding-top: 4px;
     border-top: 1px solid var(--border);
 }
@@ -1968,6 +1968,7 @@
 }
 
 @media (max-width: 768px) {
+
     .painel-gerencial #custosComponentes,
     .painel-gerencial #financeiroComponentes {
         grid-template-columns: 1fr;
@@ -1989,6 +1990,7 @@
 }
 
 @media print {
+
     .painel-gerencial .item-financeiro,
     .painel-gerencial .insight-financeiro,
     .painel-gerencial .mes-projetado,
@@ -2014,5 +2016,430 @@
     .painel-gerencial .painel-orcamento,
     .painel-gerencial .painel-projecoes {
         break-inside: auto;
+    }
+}
+
+/* ==========================================
+   CONFIGURAÇÕES FINANCEIRAS AVANÇADAS
+   ========================================== */
+
+.painel-gerencial .configuracoes-avancadas {
+    margin-top: 24px;
+    padding: 16px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+}
+
+.painel-gerencial .configuracoes-avancadas summary {
+    cursor: pointer;
+    color: var(--mint);
+    font-size: 13px;
+    font-weight: 700;
+    list-style-position: inside;
+}
+
+.painel-gerencial .configuracoes-avancadas summary:hover {
+    color: var(--text);
+}
+
+.painel-gerencial .configuracoes-avancadas .descricao-orcamento {
+    margin-top: 14px;
+    line-height: 1.6;
+}
+
+.painel-gerencial .configuracoes-avancadas .campos-orcamento {
+    margin-top: 16px;
+}
+
+/* ==========================================
+   REFORMAT - ORGANIZAÇÃO FINANCEIRA
+   ========================================== */
+
+.painel-gerencial .detalhamento-financeiro {
+    margin-top: 20px;
+    padding: 16px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel2);
+}
+
+.painel-gerencial .detalhamento-financeiro summary {
+    cursor: pointer;
+    color: var(--mint);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.painel-gerencial .detalhamento-financeiro[open] summary {
+    margin-bottom: 16px;
+}
+
+.painel-gerencial .detalhamento-financeiro .painel-projecoes {
+    margin-top: 12px;
+}
+
+/* ==========================================
+   REFORMAT - LEGIBILIDADE
+   ========================================== */
+
+.painel-gerencial .descricao-orcamento {
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.painel-gerencial .observacao-indicador {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.painel-gerencial .decisao p {
+    font-size: 12.5px;
+    line-height: 1.7;
+}
+
+.painel-gerencial .controle p {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+.painel-gerencial .campos-orcamento label {
+    font-size: 12px;
+}
+
+/* ==========================================
+   REFORMAT - TIPOGRAFIA E LEGIBILIDADE
+   ========================================== */
+
+@media screen {
+
+    /* CONFIGURAÇÕES GERAIS */
+
+    .painel-gerencial {
+        font-size: 16px;
+        line-height: 1.6;
+
+        --muted: #b8b8ce;
+        --faint: #a0a0bb;
+    }
+
+
+    /* CABEÇALHO */
+
+    .painel-gerencial .cabecalho-pagina h1 {
+        font-size: 32px;
+        line-height: 1.25;
+    }
+
+    .painel-gerencial .cabecalho-pagina p {
+        font-size: 15px;
+        line-height: 1.6;
+    }
+
+    .painel-gerencial .rotulo-superior {
+        font-size: 12px;
+    }
+
+
+    /* TÍTULOS DAS SEÇÕES */
+
+    .painel-gerencial .titulo-secao h2 {
+        font-size: 22px;
+        line-height: 1.3;
+    }
+
+    .painel-gerencial .titulo-secao p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .painel-gerencial .dica-secao {
+        font-size: 13px;
+    }
+
+
+    /* NAVEGAÇÃO E BOTÕES */
+
+    .painel-gerencial .aba-gerencial,
+    .painel-gerencial .botao,
+    .painel-gerencial .botao-periodo {
+        font-size: 14px;
+        min-height: 42px;
+    }
+
+    .painel-gerencial .acao-inline {
+        font-size: 14px;
+        padding: 10px 14px;
+    }
+
+
+    /* FILTRO DE PERÍODO */
+
+    .painel-gerencial #rotuloPeriodoGestor {
+        font-size: 13px;
+    }
+
+    .painel-gerencial #statusPeriodoGestor {
+        font-size: 13px;
+        line-height: 1.6;
+        max-width: 450px;
+    }
+
+    .painel-gerencial .informacao-filtro {
+        font-size: 13px;
+    }
+
+    .painel-gerencial .etiqueta-demo {
+        font-size: 12px;
+    }
+
+
+    /* KPIs GERENCIAIS */
+
+    .painel-gerencial .cartao-indicador {
+        padding: 22px;
+    }
+
+    .painel-gerencial .titulo-indicador {
+        font-size: 14px;
+        line-height: 1.5;
+        gap: 10px;
+    }
+
+    .painel-gerencial .cartao-indicador strong {
+        font-size: 32px;
+        line-height: 1.25;
+        overflow-wrap: anywhere;
+    }
+
+    .painel-gerencial .cartao-indicador strong small {
+        font-size: 15px;
+    }
+
+    .painel-gerencial .observacao-indicador {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+
+    /* RESUMO GERENCIAL */
+
+    .painel-gerencial .aviso b {
+        font-size: 16px;
+    }
+
+    .painel-gerencial .aviso p {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .painel-gerencial .aviso a {
+        font-size: 14px;
+    }
+
+
+    /* INSIGHTS E DECISÕES */
+
+    .painel-gerencial .decisao {
+        padding: 20px;
+        gap: 14px;
+    }
+
+    .painel-gerencial .cabecalho-decisao {
+        flex-wrap: wrap;
+    }
+
+    .painel-gerencial .cabecalho-decisao h3 {
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .painel-gerencial .etiqueta-decisao {
+        font-size: 12px;
+        line-height: 1.4;
+        white-space: normal;
+    }
+
+    .painel-gerencial .decisao p {
+        font-size: 14px;
+        line-height: 1.7;
+        margin-top: 10px;
+    }
+
+    .painel-gerencial .evidencia {
+        font-size: 14px;
+        line-height: 1.7;
+        padding: 14px;
+    }
+
+    .painel-gerencial .recomendacao {
+        font-size: 14px;
+        line-height: 1.7;
+        margin-top: 14px;
+    }
+
+
+    /* PLANO DE AÇÃO */
+
+    .painel-gerencial .cabecalho-plano h3 {
+        font-size: 18px;
+    }
+
+    .painel-gerencial .dica-plano,
+    .painel-gerencial .plano-vazio,
+    .painel-gerencial .item-plano p,
+    .painel-gerencial .rodape-plano {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .painel-gerencial .item-plano strong {
+        font-size: 15px;
+    }
+
+    .painel-gerencial .contador {
+        font-size: 13px;
+    }
+
+
+    /* SIMULADOR FINANCEIRO */
+
+    .painel-gerencial .formulario-custos h3,
+    .painel-gerencial .painel-orcamento h3,
+    .painel-gerencial .titulo-painel h3 {
+        font-size: 18px;
+    }
+
+    .painel-gerencial .formulario-custos > p,
+    .painel-gerencial .controle p,
+    .painel-gerencial .descricao-orcamento,
+    .painel-gerencial .observacao-calculo {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .painel-gerencial .cabecalho-controle,
+    .painel-gerencial .campos-orcamento label,
+    .painel-gerencial .grade-premissas label {
+        font-size: 14px;
+    }
+
+    .painel-gerencial .campos-orcamento input,
+    .painel-gerencial .grade-premissas input {
+        font-size: 15px;
+        min-height: 42px;
+    }
+
+    .painel-gerencial .configuracoes-avancadas summary,
+    .painel-gerencial .detalhamento-financeiro summary,
+    .painel-gerencial details.premissas summary {
+        font-size: 15px;
+    }
+
+
+    /* RESULTADOS FINANCEIROS */
+
+    .painel-gerencial .custo-total {
+        font-size: 36px;
+    }
+
+    .painel-gerencial .subcartao-custo label,
+    .painel-gerencial .subcartao-custo small,
+    .painel-gerencial .linha-custo {
+        font-size: 14px;
+    }
+
+    .painel-gerencial .item-financeiro {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .painel-gerencial .insight-financeiro {
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .painel-gerencial #statusFinanceiro {
+        font-size: 13px;
+        line-height: 1.6;
+    }
+
+    .painel-gerencial #orcamentoSituacao {
+        font-size: 14px;
+    }
+
+    .painel-gerencial .mes-projetado span,
+    .painel-gerencial .mes-projetado small {
+        font-size: 13px;
+    }
+
+    .painel-gerencial .mes-projetado strong {
+        font-size: 19px;
+    }
+
+
+    /* RELATÓRIOS E RODAPÉ */
+
+    .painel-gerencial .painel-relatorio h3 {
+        font-size: 18px;
+    }
+
+    .painel-gerencial .painel-relatorio p,
+    .painel-gerencial .nota-rodape {
+        font-size: 14px;
+        line-height: 1.7;
+    }
+
+    .painel-gerencial .modal p {
+        font-size: 14px;
+    }
+}
+
+
+/* ==========================================
+   REFORMAT - RESPONSIVIDADE
+   ========================================== */
+
+/* Notebooks e telas intermediárias */
+
+@media screen and (max-width: 1280px) {
+
+    .painel-gerencial .visao-geral {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .painel-gerencial .estrutura-decisoes {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+/* Celulares e telas estreitas */
+
+@media screen and (max-width: 680px) {
+
+    .painel-gerencial .visao-geral {
+        grid-template-columns: 1fr;
+    }
+
+    .painel-gerencial .cartao-indicador strong {
+        font-size: 30px;
+    }
+
+    .painel-gerencial .cabecalho-decisao {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .painel-gerencial .recomendacao {
+        flex-direction: column;
+    }
+
+    .painel-gerencial .destaque-custo {
+        flex-wrap: wrap;
+    }
+
+    .painel-gerencial .cartoes-custos {
+        grid-template-columns: 1fr;
     }
 }
