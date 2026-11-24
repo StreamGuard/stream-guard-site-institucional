@@ -120,7 +120,7 @@
     // 5. FUNÇÕES AUXILIARES
     // ==========================================
 
-   
+
 
     function classificar(fator) {
 
@@ -196,7 +196,7 @@
 
     // Prepara os servidores demonstrativos.
 
-   
+
 
     function prepararServidoresGold(metricas) {
 
@@ -368,11 +368,11 @@
     // Identifica o servidor com maior utilização
     // de determinado componente.
 
-    
+
 
     // Identifica os principais problemas.
 
-   
+
 
     // ==========================================
     // 7. INDICADORES EXECUTIVOS
@@ -1089,9 +1089,14 @@
                     comparacoesFinanceiras = null;
 
                     mensagemComparacoesFinanceiras =
-                        'Comparação indisponível devido à falha na simulação financeira.';
+                        'Não foi possível calcular o impacto financeiro das alternativas.';
 
                     atualizarDecisoes();
+
+                    console.error(
+                        'Erro nas comparações financeiras:',
+                        erro.message
+                    );
                 }
             }
 
@@ -1114,7 +1119,7 @@
 
             // Compara os investimentos utilizando o backend.
             compararCustosDasDecisoes(dados, resultado, versaoAtual);
-
+            let mensagem = 'Estimativa atualizada pela API financeira.';
 
             if (tarifasAwsCarregadas) {
                 mensagem += ' EC2 e EBS usam as tarifas AWS consultadas; ' +
@@ -1127,6 +1132,7 @@
             if (versaoAtual !== versaoFinanceira) {
                 return;
             }
+            console.error('Erro na simulação financeira:', erro);
 
             // Limpa os indicadores financeiros.
 
