@@ -33,21 +33,11 @@
 
                 <nav class="navegacao-gerencial" aria-label="Navegação gerencial">
 
-                    <button
-                        type="button"
-                        class="aba-gerencial ativo"
-                        data-tab="executivo"
-                        aria-pressed="true"
-                    >
+                    <button type="button" class="aba-gerencial ativo" data-tab="executivo" aria-pressed="true">
                         Visão Gerencial
                     </button>
 
-                    <button
-                        type="button"
-                        class="aba-gerencial"
-                        data-tab="decisoes"
-                        aria-pressed="false"
-                    >
+                    <button type="button" class="aba-gerencial" data-tab="decisoes" aria-pressed="false">
                         Decisões e Relatórios
                     </button>
 
@@ -67,14 +57,14 @@
                     <div class="barra-filtros">
                         <div class="campo">
                             <span id="rotuloPeriodoGestor">Período de análise operacional</span>
-                            <div id="filtroPeriodoGestor" class="grupo-periodo-gerencial"
-                                role="group" aria-labelledby="rotuloPeriodoGestor">
+                            <div id="filtroPeriodoGestor" class="grupo-periodo-gerencial" role="group"
+                                aria-labelledby="rotuloPeriodoGestor">
                                 <button type="button" class="botao-periodo ativo" data-periodo="24h"
                                     aria-pressed="true">24 horas</button>
-                                <button type="button" class="botao-periodo" data-periodo="7d"
-                                    aria-pressed="false">7 dias</button>
-                                <button type="button" class="botao-periodo" data-periodo="30d"
-                                    aria-pressed="false">30 dias</button>
+                                <button type="button" class="botao-periodo" data-periodo="7d" aria-pressed="false">7
+                                    dias</button>
+                                <button type="button" class="botao-periodo" data-periodo="30d" aria-pressed="false">30
+                                    dias</button>
                             </div>
                             <p id="statusPeriodoGestor" role="status" aria-live="polite">
                                 Consultando o histórico Gold do período selecionado.
@@ -94,27 +84,64 @@
                         </div>
                     </div>
                     <div class="visao-geral">
-                        <article class="cartao cartao-indicador">
-                            <div class="titulo-indicador">Servidores sob atenção <span class="icone-indicador">▣</span></div><strong
-                                id="kpiRisk">—</strong>
-                            <p class="observacao-indicador" id="kpiRiskNote">Conforme limites por componente</p>
-                        </article>
-                        <article class="cartao cartao-indicador">
-                            <div class="titulo-indicador">Limites excedidos <span class="icone-indicador">⚠</span></div><strong
-                                id="kpiComp">—</strong>
-                            <p class="observacao-indicador">Ocorrências de limites excedidos no cenário</p>
-                        </article>
-                        <article class="cartao cartao-indicador">
-                            <div class="titulo-indicador">Maior prioridade <span class="icone-indicador">↗</span></div><strong
-                                id="kpiMain">—</strong>
-                            <p class="observacao-indicador" id="kpiMainNote">Equipamento com menor folga</p>
-                        </article>
-                        <article class="cartao cartao-indicador destaque">
-                            <div class="titulo-indicador">Custo mensal projetado <span class="icone-indicador">＄</span></div><strong
-                                id="kpiCost">—</strong>
-                            <p class="observacao-indicador" id="kpiCostNote">Estimativa ilustrativa, não fatura</p>
-                        </article>
-                    </div>
+
+    <!-- Custo mensal -->
+    <article class="cartao cartao-indicador destaque">
+        <div class="titulo-indicador">
+            Custo mensal estimado
+            <span class="icone-indicador">$</span>
+        </div>
+
+        <strong id="kpiCost">—</strong>
+
+        <p class="observacao-indicador" id="kpiCostNote">
+            Aguardando simulação financeira
+        </p>
+    </article>
+
+    <!-- Saldo financeiro -->
+    <article class="cartao cartao-indicador">
+        <div class="titulo-indicador">
+            Saldo do orçamento
+            <span class="icone-indicador">↗</span>
+        </div>
+
+        <strong id="kpiMain">—</strong>
+
+        <p class="observacao-indicador" id="kpiMainNote">
+            Aguardando cálculo financeiro
+        </p>
+    </article>
+
+    <!-- Riscos históricos -->
+    <article class="cartao cartao-indicador">
+        <div class="titulo-indicador">
+            Servidores com alertas
+            <span class="icone-indicador">⚠</span>
+        </div>
+
+        <strong id="kpiRisk">—</strong>
+
+        <p class="observacao-indicador" id="kpiRiskNote">
+            Aguardando histórico Gold
+        </p>
+    </article>
+
+    <!-- Alternativas gerenciais -->
+    <article class="cartao cartao-indicador">
+        <div class="titulo-indicador">
+            Alternativas para análise
+            <span class="icone-indicador">▣</span>
+        </div>
+
+        <strong id="kpiComp">—</strong>
+
+        <p class="observacao-indicador" id="kpiCompNote">
+            Decisões sugeridas a partir dos riscos
+        </p>
+    </article>
+
+</div>
                     <div class="aviso"><span class="icone-aviso">!</span>
                         <div><b id="noticeTitle">Riscos e oportunidades identificados</b>
                             <p id="noticeDesc">Veja as recomendações organizadas por prioridade e evidência.</p>
@@ -144,13 +171,15 @@
                                         id="billingDelta">—</strong><small id="billingDeltaPct">Em relação à
                                         referência</small></div>
                             </div>
-                            <div aria-label="Composição estimada dos custos" class="barra-custos" id="billingStack"></div>
+                            <div aria-label="Composição estimada dos custos" class="barra-custos" id="billingStack">
+                            </div>
                             <div class="linhas-custos" id="billingRows"></div>
                             <p class="observacao-calculo">CPU e RAM recebem parcelas do custo EC2 conforme o rateio
                                 definido pelo gestor; não são tarifas separadas da AWS. A projeção considera horas de
                                 instância, armazenamento e transferência. EC2 e EBS podem utilizar o catálogo público
                                 da AWS; preço de rede e câmbio continuam sendo premissas informadas pelo gestor.
-                                <strong>Não representa fatura real.</strong></p>
+                                <strong>Não representa fatura real.</strong>
+                            </p>
                         </div>
                         <div class="cartao formulario-custos">
                             <h3>Simulador de decisão financeira</h3>
@@ -163,15 +192,15 @@
                                 <p>Referência: 8 nós já existentes. Cada nó extra aumenta custo por hora contratada.</p>
                             </div>
                             <div class="controle">
-                                <div class="cabecalho-controle"><label for="storage">Armazenamento previsto</label><output
-                                        id="storageText">—</output></div><input id="storage" max="4000" min="400"
-                                    step="100" type="range" value="1700" />
+                                <div class="cabecalho-controle"><label for="storage">Armazenamento
+                                        previsto</label><output id="storageText">—</output></div><input id="storage"
+                                    max="4000" min="400" step="100" type="range" value="1700" />
                                 <p>Capacidade considerada no cálculo mensal de armazenamento.</p>
                             </div>
                             <div class="controle">
-                                <div class="cabecalho-controle"><label for="egress">Tráfego de saída previsto</label><output
-                                        id="egressText">—</output></div><input id="egress" max="15" min="1" step="0.5"
-                                    type="range" value="6" />
+                                <div class="cabecalho-controle"><label for="egress">Tráfego de saída
+                                        previsto</label><output id="egressText">—</output></div><input id="egress"
+                                    max="15" min="1" step="0.5" type="range" value="6" />
                                 <p>Volume mensal estimado de saída; não confundir com percentual de uso da rede.</p>
                             </div>
                             <div class="avaliacao-cenario" id="billingEvaluation">—</div>
@@ -179,9 +208,11 @@
                                 <summary>Ver e editar as premissas do modelo ↘</summary>
                                 <p>As tarifas de EC2 e EBS serão atualizadas pela API
                                     <code>/gestor/precos</code>. Até a confirmação da consulta, os valores exibidos são
-                                    referências de simulação. Tráfego e câmbio permanecem editáveis.</p>
-                                <div class="grade-premissas"><label>USD por nó/hora <input id="priceNode" max="10" min="0"
-                                            step="0.0001" type="number" value="0.0104" /></label><label>Horas por mês
+                                    referências de simulação. Tráfego e câmbio permanecem editáveis.
+                                </p>
+                                <div class="grade-premissas"><label>USD por nó/hora <input id="priceNode" max="10"
+                                            min="0" step="0.0001" type="number" value="0.0104" /></label><label>Horas
+                                        por mês
                                         <input id="hours" max="744" min="1" step="1" type="number"
                                             value="730" /></label><label>USD/GB-mês (disco) <input id="priceStorage"
                                             max="5" min="0" step="0.01" type="number"
@@ -294,9 +325,11 @@
                 <section class="secao" id="decisoes">
                     <div class="titulo-secao">
                         <div>
-                            <h2>O que o gestor deve avaliar agora?</h2>
-                            <p>Recomendações por prioridade, sempre acompanhadas da evidência e do próximo passo
-                                sugerido.</p>
+                            <h2>Decisões em avaliação</h2>
+                            <p>
+                                Riscos identificados no histórico Gold e alternativas
+                                que podem exigir investimento financeiro.
+                            </p>
                         </div><span class="dica-secao">As recomendações são hipóteses baseadas em regras, não
                             diagnósticos automáticos.</span>
                     </div>
@@ -330,7 +363,8 @@
                     </div>
                 </section>
                 <p class="nota-rodape"><strong>Fontes e limites:</strong> o histórico do período é consultado no Gold;
-                    os indicadores operacionais e as recomendações desta versão ainda usam dados demonstrativos. Na área financeira,
+                    os indicadores operacionais e as recomendações desta versão ainda usam dados demonstrativos. Na área
+                    financeira,
                     tarifas EC2/EBS podem vir do catálogo público da AWS, enquanto tráfego, câmbio, capacidade e rateio
                     são premissas da simulação. Os custos são estimativas gerenciais, não valores de uma fatura AWS.</p>
 
@@ -338,13 +372,13 @@
                 <div class="fundo-modal" hidden="" id="overlay" role="presentation">
                     <div aria-labelledby="dialogTitle" aria-modal="true" class="modal" role="dialog">
                         <div class="cabecalho-modal">
-                            <h3 id="dialogTitle">Detalhes</h3><button aria-label="Fechar" class="fechar" id="closeDialog"
-                                type="button">×</button>
+                            <h3 id="dialogTitle">Detalhes</h3><button aria-label="Fechar" class="fechar"
+                                id="closeDialog" type="button">×</button>
                         </div>
                         <p id="dialogText"></p>
                     </div>
                 </div>
-                
+
             </main>
         </div>
     </div>

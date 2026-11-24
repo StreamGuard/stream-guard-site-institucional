@@ -385,47 +385,47 @@
                 grupos[id] = {};
             }
 
-        if (!grupos[id][tipo]) {
-    grupos[id][tipo] = {
-        soma: 0,
-        quantidade: 0,
-        maximo: null,
-        janelasAcimaLimite: 0
-    };
-}
+            if (!grupos[id][tipo]) {
+                grupos[id][tipo] = {
+                    soma: 0,
+                    quantidade: 0,
+                    maximo: null,
+                    janelasAcimaLimite: 0
+                };
+            }
 
-grupos[id][tipo].soma += media * quantidade;
-grupos[id][tipo].quantidade += quantidade;
+            grupos[id][tipo].soma += media * quantidade;
+            grupos[id][tipo].quantidade += quantidade;
 
-// Obtém o maior valor registrado na janela.
-let maximo = metrica.maximo == null
-    ? null
-    : Number(metrica.maximo);
+            // Obtém o maior valor registrado na janela.
+            let maximo = metrica.maximo == null
+                ? null
+                : Number(metrica.maximo);
 
-if (maximo !== null && Number.isFinite(maximo)) {
+            if (maximo !== null && Number.isFinite(maximo)) {
 
-    if (
-        grupos[id][tipo].maximo === null ||
-        maximo > grupos[id][tipo].maximo
-    ) {
-        grupos[id][tipo].maximo = maximo;
-    }
+                if (
+                    grupos[id][tipo].maximo === null ||
+                    maximo > grupos[id][tipo].maximo
+                ) {
+                    grupos[id][tipo].maximo = maximo;
+                }
 
-    // Verifica se houve pico acima do limite.
-    let limite = null;
+                // Verifica se houve pico acima do limite.
+                let limite = null;
 
-    if (tipo === 'USO_CPU') {
-        limite = LIMITES.CPU;
-    } else if (tipo === 'USO_RAM') {
-        limite = LIMITES.RAM;
-    } else if (tipo === 'USO_DISCO') {
-        limite = LIMITES.Disco;
-    }
+                if (tipo === 'USO_CPU') {
+                    limite = LIMITES.CPU;
+                } else if (tipo === 'USO_RAM') {
+                    limite = LIMITES.RAM;
+                } else if (tipo === 'USO_DISCO') {
+                    limite = LIMITES.Disco;
+                }
 
-    if (limite !== null && maximo >= limite) {
-        grupos[id][tipo].janelasAcimaLimite++;
-    }
-}
+                if (limite !== null && maximo >= limite) {
+                    grupos[id][tipo].janelasAcimaLimite++;
+                }
+            }
         }
 
         let servidores = [];
@@ -447,25 +447,25 @@ if (maximo !== null && Number.isFinite(maximo)) {
 
             function calcularPico(tipo) {
 
-    let metrica = metricasServidor[tipo];
+                let metrica = metricasServidor[tipo];
 
-    if (!metrica) {
-        return null;
-    }
+                if (!metrica) {
+                    return null;
+                }
 
-    return metrica.maximo;
-}
+                return metrica.maximo;
+            }
 
-function contarJanelasAcimaLimite(tipo) {
+            function contarJanelasAcimaLimite(tipo) {
 
-    let metrica = metricasServidor[tipo];
+                let metrica = metricasServidor[tipo];
 
-    if (!metrica) {
-        return 0;
-    }
+                if (!metrica) {
+                    return 0;
+                }
 
-    return metrica.janelasAcimaLimite;
-}
+                return metrica.janelasAcimaLimite;
+            }
 
             let cpu = calcularMedia('USO_CPU');
             let ram = calcularMedia('USO_RAM');
@@ -490,29 +490,29 @@ function contarJanelasAcimaLimite(tipo) {
             let rede = envioRede / capacidadeRede * 100;
 
             let servidor = {
-    id: 'srv-' + id,
-    role: 'Servidor monitorado',
+                id: 'srv-' + id,
+                role: 'Servidor monitorado',
 
-    // Médias históricas.
-    CPU: Math.round(cpu),
-    RAM: Math.round(ram),
-    Disco: Math.round(disco),
-    Rede: Math.round(rede),
+                // Médias históricas.
+                CPU: Math.round(cpu),
+                RAM: Math.round(ram),
+                Disco: Math.round(disco),
+                Rede: Math.round(rede),
 
-    // Maiores valores registrados.
-    picos: {
-        CPU: calcularPico('USO_CPU'),
-        RAM: calcularPico('USO_RAM'),
-        Disco: calcularPico('USO_DISCO')
-    },
+                // Maiores valores registrados.
+                picos: {
+                    CPU: calcularPico('USO_CPU'),
+                    RAM: calcularPico('USO_RAM'),
+                    Disco: calcularPico('USO_DISCO')
+                },
 
-    // Janelas históricas com limites ultrapassados.
-    janelasAcimaLimite: {
-        CPU: contarJanelasAcimaLimite('USO_CPU'),
-        RAM: contarJanelasAcimaLimite('USO_RAM'),
-        Disco: contarJanelasAcimaLimite('USO_DISCO')
-    }
-};
+                // Janelas históricas com limites ultrapassados.
+                janelasAcimaLimite: {
+                    CPU: contarJanelasAcimaLimite('USO_CPU'),
+                    RAM: contarJanelasAcimaLimite('USO_RAM'),
+                    Disco: contarJanelasAcimaLimite('USO_DISCO')
+                }
+            };
 
             servidor.risk = calcularPrioridade(servidor);
 
@@ -588,86 +588,112 @@ function contarJanelasAcimaLimite(tipo) {
 
     function atualizarResumo() {
 
-        let sobAtencao = 0;
-        let servidoresCriticos = 0;
-        let limitesExcedidos = 0;
+        // Considera somente servidores com métricas Gold.
+        let servidoresGold = ESTADO.servidores.filter(function (servidor) {
+            return servidor.picos && servidor.janelasAcimaLimite;
+        });
 
-        for (let i = 0; i < ESTADO.servidores.length; i++) {
+        if (servidoresGold.length === 0) {
 
-            let servidor = ESTADO.servidores[i];
+            $('kpiRisk').textContent = '—';
+            $('kpiRiskNote').textContent = 'Sem dados Gold disponíveis';
 
-            if (servidor.risk.status !== 'normal') {
+            $('kpiComp').textContent = '—';
+            $('kpiCompNote').textContent = 'Aguardando análise operacional';
 
-                sobAtencao++;
-            }
+            $('noticeTitle').textContent = 'Aguardando histórico operacional';
+            $('noticeDesc').textContent =
+                'Os riscos serão analisados quando os dados Gold estiverem disponíveis.';
 
-            if (servidor.risk.status === 'critico') {
+            return;
+        }
 
-                servidoresCriticos++;
-            }
+        let servidoresComAlertas = 0;
 
-            for (let j = 0; j < COMPONENTES.length; j++) {
+        let riscoComputacao = false;
+        let riscoArmazenamento = false;
 
-                let componente = COMPONENTES[j];
+        let componentes = ['CPU', 'RAM', 'Disco'];
 
-                if (servidor[componente] >= LIMITES[componente]) {
+        for (let servidor of servidoresGold) {
 
-                    limitesExcedidos++;
+            let servidorComRisco = false;
+
+            for (let componente of componentes) {
+
+                let media = servidor[componente];
+
+                let janelas = servidor.janelasAcimaLimite[componente];
+
+                let limite = LIMITES[componente];
+
+                // Verifica se houve risco no período.
+                if (janelas > 0 || media >= limite) {
+
+                    servidorComRisco = true;
+
+                    if (componente === 'CPU' || componente === 'RAM') {
+                        riscoComputacao = true;
+                    }
+
+                    if (componente === 'Disco') {
+                        riscoArmazenamento = true;
+                    }
                 }
             }
-        }
 
-        let principal = ESTADO.servidores[0];
-
-        let problemas = obterProblemas();
-
-        let recursosCriticos = 0;
-
-        for (let i = 0; i < problemas.length; i++) {
-
-            if (problemas[i].status === 'critico') {
-
-                recursosCriticos++;
+            if (servidorComRisco) {
+                servidoresComAlertas++;
             }
         }
 
-        // Atualiza os elementos HTML.
+        // Quantidade de categorias de investimento a avaliar.
+        let alternativas = 0;
 
+        if (riscoComputacao) {
+            alternativas++;
+        }
+
+        if (riscoArmazenamento) {
+            alternativas++;
+        }
+
+        // KPI: servidores com alertas históricos.
         $('kpiRisk').innerHTML =
-            sobAtencao +
+            servidoresComAlertas +
             '<small> / ' +
-            ESTADO.servidores.length +
+            servidoresGold.length +
             '</small>';
 
         $('kpiRiskNote').textContent =
-            servidoresCriticos +
-            ' com pelo menos um limite excedido';
+            'Médias ou picos acima dos limites no período';
 
-        $('kpiComp').textContent = limitesExcedidos;
+        // KPI: alternativas de investimento.
+        $('kpiComp').textContent = alternativas;
 
-        $('kpiMain').textContent =
-            principal.id.replace('srv-', '');
+        $('kpiCompNote').textContent =
+            'Categorias de investimento para avaliar';
 
-        $('kpiMainNote').textContent =
-            principal.risk.c +
-            ' ' +
-            principal.risk.value +
-            '% • limite ' +
-            LIMITES[principal.risk.c] +
-            '%';
+        // Resumo gerencial.
+        if (alternativas > 0) {
 
-        $('noticeTitle').textContent =
-    recursosCriticos +
-    ' recursos críticos no período analisado';
+            $('noticeTitle').textContent =
+                alternativas + ' alternativa(s) de investimento para análise';
 
-        $('noticeDesc').textContent =
-            'Maior prioridade: ' +
-            problemas[0].key +
-            ' em ' +
-            problemas[0].host.id +
-            ' (' +
-            problemas[0].value +
-            '%). Investigue os componentes destacados.';
+            $('noticeDesc').textContent =
+                servidoresComAlertas +
+                ' servidor(es) apresentaram alertas históricos. ' +
+                'Consulte as decisões sugeridas e avalie o impacto financeiro.';
+
+        } else {
+
+            $('noticeTitle').textContent =
+                'Nenhum risco acima dos limites identificado';
+
+            $('noticeDesc').textContent =
+                'As métricas disponíveis não indicaram ultrapassagens ' +
+                'dos limites de CPU, RAM ou disco no período.';
+        }
     }
 
     // ==========================================
@@ -790,6 +816,7 @@ function contarJanelasAcimaLimite(tipo) {
             exibirResultadoFinanceiro(resultado);
             ESTADO.custos.api = resultado;
 
+            atualizarDecisoes();
             let mensagem = 'Estimativa atualizada pela API financeira.';
 
             if (tarifasAwsCarregadas) {
@@ -803,6 +830,11 @@ function contarJanelasAcimaLimite(tipo) {
             if (versaoAtual !== versaoFinanceira) {
                 return;
             }
+
+            $('kpiMain').textContent = '—';
+
+            $('kpiMainNote').textContent =
+                'Não foi possível calcular o saldo';
 
             $('custosComponentes').innerHTML = '';
             $('insightsFinanceiros').innerHTML = '';
@@ -893,6 +925,34 @@ function contarJanelasAcimaLimite(tipo) {
         let orcamentoTotal = Number(resultado.orcamentoTotal);
         let saldo = Number(resultado.saldo);
 
+        // Atualiza o KPI de saldo financeiro.
+        if (
+            Number.isFinite(orcamentoTotal) &&
+            Number.isFinite(saldo) &&
+            orcamentoTotal > 0
+        ) {
+
+            $('kpiMain').textContent = moedaReal(saldo);
+
+            if (saldo >= 0) {
+
+                $('kpiMainNote').textContent =
+                    'Disponível no orçamento informado';
+
+            } else {
+
+                $('kpiMainNote').textContent =
+                    'Orçamento estimado ultrapassado';
+            }
+
+        } else {
+
+            $('kpiMain').textContent = '—';
+
+            $('kpiMainNote').textContent =
+                'Defina um orçamento mensal válido';
+        }
+
         if (Number.isFinite(orcamentoTotal) &&
             Number.isFinite(saldo) && orcamentoTotal > 0) {
 
@@ -979,116 +1039,195 @@ function contarJanelasAcimaLimite(tipo) {
 
     function atualizarDecisoes() {
 
-        let problemas = obterProblemas();
+        let lista = $('decisionList');
+
+        // Considera somente servidores que vieram do Gold.
+        let servidores = ESTADO.servidores.filter(function (servidor) {
+            return servidor.picos && servidor.janelasAcimaLimite;
+        });
+
+        if (servidores.length === 0) {
+            lista.innerHTML = '<p>Aguardando dados do histórico Gold.</p>';
+            return;
+        }
+
+        // Agrupa os problemas por possíveis decisões financeiras.
+        let grupos = [
+            {
+                titulo: 'Capacidade computacional',
+                componentes: ['CPU', 'RAM'],
+                chavePlano: 'CPU',
+                acao: 'Investigar os picos e avaliar se a redistribuição de carga é suficiente antes de simular uma expansão.'
+            },
+            {
+                titulo: 'Capacidade de armazenamento',
+                componentes: ['Disco'],
+                chavePlano: 'Disco',
+                acao: 'Analisar a ocupação e o crescimento do armazenamento antes de simular uma ampliação.'
+            }
+        ];
+
+        let financeiro = ESTADO.custos && ESTADO.custos.api
+            ? ESTADO.custos.api.componentes
+            : null;
 
         let html = '';
+        let quantidadeDecisoes = 0;
 
-        for (let i = 0; i < problemas.length; i++) {
+        for (let grupo of grupos) {
 
-            let problema = problemas[i];
+            let evidencias = [];
 
-            let regra = REGRAS[problema.key];
+            for (let servidor of servidores) {
 
-            let cor = 'var(--mint)';
+                for (let componente of grupo.componentes) {
 
-            let jaAdicionada = false;
+                    let media = servidor[componente];
+                    let pico = servidor.picos[componente];
+                    let janelas = servidor.janelasAcimaLimite[componente];
 
-            if (problema.status === 'critico') {
+                    // Exibe apenas componentes com risco identificado.
+                    if (janelas > 0 || media >= LIMITES[componente]) {
 
-                cor = 'var(--pink)';
+                        let texto =
+                            servidor.id + ' · ' + componente +
+                            ': média ' + numeroFormatado(media) + '%';
 
-            } else if (problema.status === 'atencao') {
+                        if (pico !== null && Number.isFinite(pico)) {
+                            texto +=
+                                ', pico ' + numeroFormatado(pico) + '%';
+                        }
 
-                cor = 'var(--orange)';
-            }
+                        if (janelas > 0) {
+                            texto +=
+                                ' · ' + janelas +
+                                ' janela(s) com ultrapassagem do limite';
+                        }
 
-            // Verifica se já está no plano.
-
-            for (let j = 0; j < ESTADO.acoes.length; j++) {
-
-                if (ESTADO.acoes[j].key === problema.key) {
-
-                    jaAdicionada = true;
+                        evidencias.push(escaparHtml(texto));
+                    }
                 }
             }
 
-            let textoBotao = '+ Adicionar ao plano';
-
-            let desabilitado = '';
-
-            if (jaAdicionada) {
-
-                textoBotao = '✓ No plano de ação';
-
-                desabilitado = 'disabled';
+            // Não cria recomendações sem evidências.
+            if (evidencias.length === 0) {
+                continue;
             }
 
-            // Monta o cartão da recomendação.
+            quantidadeDecisoes++;
+
+            // Consulta os valores já calculados pelo backend.
+            let custo = 0;
+            let orcamento = 0;
+            let calculoDisponivel = financeiro !== null;
+
+            for (let componente of grupo.componentes) {
+
+                let valores = financeiro && financeiro[componente];
+
+                if (!valores) {
+                    calculoDisponivel = false;
+                    break;
+                }
+
+                custo += Number(valores.custo);
+                orcamento += Number(valores.orcamento);
+            }
+
+            let textoFinanceiro = 'Aguardando simulação financeira.';
+
+            if (calculoDisponivel &&
+                Number.isFinite(custo) &&
+                Number.isFinite(orcamento)) {
+
+                textoFinanceiro =
+                    'Custo atribuído no cenário atual: ' +
+                    moedaReal(custo) +
+                    '/mês. Parcela do orçamento: ' +
+                    moedaReal(orcamento) + '.';
+            }
+
+            let noPlano = ESTADO.acoes.some(function (acao) {
+                return acao.key === grupo.chavePlano;
+            });
 
             html += `
-                <article
-                    class="cartao decisao"
-                    style="--status:${cor}"
-                >
+            <article class="cartao decisao"
+                     style="--status:var(--orange)">
 
-                    <span class="numero-decisao">
-                        0${i + 1}
-                    </span>
+                <span class="numero-decisao">
+                    0${quantidadeDecisoes}
+                </span>
 
-                    <div>
+                <div>
 
-                        <div class="cabecalho-decisao">
+                    <div class="cabecalho-decisao">
 
-                            <h3>
-                                ${regra.titulo} · ${problema.key}
-                            </h3>
+                        <h3>${grupo.titulo}</h3>
 
-                            <span class="etiqueta-decisao">
-                                ${problema.status.toUpperCase()}
-                            </span>
-
-                        </div>
-
-                        <p>${regra.explicacao}</p>
-
-                        <div class="evidencia">
-
-                            <b>Evidência:</b>
-
-                            ${escaparHtml(problema.host.id)}
-
-                            • ${problema.key} ${problema.value}%
-
-                            • limite ${LIMITES[problema.key]}%.
-
-                        </div>
-
-                        <div class="recomendacao">
-
-                            <span>DECISÃO ›</span>
-
-                            <span style="color:#d8d8ec;font-weight:500">
-                                ${regra.acao}
-                            </span>
-
-                        </div>
-
-                        <button
-                            type="button"
-                            class="acao-inline"
-                            data-add="${problema.key}"
-                            ${desabilitado}
-                        >
-                            ${textoBotao}
-                        </button>
+                        <span class="etiqueta-decisao">
+                            AVALIAR INVESTIMENTO
+                        </span>
 
                     </div>
 
-                </article>
-            `;
+                    <p>
+                        <strong>Evidências do histórico:</strong>
+                        <br>
+                        ${evidencias.join('<br>')}
+                    </p>
+
+                    <div class="evidencia">
+                        <strong>Referência financeira:</strong>
+                        <p>${escaparHtml(textoFinanceiro)}</p>
+                    </div>
+
+                    <div class="recomendacao">
+
+                        <span>PRÓXIMA DECISÃO ›</span>
+
+                        <span>${grupo.acao}</span>
+
+                    </div>
+
+                    <p>
+                        <small>
+                            O valor exibido corresponde ao cenário
+                            financeiro configurado, não ao custo
+                            adicional de resolver o problema.
+                        </small>
+                    </p>
+
+                    <button
+                        type="button"
+                        class="acao-inline"
+                        data-add="${grupo.chavePlano}"
+                        ${noPlano ? 'disabled' : ''}
+                    >
+                        ${noPlano
+                    ? '✓ No plano de ação'
+                    : '+ Adicionar ao plano'}
+                    </button>
+
+                </div>
+
+            </article>
+        `;
         }
 
-        $('decisionList').innerHTML = html;
+        if (quantidadeDecisoes === 0) {
+            html = `
+            <article class="cartao">
+                <h3>Sem investimentos prioritários identificados</h3>
+                <p>
+                    As métricas analisadas não apresentaram
+                    ultrapassagens dos limites considerados.
+                </p>
+            </article>
+        `;
+        }
+
+        lista.innerHTML = html;
     }
 
     // ==========================================
@@ -1742,6 +1881,12 @@ function contarJanelasAcimaLimite(tipo) {
             armazenamento,
             trafego
         );
+
+        // O saldo será atualizado após o retorno do backend.
+        $('kpiMain').textContent = '—';
+
+        $('kpiMainNote').textContent =
+            'Atualizando análise do orçamento...';
         agendarSimulacaoFinanceira();
 
     }
@@ -2497,87 +2642,85 @@ function contarJanelasAcimaLimite(tipo) {
                 throw new Error('O retorno do histórico não contém totalRegistros.');
             }
 
-        
+
             let servidoresGold = prepararServidoresGold(dados.metricas || []);
 
 
             // ==========================================
-// TESTE DE PICOS HISTÓRICOS
-// ==========================================
+            // TESTE DE PICOS HISTÓRICOS
+            // ==========================================
 
-console.table(servidoresGold.map(function (servidor) {
+            console.table(servidoresGold.map(function (servidor) {
 
-    return {
-        servidor: servidor.id,
+                return {
+                    servidor: servidor.id,
 
-        cpuMedia: servidor.CPU,
-        cpuPico: servidor.picos.CPU,
-        janelasCpu: servidor.janelasAcimaLimite.CPU,
+                    cpuMedia: servidor.CPU,
+                    cpuPico: servidor.picos.CPU,
+                    janelasCpu: servidor.janelasAcimaLimite.CPU,
 
-        ramMedia: servidor.RAM,
-        ramPico: servidor.picos.RAM,
-        janelasRam: servidor.janelasAcimaLimite.RAM,
+                    ramMedia: servidor.RAM,
+                    ramPico: servidor.picos.RAM,
+                    janelasRam: servidor.janelasAcimaLimite.RAM,
 
-        discoMedia: servidor.Disco,
-        discoPico: servidor.picos.Disco,
-        janelasDisco: servidor.janelasAcimaLimite.Disco
-    };
+                    discoMedia: servidor.Disco,
+                    discoPico: servidor.picos.Disco,
+                    janelasDisco: servidor.janelasAcimaLimite.Disco
+                };
 
-}));
-if (servidoresGold.length > 0) {
+            }));
+            if (servidoresGold.length > 0) {
 
-    // Utiliza os servidores reais encontrados no Gold.
-    ESTADO.servidores = servidoresGold;
+                // Utiliza os servidores reais encontrados no Gold.
+                ESTADO.servidores = servidoresGold;
 
-    // Impede que o cenário demonstrativo altere os dados reais.
-    $('cenario').disabled = true;
+                // Impede que o cenário demonstrativo altere os dados reais.
+                $('cenario').disabled = true;
 
 
-    // Oculta o seletor de cenários demonstrativos.
-$('cenario').closest('.campo').style.display = 'none';
+                // Oculta o seletor de cenários demonstrativos.
+                $('cenario').closest('.campo').style.display = 'none';
 
-    // Atualiza os indicadores da dashboard.
-    atualizarResumo();
+                // Atualiza os indicadores da dashboard.
+                atualizarResumo();
 
-    // Atualiza as recomendações com os dados reais.
-    atualizarDecisoes();
+                // Atualiza as recomendações com os dados reais.
+                atualizarDecisoes();
 
-    // Atualiza a identificação da origem dos dados.
-    document.querySelector('.etiqueta-demo').textContent =
-        'INDICADORES OPERACIONAIS · DADOS GOLD';
+                // Atualiza a identificação da origem dos dados.
+                document.querySelector('.etiqueta-demo').textContent =
+                    'INDICADORES OPERACIONAIS · DADOS GOLD';
 
-} else {
+            } else {
 
-    // Não apresenta os indicadores demonstrativos como se fossem reais.
-    ESTADO.servidores = [];
+                // Não apresenta os indicadores demonstrativos como se fossem reais.
+                ESTADO.servidores = [];
 
-    $('cenario').disabled = true;
+                $('cenario').disabled = true;
 
-    $('kpiRisk').textContent = '—';
-    $('kpiRiskNote').textContent = 'Sem dados no período';
+                $('kpiRisk').textContent = '—';
+                $('kpiRiskNote').textContent = 'Sem dados no período';
 
-    $('kpiComp').textContent = '—';
+                $('kpiComp').textContent = '—';
+                $('kpiCompNote').textContent = 'Sem dados operacionais';
 
-    $('kpiMain').textContent = '—';
-    $('kpiMainNote').textContent = 'Sem métricas disponíveis';
+                $('noticeTitle').textContent = 'Sem dados operacionais';
+                $('noticeDesc').textContent =
+                    'Não foram encontradas métricas completas neste período.';
 
-    $('noticeTitle').textContent = 'Sem dados operacionais';
-    $('noticeDesc').textContent =
-        'Não foram encontradas métricas completas neste período.';
+                $('decisionList').innerHTML =
+                    '<p>Não há dados suficientes para gerar recomendações.</p>';
 
-    $('decisionList').innerHTML =
-        '<p>Não há dados suficientes para gerar recomendações.</p>';
+                document.querySelector('.etiqueta-demo').textContent =
+                    'SEM DADOS OPERACIONAIS NO PERÍODO';
+            }
 
-    document.querySelector('.etiqueta-demo').textContent =
-        'SEM DADOS OPERACIONAIS NO PERÍODO';
-}
-
-$('statusPeriodoGestor').textContent =
-    servidoresGold.length === 0
-        ? 'Não há métricas completas disponíveis em ' + periodoGestor + '.'
-        : total + ' registros Gold encontrados em ' + periodoGestor +
-          '. Exibindo médias históricas de ' +
-          servidoresGold.length + ' servidores reais.';
+            $('statusPeriodoGestor').textContent =
+                servidoresGold.length === 0
+                    ? 'Não há métricas completas disponíveis em ' + periodoGestor + '.'
+                    : total + ' registros Gold encontrados em ' + periodoGestor +
+                    '. Exibindo médias históricas de ' +
+                    servidoresGold.length + ' servidores reais.';
         } catch (erro) {
             if (requisicao !== requisicaoPeriodo) {
                 return;
