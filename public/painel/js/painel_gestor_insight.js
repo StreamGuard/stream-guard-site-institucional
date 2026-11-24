@@ -358,6 +358,173 @@
         return resultado;
     }
 
+    function prepararServidoresGold(metricas) {
+
+        let grupos = {};
+
+        // Agrupa as métricas por servidor.
+        for (let metrica of metricas) {
+
+            let id = String(metrica.servidor_id);
+            let tipo = metrica.tipo;
+
+            let media = Number(metrica.media_amostral);
+            let quantidade = Number(metrica.quantidade_amostras);
+
+            if (
+                metrica.media_amostral == null ||
+                metrica.quantidade_amostras == null ||
+                !Number.isFinite(media) ||
+                !Number.isFinite(quantidade) ||
+                quantidade <= 0
+            ) {
+                continue;
+            }
+
+            if (!grupos[id]) {
+                grupos[id] = {};
+            }
+
+        if (!grupos[id][tipo]) {
+    grupos[id][tipo] = {
+        soma: 0,
+        quantidade: 0,
+        maximo: null,
+        janelasAcimaLimite: 0
+    };
+}
+
+grupos[id][tipo].soma += media * quantidade;
+grupos[id][tipo].quantidade += quantidade;
+
+// Obtém o maior valor registrado na janela.
+let maximo = metrica.maximo == null
+    ? null
+    : Number(metrica.maximo);
+
+if (maximo !== null && Number.isFinite(maximo)) {
+
+    if (
+        grupos[id][tipo].maximo === null ||
+        maximo > grupos[id][tipo].maximo
+    ) {
+        grupos[id][tipo].maximo = maximo;
+    }
+
+    // Verifica se houve pico acima do limite.
+    let limite = null;
+
+    if (tipo === 'USO_CPU') {
+        limite = LIMITES.CPU;
+    } else if (tipo === 'USO_RAM') {
+        limite = LIMITES.RAM;
+    } else if (tipo === 'USO_DISCO') {
+        limite = LIMITES.Disco;
+    }
+
+    if (limite !== null && maximo >= limite) {
+        grupos[id][tipo].janelasAcimaLimite++;
+    }
+}
+        }
+
+        let servidores = [];
+
+        for (let id in grupos) {
+
+            let metricasServidor = grupos[id];
+
+            function calcularMedia(tipo) {
+
+                let metrica = metricasServidor[tipo];
+
+                if (!metrica || metrica.quantidade === 0) {
+                    return null;
+                }
+
+                return metrica.soma / metrica.quantidade;
+            }
+
+            function calcularPico(tipo) {
+
+    let metrica = metricasServidor[tipo];
+
+    if (!metrica) {
+        return null;
+    }
+
+    return metrica.maximo;
+}
+
+function contarJanelasAcimaLimite(tipo) {
+
+    let metrica = metricasServidor[tipo];
+
+    if (!metrica) {
+        return 0;
+    }
+
+    return metrica.janelasAcimaLimite;
+}
+
+            let cpu = calcularMedia('USO_CPU');
+            let ram = calcularMedia('USO_RAM');
+            let disco = calcularMedia('USO_DISCO');
+
+            let envioRede = calcularMedia('TAXA_ENVIO_REDE');
+            let capacidadeRede = calcularMedia('CAPACIDADE_REDE');
+
+            // Não inventa valores quando faltar alguma métrica.
+            if (
+                cpu === null ||
+                ram === null ||
+                disco === null ||
+                envioRede === null ||
+                capacidadeRede === null ||
+                capacidadeRede <= 0
+            ) {
+                console.warn('Métricas incompletas para o servidor:', id);
+                continue;
+            }
+
+            let rede = envioRede / capacidadeRede * 100;
+
+            let servidor = {
+    id: 'srv-' + id,
+    role: 'Servidor monitorado',
+
+    // Médias históricas.
+    CPU: Math.round(cpu),
+    RAM: Math.round(ram),
+    Disco: Math.round(disco),
+    Rede: Math.round(rede),
+
+    // Maiores valores registrados.
+    picos: {
+        CPU: calcularPico('USO_CPU'),
+        RAM: calcularPico('USO_RAM'),
+        Disco: calcularPico('USO_DISCO')
+    },
+
+    // Janelas históricas com limites ultrapassados.
+    janelasAcimaLimite: {
+        CPU: contarJanelasAcimaLimite('USO_CPU'),
+        RAM: contarJanelasAcimaLimite('USO_RAM'),
+        Disco: contarJanelasAcimaLimite('USO_DISCO')
+    }
+};
+
+            servidor.risk = calcularPrioridade(servidor);
+
+            servidores.push(servidor);
+        }
+
+        servidores.sort(function (a, b) {
+            return b.risk.factor - a.risk.factor;
+        });
+
+        return servidores;
+    }
     // Identifica o servidor com maior utilização
     // de determinado componente.
 
@@ -490,8 +657,8 @@
             '%';
 
         $('noticeTitle').textContent =
-            recursosCriticos +
-            ' recursos prioritários neste cenário';
+    recursosCriticos +
+    ' recursos críticos no período analisado';
 
         $('noticeDesc').textContent =
             'Maior prioridade: ' +
@@ -557,7 +724,7 @@
         let configuracao = obterConfiguracaoFinanceira();
         let distribuicao = configuracao.distribuicaoOrcamento;
         let soma = distribuicao.CPU + distribuicao.RAM +
-                   distribuicao.Disco + distribuicao.Rede;
+            distribuicao.Disco + distribuicao.Rede;
 
         if (Math.abs(soma - 100) > 0.001) {
             $('statusFinanceiro').textContent =
@@ -627,7 +794,7 @@
 
             if (tarifasAwsCarregadas) {
                 mensagem += ' EC2 e EBS usam as tarifas AWS consultadas; ' +
-                            'rede e câmbio são premissas informadas.';
+                    'rede e câmbio são premissas informadas.';
             }
 
             $('statusFinanceiro').textContent = mensagem;
@@ -2330,14 +2497,87 @@
                 throw new Error('O retorno do histórico não contém totalRegistros.');
             }
 
-            $('statusPeriodoGestor').textContent = total === 0
-                ? 'Nenhum registro Gold encontrado em ' + periodoGestor + '.'
-                : total + ' registros Gold encontrados em ' + periodoGestor +
-                  '. Os indicadores acima ainda são demonstrativos.';
+        
+            let servidoresGold = prepararServidoresGold(dados.metricas || []);
 
-            // O Gold é exibido como histórico consultado; os indicadores
-            // operacionais seguem demonstrativos até validar limites e regras.
 
+            // ==========================================
+// TESTE DE PICOS HISTÓRICOS
+// ==========================================
+
+console.table(servidoresGold.map(function (servidor) {
+
+    return {
+        servidor: servidor.id,
+
+        cpuMedia: servidor.CPU,
+        cpuPico: servidor.picos.CPU,
+        janelasCpu: servidor.janelasAcimaLimite.CPU,
+
+        ramMedia: servidor.RAM,
+        ramPico: servidor.picos.RAM,
+        janelasRam: servidor.janelasAcimaLimite.RAM,
+
+        discoMedia: servidor.Disco,
+        discoPico: servidor.picos.Disco,
+        janelasDisco: servidor.janelasAcimaLimite.Disco
+    };
+
+}));
+if (servidoresGold.length > 0) {
+
+    // Utiliza os servidores reais encontrados no Gold.
+    ESTADO.servidores = servidoresGold;
+
+    // Impede que o cenário demonstrativo altere os dados reais.
+    $('cenario').disabled = true;
+
+
+    // Oculta o seletor de cenários demonstrativos.
+$('cenario').closest('.campo').style.display = 'none';
+
+    // Atualiza os indicadores da dashboard.
+    atualizarResumo();
+
+    // Atualiza as recomendações com os dados reais.
+    atualizarDecisoes();
+
+    // Atualiza a identificação da origem dos dados.
+    document.querySelector('.etiqueta-demo').textContent =
+        'INDICADORES OPERACIONAIS · DADOS GOLD';
+
+} else {
+
+    // Não apresenta os indicadores demonstrativos como se fossem reais.
+    ESTADO.servidores = [];
+
+    $('cenario').disabled = true;
+
+    $('kpiRisk').textContent = '—';
+    $('kpiRiskNote').textContent = 'Sem dados no período';
+
+    $('kpiComp').textContent = '—';
+
+    $('kpiMain').textContent = '—';
+    $('kpiMainNote').textContent = 'Sem métricas disponíveis';
+
+    $('noticeTitle').textContent = 'Sem dados operacionais';
+    $('noticeDesc').textContent =
+        'Não foram encontradas métricas completas neste período.';
+
+    $('decisionList').innerHTML =
+        '<p>Não há dados suficientes para gerar recomendações.</p>';
+
+    document.querySelector('.etiqueta-demo').textContent =
+        'SEM DADOS OPERACIONAIS NO PERÍODO';
+}
+
+$('statusPeriodoGestor').textContent =
+    servidoresGold.length === 0
+        ? 'Não há métricas completas disponíveis em ' + periodoGestor + '.'
+        : total + ' registros Gold encontrados em ' + periodoGestor +
+          '. Exibindo médias históricas de ' +
+          servidoresGold.length + ' servidores reais.';
         } catch (erro) {
             if (requisicao !== requisicaoPeriodo) {
                 return;
