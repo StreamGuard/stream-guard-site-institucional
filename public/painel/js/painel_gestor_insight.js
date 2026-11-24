@@ -314,20 +314,26 @@
             let envioRede = calcularMedia('TAXA_ENVIO_REDE');
             let capacidadeRede = calcularMedia('CAPACIDADE_REDE');
 
-            // Não inventa valores quando faltar alguma métrica.
+            // CPU, RAM e disco são necessários para a análise.
             if (
                 cpu === null ||
                 ram === null ||
-                disco === null ||
-                envioRede === null ||
-                capacidadeRede === null ||
-                capacidadeRede <= 0
+                disco === null
             ) {
                 console.warn('Métricas incompletas para o servidor:', id);
                 continue;
             }
 
-            let rede = envioRede / capacidadeRede * 100;
+            // A rede só pode ser calculada quando existe capacidade informada.
+            let rede = null;
+
+            if (
+                envioRede !== null &&
+                capacidadeRede !== null &&
+                capacidadeRede > 0
+            ) {
+                rede = envioRede / capacidadeRede * 100;
+            }
 
             let servidor = {
                 id: 'srv-' + id,
@@ -337,7 +343,7 @@
                 CPU: Math.round(cpu),
                 RAM: Math.round(ram),
                 Disco: Math.round(disco),
-                Rede: Math.round(rede),
+                Rede: rede === null ? null : Math.round(rede),
 
                 // Maiores valores registrados.
                 picos: {
