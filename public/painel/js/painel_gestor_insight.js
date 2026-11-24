@@ -48,103 +48,6 @@
         Disco: 85,
         Rede: 80
     };
-
-    // ==========================================
-    // 2. DADOS DEMONSTRATIVOS
-    // ==========================================
-
-    // FUTURO: substituir pelas informações da API.
-
-    const HOSTS = [
-        {
-            id: 'srv-encoder-01',
-            role: 'Codificação',
-            CPU: 93,
-            RAM: 71,
-            Disco: 63,
-            Rede: 61
-        },
-        {
-            id: 'srv-edge-01',
-            role: 'Distribuição / Edge',
-            CPU: 65,
-            RAM: 68,
-            Disco: 56,
-            Rede: 91
-        },
-        {
-            id: 'srv-db-01',
-            role: 'Banco de dados',
-            CPU: 71,
-            RAM: 94,
-            Disco: 91,
-            Rede: 49
-        },
-        {
-            id: 'srv-stream-01',
-            role: 'Streaming',
-            CPU: 84,
-            RAM: 89,
-            Disco: 64,
-            Rede: 78
-        },
-        {
-            id: 'srv-backup-01',
-            role: 'Backup',
-            CPU: 43,
-            RAM: 60,
-            Disco: 89,
-            Rede: 36
-        },
-        {
-            id: 'srv-stream-02',
-            role: 'Streaming',
-            CPU: 67,
-            RAM: 76,
-            Disco: 54,
-            Rede: 72
-        },
-        {
-            id: 'srv-cache-01',
-            role: 'Cache',
-            CPU: 49,
-            RAM: 77,
-            Disco: 43,
-            Rede: 52
-        },
-        {
-            id: 'srv-api-01',
-            role: 'API',
-            CPU: 75,
-            RAM: 70,
-            Disco: 51,
-            Rede: 67
-        }
-    ];
-
-    // Variações utilizadas na simulação.
-
-    const CENARIOS = {
-        normal: {
-            CPU: -13,
-            RAM: -9,
-            Disco: -4,
-            Rede: -17
-        },
-        pico: {
-            CPU: 0,
-            RAM: 0,
-            Disco: 0,
-            Rede: 0
-        },
-        recuperacao: {
-            CPU: -10,
-            RAM: -6,
-            Disco: -8,
-            Rede: -13
-        }
-    };
-
     // ==========================================
     // 3. REGRAS GERENCIAIS
     // ==========================================
@@ -217,20 +120,7 @@
     // 5. FUNÇÕES AUXILIARES
     // ==========================================
 
-    function limitarPercentual(numero) {
-
-        numero = Math.round(numero);
-
-        if (numero < 1) {
-            return 1;
-        }
-
-        if (numero > 99) {
-            return 99;
-        }
-
-        return numero;
-    }
+   
 
     function classificar(fator) {
 
@@ -306,51 +196,7 @@
 
     // Prepara os servidores demonstrativos.
 
-    function prepararServidores() {
-
-        let resultado = [];
-
-        let cenarioSelecionado = $('cenario').value;
-
-        let variacao = CENARIOS[cenarioSelecionado];
-
-        for (let i = 0; i < HOSTS.length; i++) {
-
-            let original = HOSTS[i];
-
-            let servidor = {
-                id: original.id,
-                role: original.role
-            };
-
-            for (let j = 0; j < COMPONENTES.length; j++) {
-
-                let componente = COMPONENTES[j];
-
-                let ajuste = original.id.length % 3 - 1;
-
-                let valor =
-                    original[componente] +
-                    variacao[componente] +
-                    ajuste;
-
-                servidor[componente] = limitarPercentual(valor);
-            }
-
-            servidor.risk = calcularPrioridade(servidor);
-
-            resultado.push(servidor);
-        }
-
-        // Ordena pela prioridade.
-
-        resultado.sort(function (a, b) {
-
-            return b.risk.factor - a.risk.factor;
-        });
-
-        return resultado;
-    }
+   
 
     function prepararServidoresGold(metricas) {
 
@@ -522,59 +368,11 @@
     // Identifica o servidor com maior utilização
     // de determinado componente.
 
-    function maiorServidor(componente) {
-
-        let maior = ESTADO.servidores[0];
-
-        for (let i = 1; i < ESTADO.servidores.length; i++) {
-
-            let servidor = ESTADO.servidores[i];
-
-            if (servidor[componente] > maior[componente]) {
-
-                maior = servidor;
-            }
-        }
-
-        return maior;
-    }
+    
 
     // Identifica os principais problemas.
 
-    function obterProblemas() {
-
-        let problemas = [];
-
-        for (let i = 0; i < COMPONENTES.length; i++) {
-
-            let componente = COMPONENTES[i];
-
-            let servidor = maiorServidor(componente);
-
-            let valor = servidor[componente];
-
-            let limite = LIMITES[componente];
-
-            let fator = valor / limite;
-
-            let problema = {
-                key: componente,
-                host: servidor,
-                value: valor,
-                factor: fator,
-                status: classificar(fator)
-            };
-
-            problemas.push(problema);
-        }
-
-        problemas.sort(function (a, b) {
-
-            return b.factor - a.factor;
-        });
-
-        return problemas;
-    }
+   
 
     // ==========================================
     // 7. INDICADORES EXECUTIVOS
@@ -699,6 +497,9 @@
     let tarifasAwsCarregadas = false;
     let comparacoesFinanceiras = null;
 
+    let mensagemComparacoesFinanceiras =
+        'Calculando impacto financeiro da alternativa...';
+
     // Lê o orçamento e os percentuais preenchidos pelo gestor.
     function obterConfiguracaoFinanceira() {
 
@@ -735,6 +536,69 @@
         }
     }
 
+    // ==========================================
+    // TRATAMENTO DE PARÂMETROS FINANCEIROS
+    // ==========================================
+
+    function mostrarErroParametrosFinanceiros(mensagem) {
+
+        // Informa o problema encontrado.
+        $('statusFinanceiro').textContent = mensagem;
+
+        // Limpa os indicadores principais.
+        $('kpiCost').textContent = '—';
+        $('kpiCostNote').textContent = 'Simulação indisponível';
+
+        $('kpiMain').textContent = '—';
+        $('kpiMainNote').textContent = 'Corrija os parâmetros financeiros';
+
+        // Limpa os custos.
+        $('billingTotal').textContent = '—';
+        $('billingUsd').textContent = '—';
+        $('billingBase').textContent = '—';
+        $('billingDelta').textContent = '—';
+
+        $('billingDeltaPct').textContent =
+            'Comparação indisponível';
+
+        $('billingEvaluation').textContent =
+            'Corrija os parâmetros para calcular o impacto financeiro.';
+
+        // Limpa a composição financeira.
+        $('billingStack').innerHTML = '';
+
+        $('billingRows').textContent =
+            'Composição indisponível. Corrija os parâmetros.';
+
+        $('custosComponentes').innerHTML = '';
+        $('insightsFinanceiros').innerHTML = '';
+
+        // Limpa os indicadores do orçamento.
+        $('orcamentoPercentual').textContent = '—';
+        $('orcamentoSaldo').textContent = '—';
+
+        $('orcamentoSituacao').textContent =
+            'Corrija os parâmetros financeiros.';
+
+        $('orcamentoSituacao').style.color = 'var(--muted)';
+        $('orcamentoProgresso').value = 0;
+
+        // Limpa as projeções.
+        $('previsaoMensal').textContent =
+            'Previsão indisponível. Corrija os parâmetros.';
+
+        $('forecastBars').textContent =
+            'Comparação indisponível. Corrija os parâmetros.';
+
+        // Impede que as recomendações fiquem em carregamento.
+        mensagemComparacoesFinanceiras =
+            'Corrija os parâmetros financeiros para comparar as alternativas.';
+
+        comparacoesFinanceiras = null;
+
+        atualizarDecisoes();
+    }
+
     // Evita fazer uma requisição a cada tecla digitada.
     function agendarSimulacaoFinanceira() {
 
@@ -742,6 +606,9 @@
 
         // Invalida as comparações anteriores.
         comparacoesFinanceiras = null;
+
+        mensagemComparacoesFinanceiras =
+            'Calculando impacto financeiro da alternativa...';
 
         atualizarDecisoes();
 
@@ -755,20 +622,22 @@
             distribuicao.Disco + distribuicao.Rede;
 
         if (Math.abs(soma - 100) > 0.001) {
-            $('statusFinanceiro').textContent =
+
+            mostrarErroParametrosFinanceiros(
                 'A distribuição precisa somar 100%. Soma atual: ' +
-                numeroFormatado(soma) + '%.';
-            $('custosComponentes').innerHTML = '';
-            $('insightsFinanceiros').innerHTML = '';
+                numeroFormatado(soma) + '%.'
+            );
+
             return;
         }
 
         if (configuracao.crescimentoMensal > 100 ||
             configuracao.rateioCpu > 100) {
-            $('statusFinanceiro').textContent =
-                'O crescimento mensal e o rateio da CPU devem estar entre 0% e 100%.';
-            $('custosComponentes').innerHTML = '';
-            $('insightsFinanceiros').innerHTML = '';
+
+            mostrarErroParametrosFinanceiros(
+                'O crescimento mensal e o rateio da CPU devem estar entre 0% e 100%.'
+            );
+
             return;
         }
 
@@ -1219,12 +1088,10 @@
 
                     comparacoesFinanceiras = null;
 
-                    atualizarDecisoes();
+                    mensagemComparacoesFinanceiras =
+                        'Comparação indisponível devido à falha na simulação financeira.';
 
-                    console.error(
-                        'Erro nas comparações financeiras:',
-                        erro.message
-                    );
+                    atualizarDecisoes();
                 }
             }
 
@@ -1232,21 +1099,22 @@
 
             ESTADO.custos.api = resultado;
 
-
             atualizarReferenciaFinanceira(dados, resultado, versaoAtual);
-
 
             // Atualiza o gráfico de expansão utilizando o backend.
             atualizarGraficoExpansao(dados, resultado, versaoAtual);
-            // Remove comparações antigas.
+
+            // As comparações ainda estão sendo calculadas.
             comparacoesFinanceiras = null;
 
-            // Atualiza os cartões enquanto calcula as alternativas.
+            mensagemComparacoesFinanceiras =
+                'Calculando impacto financeiro da alternativa...';
+
             atualizarDecisoes();
 
             // Compara os investimentos utilizando o backend.
             compararCustosDasDecisoes(dados, resultado, versaoAtual);
-            let mensagem = 'Estimativa atualizada pela API financeira.';
+
 
             if (tarifasAwsCarregadas) {
                 mensagem += ' EC2 e EBS usam as tarifas AWS consultadas; ' +
@@ -1792,7 +1660,7 @@
                 ? comparacoesFinanceiras[grupo.chavePlano]
                 : null;
 
-            let textoFinanceiro = 'Calculando impacto financeiro da alternativa...';
+            let textoFinanceiro = mensagemComparacoesFinanceiras;
 
             if (comparacao) {
 
