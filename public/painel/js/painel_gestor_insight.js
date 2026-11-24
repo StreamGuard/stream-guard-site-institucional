@@ -49,12 +49,6 @@
         Rede: 80
     };
 
-    const NOMES_STATUS = {
-        critico: 'Crítico',
-        atencao: 'Atenção',
-        normal: 'Normal'
-    };
-
     // ==========================================
     // 2. DADOS DEMONSTRATIVOS
     // ==========================================
@@ -783,6 +777,300 @@
         }, 350);
     }
 
+    // ==========================================
+    // COMPARAÇÃO COM A CONFIGURAÇÃO DE REFERÊNCIA
+    // ==========================================
+
+    async function atualizarReferenciaFinanceira(dados, resultado, versaoAtual) {
+
+        // Configuração inicial utilizada como referência.
+        let dadosReferencia = {
+            ...dados,
+            servidores: BASE_CUSTOS.servidores,
+            armazenamentoGb: BASE_CUSTOS.armazenamento,
+            trafegoSaidaGb: BASE_CUSTOS.trafego * 1024
+        };
+
+        try {
+
+            let resposta = await fetch('/gestor/simular', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(dadosReferencia)
+            });
+
+            let referencia = await resposta.json();
+
+            // Ignora resultados de simulações anteriores.
+            if (versaoAtual !== versaoFinanceira) {
+                return;
+            }
+
+            if (!resposta.ok) {
+                throw new Error(
+                    referencia.mensagem || 'Erro ao calcular referência.'
+                );
+            }
+
+            let custoReferencia = Number(referencia.custoTotal);
+
+            let custoAtual = Number(resultado.custoTotal);
+
+            if (
+                !Number.isFinite(custoReferencia) ||
+                !Number.isFinite(custoAtual) ||
+                custoReferencia < 0 ||
+                custoAtual < 0
+            ) {
+                throw new Error('Valores financeiros inválidos.');
+            }
+
+            // Calcula a diferença entre os dois resultados.
+            let diferenca = custoAtual - custoReferencia;
+
+            let percentual = 0;
+
+            if (custoReferencia > 0) {
+                percentual = diferenca / custoReferencia * 100;
+            }
+
+            // Atualiza a referência.
+            $('billingBase').textContent =
+                moedaReal(custoReferencia);
+
+            let sinal = '';
+
+            if (diferenca > 0) {
+                sinal = '+';
+            } else if (diferenca < 0) {
+                sinal = '−';
+            }
+
+            // Atualiza a variação.
+            $('billingDelta').textContent =
+                sinal + moedaReal(Math.abs(diferenca));
+
+            if (custoReferencia > 0) {
+
+                $('billingDeltaPct').textContent =
+                    sinal +
+                    numeroFormatado(Math.abs(percentual)) +
+                    '% em relação à referência';
+
+            } else {
+
+                $('billingDeltaPct').textContent =
+                    'Sem referência para calcular o percentual';
+            }
+
+            // Atualiza a interpretação financeira.
+            if (diferenca > 0) {
+
+                $('billingDelta').style.color = 'var(--orange)';
+
+                $('billingEvaluation').innerHTML = `
+                <strong>Impacto financeiro:</strong>
+                a configuração atual custa
+                ${moedaReal(diferenca)} a mais por mês
+                que a configuração de referência.
+            `;
+
+            } else if (diferenca < 0) {
+
+                $('billingDelta').style.color = 'var(--mint)';
+
+                $('billingEvaluation').innerHTML = `
+                <strong>Impacto financeiro:</strong>
+                a configuração atual apresenta
+                uma redução estimada de
+                ${moedaReal(Math.abs(diferenca))} por mês.
+            `;
+
+            } else {
+
+                $('billingDelta').style.color = 'var(--mint)';
+
+                $('billingEvaluation').innerHTML = `
+                <strong>Referência financeira:</strong>
+                a configuração atual possui o mesmo
+                custo estimado da referência.
+            `;
+            }
+
+        } catch (erro) {
+
+            if (versaoAtual !== versaoFinanceira) {
+                return;
+            }
+
+            $('billingBase').textContent = '—';
+
+            $('billingDelta').textContent = '—';
+
+            $('billingDeltaPct').textContent =
+                'Comparação indisponível';
+
+            $('billingEvaluation').textContent =
+                'Não foi possível comparar as configurações.';
+
+            console.error('Erro na referência financeira:', erro.message);
+        }
+    }
+
+    // ==========================================
+    // GRÁFICO DE EXPANSÃO CALCULADO PELO NODE.JS
+    // ==========================================
+
+    async function atualizarGraficoExpansao(dados, resultadoAtual, versaoAtual) {
+
+        let extra = valorCampo('extraNodes');
+
+        let expansao = Math.min(6, extra + 2);
+
+        let nomeExpansao = 'Expandir (+' + expansao + ')';
+
+        if (expansao === extra) {
+            nomeExpansao = 'Limite do simulador (+' + expansao + ')';
+        }
+
+        let opcoes = [
+            {
+                quantidade: 0,
+                nome: 'Manter nós atuais',
+                cor: 'var(--blue)'
+            },
+            {
+                quantidade: extra,
+                nome: 'Sua escolha (+' + extra + ')',
+                cor: 'var(--mint)'
+            },
+            {
+                quantidade: expansao,
+                nome: nomeExpansao,
+                cor: 'var(--orange)'
+            }
+        ];
+
+        let valores = [];
+
+        try {
+
+            for (let opcao of opcoes) {
+
+                let custo;
+
+                // Reutiliza o cálculo atual quando possível.
+                if (opcao.quantidade === extra) {
+
+                    custo = Number(resultadoAtual.custoTotal);
+
+                } else {
+
+                    // Simula outra quantidade de servidores.
+                    let dadosCenario = {
+                        ...dados,
+                        servidores: BASE_CUSTOS.servidores + opcao.quantidade
+                    };
+
+                    let resposta = await fetch('/gestor/simular', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify(dadosCenario)
+                    });
+
+                    let resultado = await resposta.json();
+
+                    // Ignora respostas de simulações antigas.
+                    if (versaoAtual !== versaoFinanceira) {
+                        return;
+                    }
+
+                    if (!resposta.ok) {
+                        throw new Error(
+                            resultado.mensagem || 'Falha ao calcular cenário.'
+                        );
+                    }
+
+                    custo = Number(resultado.custoTotal);
+                }
+
+                if (!Number.isFinite(custo) || custo < 0) {
+                    throw new Error('Custo de cenário inválido.');
+                }
+
+                valores.push(custo);
+            }
+
+            if (versaoAtual !== versaoFinanceira) {
+                return;
+            }
+
+            // Identifica o maior custo para dimensionar as barras.
+            let maior = Math.max(...valores) * 1.06;
+
+            let grafico = '';
+
+            for (let i = 0; i < opcoes.length; i++) {
+
+                let altura = 0;
+
+                if (maior > 0) {
+                    altura = valores[i] / maior * 100;
+                }
+
+                grafico += `
+                <div class="coluna-projecao">
+
+                    <label>${opcoes[i].nome}</label>
+
+                    <strong>
+                        ${moedaReal(valores[i])}
+                    </strong>
+
+                    <div class="area-barra-projecao">
+
+                        <div
+                            class="barra-projecao"
+                            style="
+                                height: ${altura.toFixed(1)}%;
+                                background: ${opcoes[i].cor};
+                            "
+                        ></div>
+
+                    </div>
+
+                    <small>
+                        ${BASE_CUSTOS.servidores + opcoes[i].quantidade}
+                        nós • mesmos volumes
+                    </small>
+
+                </div>
+            `;
+            }
+
+            // Apresenta os cenários calculados pelo backend.
+            $('forecastBars').innerHTML = grafico;
+
+        } catch (erro) {
+
+            if (versaoAtual !== versaoFinanceira) {
+                return;
+            }
+
+            $('forecastBars').textContent =
+                'Comparação de cenários indisponível.';
+
+            console.error(
+                'Erro no gráfico de expansão:',
+                erro.message
+            );
+        }
+    }
+
     async function enviarSimulacaoFinanceira(versaoAtual) {
 
         let dados = obterConfiguracaoFinanceira();
@@ -933,7 +1221,10 @@
 
                     atualizarDecisoes();
 
-                    console.error('Erro nas comparações financeiras:', erro.message);
+                    console.error(
+                        'Erro nas comparações financeiras:',
+                        erro.message
+                    );
                 }
             }
 
@@ -941,6 +1232,12 @@
 
             ESTADO.custos.api = resultado;
 
+
+            atualizarReferenciaFinanceira(dados, resultado, versaoAtual);
+
+
+            // Atualiza o gráfico de expansão utilizando o backend.
+            atualizarGraficoExpansao(dados, resultado, versaoAtual);
             // Remove comparações antigas.
             comparacoesFinanceiras = null;
 
@@ -963,6 +1260,51 @@
                 return;
             }
 
+            // Limpa os indicadores financeiros.
+
+
+            $('forecastBars').textContent =
+                'Comparação de cenários indisponível.';
+
+            $('kpiCost').textContent = '—';
+
+            $('kpiCostNote').textContent =
+                'Simulação financeira indisponível';
+
+            $('billingTotal').textContent = '—';
+
+            $('billingUsd').textContent = '—';
+
+            $('billingBase').textContent = '—';
+
+            $('billingDelta').textContent = '—';
+
+            $('billingDeltaPct').textContent =
+                'Comparação indisponível';
+
+            $('billingEvaluation').textContent =
+                'Não foi possível calcular a simulação.';
+
+            // Limpa os indicadores do orçamento.
+
+            $('orcamentoPercentual').textContent = '—';
+
+            $('orcamentoSaldo').textContent = '—';
+
+            $('orcamentoSituacao').textContent =
+                'Não foi possível calcular o orçamento.';
+
+            $('orcamentoSituacao').style.color = 'var(--muted)';
+
+            $('orcamentoProgresso').value = 0;
+
+            // Limpa a composição financeira.
+
+            $('billingStack').innerHTML = '';
+
+            $('billingRows').textContent =
+                'Composição financeira indisponível.';
+
             $('kpiMain').textContent = '—';
 
             $('kpiMainNote').textContent =
@@ -970,11 +1312,118 @@
 
             $('custosComponentes').innerHTML = '';
             $('insightsFinanceiros').innerHTML = '';
+            $('previsaoMensal').innerHTML = `
+    <p class="descricao-orcamento">
+        Previsão indisponível.
+        Verifique os parâmetros da simulação.
+    </p>
+`;
             $('statusFinanceiro').textContent =
                 'Não foi possível atualizar os custos: ' + erro.message;
         }
     }
 
+    // ==========================================
+    // COMPOSIÇÃO FINANCEIRA PELO BACKEND
+    // ==========================================
+
+    function atualizarComposicaoFinanceira(resultado) {
+
+        let componentes = resultado.componentes;
+
+        // O backend divide o custo EC2 entre CPU e RAM.
+        // Para o gráfico, reunimos os dois valores.
+
+        let computacao =
+            Number(componentes.CPU.custo) +
+            Number(componentes.RAM.custo);
+
+        let armazenamento = Number(componentes.Disco.custo);
+
+        let rede = Number(componentes.Rede.custo);
+
+        let total = Number(resultado.custoTotal);
+
+        // Verifica se os valores recebidos são válidos.
+
+        if (
+            !Number.isFinite(computacao) ||
+            !Number.isFinite(armazenamento) ||
+            !Number.isFinite(rede) ||
+            !Number.isFinite(total) ||
+            total < 0
+        ) {
+            throw new Error('Valores da composição financeira inválidos.');
+        }
+
+        // Categorias exibidas no gráfico.
+
+        let categorias = [
+            {
+                nome: 'Computação (EC2)',
+                custo: computacao,
+                cor: CORES.CPU
+            },
+            {
+                nome: 'Disco / armazenamento',
+                custo: armazenamento,
+                cor: CORES.Disco
+            },
+            {
+                nome: 'Saída de dados / rede',
+                custo: rede,
+                cor: CORES.Rede
+            }
+        ];
+
+        let barraHtml = '';
+        let linhasHtml = '';
+
+        for (let categoria of categorias) {
+
+            let percentual = 0;
+
+            if (total > 0) {
+                percentual = categoria.custo / total * 100;
+            }
+
+            // Monta o segmento da barra.
+
+            barraHtml += `
+            <span
+                class="segmento-custo"
+                style="
+                    width: ${percentual}%;
+                    background: ${categoria.cor};
+                "
+                title="${categoria.nome}: ${moedaReal(categoria.custo)}"
+            ></span>
+        `;
+
+            // Monta a descrição do componente.
+
+            linhasHtml += `
+            <div class="linha-custo">
+
+                <span>
+                    <i style="background: ${categoria.cor}"></i>
+                    ${categoria.nome}
+                </span>
+
+                <strong>
+                    ${moedaReal(categoria.custo)}
+                </strong>
+
+            </div>
+        `;
+        }
+
+        // Exibe os valores calculados pelo Node.js.
+
+        $('billingStack').innerHTML = barraHtml;
+
+        $('billingRows').innerHTML = linhasHtml;
+    }
     // Mostra os valores calculados pelo Node.js, sem usar dados sintéticos.
     function exibirResultadoFinanceiro(resultado) {
 
@@ -1019,6 +1468,8 @@
 
         $('custosComponentes').innerHTML = html;
 
+        atualizarComposicaoFinanceira(resultado);
+
         let insights = Array.isArray(resultado.insights) ? resultado.insights : [];
         let insightsHtml = '';
 
@@ -1047,10 +1498,28 @@
         let custoTotal = Number(resultado.custoTotal);
 
         if (Number.isFinite(custoTotal)) {
+
             $('billingTotal').textContent = moedaReal(custoTotal);
+
             $('kpiCost').textContent = moedaReal(custoTotal);
+
             $('kpiCostNote').textContent =
                 'Estimativa calculada pelo serviço financeiro Node.js';
+
+            // Converte para dólares usando o câmbio da simulação.
+            let cambio = valorCampo('fx');
+
+            if (cambio > 0) {
+
+                $('billingUsd').textContent =
+                    moedaDolar(custoTotal / cambio) +
+                    ' • câmbio assumido R$ ' +
+                    numeroFormatado(cambio);
+
+            } else {
+
+                $('billingUsd').textContent = 'Câmbio inválido';
+            }
         }
 
         // Mantém os indicadores do orçamento alinhados ao backend.
@@ -1110,6 +1579,76 @@
             $('orcamentoSituacao').textContent = situacao;
             $('orcamentoSituacao').style.color = cor;
         }
+        else {
+
+            $('orcamentoPercentual').textContent = '—';
+
+            $('orcamentoSaldo').textContent = '—';
+
+            $('orcamentoSituacao').textContent =
+                'Defina um orçamento mensal válido.';
+
+            $('orcamentoSituacao').style.color = 'var(--muted)';
+
+            $('orcamentoProgresso').value = 0;
+        }
+
+        // ==========================================
+        // PREVISÃO FINANCEIRA CALCULADA PELO NODE.JS
+        // ==========================================
+
+        if (!Array.isArray(resultado.previsoes) ||
+            resultado.previsoes.length !== 3) {
+
+            throw new Error('A API não retornou as três previsões.');
+        }
+
+        let htmlPrevisao = '';
+
+        for (let previsao of resultado.previsoes) {
+
+            let mes = Number(previsao.mes);
+
+            let custo = Number(previsao.custo);
+
+            if (
+                ![1, 2, 3].includes(mes) ||
+                !Number.isFinite(custo) ||
+                custo < 0
+            ) {
+                throw new Error('A API retornou uma previsão inválida.');
+            }
+
+            let aviso = '';
+
+            if (orcamentoTotal > 0 && custo > orcamentoTotal) {
+
+                aviso = 'Acima do orçamento';
+            }
+
+            htmlPrevisao += `
+        <div class="mes-projetado">
+
+            <span>Mês ${mes}</span>
+
+            <strong>${moedaReal(custo)}</strong>
+
+            <small>${aviso}</small>
+
+        </div>
+    `;
+        }
+
+        // Atualiza a interface com os valores do backend.
+        $('previsaoMensal').innerHTML = htmlPrevisao;
+
+        // Mantém os dados disponíveis para futuras integrações.
+        if (ESTADO.custos && ESTADO.custos.planejamento) {
+
+            ESTADO.custos.planejamento.previsoes = resultado.previsoes;
+        }
+
+
     }
 
     // Atualiza as tarifas da simulação visual com o JSON gerado pela AWS.
@@ -1505,274 +2044,60 @@
         return valor;
     }
 
-    // Calcula a simulação visual com as premissas atuais.
-    // A conferência por componente acontece no backend.
-
-    function calcularCustos(
-        quantidadeServidores,
-        armazenamento,
-        trafego
-    ) {
-
-        let horas = valorCampo('hours');
-
-        let precoServidor = valorCampo('priceNode');
-
-        let precoArmazenamento = valorCampo('priceStorage');
-
-        let precoTrafego = valorCampo('priceTraffic');
-
-        let cambio = valorCampo('fx');
-
-        // Custo de computação.
-
-        let computacao =
-            quantidadeServidores *
-            horas *
-            precoServidor;
-
-        // Custo de armazenamento.
-
-        let disco =
-            armazenamento *
-            precoArmazenamento;
-
-        // Custo de transferência.
-
-        let rede =
-            trafego *
-            1024 *
-            precoTrafego;
-
-        // Soma dos custos.
-
-        let totalDolar =
-            computacao +
-            disco +
-            rede;
-
-        let totalReal = totalDolar * cambio;
-
-        return {
-            nodes: computacao,
-            storage: disco,
-            traffic: rede,
-            usd: totalDolar,
-            brl: totalReal,
-            fx: cambio
-        };
-    }
-
     // ==========================================
     // ORÇAMENTO E PREVISÃO FINANCEIRA
     // ==========================================
 
-    function atualizarPlanejamento(
-        simulacao,
-        quantidadeServidores,
-        armazenamento,
-        trafego
-    ) {
+    function atualizarPlanejamento() {
 
-        let orcamento = valorCampo('orcamentoMensal');
+        // Aguarda os valores calculados pelo backend.
 
-        let crescimento = valorCampo('crescimentoMensal');
+        $('orcamentoPercentual').textContent = '—';
 
-        // Limita o crescimento a 100%.
-        crescimento = Math.min(crescimento, 100);
+        $('orcamentoSaldo').textContent = '—';
 
-        let taxa = crescimento / 100;
+        $('orcamentoSituacao').textContent =
+            'Atualizando análise financeira...';
 
-        // ======================================
-        // AVALIAÇÃO DO ORÇAMENTO
-        // ======================================
+        $('orcamentoSituacao').style.color = 'var(--muted)';
 
-        let percentual = 0;
+        $('orcamentoProgresso').value = 0;
 
-        if (orcamento > 0) {
-            percentual = simulacao.brl / orcamento * 100;
-        }
-
-        let saldo = orcamento - simulacao.brl;
-
-        let situacao = '';
-        let cor = 'var(--mint)';
-
-        if (orcamento <= 0) {
-
-            situacao = 'Defina um orçamento mensal.';
-
-            cor = 'var(--muted)';
-
-        } else if (percentual >= 100) {
-
-            situacao = 'Atenção: orçamento excedido.';
-
-            cor = 'var(--pink)';
-
-        } else if (percentual >= 80) {
-
-            situacao = 'Atenção: orçamento próximo do limite.';
-
-            cor = 'var(--orange)';
-
-        } else {
-
-            situacao = 'Infraestrutura dentro do orçamento.';
-
-        }
-
-        $('orcamentoPercentual').textContent =
-            orcamento > 0
-                ? numeroFormatado(percentual) + '%'
-                : '—';
-
-        if (orcamento <= 0) {
-
-            $('orcamentoSaldo').textContent = '—';
-
-        } else if (saldo >= 0) {
-
-            $('orcamentoSaldo').textContent =
-                moedaReal(saldo) + ' disponíveis';
-
-        } else {
-
-            $('orcamentoSaldo').textContent =
-                moedaReal(Math.abs(saldo)) + ' acima do limite';
-        }
-
-        $('orcamentoSituacao').textContent = situacao;
-
-        $('orcamentoSituacao').style.color = cor;
-
-        $('orcamentoProgresso').value =
-            orcamento > 0
-                ? Math.min(percentual, 100)
-                : 0;
-
-        // ======================================
-        // PREVISÃO PARA TRÊS MESES
-        // ======================================
-
-        let previsoes = [];
-
-        let armazenamentoPrevisto = armazenamento;
-
-        let trafegoPrevisto = trafego;
-
-        let html = '';
-
-        for (let mes = 1; mes <= 3; mes++) {
-
-            let custo = calcularCustos(
-                quantidadeServidores,
-                armazenamentoPrevisto,
-                trafegoPrevisto
-            );
-
-            previsoes.push({
-                mes: mes,
-                custo: custo.brl
-            });
-
-            let aviso = '';
-
-            if (orcamento > 0 && custo.brl > orcamento) {
-                aviso = 'Acima do orçamento';
-            }
-
-            html += `
-            <div class="mes-projetado">
-
-                <span>Mês ${mes}</span>
-
-                <strong>${moedaReal(custo.brl)}</strong>
-
-                <small>${aviso}</small>
-
-            </div>
-        `;
-
-            // Aplica o crescimento ao próximo mês.
-            armazenamentoPrevisto =
-                armazenamentoPrevisto * (1 + taxa);
-
-            trafegoPrevisto =
-                trafegoPrevisto * (1 + taxa);
-        }
-
-        $('previsaoMensal').innerHTML = html;
-
-        // Mantém os resultados disponíveis
-        // para exportações e futuras integrações.
+        $('previsaoMensal').innerHTML = `
+        <p class="descricao-orcamento">
+            Atualizando previsão financeira...
+        </p>
+    `;
 
         ESTADO.custos.planejamento = {
-            orcamento: orcamento,
-            crescimento: crescimento,
-            percentual: percentual,
-            saldo: saldo,
-            situacao: situacao,
-            previsoes: previsoes
+            previsoes: []
         };
     }
 
     function atualizarBilling() {
 
         let extra = valorCampo('extraNodes');
-
         let armazenamento = valorCampo('storage');
-
         let trafego = valorCampo('egress');
 
-        // Calcula a configuração de referência.
-
-        let base = calcularCustos(
-            BASE_CUSTOS.servidores,
-            BASE_CUSTOS.armazenamento,
-            BASE_CUSTOS.trafego
-        );
-
-        // Calcula a configuração simulada.
-
-        let simulacao = calcularCustos(
-            BASE_CUSTOS.servidores + extra,
-            armazenamento,
-            trafego
-        );
-
-        let diferenca = simulacao.brl - base.brl;
-
-        let percentual = 0;
-
-        if (base.brl > 0) {
-
-            percentual = diferenca / base.brl * 100;
-        }
-
+        // Guarda os parâmetros escolhidos pelo gestor.
         ESTADO.custos = {
-            base: base,
-            scenario: simulacao,
-            delta: diferenca,
             extra: extra,
             storage: armazenamento,
-            egress: trafego
+            egress: trafego,
+            api: null,
+            planejamento: {
+                previsoes: []
+            }
         };
 
-        // Atualiza os campos do simulador.
-
-        let textoNos = '';
+        // Atualiza os textos dos controles.
 
         if (extra === 1) {
-
-            textoNos = '+1 nó';
-
+            $('extraNodesText').textContent = '+1 nó';
         } else {
-
-            textoNos = '+' + extra + ' nós';
+            $('extraNodesText').textContent = '+' + extra + ' nós';
         }
-
-        $('extraNodesText').textContent = textoNos;
 
         $('storageText').textContent =
             numeroFormatado(armazenamento) + ' GB';
@@ -1780,413 +2105,48 @@
         $('egressText').textContent =
             numeroFormatado(trafego) + ' TB/mês';
 
-        $('billingTotal').textContent =
-            moedaReal(simulacao.brl);
+        // Aguarda os resultados do Node.js.
+
+        $('billingTotal').textContent = '—';
 
         $('billingUsd').textContent =
-            moedaDolar(simulacao.usd) +
-            ' • câmbio assumido R$ ' +
-            numeroFormatado(simulacao.fx);
+            'Calculando valor em dólares...';
 
-        $('billingBase').textContent =
-            moedaReal(base.brl);
+        $('billingBase').textContent = '—';
 
-        let sinal = '+';
-
-        if (diferenca < 0) {
-
-            sinal = '−';
-        }
-
-        $('billingDelta').textContent =
-            sinal + moedaReal(Math.abs(diferenca));
+        $('billingDelta').textContent = '—';
 
         $('billingDeltaPct').textContent =
-            sinal +
-            numeroFormatado(Math.abs(percentual)) +
-            '% em relação à referência';
+            'Calculando variação...';
 
-        if (diferenca > 0) {
+        $('billingEvaluation').textContent =
+            'Calculando impacto financeiro...';
 
-            $('billingDelta').style.color = 'var(--orange)';
-
-        } else {
-
-            $('billingDelta').style.color = 'var(--mint)';
-        }
-
-        $('kpiCost').textContent =
-            moedaReal(simulacao.brl);
+        $('kpiCost').textContent = '—';
 
         $('kpiCostNote').textContent =
-            extra +
-            ' nó(s) adicional(is) • projeção simulada';
+            'Atualizando estimativa...';
 
-        // ======================================
-        // COMPOSIÇÃO DOS CUSTOS
-        // ======================================
+        // Limpa as visualizações anteriores.
 
-        let categorias = [
-            {
-                nome: 'Computação (instâncias)',
-                chave: 'nodes',
-                cor: CORES.CPU
-            },
-            {
-                nome: 'Disco / armazenamento',
-                chave: 'storage',
-                cor: CORES.Disco
-            },
-            {
-                nome: 'Saída de dados / rede',
-                chave: 'traffic',
-                cor: CORES.Rede
-            }
-        ];
+        $('billingStack').innerHTML = '';
 
-        let barraHtml = '';
-        let linhasHtml = '';
+        $('billingRows').textContent =
+            'Atualizando composição dos custos...';
 
-        for (let i = 0; i < categorias.length; i++) {
+        $('forecastBars').textContent =
+            'Calculando comparação de cenários...';
 
-            let categoria = categorias[i];
+        // Prepara o planejamento financeiro.
+        atualizarPlanejamento();
 
-            let custo = simulacao[categoria.chave];
-
-            let largura = 0;
-
-            if (simulacao.usd > 0) {
-
-                largura = custo / simulacao.usd * 100;
-            }
-
-            barraHtml += `
-                <span
-                    class="segmento-custo"
-                    style="
-                        width:${largura}%;
-                        background:${categoria.cor}
-                    "
-                    title="${categoria.nome}: ${moedaReal(custo * simulacao.fx)}"
-                ></span>
-            `;
-
-            linhasHtml += `
-                <div class="linha-custo">
-
-                    <span>
-                        <i style="background:${categoria.cor}"></i>
-                        ${categoria.nome}
-                    </span>
-
-                    <strong>
-                        ${moedaReal(custo * simulacao.fx)}
-                    </strong>
-
-                </div>
-            `;
-        }
-
-        $('billingStack').innerHTML = barraHtml;
-
-        $('billingRows').innerHTML = linhasHtml;
-
-        // ======================================
-        // INTERPRETAÇÃO FINANCEIRA
-        // ======================================
-
-        if (diferenca > 0) {
-
-            $('billingEvaluation').innerHTML = `
-                <strong>Impacto da decisão:</strong>
-
-                a configuração aumenta o custo em
-
-                ${moedaReal(diferenca)}/mês
-
-                (${numeroFormatado(percentual)}%).
-
-                Avalie se o ganho esperado de capacidade
-                justifica o gasto.
-            `;
-
-        } else if (diferenca < 0) {
-
-            $('billingEvaluation').innerHTML = `
-                <strong>Impacto da decisão:</strong>
-
-                redução estimada de
-
-                ${moedaReal(Math.abs(diferenca))}/mês.
-
-                Verifique a viabilidade técnica antes
-                de reduzir recursos.
-            `;
-
-        } else {
-
-            $('billingEvaluation').innerHTML = `
-                <strong>Referência:</strong>
-
-                a configuração possui o mesmo
-                custo estimado da base.
-            `;
-        }
-
-        // ======================================
-        // COMPARAÇÃO DE CENÁRIOS
-        // ======================================
-
-        let quantidadeExpansao = Math.min(6, extra + 2);
-
-        let opcoes = [
-            {
-                quantidade: 0,
-                nome: 'Manter nós atuais'
-            },
-            {
-                quantidade: extra,
-                nome: 'Sua escolha (+' + extra + ')'
-            },
-            {
-                quantidade: quantidadeExpansao,
-                nome: 'Expandir (+' + quantidadeExpansao + ')'
-            }
-        ];
-
-        let valores = [];
-
-        for (let i = 0; i < opcoes.length; i++) {
-
-            let valor = calcularCustos(
-                BASE_CUSTOS.servidores + opcoes[i].quantidade,
-                armazenamento,
-                trafego
-            ).brl;
-
-            valores.push(valor);
-        }
-
-        let maior = Math.max(...valores) * 1.06;
-
-        let cores = [
-            'var(--blue)',
-            'var(--mint)',
-            'var(--orange)'
-        ];
-
-        let grafico = '';
-
-        for (let i = 0; i < opcoes.length; i++) {
-
-            let altura = 0;
-
-            if (maior > 0) {
-
-                altura = valores[i] / maior * 100;
-            }
-
-            grafico += `
-                <div class="coluna-projecao">
-
-                    <label>${opcoes[i].nome}</label>
-
-                    <strong>
-                        ${moedaReal(valores[i])}
-                    </strong>
-
-                    <div class="area-barra-projecao">
-
-                        <div
-                            class="barra-projecao"
-                            style="
-                                height:${altura.toFixed(1)}%;
-                                background:${cores[i]}
-                            "
-                        ></div>
-
-                    </div>
-
-                    <small>
-                        ${BASE_CUSTOS.servidores + opcoes[i].quantidade}
-                        nós • mesmos volumes
-                    </small>
-
-                </div>
-            `;
-        }
-
-        $('forecastBars').innerHTML = grafico;
-
-        // Atualiza o orçamento e a previsão mensal.
-        atualizarPlanejamento(
-            simulacao,
-            BASE_CUSTOS.servidores + extra,
-            armazenamento,
-            trafego
-        );
-
-        // O saldo será atualizado após o retorno do backend.
         $('kpiMain').textContent = '—';
 
         $('kpiMainNote').textContent =
             'Atualizando análise do orçamento...';
+
+        // Solicita os cálculos ao backend.
         agendarSimulacaoFinanceira();
-
-    }
-
-    // ==========================================
-    // 15. EXPORTAÇÃO CSV
-    // ==========================================
-
-    // Exportação demonstrativa pelo navegador.
-    // FUTURO: relatórios PDF gerados pelo Java.
-
-    function exportarCsv() {
-
-        let linhas = [
-            ['STREAMGUARD - RELATÓRIO DEMONSTRATIVO'],
-
-            ['Cenário', ESTADO.cenario],
-
-            ['Tipo', 'Dados sintéticos / demonstrativos'],
-
-            [],
-
-            [
-                'Servidor',
-                'Função',
-                'CPU (%)',
-                'RAM (%)',
-                'Disco (%)',
-                'Rede (% de 1 Gbit/s)',
-                'Prioridade'
-            ]
-        ];
-
-        // Adiciona os servidores.
-
-        for (let i = 0; i < ESTADO.servidores.length; i++) {
-
-            let servidor = ESTADO.servidores[i];
-
-            linhas.push([
-                servidor.id,
-                servidor.role,
-                servidor.CPU,
-                servidor.RAM,
-                servidor.Disco,
-                servidor.Rede,
-                NOMES_STATUS[servidor.risk.status]
-            ]);
-        }
-
-        linhas.push([]);
-
-        // Adiciona os custos.
-
-        linhas.push([
-            'CUSTOS ESTIMADOS - VALORES HIPOTÉTICOS'
-        ]);
-
-        linhas.push([
-            'Referência (R$)',
-            ESTADO.custos.base.brl.toFixed(2)
-        ]);
-
-        linhas.push([
-            'Simulação (R$)',
-            ESTADO.custos.scenario.brl.toFixed(2)
-        ]);
-
-        linhas.push([
-            'Variação (R$)',
-            ESTADO.custos.delta.toFixed(2)
-        ]);
-
-        linhas.push([
-            'Nós extras',
-            ESTADO.custos.extra
-        ]);
-
-        linhas.push([
-            'Armazenamento (GB)',
-            ESTADO.custos.storage
-        ]);
-
-        linhas.push([
-            'Tráfego de saída (TB)',
-            ESTADO.custos.egress
-        ]);
-
-        linhas.push([]);
-
-        linhas.push(['PLANO DE AÇÃO']);
-
-        for (let i = 0; i < ESTADO.acoes.length; i++) {
-
-            let componente = ESTADO.acoes[i].key;
-
-            linhas.push([
-                componente,
-                REGRAS[componente].acao
-            ]);
-        }
-
-        // Converte as linhas para texto CSV.
-
-        let texto = '\ufeff';
-
-        for (let i = 0; i < linhas.length; i++) {
-
-            let linha = linhas[i];
-
-            let campos = [];
-
-            for (let j = 0; j < linha.length; j++) {
-
-                let campo = String(linha[j]);
-
-                campo = campo.replaceAll('"', '""');
-
-                campos.push('"' + campo + '"');
-            }
-
-            texto += campos.join(';') + '\r\n';
-        }
-
-        // Gera o arquivo.
-
-        let arquivo = new Blob(
-            [texto],
-            {
-                type: 'text/csv;charset=utf-8'
-            }
-        );
-
-        let url = URL.createObjectURL(arquivo);
-
-        let link = document.createElement('a');
-
-        link.href = url;
-
-        link.download = 'streamguard_relatorio_demonstrativo.csv';
-
-        document.body.appendChild(link);
-
-        link.click();
-
-        link.remove();
-
-        setTimeout(function () {
-
-            URL.revokeObjectURL(url);
-
-        }, 1500);
-
-        mostrarToast(
-            'Relatório CSV demonstrativo gerado.'
-        );
     }
 
     // ==========================================
