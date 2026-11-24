@@ -25,7 +25,7 @@
             <header class="topo">
                 <div>
                     <h1>Configurações</h1>
-                    <p>Gerencie métricas, componentes, funcionários e permissões.</p>
+                    <p>Gerencie métricas, funcionários e permissões.</p>
                 </div>
                 <div class="token-empresa" id="tokenEmpresa" data-perfis="admin" hidden>
                     <span>Token da empresa</span>
@@ -44,11 +44,6 @@
                         aria-controls="painel-metricas" aria-selected="true">
                         <i class="fa-solid fa-arrow-trend-up"></i>
                         Métricas
-                    </button>
-                    <button type="button" role="tab" id="aba-componentes" data-tab="componentes"
-                        aria-controls="painel-componentes" aria-selected="false" tabindex="-1">
-                        <i class="fa-solid fa-microchip"></i>
-                        Componentes
                     </button>
                     <button type="button" role="tab" id="aba-funcionarios" data-tab="funcionarios"
                         aria-controls="painel-funcionarios" aria-selected="false" tabindex="-1">
@@ -133,86 +128,6 @@
                                 <i class="fa-regular fa-floppy-disk"></i>
                                 Salvar alterações
                             </button>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="content-configuracoes" id="painel-componentes" data-panel="componentes" role="tabpanel"
-                    aria-labelledby="aba-componentes" hidden>
-
-                    <div class="cards-resumo">
-                        <div class="card-resumo">
-                            <div class="card-resumo-top">
-                                <strong class="num-azul" data-resumo="total">0</strong>
-                            </div>
-                            <p>Componentes cadastrados</p>
-                        </div>
-                        <div class="card-resumo">
-                            <div class="card-resumo-top">
-                                <strong class="num-mint" data-resumo="ativos">0</strong>
-                            </div>
-                            <p>Componentes ativos</p>
-                        </div>
-                        <div class="card-resumo">
-                            <div class="card-resumo-top">
-                                <strong class="num-cinza" data-resumo="inativos">0</strong>
-                            </div>
-                            <p>Componentes inativos</p>
-                        </div>
-                        <div class="card-resumo">
-                            <div class="card-resumo-top">
-                                <strong class="num-roxo" data-resumo="tipos">0</strong>
-                            </div>
-                            <p>Tipos de componente</p>
-                        </div>
-                    </div>
-
-                    <div class="box-tabela">
-                        <div class="box-tabela-topo">
-                            <div class="box-tabela-acoes box-tabela-filtros">
-                                <label class="campo-busca">
-                                    <i class="fa-solid fa-magnifying-glass"></i>
-                                    <input type="search" id="busca-componente" placeholder="Buscar componente..."
-                                        autocomplete="off">
-                                </label>
-                                <div class="campo-filtro">
-                                    <span>TIPO</span>
-                                    <select class="select-sg" id="filtro-tipo-componente" aria-label="Filtrar por tipo">
-                                        <option value="todos">Todos os tipos</option>
-                                        <option value="CPU">CPU</option>
-                                        <option value="RAM">Memória RAM</option>
-                                        <option value="Armazenamento">Armazenamento</option>
-                                        <option value="Rede">Rede</option>
-                                    </select>
-                                </div>
-                            </div>
-                            <button type="button" class="btn-sg btn-primary" data-modal="adicionar-componente">
-                                <i class="fa-solid fa-plus"></i>
-                                Adicionar componente
-                            </button>
-                        </div>
-
-                        <div class="tabela grid-componentes">
-                            <div class="linha-cabecalho">
-                                <span>COMPONENTE</span>
-                                <span>TIPO</span>
-                                <span>MÉTRICAS</span>
-                                <span>STATUS</span>
-                                <span>INSTALAÇÃO</span>
-                                <span>AÇÕES</span>
-                            </div>
-
-                            <div id="lista-componentes" class="linhas"></div>
-
-                            <p class="sem-resultados" hidden>Nenhum componente encontrado.</p>
-                        </div>
-
-                        <div class="box-tabela-rodape">
-                            <span class="rodape-nota" data-resumo="rodape">0 componentes • 0 ativos</span>
-                            <span class="rodape-nota">
-                                <i class="fa-regular fa-circle-question"></i>
-                                Remover um componente também remove as métricas ligadas a ele.
-                            </span>
                         </div>
                     </div>
                 </div>
