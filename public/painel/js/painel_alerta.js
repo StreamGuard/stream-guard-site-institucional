@@ -1,4 +1,3 @@
-
 const ic = (nome) => `<svg class="sg-ic" aria-hidden="true"><use href="#sg-${nome}"/></svg>`;
 const esc = (texto) => SGModal.escapar(texto);
 
@@ -46,7 +45,6 @@ const TEXTO_PERIODO = {
 function obterEmpresaDoUsuario() {
     return sessionStorage.getItem("EMPRESA_JIRA") || null;
 }
-
 
 // 90 -> "1 h 30 min" | 18 -> "18 min" | 3000 -> "2 d 2 h" | null -> "–"
 function formatarMinutos(minutos) {
@@ -211,7 +209,6 @@ function desenharResumo() {
         </article>
     `).join("");
 }
-
 
 function desenharInsight() {
     const caixa = document.getElementById("insight");
@@ -392,7 +389,6 @@ function desenharServidores() {
                 <tr>
                     <th>Servidor</th>
                     <th>Empresa</th>
-                    <th>Função · sistema</th>
                     <th>Volume</th>
                     <th class="centro">Alertas</th>
                     <th>Componentes</th>
@@ -418,10 +414,6 @@ function desenharServidores() {
                             <td><strong>${esc(servidor.nome)}</strong></td>
                             <td>${servidor.empresa ? esc(servidor.empresa) : "–"}</td>
                             <td>
-                                ${servidor.funcao ? esc(servidor.funcao) : "–"}
-                                ${servidor.sistema ? `<small>${esc(servidor.sistema)}</small>` : ""}
-                            </td>
-                            <td>
                                 <div class="trilho">
                                     <i style="width: ${proporcao * 100}%; background: var(--${cor})"></i>
                                 </div>
@@ -440,15 +432,21 @@ function desenharServidores() {
     `;
 }
 
+function historicoFiltrado() {
+    const filtro = filtros[filtroAtual].valor;
+
+    return dashboard.historico.filter((alerta) => {
+        return filtro === "todos" || alerta.status === filtro;
+    });
+}
+
 function desenharHistorico() {
     const filtro = filtros[filtroAtual].valor;
     const caixa = document.getElementById("historico");
     const mensagemVazia = document.getElementById("mensagemVazia");
     const botaoMais = document.getElementById("btnMais");
 
-    const filtrados = dashboard.historico.filter((alerta) => {
-        return filtro === "todos" || alerta.status === filtro;
-    });
+    const filtrados = historicoFiltrado();
 
     const visiveis = filtrados.slice(0, limiteHistorico);
     const totalGeral = filtro === "todos" ? dashboard.criados : filtrados.length;
@@ -458,7 +456,9 @@ function desenharHistorico() {
 
     mensagemVazia.hidden = filtrados.length > 0;
     botaoMais.hidden = filtrados.length <= 6;
-    botaoMais.textContent = limiteHistorico > 6 ? "Mostrar menos" : "Mostrar mais";
+    botaoMais.textContent = visiveis.length < filtrados.length
+        ? `Mostrar mais (restam ${filtrados.length - visiveis.length})`
+        : "Mostrar menos";
 
     if (filtrados.length === 0) {
         caixa.innerHTML = "";
@@ -478,7 +478,7 @@ function desenharHistorico() {
                     <th>Duração</th>
                     <th>Status</th>
                     <th>Responsável</th>
-                    <th>Slack</th>
+                    <th class="centro">Ação</th>
                 </tr>
             </thead>
             <tbody>
@@ -486,6 +486,9 @@ function desenharHistorico() {
             </tbody>
         </table>
     `;
+
+    // Esconde/bloqueia o botão "Resolver" para quem não pode editar
+    SG.reaplicarPermissoes();
 }
 
 function linhaDoHistorico(alerta) {
@@ -498,12 +501,6 @@ function linhaDoHistorico(alerta) {
         : alerta.categoriaStatus === "indeterminate"
             ? { cor: "laranja", texto: "Em andamento" }
             : { cor: "vermelho", texto: "Aberto" };
-
-    const slack = {
-        enviado: { cor: "verde", texto: "enviado" },
-        falhou: { cor: "vermelho", texto: "falhou" },
-        pendente: { cor: "laranja", texto: "pendente" }
-    }[alerta.slack];
 
     const medido = alerta.medido === null
         ? "–"
@@ -530,7 +527,13 @@ function linhaDoHistorico(alerta) {
             <td>${duracao}</td>
             <td><span class="tag ${etapa.cor}">${etapa.texto}</span></td>
             <td>${esc(alerta.responsavel)}</td>
-            <td>${slack ? `<span class="tag ${slack.cor}">${slack.texto}</span>` : "–"}</td>
+            <td class="centro">
+                ${alerta.categoriaStatus === "done" ? "–" : `
+                    <button class="btn-resolver" data-perm="editar" data-resolver="${esc(alerta.chave)}">
+                        ${ic("check")} Resolver
+                    </button>
+                `}
+            </td>
         </tr>
     `;
 }
@@ -589,11 +592,27 @@ function abrirVerAlerta(chave, origem) {
             texto: alerta.hora ? new Date(alerta.hora).toLocaleString("pt-BR") : ""
         },
         itens: itens,
-        ...(aberto ? {
+        ...(aberto && SG.pode("editar") ? {
             textoEditar: "Reconhecer",
             iconeEditar: "check",
             onEditar: () => reconhecer(alerta.chave)
         } : {})
+    });
+}
+
+// Pede confirmação e então resolve o chamado (botão "Resolver" da tabela)
+function resolverAlerta(chave, origem) {
+    if (!SG.pode("editar")) return;
+
+    SGModal.confirmar({
+        titulo: "Resolver alerta?",
+        texto: `O chamado <strong>${esc(chave)}</strong> será concluído no Jira.`,
+        botao: "Resolver",
+        aviso: "Enviando ao Jira...",
+        gatilho: origem,
+        onConfirmar() {
+            reconhecer(chave);
+        }
     });
 }
 
@@ -664,19 +683,29 @@ document.getElementById("btnFiltro").addEventListener("click", (evento) => {
 
 // Mostrar mais / menos
 document.getElementById("btnMais").addEventListener("click", () => {
-    limiteHistorico = limiteHistorico > 6 ? 6 : 20;
+    // Cada clique mostra +20; quando já mostrou tudo, volta para 6
+    limiteHistorico = limiteHistorico >= historicoFiltrado().length ? 6 : limiteHistorico + 20;
 
     desenharHistorico();
 });
 
 // Clique na chave do chamado
 document.getElementById("historico").addEventListener("click", (evento) => {
+    const botaoResolver = evento.target.closest("[data-resolver]");
+
+    if (botaoResolver) {
+        resolverAlerta(botaoResolver.dataset.resolver, botaoResolver);
+        return;
+    }
+
     const botao = evento.target.closest("[data-chave]");
 
     if (botao) {
         abrirVerAlerta(botao.dataset.chave, botao);
     }
 });
+
+// Início
 
 document.getElementById("resumo").innerHTML = `<p class="vazio">Carregando...</p>`;
 

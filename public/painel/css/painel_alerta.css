@@ -13,9 +13,6 @@
   --roxo: #8b5cf6;
 }
 
-/* 
-   filtros de período e servidor
-    */
 .topo-filtros {
   display: flex;
   align-items: center;
@@ -59,9 +56,6 @@
   cursor: pointer;
 }
 
-/* 
-   empilha os blocos e deixa rolar
-    */
 .principal {
   display: flex;
   flex-direction: column;
@@ -69,13 +63,10 @@
   overflow-y: auto;
 }
 
-.principal>* {
+.principal > * {
   flex: none;
 }
 
-/* 
-   PAINÉIS
-    */
 .painel {
   background: var(--painel);
   border: 1px solid var(--borda);
@@ -155,21 +146,10 @@
   font-weight: 600;
 }
 
-.nota-bom {
-  color: var(--verde);
-}
-
-.nota-ruim {
-  color: var(--laranja);
-}
-
-.nota-critico {
-  color: var(--vermelho);
-}
-
-.nota-neutro {
-  color: var(--azul);
-}
+.nota-bom { color: var(--verde); }
+.nota-ruim { color: var(--laranja); }
+.nota-critico { color: var(--vermelho); }
+.nota-neutro { color: var(--azul); }
 
 .insight {
   display: flex;
@@ -201,23 +181,10 @@
   white-space: nowrap;
 }
 
-.tag.verde {
-  color: var(--verde);
-}
-
-.tag.laranja {
-  color: var(--laranja);
-  background: rgba(245, 154, 61, 0.12);
-}
-
-.tag.vermelho {
-  color: var(--vermelho);
-  background: rgba(255, 77, 109, 0.12);
-}
-
-.tag.azul {
-  color: var(--azul);
-}
+.tag.verde { color: var(--verde); }
+.tag.laranja { color: var(--laranja); background: rgba(245, 154, 61, 0.12); }
+.tag.vermelho { color: var(--vermelho); background: rgba(255, 77, 109, 0.12); }
+.tag.azul { color: var(--azul); }
 
 .ponto {
   display: inline-block;
@@ -227,9 +194,6 @@
   flex: none;
 }
 
-/* =====================================================
-   GRÁFICO DE BARRAS
-   ===================================================== */
 .legenda-barras {
   display: flex;
   gap: 16px;
@@ -334,9 +298,6 @@
   white-space: nowrap;
 }
 
-/* 
-   CHAMADOS NO JIRA
-    */
 .pilha-etapas {
   display: flex;
   height: 14px;
@@ -371,9 +332,6 @@
   font-size: 12px;
 }
 
-/* 
-   TABELAS
-    */
 .tabela-rolagem {
   overflow-x: auto;
 }
@@ -460,9 +418,36 @@
   margin-top: 12px;
 }
 
-/* 
-   TELAS MENORES
-    */
+.btn-resolver {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--verde);
+  background: rgba(45, 226, 192, 0.08);
+  color: var(--verde);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.btn-resolver .sg-ic {
+  width: 13px;
+  height: 13px;
+}
+
+.btn-resolver:hover {
+  background: rgba(45, 226, 192, 0.18);
+}
+
+.btn-resolver:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 @media (max-width: 1100px) {
   .grade-graficos {
     grid-template-columns: 1fr;

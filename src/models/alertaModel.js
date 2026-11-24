@@ -1,4 +1,3 @@
-
 var projeto = process.env.JIRA_ALERTA_PROJECT_KEY || "SUP";
 
 // Prazo (em minutos) para resolver um chamado, por gravidade.
@@ -115,10 +114,6 @@ function converterDescricao(conteudo) {
 
     return [texto, filhos].filter(Boolean).join("");
 }
-
-// ---------------------------------------------------------------
-// Leitura dos dados de cada chamado
-// ---------------------------------------------------------------
 
 // Gravidade (não depende de o chamado já estar resolvido).
 // Prioridade Highest = Crítico; o resto = Atenção.
@@ -278,8 +273,6 @@ function formatarAlerta(issue) {
     };
 }
 
-// Busca no Jira
-
 // O Jira devolve até 100 por vez; se houver mais, manda um nextPageToken
 async function buscarIssues(jql, maxPaginas) {
     var issues = [];
@@ -322,73 +315,11 @@ async function buscarAlerta(chave) {
     return formatarAlerta(issue);
 }
 
-// Dados que NÃO vêm do Jira
-
-// PONTO DE INTEGRAÇÃO 1: banco de dados (tabela de equipamentos).
-// Deve devolver, por servidor: { "srv-servidor1": { funcao: "Streaming · transcodificação", sistema: "Ubuntu 22.04" } }
-async function buscarContextoServidores() {
-    return {};
-}
-
-// PONTO DE INTEGRAÇÃO 2: Data Lake (Gold).
+// PONTO DE INTEGRAÇÃO: última coleta de cada servidor (Data Lake / S3 ou banco).
 // Deve devolver, por servidor, o horário do último dado: { "srv-servidor1": "2026-11-19T14:31:00Z" }
 async function buscarUltimasColetas() {
     return {};
 }
-
-// Slack (opção A do guia): procura a chave do chamado nas mensagens do canal.
-async function buscarStatusSlack(alertas) {
-    var token = process.env.SLACK_TOKEN;
-    var canal = process.env.SLACK_CANAL_ID;
-
-    if (!token || !canal || alertas.length === 0) {
-        return null;
-    }
-
-    try {
-        var maisAntigo = Math.min.apply(null, alertas.map(function (alerta) {
-            return new Date(alerta.hora).getTime();
-        }));
-
-        var oldest = Math.floor(maisAntigo / 1000) - 60;
-
-        var resposta = await fetch(
-            "https://slack.com/api/conversations.history?channel=" +
-            encodeURIComponent(canal) + "&oldest=" + oldest + "&limit=200",
-            { headers: { Authorization: "Bearer " + token } }
-        );
-
-        var dados = await resposta.json();
-
-        if (!dados.ok) {
-            throw new Error(dados.error);
-        }
-
-        var textoDoCanal = JSON.stringify(dados.messages || []);
-        var status = {};
-
-        alertas.forEach(function (alerta) {
-            // \b evita confundir KAN-9 com KAN-91
-            var achou = new RegExp("\\b" + alerta.chave + "\\b").test(textoDoCanal);
-
-            if (achou) {
-                status[alerta.chave] = "enviado";
-            } else if (Date.now() - new Date(alerta.hora).getTime() > 5 * MINUTO) {
-                status[alerta.chave] = "falhou";
-            } else {
-                status[alerta.chave] = "pendente";
-            }
-        });
-
-        return status;
-
-    } catch (erro) {
-        console.error("Erro ao ler o canal do Slack:", erro.message);
-        return null;
-    }
-}
-
-// Dashboard
 
 function periodoValido(chave) {
     return Object.prototype.hasOwnProperty.call(PERIODOS, chave);
@@ -463,6 +394,7 @@ async function obterDashboard(chavePeriodo, filtros) {
         .map(function (chave) { return { chave: chave, nome: vistos[chave] }; })
         .sort(ordenarPorNome);
 
+    // O Jira não filtra por servidor com a nossa lógica de fallback, então filtramos aqui
     function doServidor(alerta) {
         return !filtros.servidor || alerta.servidorChave === filtros.servidor;
     }
@@ -500,6 +432,7 @@ async function obterDashboard(chavePeriodo, filtros) {
                 new Date(alerta.resolvidoEm).getTime() >= inicioDoDia;
         }).length;
 
+    // --- Tempo para resolver e prazo (SLA) ---
     var resolvidosAtual = resolvidos.filter(function (alerta) {
         return alerta.resolvidoEm && new Date(alerta.resolvidoEm).getTime() >= inicio;
     });
@@ -614,7 +547,6 @@ async function obterDashboard(chavePeriodo, filtros) {
         }
     });
 
-    var contexto = await buscarContextoServidores();
     var coletas = await buscarUltimasColetas();
 
     var servidores = Object.keys(porServidor)
@@ -622,14 +554,10 @@ async function obterDashboard(chavePeriodo, filtros) {
         .sort(function (a, b) { return b.total - a.total; })
         .slice(0, 5)
         .map(function (servidor) {
-            var extra = contexto[servidor.chave] || {};
-
             return {
                 chave: servidor.chave,
                 nome: servidor.nome,
                 empresa: servidor.empresa,
-                funcao: extra.funcao || null,
-                sistema: extra.sistema || null,
                 total: servidor.total,
                 criticos: servidor.criticos,
                 abertos: servidor.abertos,
@@ -694,17 +622,13 @@ async function obterDashboard(chavePeriodo, filtros) {
         };
     }
 
-    // --- Histórico (20 mais recentes do período) + status do Slack ---
-    var historico = doPeriodo.slice(0, 20);
-    var statusSlack = await buscarStatusSlack(historico);
-
-    historico = historico.map(function (alerta) {
-        var item = Object.assign({}, alerta);
-
-        item.slack = statusSlack ? statusSlack[alerta.chave] : null;
-
-        return item;
-    });
+    // --- Histórico: TODOS os alertas do período, com os resolvidos no final ---
+    // (dentro de cada grupo continua do mais novo para o mais antigo)
+    var historico = doPeriodo.filter(function (alerta) {
+        return alerta.categoriaStatus !== "done";
+    }).concat(doPeriodo.filter(function (alerta) {
+        return alerta.categoriaStatus === "done";
+    }));
 
     return {
         periodo: chavePeriodo,
@@ -728,7 +652,6 @@ async function obterDashboard(chavePeriodo, filtros) {
         servidores: servidores,
         servidoresDisponiveis: servidoresDisponiveis,
         historico: historico,
-        slackConfigurado: statusSlack !== null,
         notificacoes: abertos.slice(0, 20).map(function (alerta) {
             return { chave: alerta.chave, titulo: alerta.titulo, status: alerta.severidade };
         })

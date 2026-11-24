@@ -62,8 +62,11 @@
 
     const perfil = resolverPerfil();
 
-    function pode(acao) {
-        return (REGRAS[acao] || []).includes(perfil);
+    function pode(acao, perfilAlvo) {
+        if (!(REGRAS[acao] || []).includes(perfil)) return false;
+        // Somente root pode editar ou excluir um usuário root.
+        if ((acao === "editar" || acao === "excluir") && perfilDoBanco(perfilAlvo) === "root") return perfil === "root";
+        return true;
     }
 
     function iniciais(nome) {
@@ -289,7 +292,7 @@
 
     function aplicarPermissoes(raiz) {
         raiz.querySelectorAll("[data-perm]").forEach((el) => {
-            el.hidden = !pode(el.dataset.perm);
+            el.hidden = !pode(el.dataset.perm, el.dataset.perfilAlvo);
         });
 
         raiz.querySelectorAll("[data-perfis]").forEach((el) => {
