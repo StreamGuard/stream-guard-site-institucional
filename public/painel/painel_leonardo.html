@@ -229,39 +229,16 @@
                     <section class="painel-analise painel-status">
                         <header class="painel-analise-cabecalho">
                             <div>
-                                <h2>Uso atual e status</h2>
-                                <p>Normal abaixo de 60% • Atenção de 60% a 79% • Alerta a partir de 80%</p>
+                                <h2>Histórico de incidentes</h2>
+                                <p>
+                                    Inferido pelas métricas: atenção a partir de 60%,
+                                    alerta a partir de 80%, encerrado abaixo de 60%.
+                                </p>
                             </div>
                         </header>
 
-                        <ul class="lista-uso-status">
-                            <li class="item-uso-status">
-                                <span>CPU</span>
-                                <progress id="barraCpu" value="0" max="100"></progress>
-                                <strong id="usoCpu">--%</strong>
-                                <span id="seloCpu" class="selo-status status-normal">Aguardando</span>
-                            </li>
-
-                            <li class="item-uso-status">
-                                <span>RAM</span>
-                                <progress id="barraRam" value="0" max="100"></progress>
-                                <strong id="usoRam">--%</strong>
-                                <span id="seloRam" class="selo-status status-normal">Aguardando</span>
-                            </li>
-
-                            <li class="item-uso-status">
-                                <span>Disco</span>
-                                <progress id="barraDisco" value="0" max="100"></progress>
-                                <strong id="usoDisco">--%</strong>
-                                <span id="seloDisco" class="selo-status status-normal">Aguardando</span>
-                            </li>
-
-                            <li class="item-uso-status">
-                                <span>Rede</span>
-                                <progress id="barraRede" value="0" max="100"></progress>
-                                <strong id="usoRede">--%</strong>
-                                <span id="seloRede" class="selo-status status-normal">Aguardando</span>
-                            </li>
+                        <ul id="listaIncidentes" class="lista-incidentes" aria-live="polite">
+                            <li class="item-incidente">Aguardando métricas...</li>
                         </ul>
                     </section>
                 </div>

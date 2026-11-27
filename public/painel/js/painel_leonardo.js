@@ -324,6 +324,8 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
                 pontosDoPeriodo,
                 filtroServidor.value
             );
+
+            atualizarListaIncidentes();
         }
     });
 
@@ -550,6 +552,166 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
     let metricasHistorico = [];
     let servidorHistorico = null;
 
+    function atualizarListaIncidentes() {
+    var lista = document.getElementById("listaIncidentes");
+    if (!lista) return;
+
+    var tipos = {
+        USO_CPU: "CPU",
+        USO_RAM: "RAM",
+        USO_DISCO: "Disco",
+        TAXA_RECEBIMENTO_REDE: "Rede (recebimento)"
+    };
+
+    var metricas = filtrarMetricasPorPeriodo(
+        metricasParaRanking,
+        periodoHistorico,
+        filtroServidor.value
+    );
+
+    var series = [];
+
+    for (var i = 0; i < metricas.length; i++) {
+        var linha = metricas[i];
+        var componente = tipos[linha.tipo];
+
+        if (!componente) continue;
+
+        var valor = Number(linha.media_amostral);
+
+        if (linha.tipo === "TAXA_RECEBIMENTO_REDE") {
+            valor = (valor * 8 / 1000000000) * 100;
+        }
+
+        var horario = new Date(
+            String(linha.inicio_periodo).replace(" ", "T")
+        ).getTime();
+
+        if (!Number.isFinite(valor) || !Number.isFinite(horario)) continue;
+
+        var indiceSerie = -1;
+
+        for (var j = 0; j < series.length; j++) {
+            if (
+                series[j].servidorId === String(linha.servidor_id) &&
+                series[j].tipo === linha.tipo
+            ) {
+                indiceSerie = j;
+                break;
+            }
+        }
+
+        if (indiceSerie === -1) {
+            series.push({
+                servidorId: String(linha.servidor_id),
+                nome: linha.nome_servidor || "Servidor " + linha.servidor_id,
+                tipo: linha.tipo,
+                componente: componente,
+                pontos: []
+            });
+
+            indiceSerie = series.length - 1;
+        }
+
+        series[indiceSerie].pontos.push({
+            horario: horario,
+            valor: valor
+        });
+    }
+
+    var incidentes = [];
+
+    for (var i = 0; i < series.length; i++) {
+        var serie = series[i];
+
+        serie.pontos.sort(function (a, b) {
+            return a.horario - b.horario;
+        });
+
+        var incidenteAtual = null;
+
+        for (var j = 0; j < serie.pontos.length; j++) {
+            var ponto = serie.pontos[j];
+
+            if (ponto.valor >= 60) {
+                if (incidenteAtual === null) {
+                    incidenteAtual = {
+                        nome: serie.nome,
+                        componente: serie.componente,
+                        inicio: ponto.horario,
+                        ultimaMedicao: ponto.horario,
+                        pico: ponto.valor,
+                        gravidade: ponto.valor >= 80 ? "Alerta" : "Atenção",
+                        fim: null
+                    };
+                } else {
+                    incidenteAtual.ultimaMedicao = ponto.horario;
+                    incidenteAtual.pico = Math.max(
+                        incidenteAtual.pico,
+                        ponto.valor
+                    );
+
+                    if (ponto.valor >= 80) {
+                        incidenteAtual.gravidade = "Alerta";
+                    }
+                }
+            } else if (incidenteAtual !== null) {
+                incidenteAtual.fim = ponto.horario;
+                incidentes.push(incidenteAtual);
+                incidenteAtual = null;
+            }
+        }
+
+        if (incidenteAtual !== null) {
+            incidentes.push(incidenteAtual);
+        }
+    }
+
+    incidentes.sort(function (a, b) {
+        return b.inicio - a.inicio;
+    });
+
+    lista.replaceChildren();
+
+    if (incidentes.length === 0) {
+        var vazio = document.createElement("li");
+        vazio.className = "item-incidente";
+        vazio.textContent = "Nenhum evento acima de 60% neste período.";
+        lista.appendChild(vazio);
+        return;
+    }
+
+    for (var i = 0; i < incidentes.length; i++) {
+        var evento = incidentes[i];
+        var item = document.createElement("li");
+        item.className = "item-incidente " +
+    (evento.gravidade === "Alerta"
+        ? "incidente-alerta"
+        : "incidente-atencao");
+
+        var titulo = document.createElement("strong");
+        titulo.textContent = evento.nome + " · " + evento.componente;
+
+        var detalhe = document.createElement("small");
+        var inicio = new Date(evento.inicio).toLocaleString("pt-BR");
+
+        if (evento.fim !== null) {
+            var fim = new Date(evento.fim).toLocaleString("pt-BR");
+            detalhe.textContent =
+                evento.gravidade + " · pico de " + Math.round(evento.pico) +
+                "% · início: " + inicio + " · normalizou: " + fim;
+        } else {
+            var ultima = new Date(evento.ultimaMedicao).toLocaleString("pt-BR");
+            detalhe.textContent =
+                evento.gravidade + " · pico de " + Math.round(evento.pico) +
+                "% · início: " + inicio +
+                " · sem medição abaixo de 60% (última: " + ultima + ")";
+        }
+
+        item.append(titulo, detalhe);
+        lista.appendChild(item);
+    }
+}
 
     function atualizarOpcoesServidores(metricas) {
         var selecionado = filtroServidor.value;
@@ -882,35 +1044,27 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
 
                 function atualizarStatus(nome, valor) {
                     var uso = Math.round(valor);
-
-                    document.getElementById("barra" + nome).value = uso;
-                    document.getElementById("uso" + nome).textContent = uso + "%";
-
-                    var selo = document.getElementById("selo" + nome);
+                    var textoStatus;
                     var classeStatus;
+
                     if (uso >= 80) {
-                        selo.textContent = "Alerta";
-                        selo.className = "selo-status status-alerta";
+                        textoStatus = "Alerta";
                         classeStatus = "status-alerta";
                     } else if (uso >= 60) {
-                        selo.textContent = "Atenção";
-                        selo.className = "selo-status status-atencao";
+                        textoStatus = "Atenção";
                         classeStatus = "status-atencao";
                     } else {
-                        selo.textContent = "Normal";
-                        selo.className = "selo-status status-normal";
+                        textoStatus = "Normal";
                         classeStatus = "status-normal";
                     }
 
-                    // Atualizando Kpis
                     var cardKpi = document.getElementById("kpi" + nome)
                         .closest(".card-metrica");
                     var seloKpi = document.getElementById("kpiSelo" + nome);
 
-                    seloKpi.textContent = selo.textContent;
+                    seloKpi.textContent = textoStatus;
                     seloKpi.className = "selo-status " + classeStatus;
 
-                    // removo do cartão qualquer classe de estado anterior
                     cardKpi.classList.remove(
                         "status-alerta",
                         "status-atencao",
@@ -957,6 +1111,7 @@ if (canvasRankingRam && canvasHistogramaRam && buscaRam && canvasTrafegoRede) {
                     ),
                     servidorSelecionado
                 );
+                atualizarListaIncidentes();
             }
             atualizarGraficosPorServidor();
             atualizarRanking();

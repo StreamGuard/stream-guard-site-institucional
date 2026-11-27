@@ -34,7 +34,7 @@
 .metricas-resumo {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    gap: 14px;
+    gap: 10px;
 }
 
 .card-metrica,
@@ -46,29 +46,34 @@
 }
 
 .card-metrica {
-    padding: 34px;
+    padding: 18px;
 }
 
 .card-metrica h2 {
-    margin-bottom: 9px;
+    margin-bottom: 6px;
     color: var(--texto-suave);
-    font-size: 20px;
+    font-size: 16px;
     font-weight: 600;
 }
 
 .card-metrica p {
-    margin-bottom: 5px;
+    margin-bottom: 4px;
 }
 
 .card-metrica strong {
     color: var(--texto);
-    font-size: 24px;
+    font-size: 21px;
 }
 
 .card-metrica small {
-    font-size: 14px;
+    font-size: 12px;
 }
 
+@media (max-width: 700px) {
+    .card-metrica {
+        padding: 14px;
+    }
+}
 .grade-analise {
     display: grid;
     grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
@@ -127,11 +132,11 @@
 .grafico-container {
     position: relative;
     width: 100%;
-    height: 210px;
+    height: 190px;
 }
 
 .painel-correlacao .grafico-container {
-    height: 230px;
+    height: 200px;
 }
 
 .legenda-grafico {
@@ -256,6 +261,57 @@
     display: flex;
     flex-direction: column;
 }
+.lista-incidentes {
+    display: grid;
+    gap: 9px;
+    max-height: 280px;
+    margin: 0;
+    padding: 0 6px 0 0;
+    overflow-y: auto;
+    list-style: none;
+    scrollbar-width: thin;
+    scrollbar-color: var(--borda) transparent;
+}
+
+.item-incidente {
+    padding: 12px 14px;
+    background: var(--painel-2);
+    border: 1px solid var(--borda);
+    border-left: 4px solid #f5b700;
+    border-radius: 8px;
+    transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.item-incidente:hover {
+    background: rgba(139, 92, 246, 0.08);
+}
+
+.item-incidente.incidente-alerta {
+    border-left-color: var(--vermelho);
+}
+
+.item-incidente.incidente-atencao {
+    border-left-color: #f5b700;
+}
+
+.item-incidente strong,
+.item-incidente small {
+    display: block;
+}
+
+.item-incidente strong {
+    color: var(--texto);
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.item-incidente small {
+    margin-top: 6px;
+    color: var(--texto-suave);
+    font-size: 12px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
 .grade-analise {
     display: grid;
     grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
@@ -263,7 +319,7 @@
         "historico disponibilidade"
         "correlacao status"
         "ram-servidores ram-historico";
-    gap: 14px;
+    gap: 10px;
 }
 .painel-ram-servidores {
     grid-area: ram-servidores;
@@ -275,7 +331,21 @@
 
 .painel-ram-servidores .grafico-container,
 .painel-ram-historico .grafico-container {
-    height: 300px;
+    height: 190px;
+}
+
+@media (max-width: 1050px) {
+    .painel-ram-servidores .grafico-container,
+    .painel-ram-historico .grafico-container {
+        height: 190px;
+    }
+}
+
+@media (max-width: 700px) {
+    .painel-ram-servidores .grafico-container,
+    .painel-ram-historico .grafico-container {
+        height: 190px;
+    }
 }
 .filtros-grafico,
 .filtro-historico-ram {
