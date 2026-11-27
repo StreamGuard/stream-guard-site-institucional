@@ -241,11 +241,55 @@ select:focus-visible {
     height: 280px;
 }
 
+/* Mantém o gráfico no tamanho atual e centralizado quando o painel vizinho é mais alto. */
+.painel-grafico {
+    display: flex;
+    flex-direction: column;
+}
+
+.painel-grafico .painel-topo {
+    margin-bottom: 0;
+}
+
+.painel-grafico .container-chart {
+    flex: 0 0 240px;
+    height: 240px;
+    max-height: 240px;
+    margin-block: auto;
+}
+
 /* ---------- Rankings e barras ---------- */
 .ranking {
     display: flex;
     flex-direction: column;
     gap: 12px;
+}
+
+/* Listas longas rolam dentro do painel em vez de esticar a linha. */
+.ranking-rolavel {
+    max-height: 360px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    padding-right: 6px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--borda) transparent;
+}
+
+.ranking-rolavel::-webkit-scrollbar {
+    width: 6px;
+}
+
+.ranking-rolavel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.ranking-rolavel::-webkit-scrollbar-thumb {
+    background: var(--borda);
+    border-radius: 6px;
+}
+
+.ranking-rolavel::-webkit-scrollbar-thumb:hover {
+    background: var(--texto-suave);
 }
 
 ol.ranking {
@@ -366,7 +410,28 @@ meter::-moz-meter-bar {
 
 /* ---------- Tabelas ---------- */
 .tabela-wrap {
-    overflow-x: auto;
+    max-height: 322px;
+    overflow: auto;
+    scrollbar-width: thin;
+    scrollbar-color: var(--borda) transparent;
+}
+
+.tabela-wrap::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+}
+
+.tabela-wrap::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.tabela-wrap::-webkit-scrollbar-thumb {
+    background: var(--borda);
+    border-radius: 6px;
+}
+
+.tabela-wrap::-webkit-scrollbar-thumb:hover {
+    background: var(--texto-suave);
 }
 
 table {
@@ -475,6 +540,11 @@ tbody tr:last-child :is(th, td) {
     .grade-2,
     .grade-21 {
         grid-template-columns: 1fr;
+    }
+
+    /* Em uma coluna o painel não é esticado; volta o respiro abaixo do título. */
+    .painel-grafico .painel-topo {
+        margin-bottom: 14px;
     }
 }
 

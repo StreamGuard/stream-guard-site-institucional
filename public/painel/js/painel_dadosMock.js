@@ -144,7 +144,7 @@ const DADOS_MOCK = (() => {
         });
         const somaUltimos = (qtd, campo) => soma(dias.slice(-qtd).map((d) => d[campo]));
         const rejeicoes = {};
-        [7, 30, 90].forEach((qtd) => {
+        [1, 7, 30, 90].forEach((qtd) => {
             rejeicoes[qtd] = { linhas_recebidas: somaUltimos(qtd, "recebidas"), linhas_rejeitadas: somaUltimos(qtd, "rejeitadas") };
         });
         return {

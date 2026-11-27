@@ -2,7 +2,7 @@ var clientesModel = require("../models/clientesModel");
 var dataLakeModel = require("../models/dataLakeModel");
 
 var PRECO_GB_MES = 0.023;
-var PERIODOS_REJEICAO = [7, 30, 90];
+var PERIODOS_REJEICAO = [1, 7, 30, 90];
 
 function numero(valor) {
     var convertido = Number(valor);
@@ -100,7 +100,7 @@ function listaCrescimento(inventario) {
         .map(function (item) {
             return {
                 dia: String(item.dia),
-                gb_adicionados: arredondar(item.gb_adicionados, 3)
+                gb_adicionados: arredondar(item.gb_adicionados, 6)
             };
         })
         .sort(function (a, b) {
@@ -113,7 +113,7 @@ function crescimentoSemana(crescimento) {
         return soma + numero(item.gb_adicionados);
     }, 0);
 
-    return arredondar(total, 3);
+    return arredondar(total, 6);
 }
 
 function listaExecucoes(qualidade) {
@@ -189,9 +189,9 @@ function volumesDoServidor(inventario, servidor, volumesEmpresa, quantidadeServi
         : (quantidadeServidores > 0 ? 1 / quantidadeServidores : 0);
 
     return {
-        bronze_gb: arredondar(bronzeServidor, 3),
-        silver_gb: arredondar(volumesEmpresa.silver * peso, 3),
-        gold_gb: arredondar(volumesEmpresa.gold * peso, 3)
+        bronze_gb: arredondar(bronzeServidor, 6),
+        silver_gb: arredondar(volumesEmpresa.silver * peso, 6),
+        gold_gb: arredondar(volumesEmpresa.gold * peso, 6)
     };
 }
 
@@ -281,9 +281,9 @@ async function buscarDadosETL(req, res) {
 
         const camadas = inventario && inventario.camadas
             ? {
-                bronze_gb: arredondar(inventario.camadas.bronze_gb, 3),
-                silver_gb: arredondar(inventario.camadas.silver_gb, 3),
-                gold_gb: arredondar(inventario.camadas.gold_gb, 3)
+                bronze_gb: arredondar(inventario.camadas.bronze_gb, 6),
+                silver_gb: arredondar(inventario.camadas.silver_gb, 6),
+                gold_gb: arredondar(inventario.camadas.gold_gb, 6)
             }
             : null;
 

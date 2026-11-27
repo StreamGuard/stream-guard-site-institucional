@@ -33,9 +33,10 @@
                     <div class="campo-select">
                         <span class="rotulo" id="rotuloPeriodo">PERÍODO</span>
                         <div class="grupo-periodo" id="grupoPeriodo" role="group" aria-labelledby="rotuloPeriodo">
-                            <button type="button" class="btn-periodo" data-dias="7">7 dias</button>
-                            <button type="button" class="btn-periodo ativo" data-dias="30">30 dias</button>
-                            <button type="button" class="btn-periodo" data-dias="90">90 dias</button>
+                            <button type="button" class="btn-periodo" data-dias="1">24h</button>
+                            <button type="button" class="btn-periodo" data-dias="7">7d</button>
+                            <button type="button" class="btn-periodo ativo" data-dias="30">30d</button>
+                            <button type="button" class="btn-periodo" data-dias="90">90d</button>
                         </div>
                     </div>
                     <p class="legenda-fontes">
@@ -72,7 +73,7 @@
                             </div>
                             <span class="fonte fonte-lake">inventario.json</span>
                         </div>
-                        <ul class="ranking" id="listaCamadas"></ul>
+                        <ul class="ranking ranking-rolavel" id="listaCamadas"></ul>
                         <p class="nota">O Bronze concentra a maior parte do volume e é o único que cresce acumulando histórico.</p>
                     </section>
                 </div>
@@ -84,12 +85,8 @@
                                 <h2>Armazenamento por empresa</h2>
                                 <p id="subEmpresas"></p>
                             </div>
-                            <div class="grupo-periodo" id="grupoBase" role="group" aria-label="Base de comparação">
-                                <button type="button" class="btn-periodo ativo" data-base="total">Total</button>
-                                <button type="button" class="btn-periodo" data-base="servidor">Por servidor</button>
-                            </div>
                         </div>
-                        <ol class="ranking" id="rankEmpresas"></ol>
+                        <ol class="ranking ranking-rolavel" id="rankEmpresas"></ol>
                         <ul class="legenda-camadas">
                             <li class="camada-bronze">Bronze</li>
                             <li class="camada-silver">Silver</li>
@@ -98,7 +95,7 @@
                         <p class="nota">A empresa vem do banco: no bucket só existe o id do servidor.</p>
                     </section>
 
-                    <section class="painel">
+                    <section class="painel painel-grafico">
                         <div class="painel-topo">
                             <div>
                                 <h2>Taxa de rejeição por dia</h2>

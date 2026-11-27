@@ -1,5 +1,4 @@
-// Tela "Data Lake": volume, custo, qualidade e saúde do ETL.
-// Os dados chegam no formato do JSON do backend (veja painel_dadosMock.js).
+
 document.addEventListener("DOMContentLoaded", async () => {
     // ---------- Configuração ----------
     const SILENCIO_MIN = 15;      // sem lote há mais que isso: servidor silencioso
@@ -8,7 +7,6 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const el = (id) => document.getElementById(id);
 
-    // true: usa o painel_dadosMock.js. false: busca no backend (banco + Data Lake).
     const USAR_MOCK = false;
     const URL_API = "/dataLake/buscarDadosETL";
     const PRECO_GB_MES = 0.023;
@@ -16,11 +14,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     let dados = {};
     let servidores = [];
     let dias = 30;
-    let base = "total";
     let grafCrescimento = null;
     let grafRejeicao = null;
 
-    // ---------- Dados ----------
     function dadosVazios() {
         return {
             gerado_em: null,
@@ -82,13 +78,36 @@ document.addEventListener("DOMContentLoaded", async () => {
     const numero = (valor, casas = 0) =>
         numeroSeguro(valor).toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
 
+    // Abaixo de 1 GB, mostra em MB para o valor não sumir no arredondamento.
+    const formatarVolume = (gb) => {
+        if (gb === null || gb === undefined) return "—";
+        const valor = numeroSeguro(gb);
+        if (valor === 0) return "0 MB";
+        if (valor < 1) return `${numero(valor * 1024, 1)} MB`;
+        return `${numero(valor, 1)} GB`;
+    };
+
+    // Separa o valor da unidade para o card, que destaca a unidade em <small>.
+    const partesVolume = (gb) => {
+        const texto = formatarVolume(gb);
+        const fim = texto.lastIndexOf(" ");
+        if (fim === -1) return { valor: texto, unidade: "" };
+        return { valor: texto.slice(0, fim), unidade: texto.slice(fim + 1) };
+    };
+
+    // Custo em dólar: 2 casas normalmente e no máximo 3 abaixo de um centavo.
     const dinheiro = (gb) => {
         if (gb === null || gb === undefined) return "—";
         const preco = dados.preco_gb_mes === undefined || dados.preco_gb_mes === null
             ? PRECO_GB_MES
             : numeroSeguro(dados.preco_gb_mes);
-        return "US$ " + (numeroSeguro(gb) * preco).toLocaleString("pt-BR", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const valor = numeroSeguro(gb) * preco;
+        const casas = valor > 0 && valor < 0.01 ? 3 : 2;
+        return "US$ " + valor.toLocaleString("pt-BR", { minimumFractionDigits: casas, maximumFractionDigits: casas });
     };
+
+    // 1 dia de recorte é exibido como 24h para acompanhar o filtro.
+    const rotuloDias = (total) => (total === 1 ? "24h" : `${total} dias`);
 
     const minutosDesde = (dataISO) => {
         if (!dataISO) return null;
@@ -200,22 +219,23 @@ document.addEventListener("DOMContentLoaded", async () => {
             : null;
         const goldMin = minutosDesde(dados.ultimo_gold_em);
 
-        const crescimento = dados.crescimento_gb_semana === null || dados.crescimento_gb_semana === undefined
-            ? "Crescimento ainda não disponível"
-            : `Crescendo ${numero(dados.crescimento_gb_semana, 1)} GB por semana`;
+        const recorteCrescimento = ultimosDias(dados.crescimento_bronze);
+        const crescimentoPeriodo = recorteCrescimento.reduce((t, d) => t + numeroSeguro(d.gb_adicionados), 0);
+        const temCrescimento = recorteCrescimento.length > 0;
+        const volumeTotal = partesVolume(totalGb);
         const semCamadas = temInventario()
             ? "O inventário não trouxe os volumes por camada."
             : "Inventário ainda não disponível";
 
         el("cardsKpi").innerHTML = [
-            card("", "Volume total", "lake", camadas ? numero(totalGb, 1) : "—", camadas ? "GB" : "",
-                camadas ? crescimento : semCamadas),
-            card("card-roxo", "Custo estimado", "lake", camadas ? dinheiro(totalGb) : "—", camadas ? "/mês" : "",
+            card("", "Volume total", "lake", camadas ? volumeTotal.valor : "—", camadas ? volumeTotal.unidade : "",
+                camadas ? "Soma das camadas Bronze, Silver e Gold" : semCamadas),
+            card("card-roxo", "Custo estimado", "lake", temCrescimento ? dinheiro(crescimentoPeriodo) : "—", temCrescimento ? "/mês" : "",
                 `Preço de referência US$ ${numero(dados.preco_gb_mes === undefined || dados.preco_gb_mes === null ? PRECO_GB_MES : dados.preco_gb_mes, 3)} por GB`),
             card(temDadosRejeicao && taxa > ALERTA_REJEICAO ? "card-alerta" : temDadosRejeicao ? "card-verde" : "",
                 "Taxa de rejeição", "rejeitados", temDadosRejeicao ? numero(taxa, 2) : "—", temDadosRejeicao ? "%" : "",
                 temDadosRejeicao
-                    ? `${numero(rejeitadas)} de ${numero(recebidas)} linhas em ${dias} dias`
+                    ? `${numero(rejeitadas)} de ${numero(recebidas)} linhas em ${rotuloDias(dias)}`
                     : "Qualidade ainda não disponível"),
             card(silenciosos === null ? "" : silenciosos ? "card-alerta" : "card-verde",
                 "Servidores sem enviar", "lake", silenciosos === null ? "—" : silenciosos,
@@ -260,9 +280,9 @@ document.addEventListener("DOMContentLoaded", async () => {
             <li class="${c.classe}">
                 <p class="ranking-linha">
                     <span class="ranking-nome">${c.nome}</span>
-                    <span class="ranking-valor">${numero(c.gb, 1)} GB · ${dinheiro(c.gb)}/mês</span>
+                    <span class="ranking-valor">${formatarVolume(c.gb)} · ${dinheiro(c.gb)}/mês</span>
                 </p>
-                <meter min="0" max="${maior}" value="${c.gb}">${numero(c.gb, 1)} GB</meter>
+                <meter min="0" max="${maior}" value="${c.gb}">${formatarVolume(c.gb)}</meter>
             </li>`).join("");
     }
 
@@ -282,32 +302,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         const porEmpresa = dados.empresas.map((empresa) => {
             const doGrupo = servidores.filter((s) => s.empresa_id === empresa.id);
             const soma = (campo) => doGrupo.reduce((t, s) => t + numeroSeguro(s[campo]), 0);
-            const divisor = base === "servidor" ? Math.max(1, doGrupo.length) : 1;
             return {
                 nome: empresa.nome || "—",
-                bronze: soma("bronze_gb") / divisor,
-                silver: soma("silver_gb") / divisor,
-                gold: soma("gold_gb") / divisor
+                bronze: soma("bronze_gb"),
+                silver: soma("silver_gb"),
+                gold: soma("gold_gb")
             };
         }).sort((a, b) => (b.bronze + b.silver + b.gold) - (a.bronze + a.silver + a.gold));
 
         const maximo = Math.max(1, ...porEmpresa.map((e) => e.bronze + e.silver + e.gold));
-        const casas = base === "servidor" ? 2 : 1;
 
-        el("subEmpresas").textContent = base === "servidor"
-            ? "GB médios por servidor (mostra quem consome mais por máquina)"
-            : "GB totais de cada empresa nas três camadas";
+        el("subEmpresas").textContent = "Volume total de cada empresa nas três camadas";
 
-        el("rankEmpresas").innerHTML = porEmpresa.slice(0, 8).map((e) => {
+        el("rankEmpresas").innerHTML = porEmpresa.map((e) => {
             const total = e.bronze + e.silver + e.gold;
             const largura = (valor) => (valor / maximo) * 100;
             return `
             <li>
                 <p class="ranking-linha">
                     <span class="ranking-nome">${escapar(e.nome)}</span>
-                    <span class="ranking-valor">${numero(total, casas)} GB · ${dinheiro(total)}/mês</span>
+                    <span class="ranking-valor">${formatarVolume(total)} · ${dinheiro(total)}/mês</span>
                 </p>
-                <div class="barra-empilhada" role="img" aria-label="Bronze ${numero(e.bronze, casas)} GB, Silver ${numero(e.silver, casas)} GB, Gold ${numero(e.gold, casas)} GB">
+                <div class="barra-empilhada" role="img" aria-label="Bronze ${formatarVolume(e.bronze)}, Silver ${formatarVolume(e.silver)}, Gold ${formatarVolume(e.gold)}">
                     <span class="camada-bronze" style="width: ${largura(e.bronze)}%"></span>
                     <span class="camada-silver" style="width: ${largura(e.silver)}%"></span>
                     <span class="camada-gold" style="width: ${largura(e.gold)}%"></span>
@@ -434,7 +450,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const recorte = ultimosDias(dados.crescimento_bronze);
         const total = recorte.reduce((t, d) => t + numeroSeguro(d.gb_adicionados), 0);
         el("subCrescimento").textContent = recorte.length
-            ? `+${numero(total, 1)} GB em ${recorte.length} ${recorte.length === 1 ? "dia" : "dias"}`
+            ? `+${formatarVolume(total)} em ${rotuloDias(recorte.length)}`
             : "Sem dados de crescimento no período";
 
         // GB acumulados no período, partindo de zero.
@@ -514,14 +530,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         dias = Number(botao.dataset.dias);
         ativarBotao(el("grupoPeriodo"), botao);
         desenharTudo();
-    });
-
-    el("grupoBase").addEventListener("click", (evento) => {
-        const botao = evento.target.closest("[data-base]");
-        if (!botao) return;
-        base = botao.dataset.base;
-        ativarBotao(el("grupoBase"), botao);
-        desenharEmpresas();
     });
 
     // ---------- Início ----------
