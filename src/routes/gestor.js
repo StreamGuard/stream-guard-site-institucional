@@ -30,4 +30,9 @@ router.post(
     gestorController.gerarRelatorio
 );
 
+router.get(
+    "/relatorio/automatico",
+    gestorController.buscarDadosRelatorioAutomatico
+);
+
 module.exports = router;

@@ -1,4 +1,6 @@
 const gestorModel = require("../models/gestorModel");
+const relatorioAutomaticoService = require("../services/relatorioAutomaticoService");
+const crypto = require("crypto");
 const usuarioModel = require("../models/usuarioModel");
 const relatorioService = require("../services/relatorioService");
 const precoService = require("../services/precoNuvemService");
@@ -156,9 +158,45 @@ async function gerarRelatorio(req, res) {
     }
 }
 
+async function buscarDadosRelatorioAutomatico(req, res) {
+    let esperado = process.env.TOKEN_RELATORIO;
+    let recebido = req.headers["x-relatorio-token"];
+
+    if (!esperado || typeof recebido !== "string") {
+        return res.status(401).json({
+            mensagem: "Acesso não autorizado."
+        });
+    }
+
+    let a = Buffer.from(esperado);
+    let b = Buffer.from(recebido);
+
+    if (a.length !== b.length || !crypto.timingSafeEqual(a, b)) {
+        return res.status(401).json({
+            mensagem: "Acesso não autorizado."
+        });
+    }
+
+    try {
+        let dados = await relatorioAutomaticoService.buscarDados();
+
+        res.set("Cache-Control", "no-store");
+
+        return res.status(200).json(dados);
+
+    } catch (erro) {
+        console.error("Erro no relatório automático:", erro.message);
+
+        return res.status(503).json({
+            mensagem: "Não foi possível obter os dados do relatório."
+        });
+    }
+}
+
 module.exports = {
     buscarPrecos,
     buscarResumo,
     simular,
-    gerarRelatorio
+    gerarRelatorio,
+    buscarDadosRelatorioAutomatico
 };
