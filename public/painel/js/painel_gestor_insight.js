@@ -610,6 +610,10 @@
 
         versaoFinanceira++;
 
+        if (ESTADO.custos) {
+            ESTADO.custos.api = null;
+        }
+
         // Invalida as comparações anteriores.
         comparacoesFinanceiras = null;
 
@@ -2263,9 +2267,179 @@
         atualizarBilling();
     }
 
-    // ==========================================
-    // 20. EVENTOS DA DASHBOARD
-    // ==========================================
+
+
+    function prepararDadosRelatorio() {
+
+        let financeiro = ESTADO.custos?.api;
+
+        if (!financeiro) {
+            throw new Error(
+                'Aguarde a conclusão da simulação financeira.'
+            );
+        }
+
+        let servidores = ESTADO.servidores.filter(function (servidor) {
+
+            return servidor.picos && servidor.janelasAcimaLimite;
+        });
+
+        if (servidores.length === 0) {
+            throw new Error(
+                'Não existem dados Gold disponíveis para o período.'
+            );
+        }
+
+        let servidoresAtencao = 0;
+
+        let componentes = ['CPU', 'RAM', 'Disco'];
+
+        for (let servidor of servidores) {
+
+            let servidorComRisco = false;
+
+            for (let componente of componentes) {
+
+                if (
+                    servidor.janelasAcimaLimite[componente] > 0 ||
+                    servidor[componente] >= LIMITES[componente]
+                ) {
+                    servidorComRisco = true;
+                }
+            }
+
+            if (servidorComRisco) {
+                servidoresAtencao++;
+            }
+        }
+
+        let previsoes = [];
+
+        for (let previsao of financeiro.previsoes) {
+
+            previsoes.push({
+                mes: 'Mês ' + previsao.mes,
+                custo: previsao.custo
+            });
+        }
+
+        let recomendacoes = [];
+
+        for (let insight of financeiro.insights) {
+            recomendacoes.push(insight);
+        }
+
+        for (let acao of ESTADO.acoes) {
+
+            if (REGRAS[acao.key]) {
+
+                recomendacoes.push(
+                    REGRAS[acao.key].acao
+                );
+            }
+        }
+
+        if (recomendacoes.length === 0) {
+
+            recomendacoes.push(
+                'Continuar acompanhando os indicadores operacionais e financeiros.'
+            );
+        }
+
+        let dados = {
+
+            dataGeracao: new Date().toLocaleString('pt-BR', {
+                timeZone: 'America/Sao_Paulo'
+            }),
+
+            cenario: 'Histórico Gold - ' + periodoGestor +
+                ' | Simulação financeira AWS',
+
+            totalServidores: servidores.length,
+
+            servidoresAtencao: servidoresAtencao,
+
+            custoEstimado: financeiro.custoTotal,
+
+            orcamentoMensal: financeiro.orcamentoTotal,
+
+            previsoes: previsoes,
+
+            recomendacoes: recomendacoes
+        };
+
+        return dados;
+    }
+        async function baixarRelatorio() {
+
+            let botao = $('buttonRelatorio');
+
+            botao.disabled = true;
+
+            botao.textContent = 'Gerando relatório...';
+
+            try {
+
+                let dados = prepararDadosRelatorio();
+
+                let resposta = await fetch('/gestor/relatorio', {
+
+                    method: 'POST',
+
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+
+                    body: JSON.stringify(dados)
+                });
+
+                if (!resposta.ok) {
+
+                    let erro = await resposta.json();
+
+                    throw new Error(
+                        erro.mensagem || 'Erro ao gerar relatório.'
+                    );
+                }
+
+                let arquivo = await resposta.blob();
+
+                let url = URL.createObjectURL(arquivo);
+
+                let link = document.createElement('a');
+
+                link.href = url;
+
+                link.download = 'relatorio-gerencial.pdf';
+
+                document.body.appendChild(link);
+
+                link.click();
+
+                link.remove();
+
+                setTimeout(function () {
+                    URL.revokeObjectURL(url);
+                }, 1000);
+
+                mostrarToast('Relatório gerado com sucesso!');
+
+            } catch (erro) {
+
+                console.error(erro);
+
+                mostrarToast(erro.message);
+
+            } finally {
+
+                botao.disabled = false;
+
+                botao.textContent = 'Gerar relatório executivo';
+            }
+        
+    }
+    // EVENTOS 
+
 
     function configurarEventos() {
 
@@ -2424,6 +2598,12 @@
         // ======================================
         // IMPRESSÃO DA DASHBOARD
         // ======================================
+
+
+        $('buttonRelatorio').addEventListener(
+            'click',
+            baixarRelatorio
+        );
 
         $('buttonPrint').addEventListener('click', function () {
 
