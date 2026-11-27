@@ -1,17 +1,10 @@
 const gestorModel = require("../models/gestorModel");
 const usuarioModel = require("../models/usuarioModel");
+const relatorioService = require("../services/relatorioService");
+const precoService = require("../services/precoNuvemService");
+const financeiroService = require("../services/gestorFinanceiroService");
 
-const precoService = require(
-    "../services/precoNuvemService"
-);
-
-const financeiroService = require(
-    "../services/gestorFinanceiroService"
-);
-
-// ==========================================
-// CONSULTAR TARIFAS PÚBLICAS DA AWS
-// ==========================================
+// TARIFAS AWS
 
 function buscarPrecos(req, res) {
 
@@ -31,14 +24,9 @@ function buscarPrecos(req, res) {
     }
 }
 
-// ==========================================
-// CONSULTAR MÉTRICAS DO PERÍODO
-// ==========================================
+// CONSULTAR MÉTRICAS 
 
 async function buscarResumo(req, res) {
-
-    // O projeto ainda não possui sessão no servidor: resolve a empresa
-    // pelo usuário informado pelo painel, conforme o contrato atual do login.
     let usuarioId = Number(req.query.idUsuario);
 
     if (!Number.isSafeInteger(usuarioId) || usuarioId <= 0) {
@@ -86,9 +74,9 @@ async function buscarResumo(req, res) {
     }
 }
 
-// ==========================================
-// CALCULAR ORÇAMENTO E INSIGHTS
-// ==========================================
+
+// ORÇAMENTO E INSIGHTS
+
 
 function simular(req, res) {
 
@@ -129,8 +117,48 @@ function simular(req, res) {
     }
 }
 
+async function gerarRelatorio(req, res) {
+
+    try {
+
+        let dados = req.body;
+
+        if (
+            !dados ||
+            typeof dados.cenario !== "string" ||
+            !Number.isFinite(dados.custoEstimado) ||
+            !Number.isFinite(dados.orcamentoMensal) ||
+            !Number.isInteger(dados.totalServidores) ||
+            !Number.isInteger(dados.servidoresAtencao) ||
+            !Array.isArray(dados.previsoes) ||
+            !Array.isArray(dados.recomendacoes)
+        ) {
+
+            return res.status(400).json({
+                mensagem: "Dados do relatório inválidos."
+            });
+        }
+
+        let caminhoPdf = await relatorioService.gerarRelatorio(dados);
+
+        return res.download(
+            caminhoPdf,
+            "relatorio-gerencial.pdf"
+        );
+
+    } catch (erro) {
+
+        console.error("Erro ao gerar relatório:", erro.message);
+
+        return res.status(500).json({
+            mensagem: "Não foi possível gerar o relatório."
+        });
+    }
+}
+
 module.exports = {
     buscarPrecos,
     buscarResumo,
-    simular
+    simular,
+    gerarRelatorio
 };

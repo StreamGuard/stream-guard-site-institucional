@@ -24,4 +24,10 @@ router.post(
     gestorController.simular
 );
 
+// Geração de relatório executivo.
+router.post(
+    "/relatorio",
+    gestorController.gerarRelatorio
+);
+
 module.exports = router;
