@@ -233,11 +233,11 @@
         let servidoresGold = obterServidoresGold();
         if (servidoresGold.length === 0) {
             $('kpiRisk').textContent = '—';
-            $('kpiRiskNote').textContent = 'Sem dados Gold disponíveis';
+            $('kpiRiskNote').textContent = 'Histórico operacional indisponível';
             $('kpiComp').textContent = '—';
             $('kpiCompNote').textContent = 'Aguardando análise operacional';
             $('noticeTitle').textContent = 'Aguardando histórico operacional';
-            $('noticeDesc').textContent = 'Os riscos serão analisados quando os dados Gold estiverem disponíveis.';
+            $('noticeDesc').textContent = 'Os riscos serão analisados após a atualização do histórico operacional.';
             return;
         }
         let servidoresComAlertas = 0;
@@ -489,7 +489,7 @@
         let opcoes = [
             {
                 quantidade: 0,
-                nome: 'Manter nós atuais',
+                nome: 'Manter capacidade de referência',
                 cor: 'var(--blue)'
             },
             {
@@ -614,7 +614,7 @@
                     !Number.isFinite(saldo) ||
                     !Number.isFinite(orcamento)
                 ) {
-                    throw new Error('A API retornou valores financeiros inválidos.');
+                    throw new Error('Não foi possível validar os valores financeiros.');
                 }
                 resultados[alternativa.chave] = {
                     descricao: alternativa.descricao,
@@ -670,10 +670,9 @@
             mensagemComparacoesFinanceiras = 'Calculando impacto financeiro da alternativa...';
             atualizarDecisoes();
             compararCustosDasDecisoes(dados, resultado, versaoAtual);
-            let mensagem = 'Estimativa atualizada pela API financeira.';
+            let mensagem = 'Projeção financeira atualizada.';
             if (tarifasAwsCarregadas) {
-                mensagem += ' EC2 e EBS usam as tarifas AWS consultadas; ' +
-                    'rede e câmbio são premissas informadas.';
+                mensagem += ' Tarifas de computação e armazenamento consultadas; ' + 'transferência e câmbio são parâmetros do cenário.';
             }
             $('statusFinanceiro').textContent = mensagem;
         } catch (erro) {
@@ -732,7 +731,7 @@
         }
         let categorias = [
             {
-                nome: 'Computação (EC2)',
+                nome: 'Capacidade computacional',
                 custo: computacao,
                 cor: CORES.CPU
             },
@@ -785,7 +784,7 @@
 
     function exibirResultadoFinanceiro(resultado) {
         if (!resultado.componentes) {
-            throw new Error('A API não retornou os custos por componente.');
+            throw new Error('Detalhamento financeiro temporariamente indisponível.');
         }
         let nomes = ['CPU', 'RAM', 'Disco', 'Rede'];
         let formatador = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -794,12 +793,12 @@
             let nome = nomes[i];
             let componente = resultado.componentes[nome];
             if (!componente) {
-                throw new Error('A API não retornou o custo de ' + nome + '.');
+                throw new Error('Custo indisponível para ' + nome + '.');
             }
             let custo = Number(componente.custo);
             let orcamento = Number(componente.orcamento);
             if (!Number.isFinite(custo) || !Number.isFinite(orcamento)) {
-                throw new Error('A API retornou valores financeiros inválidos.');
+                throw new Error('Não foi possível validar os valores financeiros.');
             }
             let situacao = componente.situacao ||
                 (custo > orcamento ? 'Acima do orçamento' : 'Dentro do orçamento');
@@ -837,7 +836,7 @@
         if (Number.isFinite(custoTotal)) {
             $('billingTotal').textContent = moedaReal(custoTotal);
             $('kpiCost').textContent = moedaReal(custoTotal);
-            $('kpiCostNote').textContent = 'Estimativa calculada pelo serviço financeiro Node.js';
+            $('kpiCostNote').textContent = 'Custo mensal projetado';
             // Converte para dólares usando o câmbio da simulação.
             let cambio = valorCampo('fx');
             if (cambio > 0) {
@@ -891,7 +890,7 @@
             $('orcamentoProgresso').value = 0;
         }
         if (!Array.isArray(resultado.previsoes) || resultado.previsoes.length !== 3) {
-            throw new Error('A API não retornou as três previsões.');
+            throw new Error('Previsão temporariamente indisponível.');
         }
         let htmlPrevisao = '';
         for (let previsao of resultado.previsoes) {
@@ -900,7 +899,7 @@
             if (
                 ![1, 2, 3].includes(mes) || !Number.isFinite(custo) || custo < 0
             ) {
-                throw new Error('A API retornou uma previsão inválida.');
+                throw new Error('Não foi possível validar a previsão.');
             }
             let aviso = '';
             if (orcamentoTotal > 0 && custo > orcamentoTotal) {
@@ -929,12 +928,12 @@
             let resposta = await fetch('/gestor/precos');
             let precos = await resposta.json();
             if (!resposta.ok) {
-                throw new Error(precos.mensagem || 'API de preços indisponível.');
+                throw new Error(precos.mensagem || 'Tarifas temporariamente indisponíveis.');
             }
             let precoEc2 = Number(precos.instancia.usdPorHora);
             let precoEbs = Number(precos.armazenamento.usdPorGbMes);
             if (!Number.isFinite(precoEc2) || precoEc2 <= 0 || !Number.isFinite(precoEbs) || precoEbs <= 0) {
-                throw new Error('A API retornou tarifas inválidas.');
+                throw new Error('Não foi possível validar as tarifas.');
             }
             $('priceNode').value = precoEc2;
             $('priceNode').step = '0.0001';
@@ -946,10 +945,7 @@
             let texto = document.querySelector('.premissas p');
             if (texto) {
                 texto.textContent =
-                    'Tarifas EC2 (' + precos.instancia.tipo + ') e EBS (' +
-                    precos.armazenamento.tipo + ') consultadas no catálogo AWS ' +
-                    'para ' + precos.regiao + '. Rede e câmbio continuam como premissas. ' +
-                    'A simulação não representa uma fatura.';
+                    'Tarifas de computação e armazenamento consultadas no catálogo AWS para a região ' + precos.regiao + '. Transferência de dados e câmbio são ajustáveis.';
             }
             atualizarBilling();
         } catch (erro) {
@@ -958,9 +954,7 @@
             let texto = document.querySelector('.premissas p');
             if (texto) {
                 texto.textContent =
-                    'Consulta às tarifas AWS indisponível. Os valores do ' +
-                    'formulário são referências demonstrativas. ' +
-                    'Rede e câmbio continuam sendo premissas.';
+                    'Não foi possível atualizar as tarifas. Os valores exibidos nos campos são referências. ' + 'Transferência de dados e câmbio permanecem ajustáveis.';
             }
         }
     }
@@ -972,7 +966,7 @@
         // Considera somente servidores que vieram do Gold.
         let servidores = obterServidoresGold();
         if (servidores.length === 0) {
-            lista.innerHTML = '<p>Aguardando dados do histórico Gold.</p>';
+            lista.innerHTML = '<p>Aguardando histórico operacional.</p>';
             return;
         }
         let grupos = [
@@ -1020,7 +1014,7 @@
             if (comparacao) {
                 textoFinanceiro =
                     'Alternativa: ' + comparacao.descricao + '. ' +
-                    'Custo da configuração atual: ' +
+                    'Custo do cenário selecionado: ' +
                     moedaReal(comparacao.custoAtual) + '/mês. ' +
                     'Custo com a alternativa: ' +
                     moedaReal(comparacao.custoNovo) + '/mês. ' +
@@ -1344,7 +1338,7 @@
         }
         let servidores = obterServidoresGold();
         if (servidores.length === 0) {
-            throw new Error('Não existem dados Gold disponíveis para o período.');
+            throw new Error('Não há dados operacionais disponíveis para o período.');
         }
         let servidoresAtencao = 0;
         for (let servidor of servidores) {
@@ -1372,7 +1366,7 @@
         }
         let dados = {
             dataGeracao: new Date().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' }),
-            cenario: 'Histórico Gold - ' + periodoGestor + ' | Simulação financeira AWS',
+            cenario: 'Histórico operacional - ' + periodoGestor + ' | Projeção financeira',
             totalServidores: servidores.length,
             servidoresAtencao: servidoresAtencao,
             custoEstimado: financeiro.custoTotal,
@@ -1521,13 +1515,13 @@
 
         $('buttonMethod').addEventListener('click', function () {
             let mensagem =
-                'Os indicadores operacionais utilizam dados históricos do Data Lake Gold.\n\n' +
+                'Os indicadores operacionais consideram o histórico da infraestrutura no período selecionado.\n\n' +
                 'As médias representam a utilização dos recursos durante o período selecionado.\n\n' +
                 'Os picos indicam os maiores valores registrados nas janelas analisadas.\n\n' +
                 'As janelas com limites ultrapassados não representam necessariamente incidentes individuais.\n\n' +
-                'Os custos são estimativas calculadas pelo serviço financeiro Node.js, utilizando tarifas AWS e premissas configuradas.\n\n' +
+                'O custo mensal representa uma projeção baseada nas tarifas públicas da AWS e na capacidade configurada, não o faturamento da conta.\n\n' +
                 'As alternativas de investimento são simulações. Uma expansão não garante a resolução dos problemas identificados.';
-            abrirModal('Como interpretar este painel', mensagem);
+            abrirModal('Como interpretar os indicadores', mensagem);
         });
 
         // FECHAMENTO DOS MODAIS
@@ -1619,9 +1613,9 @@
         $('cenario').disabled = true;
         $('cenario').closest('.campo').style.display = 'none';
 
-        document.querySelector('#resumo .etiqueta-demo').textContent = 'CONSULTANDO HISTÓRICO GOLD';
+        document.querySelector('#resumo .etiqueta-demo').textContent = 'CONSULTANDO HISTÓRICO OPERACIONAL';
 
-        $('statusPeriodoGestor').textContent = 'Consultando histórico Gold de ' + periodoGestor + '...';
+        $('statusPeriodoGestor').textContent = 'Consultando histórico operacional de ' + periodoGestor + '...';
 
         try {
             let resposta = await fetch(
@@ -1643,14 +1637,13 @@
 
             if (resposta.status === 401 || resposta.status === 403) {
                 $('statusPeriodoGestor').textContent =
-                    'Entre com um usuário ativo para consultar o histórico Gold. ' +
-                    'Os indicadores operacionais continuam demonstrativos.';
+                    'Não foi possível acessar o histórico operacional. Verifique sua sessão de acesso.';
                 return;
             }
 
             if (resposta.status === 404) {
                 $('statusPeriodoGestor').textContent =
-                    'A rota de histórico Gold ainda não está disponível no backend.';
+                    'Histórico operacional temporariamente indisponível.';
                 return;
             }
 
@@ -1661,7 +1654,7 @@
             let total = Number(dados.totalRegistros);
 
             if (!Number.isFinite(total)) {
-                throw new Error('O retorno do histórico não contém totalRegistros.');
+                throw new Error('Não foi possível validar o histórico operacional.');
             }
 
             let servidoresGold = prepararServidoresGold(dados.metricas || []);
@@ -1682,7 +1675,7 @@
                 atualizarResumo();
                 atualizarDecisoes();
 
-                document.querySelector('.etiqueta-demo').textContent = 'INDICADORES OPERACIONAIS · DADOS GOLD';
+                document.querySelector('.etiqueta-demo').textContent = 'INDICADORES OPERACIONAIS';
 
             } else {
                 // Não apresenta os indicadores demonstrativos como se fossem reais.
@@ -1708,9 +1701,9 @@
             $('statusPeriodoGestor').textContent =
                 servidoresGold.length === 0
                     ? 'Não há métricas completas disponíveis em ' + periodoGestor + '.'
-                    : total + ' registros Gold encontrados em ' + periodoGestor +
+                    : total + ' registros analisados em ' + periodoGestor +
                     '. Exibindo médias históricas de ' +
-                    servidoresGold.length + ' servidores reais.';
+                    servidoresGold.length + ' servidores monitorados.';
 
         } catch (erro) {
 

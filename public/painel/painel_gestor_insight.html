@@ -7,7 +7,7 @@
     <meta name="theme-color" content="#0c0c18">
     <meta name="description"
         content="Dashboard gerencial do StreamGuard: orçamento por componente, estimativas financeiras AWS, decisões e análise por período.">
-    <title>Inteligência Gerencial | StreamGuard</title>
+    <title>Inteligência Financeira | StreamGuard</title>
     <!-- Folha compartilhada: estrutura do painel, menu lateral, cabeçalho e perfil -->
     <link rel="stylesheet" href="./css/painel_base.css">
     <!-- Estilos exclusivos desta dashboard -->
@@ -22,7 +22,7 @@
         <div class="conteudo">
             <header class="topo">
                 <div>
-                    <h1>Inteligência Gerencial</h1>
+                    <h1>Inteligência Financeira</h1>
                     <p>Análise de infraestrutura e apoio às decisões</p>
                 </div>
                 <div class="topo-direita" data-shell="topo-direita"></div>
@@ -45,11 +45,16 @@
 
                 <section class="secao" id="resumo">
                     <div class="cabecalho-pagina">
-                        <div><span class="rotulo-superior">◉   VISÃO ESTRATÉGICA DA INFRAESTRUTURA</span>
-                            <h1>Inteligência Gerencial</h1>
-                            <p>Identifique prioridades, compare investimentos e projete o impacto
-                                financeiro das decisões sobre a infraestrutura de streaming.</p>
-                        </div>
+                        <span class="rotulo-superior">
+                            ◉ INTELIGÊNCIA FINANCEIRA PARA STREAMING
+                        </span>
+
+                        <h1>Gestão de Custos e Investimentos</h1>
+
+                        <p>
+                            Acompanhe os custos da infraestrutura, antecipe despesas
+                            e planeje investimentos com maior segurança financeira.
+                        </p>
                         <div class="acoes"><button class="botao" id="buttonMethod" type="button">ⓘ   Entenda os
                                 indicadores</button></div>
                     </div>
@@ -66,11 +71,11 @@
                                     dias</button>
                             </div>
                             <p id="statusPeriodoGestor" role="status" aria-live="polite">
-                                Consultando o histórico Gold do período selecionado.
+                                Consultando o histórico operacional.
                             </p>
                         </div>
                         <div class="campo largo">
-                            <label for="cenario">Cenário operacional demonstrativo</label>
+                            <label for="cenario">Cenário de demonstração</label>
                             <select id="cenario">
                                 <option value="normal">Operação regular</option>
                                 <option value="pico" selected>Pico de audiência</option>
@@ -78,8 +83,8 @@
                             </select>
                         </div>
                         <div class="informacao-filtro">
-                            <span class="etiqueta-demo">INDICADORES OPERACIONAIS DEMONSTRATIVOS</span>
-                            <span>O período seleciona a janela de consulta do histórico Gold.</span>
+                            <span class="etiqueta-demo">INDICADORES OPERACIONAIS</span>
+                            <span>Selecione o período de análise da infraestrutura.</span>
                         </div>
                     </div>
                     <div class="visao-geral">
@@ -122,7 +127,7 @@
                             <strong id="kpiRisk">—</strong>
 
                             <p class="observacao-indicador" id="kpiRiskNote">
-                                Aguardando histórico Gold
+                                Carregando histórico operacional
                             </p>
                         </article>
 
@@ -150,10 +155,10 @@
                 <section class="secao" id="billing">
                     <div class="titulo-secao">
                         <div>
-                            <h2>Previsão de custos em nuvem</h2>
+                            <h2>Gestão de custos em nuvem</h2>
                             <p>Simule decisões de capacidade e orçamento. Ajuste nós adicionais, armazenamento e
                                 transferência de dados.</p>
-                        </div><span class="etiqueta-demo">SIMULAÇÃO FINANCEIRA · NÃO É AWS BILLING</span>
+                        </div><span class="etiqueta-demo">BILLING ESTIMADO</span>
                     </div>
                     <div class="grade-custos">
                         <div class="cartao resultado-custos">
@@ -166,32 +171,32 @@
                             <div class="cartoes-custos">
                                 <div class="subcartao-custo"><label>Configuração de referência</label><strong
                                         id="billingBase">—</strong><small>8 nós + recursos de referência</small></div>
-                                <div class="subcartao-custo enfase"><label>Variação da simulação</label><strong
+                                <div class="subcartao-custo enfase"><label>Variação de custos</label><strong
                                         id="billingDelta">—</strong><small id="billingDeltaPct">Em relação à
                                         referência</small></div>
                             </div>
                             <div aria-label="Composição estimada dos custos" class="barra-custos" id="billingStack">
                             </div>
                             <div class="linhas-custos" id="billingRows"></div>
-                            <p class="observacao-calculo">CPU e RAM recebem parcelas do custo EC2 conforme o rateio
-                                definido pelo gestor; não são tarifas separadas da AWS. A projeção considera horas de
-                                instância, armazenamento e transferência. EC2 e EBS podem utilizar o catálogo público
-                                da AWS; preço de rede e câmbio continuam sendo premissas informadas pelo gestor.
-                                <strong>Não representa fatura real.</strong>
+                            <p class="observacao-calculo">
+                                Os custos são projetados com base nas tarifas públicas da AWS
+                                e na capacidade de infraestrutura selecionada.
                             </p>
                         </div>
                         <div class="cartao formulario-custos">
-                            <h3>Simulador de decisão financeira</h3>
-                            <p>Compare quanto custaria manter a infraestrutura ou expandi-la para lidar com um pico.
-                                Nenhuma alteração real é aplicada.</p>
+                            <h3>Simulador de investimentos</h3>
+
+                            <p>
+                                Avalie o impacto financeiro de diferentes configurações
+                                de infraestrutura antes de realizar novos investimentos.
+                            </p>
                             <div class="controle">
                                 <div class="cabecalho-controle"><label for="extraNodes">Nós computacionais
                                         adicionais</label><output id="extraNodesText">0 nó(s)</output></div><input
                                     id="extraNodes" max="6" min="0" step="1" type="range" value="2" />
                                 <p>
-                                    Modelo financeiro com referência de 8 instâncias.
-                                    Cada instância adicional aumenta o custo mensal estimado.
-                                    Essa quantidade é uma premissa de simulação.
+                                    O cenário de referência considera 8 servidores. Ajuste a capacidade para avaliar os
+                                    custos de expansão.
                                 </p>
                             </div>
                             <div class="controle">
@@ -208,10 +213,11 @@
                             </div>
                             <div class="avaliacao-cenario" id="billingEvaluation">—</div>
                             <details class="premissas">
-                                <summary>Ver e editar as premissas do modelo ↘</summary>
-                                <p>As tarifas de EC2 e EBS serão atualizadas pela API
-                                    <code>/gestor/precos</code>. Até a confirmação da consulta, os valores exibidos são
-                                    referências de simulação. Tráfego e câmbio permanecem editáveis.
+                                <summary>Configurações de custos ↘</summary>
+                                <p>
+                                    As tarifas de computação e armazenamento são consultadas
+                                    no catálogo AWS. Os valores de transferência de dados
+                                    e câmbio podem ser ajustados conforme o planejamento.
                                 </p>
                                 <div class="grade-premissas"><label>USD por nó/hora <input id="priceNode" max="10"
                                             min="0" step="0.0001" type="number" value="0.0104" /></label><label>Horas
@@ -230,8 +236,8 @@
                     <div class="cartao painel-orcamento">
                         <h3>Planejamento financeiro</h3>
                         <p class="descricao-orcamento">
-                            Defina o orçamento mensal, distribua seus limites por componente e acompanhe
-                            os custos estimados da infraestrutura. As configurações são salvas neste navegador.
+                            Defina como o custo computacional será distribuído
+                            entre processamento e memória para análise orçamentária.
                         </p>
 
                         <div class="campos-orcamento">
@@ -284,13 +290,13 @@
 
                             <div class="campos-orcamento">
                                 <label for="rateioCpu">
-                                    Participação da CPU no custo EC2 (%)
+                                    Participação da CPU no custo computacional (%)
                                     <input type="number" id="rateioCpu" min="0" max="100" step="1" value="60">
                                 </label>
                             </div>
                             <p class="descricao-orcamento">
-                                CPU e RAM dividem o custo total das instâncias EC2. O percentual restante do rateio
-                                é atribuído à RAM; isso não representa cobrança separada da AWS.
+                                Defina como o custo computacional será distribuído entre processamento e memória para
+                                análise orçamentária.
                             </p>
                         </details>
                         <!-- Fim das configurações avançadas -->
@@ -316,18 +322,17 @@
                             </summary>
 
                             <p class="descricao-orcamento">
-                                Consulte como o custo estimado está distribuído
-                                entre CPU, RAM, armazenamento e rede.
-
-                                Os valores de CPU e RAM representam um rateio
-                                do custo computacional, não cobranças separadas da AWS.
+                                Acompanhe a distribuição dos custos projetados entre
+                                processamento, memória, armazenamento e transferência
+                                de dados. Processamento e memória são parcelas do
+                                custo computacional.
                             </p>
 
                             <div id="custosComponentes" aria-live="polite"></div>
 
                         </details>
 
-                        <h3 class="titulo-previsao">Insights financeiros</h3>
+                        <h3 class="titulo-previsao">Análise financeira</h3>
                         <div id="insightsFinanceiros" aria-live="polite"></div>
                         <p id="statusFinanceiro" class="descricao-orcamento" role="status" aria-live="polite">
                             Aguardando atualização da simulação financeira.
@@ -336,9 +341,9 @@
                         <h3 class="titulo-previsao">Previsão financeira — próximos 3 meses</h3>
                         <div id="previsaoMensal" class="previsao-mensal"></div>
                         <p class="descricao-orcamento">
-                            Projeção baseada no crescimento informado para armazenamento e tráfego.
-                            Quantidade de servidores, tarifas e câmbio são mantidos constantes no cenário.
-                            Os custos são estimativas gerenciais, não uma fatura da AWS.
+                            Projeção baseada no crescimento previsto de armazenamento
+                            e transferência de dados, mantendo as demais condições
+                            do cenário selecionado.
                         </p>
                     </div>
 
@@ -353,7 +358,7 @@
                                     <h3>Impacto de decisões de expansão</h3>
                                     <p>Projeção comparativa com as mesmas premissas e volumes de armazenamento/tráfego
                                         configurados acima.</p>
-                                </div><span class="texto-pequeno">R$/mês • valores ilustrativos</span>
+                                </div><span class="texto-pequeno">R$/mês • custos projetados</span>
                             </div>
                             <div class="colunas-projecao" id="forecastBars"></div>
                             <p class="descricao-projecao">Aumentar servidores pode melhorar a capacidade disponível, mas
@@ -366,13 +371,13 @@
                 <section class="secao" id="decisoes">
                     <div class="titulo-secao">
                         <div>
-                            <h2>Decisões em avaliação</h2>
+                            <h2>Recomendações estratégicas</h2>
                             <p>
-                                Riscos identificados no histórico Gold e alternativas
+                                Riscos identificados no histórico operacional e alternativas
                                 que podem exigir investimento financeiro.
                             </p>
-                        </div><span class="dica-secao">As recomendações são hipóteses baseadas em regras, não
-                            diagnósticos automáticos.</span>
+                        </div><span class="dica-secao">As recomendações orientam a avaliação de investimentos e devem
+                            ser validadas pela equipe técnica.</span>
                     </div>
                     <div class="estrutura-decisoes">
                         <div class="lista-decisoes" id="decisionList"></div>
@@ -426,22 +431,13 @@
 
                 </section>
                 <p class="nota-rodape">
+                    <strong>Metodologia:</strong>
 
-                    <strong>Fontes e limitações:</strong>
-
-                    Os indicadores operacionais utilizam métricas históricas
-                    consultadas no Data Lake Gold.
-
-                    As médias e os picos representam o período selecionado,
-                    não necessariamente a condição atual dos servidores.
-
-                    Os custos são estimativas gerenciais calculadas com
-                    tarifas AWS e premissas configuradas no simulador.
-
-                    As alternativas de investimento são hipóteses para
-                    avaliação e não representam recomendações automáticas
-                    de contratação.
-
+                    Os indicadores operacionais consideram o histórico
+                    do período selecionado. As projeções financeiras utilizam
+                    tarifas públicas da AWS e parâmetros de infraestrutura
+                    definidos pelo gestor. As recomendações apoiam a avaliação
+                    de investimentos e o planejamento estratégico.
                 </p>
 
                 <div class="mensagem-flutuante" hidden="" id="toast" role="status"></div>

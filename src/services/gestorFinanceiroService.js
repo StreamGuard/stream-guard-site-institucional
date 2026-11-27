@@ -171,8 +171,9 @@ function calcular(dados, precos) {
         if (diferenca > 0) {
 
             insights.push(
-                nome + " ultrapassou o orçamento em R$ " +
-                diferenca.toFixed(2)
+                nome + ": custo projetado acima do orçamento em " +
+                diferenca.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) +
+                ". Avalie a distribuição orçamentária."
             );
         }
 
