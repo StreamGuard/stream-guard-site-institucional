@@ -34,33 +34,86 @@
                 <nav class="navegacao-gerencial" aria-label="Navegação gerencial">
 
                     <button type="button" class="aba-gerencial ativo" data-tab="executivo" aria-pressed="true">
-                        Visão Gerencial
+                        Visão executiva
                     </button>
 
                     <button type="button" class="aba-gerencial" data-tab="decisoes" aria-pressed="false">
-                        Decisões e Relatórios
+                        Decisões e relatórios
                     </button>
 
                 </nav>
 
                 <section class="secao" id="resumo">
                     <div class="cabecalho-pagina">
-                        <span class="rotulo-superior">
-                            ◉ INTELIGÊNCIA FINANCEIRA PARA STREAMING
-                        </span>
-
-                        <h1>Gestão de Custos e Investimentos</h1>
-
-                        <p>
-                            Acompanhe os custos da infraestrutura, antecipe despesas
-                            e planeje investimentos com maior segurança financeira.
-                        </p>
-                        <div class="acoes"><button class="botao" id="buttonMethod" type="button">ⓘ   Entenda os
+                        <div class="titulo-executivo">
+                            <h1>Visão executiva</h1>
+                            <p>Planeje custos e avalie investimentos em infraestrutura.</p>
+                        </div>
+                        <div class="acoes"><button class="botao" id="buttonMethod" type="button">ⓘ   Sobre os
                                 indicadores</button></div>
+                    </div>
+                    <div class="visao-geral">
+
+                        <!-- Custo mensal -->
+                        <article class="cartao cartao-indicador destaque">
+                            <div class="titulo-indicador">
+                                Custo mensal projetado
+                                <span class="icone-indicador">$</span>
+                            </div>
+
+                            <strong id="kpiCost">—</strong>
+
+                            <p class="observacao-indicador" id="kpiCostNote">
+                                Aguardando simulação financeira
+                            </p>
+                        </article>
+
+                        <!-- Saldo financeiro -->
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">
+                                Saldo previsto
+                                <span class="icone-indicador">↗</span>
+                            </div>
+
+                            <strong id="kpiMain">—</strong>
+
+                            <p class="observacao-indicador" id="kpiMainNote">
+                                Aguardando cálculo financeiro
+                            </p>
+                        </article>
+
+                        <!-- Comprometimento do orçamento -->
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">
+                                Orçamento comprometido
+                                <span class="icone-indicador">%</span>
+                            </div>
+
+                            <strong id="kpiBudget">—</strong>
+
+                            <p class="observacao-indicador">
+                                Parcela projetada do orçamento mensal
+                            </p>
+                        </article>
+
+                        <!-- Riscos históricos -->
+                        <article class="cartao cartao-indicador">
+                            <div class="titulo-indicador">
+                                Servidores em atenção
+                                <span class="icone-indicador">⚠</span>
+                            </div>
+
+                            <strong id="kpiRisk">—</strong>
+
+                            <p class="observacao-indicador" id="kpiRiskNote">
+                                Carregando histórico operacional
+                            </p>
+                        </article>
+
                     </div>
                     <div class="barra-filtros">
                         <div class="campo">
-                            <span id="rotuloPeriodoGestor">Período de análise operacional</span>
+                            <span id="rotuloPeriodoGestor">Histórico operacional</span>
                             <div id="filtroPeriodoGestor" class="grupo-periodo-gerencial" role="group"
                                 aria-labelledby="rotuloPeriodoGestor">
                                 <button type="button" class="botao-periodo ativo" data-periodo="24h"
@@ -84,81 +137,22 @@
                         </div>
                         <div class="informacao-filtro">
                             <span class="etiqueta-demo">INDICADORES OPERACIONAIS</span>
-                            <span>Selecione o período de análise da infraestrutura.</span>
+                            <span>O período afeta somente os indicadores operacionais.</span>
                         </div>
-                    </div>
-                    <div class="visao-geral">
-
-                        <!-- Custo mensal -->
-                        <article class="cartao cartao-indicador destaque">
-                            <div class="titulo-indicador">
-                                Custo mensal estimado
-                                <span class="icone-indicador">$</span>
-                            </div>
-
-                            <strong id="kpiCost">—</strong>
-
-                            <p class="observacao-indicador" id="kpiCostNote">
-                                Aguardando simulação financeira
-                            </p>
-                        </article>
-
-                        <!-- Saldo financeiro -->
-                        <article class="cartao cartao-indicador">
-                            <div class="titulo-indicador">
-                                Saldo do orçamento
-                                <span class="icone-indicador">↗</span>
-                            </div>
-
-                            <strong id="kpiMain">—</strong>
-
-                            <p class="observacao-indicador" id="kpiMainNote">
-                                Aguardando cálculo financeiro
-                            </p>
-                        </article>
-
-                        <!-- Riscos históricos -->
-                        <article class="cartao cartao-indicador">
-                            <div class="titulo-indicador">
-                                Servidores com alertas
-                                <span class="icone-indicador">⚠</span>
-                            </div>
-
-                            <strong id="kpiRisk">—</strong>
-
-                            <p class="observacao-indicador" id="kpiRiskNote">
-                                Carregando histórico operacional
-                            </p>
-                        </article>
-
-                        <!-- Alternativas gerenciais -->
-                        <article class="cartao cartao-indicador">
-                            <div class="titulo-indicador">
-                                Alternativas para análise
-                                <span class="icone-indicador">▣</span>
-                            </div>
-
-                            <strong id="kpiComp">—</strong>
-
-                            <p class="observacao-indicador" id="kpiCompNote">
-                                Decisões sugeridas a partir dos riscos
-                            </p>
-                        </article>
-
                     </div>
                     <div class="aviso"><span class="icone-aviso">!</span>
                         <div><b id="noticeTitle">Riscos e oportunidades identificados</b>
                             <p id="noticeDesc">Veja as recomendações organizadas por prioridade e evidência.</p>
-                        </div><a href="#decisoes">Ver decisões sugeridas →</a>
+                        </div><a href="#decisoes">Avaliar investimentos →</a>
                     </div>
                 </section>
                 <section class="secao" id="billing">
                     <div class="titulo-secao">
                         <div>
-                            <h2>Gestão de custos em nuvem</h2>
+                            <h2>Gestão de custos</h2>
                             <p>Simule decisões de capacidade e orçamento. Ajuste nós adicionais, armazenamento e
                                 transferência de dados.</p>
-                        </div><span class="etiqueta-demo">BILLING ESTIMADO</span>
+                        </div><span class="etiqueta-demo">CUSTOS PROJETADOS</span>
                     </div>
                     <div class="grade-custos">
                         <div class="cartao resultado-custos">
@@ -234,10 +228,10 @@
                     </div>
 
                     <div class="cartao painel-orcamento">
-                        <h3>Planejamento financeiro</h3>
+                        <h3>Planejamento orçamentário</h3>
                         <p class="descricao-orcamento">
-                            Defina como o custo computacional será distribuído
-                            entre processamento e memória para análise orçamentária.
+                            Defina o orçamento mensal e acompanhe
+                            o impacto dos investimentos planejados.
                         </p>
 
                         <div class="campos-orcamento">
@@ -307,7 +301,7 @@
                                 <strong id="orcamentoPercentual">—</strong>
                             </div>
                             <div>
-                                <small>Saldo do orçamento</small>
+                                <small>Saldo previsto</small>
                                 <strong id="orcamentoSaldo">—</strong>
                             </div>
                         </div>
@@ -338,7 +332,7 @@
                             Aguardando atualização da simulação financeira.
                         </p>
 
-                        <h3 class="titulo-previsao">Previsão financeira — próximos 3 meses</h3>
+                        <h3 class="titulo-previsao">Projeção financeira — próximos 3 meses</h3>
                         <div id="previsaoMensal" class="previsao-mensal"></div>
                         <p class="descricao-orcamento">
                             Projeção baseada no crescimento previsto de armazenamento

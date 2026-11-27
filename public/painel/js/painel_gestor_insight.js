@@ -234,8 +234,6 @@
         if (servidoresGold.length === 0) {
             $('kpiRisk').textContent = '—';
             $('kpiRiskNote').textContent = 'Histórico operacional indisponível';
-            $('kpiComp').textContent = '—';
-            $('kpiCompNote').textContent = 'Aguardando análise operacional';
             $('noticeTitle').textContent = 'Aguardando histórico operacional';
             $('noticeDesc').textContent = 'Os riscos serão analisados após a atualização do histórico operacional.';
             return;
@@ -268,18 +266,16 @@
         if (riscoArmazenamento) {
             alternativas++;
         }
-        $('kpiRisk').innerHTML = servidoresComAlertas + '<small> / ' + servidoresGold.length + '</small>';
-        $('kpiRiskNote').textContent = 'Médias ou picos acima dos limites no período';
-        $('kpiComp').textContent = alternativas;
-        $('kpiCompNote').textContent = 'Categorias de investimento para avaliar';
+        $('kpiRisk').textContent = servidoresComAlertas + ' de ' + servidoresGold.length;
+        $('kpiRiskNote').textContent = 'Alertas no período selecionado';
         if (alternativas > 0) {
-            $('noticeTitle').textContent = alternativas + ' alternativa(s) de investimento para análise';
+            $('noticeTitle').textContent = alternativas + ' investimento(s) a avaliar';
             $('noticeDesc').textContent =
                 servidoresComAlertas +
                 ' servidor(es) apresentaram alertas históricos. ' +
                 'Consulte as decisões sugeridas e avalie o impacto financeiro.';
         } else {
-            $('noticeTitle').textContent = 'Nenhum risco acima dos limites identificado';
+            $('noticeTitle').textContent = 'Nenhum alerta operacional identificado';
             $('noticeDesc').textContent =
                 'As métricas disponíveis não indicaram ultrapassagens ' +
                 'dos limites de CPU, RAM ou disco no período.';
@@ -341,6 +337,7 @@
         $('custosComponentes').innerHTML = '';
         $('insightsFinanceiros').innerHTML = '';
         $('orcamentoPercentual').textContent = '—';
+        $('kpiBudget').textContent = $('orcamentoPercentual').textContent;
         $('orcamentoSaldo').textContent = '—';
         $('orcamentoSituacao').textContent = 'Corrija os parâmetros financeiros.';
         $('orcamentoSituacao').style.color = 'var(--muted)';
@@ -580,7 +577,7 @@
         let alternativas = [
             {
                 chave: 'CPU',
-                descricao: 'Adicionar 1 instância computacional'
+                descricao: 'Adicionar 1 servidor'
             },
             {
                 chave: 'Disco',
@@ -690,6 +687,7 @@
             $('billingDeltaPct').textContent = 'Comparação indisponível';
             $('billingEvaluation').textContent = 'Não foi possível calcular a simulação.';
             $('orcamentoPercentual').textContent = '—';
+            $('kpiBudget').textContent = $('orcamentoPercentual').textContent;
             $('orcamentoSaldo').textContent = '—';
             $('orcamentoSituacao').textContent = 'Não foi possível calcular o orçamento.';
             $('orcamentoSituacao').style.color = 'var(--muted)';
@@ -836,7 +834,7 @@
         if (Number.isFinite(custoTotal)) {
             $('billingTotal').textContent = moedaReal(custoTotal);
             $('kpiCost').textContent = moedaReal(custoTotal);
-            $('kpiCostNote').textContent = 'Custo mensal projetado';
+            $('kpiCostNote').textContent = 'Conforme o cenário selecionado';
             // Converte para dólares usando o câmbio da simulação.
             let cambio = valorCampo('fx');
             if (cambio > 0) {
@@ -855,9 +853,9 @@
         ) {
             $('kpiMain').textContent = moedaReal(saldo);
             if (saldo >= 0) {
-                $('kpiMainNote').textContent = 'Disponível no orçamento informado';
+                $('kpiMainNote').textContent = 'Disponível após os custos projetados';
             } else {
-                $('kpiMainNote').textContent = 'Orçamento estimado ultrapassado';
+                $('kpiMainNote').textContent = 'Custos projetados acima do orçamento';
             }
         } else {
             $('kpiMain').textContent = '—';
@@ -866,6 +864,7 @@
         if (Number.isFinite(orcamentoTotal) && Number.isFinite(saldo) && orcamentoTotal > 0) {
             let percentual = custoTotal / orcamentoTotal * 100;
             $('orcamentoPercentual').textContent = numeroFormatado(percentual) + '%';
+            $('kpiBudget').textContent = $('orcamentoPercentual').textContent;
             $('orcamentoProgresso').value = Math.min(percentual, 100);
             $('orcamentoSaldo').textContent = saldo >= 0
                 ? moedaReal(saldo) + ' disponíveis'
@@ -884,6 +883,7 @@
         }
         else {
             $('orcamentoPercentual').textContent = '—';
+            $('kpiBudget').textContent = $('orcamentoPercentual').textContent;
             $('orcamentoSaldo').textContent = '—';
             $('orcamentoSituacao').textContent = 'Defina um orçamento mensal válido.';
             $('orcamentoSituacao').style.color = 'var(--muted)';
@@ -1199,6 +1199,7 @@
 
     function atualizarPlanejamento() {
         $('orcamentoPercentual').textContent = '—';
+        $('kpiBudget').textContent = $('orcamentoPercentual').textContent;
         $('orcamentoSaldo').textContent = '—';
         $('orcamentoSituacao').textContent = 'Atualizando análise financeira...';
         $('orcamentoSituacao').style.color = 'var(--muted)';
@@ -1675,7 +1676,7 @@
                 atualizarResumo();
                 atualizarDecisoes();
 
-                document.querySelector('.etiqueta-demo').textContent = 'INDICADORES OPERACIONAIS';
+                document.querySelector('#resumo .etiqueta-demo').textContent = 'INDICADORES OPERACIONAIS';
 
             } else {
                 // Não apresenta os indicadores demonstrativos como se fossem reais.
@@ -1687,15 +1688,13 @@
                 $('kpiRisk').textContent = '—';
                 $('kpiRiskNote').textContent = 'Sem dados no período';
 
-                $('kpiComp').textContent = '—';
-                $('kpiCompNote').textContent = 'Sem dados operacionais';
 
                 $('noticeTitle').textContent = 'Sem dados operacionais';
                 $('noticeDesc').textContent = 'Não foram encontradas métricas completas neste período.';
 
                 $('decisionList').innerHTML = '<p>Não há dados suficientes para gerar recomendações.</p>';
 
-                document.querySelector('.etiqueta-demo').textContent = 'SEM DADOS OPERACIONAIS NO PERÍODO';
+                document.querySelector('#resumo .etiqueta-demo').textContent = 'SEM DADOS OPERACIONAIS NO PERÍODO';
             }
 
             $('statusPeriodoGestor').textContent =
