@@ -125,14 +125,34 @@ async function buscarDados() {
         fs.readFileSync(caminho, "utf8")
     );
 
-    let historico = await gestorModel.buscarMetricasPeriodo(
-        config.empresaId,
-        config.periodo
-    );
+    let periodos = ["24h", "7d", "30d"];
+    let inicio = periodos.indexOf(config.periodo);
 
-    let resumo = consolidar(historico.metricas);
+    if (inicio === -1) {
+        throw new Error("Período inválido.");
+    }
 
-    if (resumo.total === 0) {
+    let resumo = null;
+    let periodoUtilizado = null;
+
+    for (let i = inicio; i < periodos.length; i++) {
+        let periodo = periodos[i];
+
+        let historico = await gestorModel.buscarMetricasPeriodo(
+            config.empresaId,
+            periodo
+        );
+
+        let resultado = consolidar(historico.metricas);
+
+        if (resultado.total > 0) {
+            resumo = resultado;
+            periodoUtilizado = periodo;
+            break;
+        }
+    }
+
+    if (resumo === null) {
         throw new Error("Histórico operacional indisponível.");
     }
 
@@ -144,6 +164,12 @@ async function buscarDados() {
     );
 
     let recomendacoes = [...financeiro.insights];
+
+    if (periodoUtilizado !== config.periodo) {
+        recomendacoes.push(
+            "Período de análise ampliado devido à disponibilidade do histórico."
+        );
+    }
 
     if (resumo.riscoComputacao) {
         recomendacoes.push(
@@ -178,7 +204,7 @@ async function buscarDados() {
         }),
 
         cenario: "Histórico operacional - " +
-            config.periodo + " | Projeção financeira programada",
+            periodoUtilizado + " | Projeção financeira programada",
 
         totalServidores: resumo.total,
         servidoresAtencao: resumo.atencao,
